@@ -299,3 +299,83 @@
     margin-bottom: 0.5rem;
     font-size: 0.9rem;
 }
+
+/* Fund Chart Styles */
+.fund-chart-wrapper {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.fund-chart {
+    width: 100%;
+    height: auto;
+    margin-bottom: 1rem;
+}
+
+.chart-point {
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.chart-point:hover {
+    r: 8;
+    filter: drop-shadow(0 0 4px rgba(0,102,204,0.5));
+}
+
+/* Chart Legend */
+.chart-legend {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: var(--gray-light);
+    border-radius: 4px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+}
+
+.legend-marker {
+    width: 20px;
+    height: 2px;
+    background: transparent;
+}
+
+/* Chart Summary Stats */
+.chart-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.summary-stat {
+    text-align: center;
+}
+
+.summary-label {
+    font-size: 0.85rem;
+    color: var(--gray-medium);
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.summary-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+}

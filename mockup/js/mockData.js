@@ -408,6 +408,90 @@ const mockData = {
         }
     },
 
+    // Fund depletion timeline for charting
+    fundDepletionTimeline: [
+        {
+            date: "2025-07-01",
+            remainingFunds: 25000000,
+            disbursed: 0,
+            encumbered: 0,
+            reserved: 0,
+            label: "Grant Cycle Start"
+        },
+        {
+            date: "2025-07-15",
+            remainingFunds: 25000000,
+            disbursed: 0,
+            encumbered: 0,
+            reserved: 0,
+            label: "Applications Open"
+        },
+        {
+            date: "2025-08-01",
+            remainingFunds: 24500000,
+            disbursed: 0,
+            encumbered: 0,
+            reserved: 500000,
+            label: "First Approvals"
+        },
+        {
+            date: "2025-08-15",
+            remainingFunds: 23500000,
+            disbursed: 0,
+            encumbered: 500000,
+            reserved: 1000000,
+            label: "GAAs Begin Signing"
+        },
+        {
+            date: "2025-09-01",
+            remainingFunds: 21200000,
+            disbursed: 1800000,
+            encumbered: 1200000,
+            reserved: 800000,
+            label: "First Payments"
+        },
+        {
+            date: "2025-09-15",
+            remainingFunds: 18400000,
+            disbursed: 3500000,
+            encumbered: 1800000,
+            reserved: 1300000,
+            label: "Payment Processing"
+        },
+        {
+            date: "2025-10-01",
+            remainingFunds: 14600000,
+            disbursed: 6200000,
+            encumbered: 2900000,
+            reserved: 1300000,
+            label: "Q1 Peak"
+        },
+        {
+            date: "2025-10-15",
+            remainingFunds: 11100000,
+            disbursed: 8400000,
+            encumbered: 4200000,
+            reserved: 1300000,
+            label: "High Volume Period"
+        },
+        {
+            date: "2025-11-01",
+            remainingFunds: 5450000,
+            disbursed: 9800000,
+            encumbered: 7600000,
+            reserved: 2150000,
+            label: "Continued Processing"
+        },
+        {
+            date: "2025-11-04",
+            remainingFunds: 4150000,
+            disbursed: 10200000,
+            encumbered: 8500000,
+            reserved: 2150000,
+            label: "Current (Today)"
+        }
+    ],
+
     // Notifications
     notifications: [
         {
