@@ -81,10 +81,7 @@ const Dashboard = {
 
             <div class="chart-container">
                 <div class="card-header">Fund Depletion Over Time</div>
-                <div class="chart-placeholder">
-                    Chart: Line graph showing fund depletion from July 2025 to present
-                    <br>(Would use Chart.js or similar in production)
-                </div>
+                ${this.renderFundDepletionChart()}
             </div>
         `;
     },
@@ -151,7 +148,10 @@ const Dashboard = {
         return 'good';
     },
 
-    formatCurrency(amount) {
+    formatCurrency(amount, short = false) {
+        if (short && amount >= 1000000) {
+            return `$${(amount / 1000000).toFixed(1)}M`;
+        }
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'USD',
@@ -244,5 +244,230 @@ const Dashboard = {
                 // In real app: would switch to Applications view with filter
             });
         });
+    },
+
+    renderFundDepletionChart() {
+        const timeline = mockData.fundDepletionTimeline;
+        if (!timeline || timeline.length === 0) {
+            return '<div class="chart-placeholder">No data available</div>';
+        }
+
+        // Chart dimensions
+        const width = 1000;
+        const height = 300;
+        const padding = { top: 20, right: 120, bottom: 60, left: 80 };
+        const chartWidth = width - padding.left - padding.right;
+        const chartHeight = height - padding.top - padding.bottom;
+
+        // Find min/max values for scaling
+        const maxFunds = Math.max(...timeline.map(d => d.remainingFunds));
+        const minFunds = 0;
+
+        // Create SVG path for the line
+        const points = timeline.map((d, i) => {
+            const x = padding.left + (i / (timeline.length - 1)) * chartWidth;
+            const y = padding.top + chartHeight - ((d.remainingFunds - minFunds) / (maxFunds - minFunds)) * chartHeight;
+            return { x, y, data: d };
+        });
+
+        const linePath = points.map((p, i) =>
+            `${i === 0 ? 'M' : 'L'} ${p.x},${p.y}`
+        ).join(' ');
+
+        // Create area fill path
+        const areaPath = `M ${padding.left},${padding.top + chartHeight} ` +
+            points.map(p => `L ${p.x},${p.y}`).join(' ') +
+            ` L ${padding.left + chartWidth},${padding.top + chartHeight} Z`;
+
+        // Generate Y-axis labels
+        const yAxisSteps = 5;
+        const yAxisLabels = Array.from({ length: yAxisSteps + 1 }, (_, i) => {
+            const value = maxFunds - (i * maxFunds / yAxisSteps);
+            const y = padding.top + (i * chartHeight / yAxisSteps);
+            return { value, y };
+        });
+
+        // Generate X-axis labels (show every other point to avoid crowding)
+        const xAxisLabels = points.filter((_, i) => i % 2 === 0 || i === points.length - 1).map(p => ({
+            x: p.x,
+            label: new Date(p.data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            isCurrent: p.data.label.includes('Current')
+        }));
+
+        return `
+            <div class="fund-chart-wrapper">
+                <svg viewBox="0 0 ${width} ${height}" class="fund-chart">
+                    <!-- Grid lines -->
+                    ${yAxisLabels.map(label => `
+                        <line x1="${padding.left}" y1="${label.y}"
+                              x2="${padding.left + chartWidth}" y2="${label.y}"
+                              stroke="#E9ECEF" stroke-width="1" />
+                    `).join('')}
+
+                    <!-- Area fill -->
+                    <path d="${areaPath}"
+                          fill="url(#gradient)"
+                          opacity="0.3" />
+
+                    <!-- Line -->
+                    <path d="${linePath}"
+                          stroke="#0066CC"
+                          stroke-width="3"
+                          fill="none"
+                          stroke-linecap="round"
+                          stroke-linejoin="round" />
+
+                    <!-- Data points -->
+                    ${points.map((p, i) => `
+                        <circle cx="${p.x}" cy="${p.y}" r="${i === points.length - 1 ? '6' : '4'}"
+                                fill="${i === points.length - 1 ? '#0066CC' : '#FFFFFF'}"
+                                stroke="#0066CC"
+                                stroke-width="2"
+                                class="chart-point"
+                                data-index="${i}">
+                            <title>${p.data.label}: ${this.formatCurrency(p.data.remainingFunds)}</title>
+                        </circle>
+                    `).join('')}
+
+                    <!-- Y-axis -->
+                    <line x1="${padding.left}" y1="${padding.top}"
+                          x2="${padding.left}" y2="${padding.top + chartHeight}"
+                          stroke="#6C757D" stroke-width="2" />
+
+                    <!-- Y-axis labels -->
+                    ${yAxisLabels.map(label => `
+                        <text x="${padding.left - 10}" y="${label.y + 5}"
+                              text-anchor="end"
+                              font-size="12"
+                              fill="#6C757D">
+                            ${this.formatCurrency(label.value, true)}
+                        </text>
+                    `).join('')}
+
+                    <!-- X-axis -->
+                    <line x1="${padding.left}" y1="${padding.top + chartHeight}"
+                          x2="${padding.left + chartWidth}" y2="${padding.top + chartHeight}"
+                          stroke="#6C757D" stroke-width="2" />
+
+                    <!-- X-axis labels -->
+                    ${xAxisLabels.map(label => `
+                        <text x="${label.x}" y="${padding.top + chartHeight + 25}"
+                              text-anchor="middle"
+                              font-size="12"
+                              fill="${label.isCurrent ? '#0066CC' : '#6C757D'}"
+                              font-weight="${label.isCurrent ? 'bold' : 'normal'}">
+                            ${label.label}
+                        </text>
+                    `).join('')}
+
+                    <!-- Current marker -->
+                    ${(() => {
+                        const current = points[points.length - 1];
+                        return `
+                            <line x1="${current.x}" y1="${padding.top}"
+                                  x2="${current.x}" y2="${padding.top + chartHeight}"
+                                  stroke="#0066CC"
+                                  stroke-width="2"
+                                  stroke-dasharray="5,5"
+                                  opacity="0.5" />
+                            <text x="${current.x + 10}" y="${current.y - 10}"
+                                  font-size="14"
+                                  font-weight="bold"
+                                  fill="#0066CC">
+                                TODAY
+                            </text>
+                        `;
+                    })()}
+
+                    <!-- Gradient definition -->
+                    <defs>
+                        <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#0066CC;stop-opacity:0.5" />
+                            <stop offset="100%" style="stop-color:#0066CC;stop-opacity:0.1" />
+                        </linearGradient>
+                    </defs>
+
+                    <!-- Y-axis label -->
+                    <text x="20" y="${padding.top + chartHeight / 2}"
+                          text-anchor="middle"
+                          font-size="13"
+                          font-weight="600"
+                          fill="#495057"
+                          transform="rotate(-90, 20, ${padding.top + chartHeight / 2})">
+                        Remaining Funds
+                    </text>
+
+                    <!-- X-axis label -->
+                    <text x="${padding.left + chartWidth / 2}" y="${height - 10}"
+                          text-anchor="middle"
+                          font-size="13"
+                          font-weight="600"
+                          fill="#495057">
+                        Timeline (FY 2025-26)
+                    </text>
+                </svg>
+
+                <!-- Legend -->
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, rgba(0,102,204,0.5) 0%, rgba(0,102,204,0.1) 100%);"></div>
+                        <span>Funds Depleted</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #0066CC;"></div>
+                        <span>Remaining Funds</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-marker" style="border: 2px dashed #0066CC;"></div>
+                        <span>Current Date</span>
+                    </div>
+                </div>
+
+                <!-- Summary stats below chart -->
+                <div class="chart-summary">
+                    <div class="summary-stat">
+                        <div class="summary-label">Depletion Rate</div>
+                        <div class="summary-value">${this.calculateDepletionRate(timeline)}</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="summary-label">Projected Depletion</div>
+                        <div class="summary-value">${this.calculateProjectedDepletion(timeline)}</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="summary-label">Total Committed</div>
+                        <div class="summary-value">${this.formatCurrency(timeline[0].remainingFunds - timeline[timeline.length - 1].remainingFunds)}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+
+    calculateDepletionRate(timeline) {
+        if (timeline.length < 2) return 'N/A';
+
+        const start = new Date(timeline[0].date);
+        const current = new Date(timeline[timeline.length - 1].date);
+        const daysElapsed = Math.floor((current - start) / (1000 * 60 * 60 * 24));
+        const fundsUsed = timeline[0].remainingFunds - timeline[timeline.length - 1].remainingFunds;
+        const dailyRate = fundsUsed / daysElapsed;
+
+        return this.formatCurrency(dailyRate) + '/day';
+    },
+
+    calculateProjectedDepletion(timeline) {
+        if (timeline.length < 2) return 'N/A';
+
+        const start = new Date(timeline[0].date);
+        const current = new Date(timeline[timeline.length - 1].date);
+        const daysElapsed = Math.floor((current - start) / (1000 * 60 * 60 * 24));
+        const fundsUsed = timeline[0].remainingFunds - timeline[timeline.length - 1].remainingFunds;
+        const dailyRate = fundsUsed / daysElapsed;
+        const remainingFunds = timeline[timeline.length - 1].remainingFunds;
+        const daysRemaining = Math.floor(remainingFunds / dailyRate);
+
+        const projectedDate = new Date(current);
+        projectedDate.setDate(projectedDate.getDate() + daysRemaining);
+
+        return projectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     }
 };
