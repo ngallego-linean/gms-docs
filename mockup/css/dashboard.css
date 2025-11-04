@@ -1,0 +1,301 @@
+/* Dashboard Specific Styles */
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.metric-card {
+    background-color: var(--white);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.metric-card.updating {
+    animation: pulse 0.5s ease-in-out;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.metric-label {
+    font-size: 0.85rem;
+    color: var(--gray-medium);
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gray-dark);
+    margin-bottom: 0.25rem;
+}
+
+.metric-subtext {
+    font-size: 0.85rem;
+    color: var(--gray-medium);
+}
+
+.metric-card.fund-low .metric-value {
+    color: var(--danger-red);
+}
+
+.metric-card.fund-warning .metric-value {
+    color: var(--warning-orange);
+}
+
+.metric-card.fund-good .metric-value {
+    color: var(--success-green);
+}
+
+/* Progress Bar */
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: var(--gray-light);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: var(--primary-blue);
+    transition: width 0.5s ease-out;
+}
+
+.progress-fill.low {
+    background-color: var(--danger-red);
+}
+
+.progress-fill.warning {
+    background-color: var(--warning-orange);
+}
+
+.progress-fill.good {
+    background-color: var(--success-green);
+}
+
+/* Chart Container */
+.chart-container {
+    background-color: var(--white);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.chart-placeholder {
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--gray-light);
+    border-radius: 4px;
+    color: var(--gray-medium);
+    font-style: italic;
+}
+
+/* Application Status Summary */
+.status-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.status-item {
+    text-align: center;
+    padding: 1rem;
+    background-color: var(--gray-light);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.status-item:hover {
+    background-color: #E9ECEF;
+    transform: translateY(-2px);
+}
+
+.status-item .count {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gray-dark);
+    display: block;
+}
+
+.status-item .label {
+    font-size: 0.85rem;
+    color: var(--gray-medium);
+    margin-top: 0.25rem;
+}
+
+/* State Machine Visualizer */
+.state-machine {
+    background-color: var(--white);
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.state-timeline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    margin: 2rem 0;
+}
+
+.state-timeline::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: var(--border-color);
+    z-index: 0;
+}
+
+.state-node {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.state-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--white);
+    border: 3px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    transition: all 0.3s;
+}
+
+.state-node.completed .state-circle {
+    background-color: var(--success-green);
+    border-color: var(--success-green);
+    color: var(--white);
+}
+
+.state-node.current .state-circle {
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
+    color: var(--white);
+    animation: pulseGlow 2s infinite;
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(0,102,204,0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 10px rgba(0,102,204,0);
+    }
+}
+
+.state-label {
+    font-size: 0.75rem;
+    text-align: center;
+    max-width: 80px;
+    font-weight: 500;
+}
+
+.state-node.current .state-label {
+    font-weight: 700;
+    color: var(--primary-blue);
+}
+
+/* State Actions */
+.state-actions {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.state-actions h4 {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+
+/* State History */
+.state-history {
+    margin-top: 2rem;
+}
+
+.history-item {
+    padding: 0.75rem;
+    border-left: 3px solid var(--primary-blue);
+    background-color: var(--gray-light);
+    margin-bottom: 0.5rem;
+    border-radius: 0 4px 4px 0;
+}
+
+.history-item .timestamp {
+    font-size: 0.85rem;
+    color: var(--gray-medium);
+}
+
+.history-item .user {
+    font-weight: 600;
+    color: var(--gray-dark);
+}
+
+.history-item .action {
+    margin-top: 0.25rem;
+}
+
+/* Fund Warning Alert */
+.fund-warning-alert {
+    background-color: #FFF3CD;
+    border: 1px solid #FFC107;
+    border-left: 4px solid #FFC107;
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.fund-warning-alert.danger {
+    background-color: #F8D7DA;
+    border-color: var(--danger-red);
+}
+
+.fund-warning-alert h4 {
+    color: #856404;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.fund-warning-alert.danger h4 {
+    color: #721C24;
+}
+
+.fund-warning-alert p {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}

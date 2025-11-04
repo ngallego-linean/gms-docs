@@ -1,0 +1,2474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTC Grant Management System - Project Plan & Technical Overview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        header {
+            border-bottom: 4px solid #0066cc;
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: #0066cc;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        h2 {
+            color: #0066cc;
+            font-size: 1.8em;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #0066cc;
+            font-size: 1.4em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        h4 {
+            color: #444;
+            font-size: 1.1em;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            margin-bottom: 15px;
+        }
+
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .timeline {
+            background: #f8f9fa;
+            border-left: 4px solid #0066cc;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .timeline-item {
+            margin-bottom: 30px;
+        }
+
+        .timeline-date {
+            font-weight: bold;
+            color: #0066cc;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .priority-high {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .priority-medium {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .priority-low {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .tech-card {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 20px;
+            border-radius: 4px;
+        }
+
+        .tech-card h4 {
+            color: #0066cc;
+            margin-top: 0;
+        }
+
+        .workflow-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .workflow-column {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 4px;
+        }
+
+        .workflow-column h4 {
+            color: #0066cc;
+            margin-top: 0;
+        }
+
+        .as-is {
+            border-left: 4px solid #dc3545;
+        }
+
+        .to-be {
+            border-left: 4px solid #28a745;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .feature-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            padding: 20px;
+            border-radius: 4px;
+        }
+
+        .feature-card h4 {
+            color: #0066cc;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .status-complete {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-in-progress {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-planned {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .toc {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+
+        .toc h3 {
+            margin-top: 0;
+        }
+
+        .toc ul {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .toc a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "Courier New", monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #dee2e6;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #0066cc;
+        }
+
+        .alert {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .diagram-container {
+            background: white;
+            padding: 20px;
+            margin: 30px 0;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+
+        .diagram-container svg {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .diagram-title {
+            font-weight: bold;
+            font-size: 1.3em;
+            color: #0066cc;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .diagram-subtitle {
+            font-size: 0.9em;
+            color: #666;
+            text-align: center;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .diagram-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #0066cc;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+                padding: 20px;
+            }
+
+            .workflow-comparison {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>CTC Grant Management System</h1>
+            <p class="subtitle">Project Plan & Technical Overview</p>
+            <p><strong>Target Go-Live:</strong> April 1, 2026 (Student Teacher Stipend Program)</p>
+            <p><strong>Phase 2 Go-Live:</strong> April 1, 2027 (Multi-Grant Platform)</p>
+            <p><strong>Last Updated:</strong> October 24, 2025</p>
+        </header>
+
+        <div class="toc">
+            <h3>Table of Contents</h3>
+            <ul>
+                <li><a href="#executive-summary">1. Executive Summary</a></li>
+                <li><a href="#project-goals">2. Project Goals & Vision</a></li>
+                <li><a href="#workflow-transformation">3. Workflow Transformation</a></li>
+                <li><a href="#technical-approach">4. Technical Approach</a></li>
+                <li><a href="#architecture">5. System Architecture</a></li>
+                <li><a href="#pack-configuration">6. Grant Pack Configuration Guide</a></li>
+                <li><a href="#delivery-phases">7. Phased Delivery Plan</a></li>
+                <li><a href="#gov-priorities">8. Government-Core Priorities</a></li>
+                <li><a href="#risk-mitigation">9. Risk Mitigation</a></li>
+                <li><a href="#acceptance-criteria">10. Acceptance Criteria</a></li>
+            </ul>
+        </div>
+
+        <section id="executive-summary">
+            <h2>1. Executive Summary</h2>
+
+            <p>The California Commission on Teacher Credentialing (CTC) Grant Management System (GMS) will transform how CTC manages grant programs—replacing manual Excel-based workflows with a modern, config-driven web application.</p>
+
+            <div class="alert alert-info">
+                <strong>Key Innovation:</strong> The system is built on a "grant pack" architecture, where each grant type is defined through versioned configuration (not code). This allows CTC to add new grants without software development, dramatically reducing time-to-market and maintenance costs.
+            </div>
+
+            <h3>Impact Summary</h3>
+            <ul>
+                <li><strong>Efficiency:</strong> Eliminate email-based application workflows and manual data entry</li>
+                <li><strong>Accuracy:</strong> Automated validations replace error-prone spreadsheet formulas</li>
+                <li><strong>Transparency:</strong> Real-time status tracking and public reporting</li>
+                <li><strong>Auditability:</strong> Complete audit trail with temporal tables and immutable records</li>
+                <li><strong>Scalability:</strong> Support 10,000+ applications per cycle with 500+ concurrent users</li>
+                <li><strong>Accessibility:</strong> WCAG 2.1 AA compliant with multi-language support</li>
+            </ul>
+
+            <h3>Delivery Timeline</h3>
+            <ul>
+                <li><strong>April 1, 2026:</strong> Student Teacher Stipend Program (STSP) live in production</li>
+                <li><strong>April 1, 2027:</strong> Second grant + generalizable platform with Pack Builder</li>
+                <li><strong>Beyond 2027:</strong> Full self-service grant authoring and advanced analytics</li>
+            </ul>
+        </section>
+
+        <section id="project-goals">
+            <h2>2. Project Goals & Vision</h2>
+
+            <h3>Primary Objectives</h3>
+            <ol>
+                <li><strong>Digitize Grant Lifecycle:</strong> Replace Excel workbooks with web-based forms and workflows</li>
+                <li><strong>Reduce Manual Effort:</strong> Automate validations, calculations, notifications, and reporting</li>
+                <li><strong>Enable Self-Service:</strong> Allow CTC staff to configure new grants without developer involvement</li>
+                <li><strong>Improve Data Quality:</strong> Enforce validation rules and prevent common data entry errors</li>
+                <li><strong>Enhance Transparency:</strong> Provide real-time status tracking and public reporting</li>
+                <li><strong>Ensure Compliance:</strong> Meet all statutory reporting requirements with complete audit trails</li>
+            </ol>
+
+            <h3>Success Metrics</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Baseline (Current)</th>
+                        <th>Target (Year 1)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Application processing time</td>
+                        <td>3-5 days</td>
+                        <td>&lt; 1 day</td>
+                    </tr>
+                    <tr>
+                        <td>Data entry errors</td>
+                        <td>~15% require corrections</td>
+                        <td>&lt; 3%</td>
+                    </tr>
+                    <tr>
+                        <td>Time to launch new grant</td>
+                        <td>6-12 months (dev cycle)</td>
+                        <td>&lt; 2 weeks (config)</td>
+                    </tr>
+                    <tr>
+                        <td>LEA satisfaction</td>
+                        <td>Baseline survey</td>
+                        <td>&gt; 80% satisfied</td>
+                    </tr>
+                    <tr>
+                        <td>Staff time on data entry</td>
+                        <td>~40 hrs/week</td>
+                        <td>&lt; 10 hrs/week</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="workflow-transformation">
+            <h2>3. Workflow Transformation</h2>
+
+            <div class="workflow-comparison">
+                <div class="workflow-column as-is">
+                    <h4>As-Is (Current State)</h4>
+                    <ol>
+                        <li>CTC posts grant info on website</li>
+                        <li>LEA emails cover page to grant-specific inbox</li>
+                        <li>CTC manually emails custom Excel workbook</li>
+                        <li>LEA fills workbook offline (may take weeks)</li>
+                        <li>LEA gathers demographics via Google Forms</li>
+                        <li>LEA emails completed workbook back</li>
+                        <li>CTC manually reviews workbook</li>
+                        <li>CTC sends DocuSign via email</li>
+                        <li>Upon signature, CTC manually enters data into Fiscal</li>
+                        <li>Annual survey via Excel tab</li>
+                        <li>LEA emails completed survey</li>
+                        <li>CTC manually compiles reports</li>
+                    </ol>
+                    <p><strong>Pain Points:</strong></p>
+                    <ul>
+                        <li>Email bottlenecks</li>
+                        <li>Version control issues</li>
+                        <li>Manual data entry errors</li>
+                        <li>Duplicate LEA info across grants</li>
+                        <li>Difficult to track status</li>
+                        <li>Time-consuming compilation</li>
+                    </ul>
+                </div>
+
+                <div class="workflow-column to-be">
+                    <h4>To-Be (Future State)</h4>
+                    <ol>
+                        <li>LEA POC registers account (one-time)</li>
+                        <li>System auto-fills LEA profile from registry</li>
+                        <li>LEA discovers eligible grants in-app</li>
+                        <li>LEA applies via web forms with real-time validation</li>
+                        <li>System emails secure links to participants for demographics</li>
+                        <li>LEA submits application in-app</li>
+                        <li>Automated validations + reviewer queue for manual checks</li>
+                        <li>System generates and sends DocuSign automatically</li>
+                        <li>On signature, status advances; data ready for export</li>
+                        <li>Annual survey reminder + in-app form</li>
+                        <li>Survey completion gates final 10% disbursement</li>
+                        <li>Real-time reports and public dashboards</li>
+                    </ol>
+                    <p><strong>Benefits:</strong></p>
+                    <ul>
+                        <li>No email friction</li>
+                        <li>Single source of truth</li>
+                        <li>Automated validations</li>
+                        <li>LEA data reused</li>
+                        <li>Real-time status</li>
+                        <li>Instant reporting</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="technical-approach">
+            <h2>4. Technical Approach</h2>
+
+            <h3>Core Innovation: Grant Packs (Config-as-Code)</h3>
+
+            <p>Each grant type is defined as a versioned, immutable "pack" consisting of:</p>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>schema.json</h4>
+                    <p>JSON Schema defining data structure, types, and constraints (e.g., required fields, min/max values, patterns)</p>
+                </div>
+                <div class="feature-card">
+                    <h4>ui.json</h4>
+                    <p>UI layout mapping to Telerik components (grids, forms, wizards) with widget options and conditional visibility</p>
+                </div>
+                <div class="feature-card">
+                    <h4>rules.json</h4>
+                    <p>Validation rules (blocking and warnings) plus eligibility logic expressed in JsonLogic or CEL</p>
+                </div>
+                <div class="feature-card">
+                    <h4>formulas.json</h4>
+                    <p>Computed fields as a DAG (e.g., SUM, ratios, per-participant totals) evaluated client and server</p>
+                </div>
+                <div class="feature-card">
+                    <h4>workflow.json</h4>
+                    <p>State machine defining application states, transitions, guards, and DocuSign template mappings</p>
+                </div>
+                <div class="feature-card">
+                    <h4>surveys.json</h4>
+                    <p>Annual/periodic survey definitions with schemas, schedules, and disbursement gates</p>
+                </div>
+                <div class="feature-card">
+                    <h4>exports.json</h4>
+                    <p>Fiscal export specifications (columns, formats) and public report definitions</p>
+                </div>
+                <div class="feature-card">
+                    <h4>pack.json</h4>
+                    <p>Metadata: ID, SemVer, compatibility flags, and provenance information</p>
+                </div>
+            </div>
+
+            <div class="alert alert-success">
+                <strong>Key Benefit:</strong> Once the engine is built, adding a new grant is configuration work (days/weeks), not software development (months). Each application is permanently bound to its pack version for auditability.
+            </div>
+
+            <h3>Technology Stack</h3>
+
+            <div class="tech-stack">
+                <div class="tech-card">
+                    <h4>Backend</h4>
+                    <ul>
+                        <li>ASP.NET Core 9 MVC</li>
+                        <li>Entity Framework Core</li>
+                        <li>SQL Server (temporal tables, ledger tables)</li>
+                        <li>CTC In-House Framework (IAM, email, logging)</li>
+                    </ul>
+                </div>
+                <div class="tech-card">
+                    <h4>Frontend</h4>
+                    <ul>
+                        <li>Telerik UI for ASP.NET Core</li>
+                        <li>Razor Views</li>
+                        <li>Kendo Validator (client-side)</li>
+                        <li>JavaScript (JsonLogic/CEL evaluator)</li>
+                    </ul>
+                </div>
+                <div class="tech-card">
+                    <h4>Data Layer</h4>
+                    <ul>
+                        <li>Hybrid schema: normalized + JSON extensions</li>
+                        <li>Temporal tables for audit history</li>
+                        <li>Ledger tables for immutability</li>
+                        <li>Computed columns + filtered indexes for JSON</li>
+                    </ul>
+                </div>
+                <div class="tech-card">
+                    <h4>Integrations</h4>
+                    <ul>
+                        <li>CTC IAM (authentication/authorization)</li>
+                        <li>LEA Registry (organization prefill)</li>
+                        <li>DocuSign API (via CTC NuGet client)</li>
+                        <li>Fiscal System (CSV export → API later)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Data Model Strategy</h3>
+
+            <p>We use a <strong>hybrid approach</strong> to balance queryability with flexibility:</p>
+
+            <ul>
+                <li><strong>Normalized tables:</strong> Core entities (Grants, LEAs, Participants, Awards, Disbursements, Attachments)</li>
+                <li><strong>JSON extensions:</strong> Grant-specific fields stored in <code>Data</code> column (nvarchar(max) with ISJSON check)</li>
+                <li><strong>Computed columns:</strong> Hot JSON paths extracted as persisted computed columns with filtered indexes</li>
+                <li><strong>Temporal tables:</strong> Automatic history for Organizations, Applications, Awards, Reviews</li>
+                <li><strong>Ledger tables:</strong> Append-only for ApplicationSubmissions, Payments, Amendments</li>
+            </ul>
+
+            <pre><code>-- Example: Extracting a hot JSON path for indexing
+ALTER TABLE dbo.Application
+ADD ApplicantEIN AS JSON_VALUE([Data], '$.applicant.ein') PERSISTED;
+
+CREATE INDEX IX_Application_EIN
+ON dbo.Application(ApplicantEIN)
+WHERE ApplicantEIN IS NOT NULL;</code></pre>
+
+            <h3>Expression Engine (JsonLogic / CEL)</h3>
+
+            <p>Both client and server evaluate the same expressions for:</p>
+            <ul>
+                <li>Field validations (e.g., "EIN must be exactly 9 digits")</li>
+                <li>Cross-field rules (e.g., "Total budget must be ≤ $25,000")</li>
+                <li>Computed fields (e.g., "Total = SUM(line_items[].amount)")</li>
+                <li>Eligibility checks (e.g., "LEA.StudentCount > 500 AND Program IN ['STSP', 'NBPTS']")</li>
+            </ul>
+
+            <p><strong>Example JsonLogic rule:</strong></p>
+            <pre><code>{
+  "rules": [
+    {
+      "when": "SUBMIT",
+      "error": "Total budget must be ≤ $25,000",
+      "expr": {
+        "<=": [
+          { "var": "totals.budget_sum" },
+          25000
+        ]
+      }
+    }
+  ]
+}</code></pre>
+        </section>
+
+        <section id="architecture">
+            <h2>5. System Architecture</h2>
+
+            <h3>High-Level Components</h3>
+
+            <div class="diagram-container">
+                <div class="diagram-title">Grant Management System Architecture</div>
+                <div class="diagram-subtitle">Three-Portal Architecture per SOW Requirements | Azure Cloud Infrastructure</div>
+                <svg viewBox="0 0 1400 1100" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Define styles and markers -->
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#555" />
+                        </marker>
+                        <marker id="arrowhead-blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#0066cc" />
+                        </marker>
+                        <marker id="arrowhead-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#28a745" />
+                        </marker>
+                        <linearGradient id="portal-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#0066cc;stop-opacity:0.1" />
+                            <stop offset="100%" style="stop-color:#0066cc;stop-opacity:0.3" />
+                        </linearGradient>
+                    </defs>
+
+                    <!-- LAYER LABELS -->
+                    <text x="700" y="30" text-anchor="middle" font-weight="bold" font-size="18" fill="#333">USER PORTALS</text>
+                    <text x="700" y="280" text-anchor="middle" font-weight="bold" font-size="18" fill="#333">AUTHENTICATION & AUTHORIZATION</text>
+                    <text x="700" y="480" text-anchor="middle" font-weight="bold" font-size="18" fill="#333">APPLICATION SERVICES (ASP.NET CORE 9)</text>
+                    <text x="700" y="750" text-anchor="middle" font-weight="bold" font-size="18" fill="#333">DATA PERSISTENCE (AZURE SQL)</text>
+                    <text x="1100" y="750" text-anchor="middle" font-weight="bold" font-size="16" fill="#666">EXTERNAL INTEGRATIONS</text>
+
+                    <!-- ========== PORTALS LAYER ========== -->
+                    <g id="portals">
+                        <!-- Staff Portal -->
+                        <rect x="80" y="60" width="320" height="160" fill="url(#portal-gradient)" stroke="#0066cc" stroke-width="3" rx="8"/>
+                        <text x="240" y="90" text-anchor="middle" font-weight="bold" font-size="16" fill="#0066cc">STAFF PORTAL</text>
+                        <text x="240" y="115" text-anchor="middle" font-size="13" fill="#333">• Grant Management</text>
+                        <text x="240" y="135" text-anchor="middle" font-size="13" fill="#333">• Application Review</text>
+                        <text x="240" y="155" text-anchor="middle" font-size="13" fill="#333">• Award Administration</text>
+                        <text x="240" y="175" text-anchor="middle" font-size="13" fill="#333">• Reports & Analytics</text>
+                        <text x="240" y="195" text-anchor="middle" font-size="12" fill="#666" font-style="italic">ASP.NET Core MVC + Telerik UI</text>
+                        <text x="240" y="210" text-anchor="middle" font-size="11" fill="#0066cc" font-weight="bold">EntraID/OpenID Connect</text>
+
+                        <!-- Grantee Portal -->
+                        <rect x="450" y="60" width="320" height="160" fill="url(#portal-gradient)" stroke="#0066cc" stroke-width="3" rx="8"/>
+                        <text x="610" y="90" text-anchor="middle" font-weight="bold" font-size="16" fill="#0066cc">GRANTEE PORTAL</text>
+                        <text x="610" y="115" text-anchor="middle" font-size="13" fill="#333">• Submit Applications</text>
+                        <text x="610" y="135" text-anchor="middle" font-size="13" fill="#333">• Track Status</text>
+                        <text x="610" y="155" text-anchor="middle" font-size="13" fill="#333">• Submit Reports</text>
+                        <text x="610" y="175" text-anchor="middle" font-size="13" fill="#333">• View Awards</text>
+                        <text x="610" y="195" text-anchor="middle" font-size="12" fill="#666" font-style="italic">ASP.NET Core MVC + Telerik UI</text>
+                        <text x="610" y="210" text-anchor="middle" font-size="11" fill="#0066cc" font-weight="bold">OAuth (Microsoft/Google)</text>
+
+                        <!-- Public Portal -->
+                        <rect x="820" y="60" width="320" height="160" fill="url(#portal-gradient)" stroke="#0066cc" stroke-width="3" rx="8"/>
+                        <text x="980" y="90" text-anchor="middle" font-weight="bold" font-size="16" fill="#0066cc">PUBLIC PORTAL</text>
+                        <text x="980" y="115" text-anchor="middle" font-size="13" fill="#333">• Grant Information (CMS)</text>
+                        <text x="980" y="135" text-anchor="middle" font-size="13" fill="#333">• Eligibility Checker</text>
+                        <text x="980" y="155" text-anchor="middle" font-size="13" fill="#333">• Public Reports</text>
+                        <text x="980" y="175" text-anchor="middle" font-size="13" fill="#333">• Open Data</text>
+                        <text x="980" y="195" text-anchor="middle" font-size="12" fill="#666" font-style="italic">ASP.NET Core MVC + Razor</text>
+                        <text x="980" y="210" text-anchor="middle" font-size="11" fill="#28a745" font-weight="bold">No Authentication</text>
+                    </g>
+
+                    <!-- ========== AUTH LAYER ========== -->
+                    <g id="auth-layer">
+                        <!-- Staff Auth -->
+                        <rect x="80" y="310" width="320" height="80" fill="#e3f2fd" stroke="#0066cc" stroke-width="2" rx="5"/>
+                        <text x="240" y="340" text-anchor="middle" font-weight="bold" font-size="14" fill="#0066cc">CTC Staff Identity</text>
+                        <text x="240" y="360" text-anchor="middle" font-size="12" fill="#555">EntraID (Azure AD)</text>
+                        <text x="240" y="380" text-anchor="middle" font-size="11" fill="#666">JWT Claims: roles, permissions</text>
+
+                        <!-- Grantee Auth -->
+                        <rect x="450" y="310" width="320" height="80" fill="#e3f2fd" stroke="#0066cc" stroke-width="2" rx="5"/>
+                        <text x="610" y="340" text-anchor="middle" font-weight="bold" font-size="14" fill="#0066cc">LEA/IHE Identity</text>
+                        <text x="610" y="360" text-anchor="middle" font-size="12" fill="#555">OAuth 2.0 Providers</text>
+                        <text x="610" y="380" text-anchor="middle" font-size="11" fill="#666">Microsoft, Google accounts</text>
+
+                        <!-- Public "Auth" -->
+                        <rect x="820" y="310" width="320" height="80" fill="#d4edda" stroke="#28a745" stroke-width="2" rx="5"/>
+                        <text x="980" y="340" text-anchor="middle" font-weight="bold" font-size="14" fill="#28a745">Anonymous Access</text>
+                        <text x="980" y="360" text-anchor="middle" font-size="12" fill="#555">Read-Only Public Data</text>
+                        <text x="980" y="380" text-anchor="middle" font-size="11" fill="#666">Rate-limited API endpoints</text>
+
+                        <!-- Arrows: Portals to Auth -->
+                        <line x1="240" y1="220" x2="240" y2="310" stroke="#0066cc" stroke-width="2" marker-end="url(#arrowhead-blue)"/>
+                        <line x1="610" y1="220" x2="610" y2="310" stroke="#0066cc" stroke-width="2" marker-end="url(#arrowhead-blue)"/>
+                        <line x1="980" y1="220" x2="980" y2="310" stroke="#28a745" stroke-width="2" marker-end="url(#arrowhead-green)"/>
+                    </g>
+
+                    <!-- ========== APPLICATION SERVICES ========== -->
+                    <g id="app-services">
+                        <!-- Main container -->
+                        <rect x="50" y="510" width="800" height="180" fill="#f8f9fa" stroke="#333" stroke-width="3" rx="8"/>
+
+                        <!-- Controllers & Routing -->
+                        <rect x="70" y="530" width="180" height="145" fill="#fff" stroke="#0066cc" stroke-width="2" rx="5"/>
+                        <text x="160" y="555" text-anchor="middle" font-weight="bold" font-size="13" fill="#0066cc">Controllers</text>
+                        <text x="160" y="575" text-anchor="middle" font-size="11" fill="#333">ApplicationController</text>
+                        <text x="160" y="590" text-anchor="middle" font-size="11" fill="#333">ReviewController</text>
+                        <text x="160" y="605" text-anchor="middle" font-size="11" fill="#333">AwardController</text>
+                        <text x="160" y="620" text-anchor="middle" font-size="11" fill="#333">ReportController</text>
+                        <text x="160" y="635" text-anchor="middle" font-size="11" fill="#333">PublicController</text>
+                        <text x="160" y="655" text-anchor="middle" font-size="10" fill="#666">Razor Views + Telerik</text>
+                        <text x="160" y="668" text-anchor="middle" font-size="10" fill="#666">Policy-based Auth</text>
+
+                        <!-- Grants Engine (Core) -->
+                        <rect x="270" y="530" width="180" height="145" fill="#d4edda" stroke="#28a745" stroke-width="3" rx="5"/>
+                        <text x="360" y="555" text-anchor="middle" font-weight="bold" font-size="13" fill="#28a745">Grants Engine</text>
+                        <text x="360" y="575" text-anchor="middle" font-size="11" fill="#155724">IGrantPackStore</text>
+                        <text x="360" y="590" text-anchor="middle" font-size="11" fill="#155724">IUiRenderer (Telerik)</text>
+                        <text x="360" y="605" text-anchor="middle" font-size="11" fill="#155724">IExpressionEngine</text>
+                        <text x="360" y="620" text-anchor="middle" font-size="11" fill="#155724">  (JsonLogic/CEL)</text>
+                        <text x="360" y="635" text-anchor="middle" font-size="11" fill="#155724">IWorkflowEngine</text>
+                        <text x="360" y="655" text-anchor="middle" font-size="10" fill="#155724" font-style="italic">Config-driven runtime</text>
+                        <text x="360" y="668" text-anchor="middle" font-size="10" fill="#155724" font-style="italic">No code per grant</text>
+
+                        <!-- Domain Services -->
+                        <rect x="470" y="530" width="180" height="145" fill="#fff" stroke="#0066cc" stroke-width="2" rx="5"/>
+                        <text x="560" y="555" text-anchor="middle" font-weight="bold" font-size="13" fill="#0066cc">Domain Services</text>
+                        <text x="560" y="575" text-anchor="middle" font-size="11" fill="#333">ApplicationService</text>
+                        <text x="560" y="590" text-anchor="middle" font-size="11" fill="#333">ReviewService</text>
+                        <text x="560" y="605" text-anchor="middle" font-size="11" fill="#333">AwardService</text>
+                        <text x="560" y="620" text-anchor="middle" font-size="11" fill="#333">ParticipantService</text>
+                        <text x="560" y="635" text-anchor="middle" font-size="11" fill="#333">ReportingService</text>
+                        <text x="560" y="655" text-anchor="middle" font-size="10" fill="#666">Entity Framework Core</text>
+                        <text x="560" y="668" text-anchor="middle" font-size="10" fill="#666">Repository Pattern</text>
+
+                        <!-- Integration Layer -->
+                        <rect x="670" y="530" width="165" height="145" fill="#fff3cd" stroke="#ffc107" stroke-width="2" rx="5"/>
+                        <text x="752" y="555" text-anchor="middle" font-weight="bold" font-size="13" fill="#856404">Integrations</text>
+                        <text x="752" y="575" text-anchor="middle" font-size="11" fill="#856404">Email Service</text>
+                        <text x="752" y="590" text-anchor="middle" font-size="11" fill="#856404">DocuSign Client</text>
+                        <text x="752" y="605" text-anchor="middle" font-size="11" fill="#856404">LEA Registry</text>
+                        <text x="752" y="620" text-anchor="middle" font-size="11" fill="#856404">Fiscal Export</text>
+                        <text x="752" y="635" text-anchor="middle" font-size="11" fill="#856404">Logging/Metrics</text>
+                        <text x="752" y="655" text-anchor="middle" font-size="10" fill="#856404">HTTP Clients</text>
+                        <text x="752" y="668" text-anchor="middle" font-size="10" fill="#856404">Resilience (Polly)</text>
+
+                        <!-- Arrows: Auth to App Services -->
+                        <line x1="240" y1="390" x2="240" y2="510" stroke="#0066cc" stroke-width="2" marker-end="url(#arrowhead)"/>
+                        <line x1="610" y1="390" x2="450" y2="510" stroke="#0066cc" stroke-width="2" marker-end="url(#arrowhead)"/>
+                        <line x1="980" y1="390" x2="650" y2="510" stroke="#28a745" stroke-width="2" marker-end="url(#arrowhead)"/>
+                    </g>
+
+                    <!-- ========== AZURE INFRASTRUCTURE LAYER ========== -->
+                    <g id="azure-infra">
+                        <rect x="50" y="710" width="220" height="60" fill="#e8f4fd" stroke="#0078d4" stroke-width="2" rx="5"/>
+                        <text x="160" y="735" text-anchor="middle" font-weight="bold" font-size="12" fill="#0078d4">Azure App Services</text>
+                        <text x="160" y="755" text-anchor="middle" font-size="10" fill="#555">Web App Hosting</text>
+                    </g>
+
+                    <!-- ========== DATA PERSISTENCE ========== -->
+                    <g id="data-persistence">
+                        <!-- Main SQL Database -->
+                        <rect x="50" y="790" width="250" height="120" fill="#fff" stroke="#333" stroke-width="2" rx="5"/>
+                        <text x="175" y="815" text-anchor="middle" font-weight="bold" font-size="13" fill="#333">Azure SQL Managed Instance</text>
+                        <text x="175" y="835" text-anchor="middle" font-size="11" fill="#555">Normalized Tables:</text>
+                        <text x="175" y="850" text-anchor="middle" font-size="10" fill="#666">Application, Participant, Funding,</text>
+                        <text x="175" y="863" text-anchor="middle" font-size="10" fill="#666">Award, Review, Organization</text>
+                        <text x="175" y="880" text-anchor="middle" font-size="11" fill="#28a745" font-weight="bold">+ JSON Extensions</text>
+                        <text x="175" y="895" text-anchor="middle" font-size="10" fill="#666">Computed columns, indexes</text>
+
+                        <!-- Pack Store -->
+                        <rect x="320" y="790" width="180" height="120" fill="#fff" stroke="#333" stroke-width="2" rx="5"/>
+                        <text x="410" y="815" text-anchor="middle" font-weight="bold" font-size="13" fill="#333">Grant Pack Store</text>
+                        <text x="410" y="835" text-anchor="middle" font-size="10" fill="#555">Versioned JSON configs:</text>
+                        <text x="410" y="850" text-anchor="middle" font-size="9" fill="#28a745">schema.json, ui.json,</text>
+                        <text x="410" y="863" text-anchor="middle" font-size="9" fill="#28a745">rules.json, formulas.json,</text>
+                        <text x="410" y="876" text-anchor="middle" font-size="9" fill="#28a745">workflow.json, exports.json</text>
+                        <text x="410" y="895" text-anchor="middle" font-size="10" fill="#666">(DB table or Blob Storage)</text>
+
+                        <!-- Temporal Tables -->
+                        <rect x="520" y="790" width="150" height="120" fill="#fff" stroke="#333" stroke-width="2" rx="5"/>
+                        <text x="595" y="815" text-anchor="middle" font-weight="bold" font-size="13" fill="#333">Temporal Tables</text>
+                        <text x="595" y="835" text-anchor="middle" font-size="11" fill="#555">Audit History:</text>
+                        <text x="595" y="850" text-anchor="middle" font-size="10" fill="#666">Organization</text>
+                        <text x="595" y="863" text-anchor="middle" font-size="10" fill="#666">Application</text>
+                        <text x="595" y="876" text-anchor="middle" font-size="10" fill="#666">Award, Review</text>
+                        <text x="595" y="895" text-anchor="middle" font-size="9" fill="#666" font-style="italic">Point-in-time queries</text>
+
+                        <!-- Ledger Tables -->
+                        <rect x="690" y="790" width="150" height="120" fill="#fff" stroke="#333" stroke-width="2" rx="5"/>
+                        <text x="765" y="815" text-anchor="middle" font-weight="bold" font-size="13" fill="#333">Ledger Tables</text>
+                        <text x="765" y="835" text-anchor="middle" font-size="11" fill="#555">Immutable:</text>
+                        <text x="765" y="850" text-anchor="middle" font-size="10" fill="#666">Submission</text>
+                        <text x="765" y="863" text-anchor="middle" font-size="10" fill="#666">Payment</text>
+                        <text x="765" y="876" text-anchor="middle" font-size="10" fill="#666">Amendment</text>
+                        <text x="765" y="895" text-anchor="middle" font-size="9" fill="#666" font-style="italic">Tamper-proof</text>
+
+                        <!-- Arrows: App to Data -->
+                        <line x1="160" y1="690" x2="160" y2="790" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+                        <line x1="360" y1="690" x2="360" y2="755" stroke="#28a745" stroke-width="3" marker-end="url(#arrowhead-green)"/>
+                        <line x1="360" y1="755" x2="410" y2="790" stroke="#28a745" stroke-width="3" marker-end="url(#arrowhead-green)"/>
+                        <line x1="560" y1="690" x2="595" y2="790" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+                        <line x1="560" y1="690" x2="765" y2="790" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+                    </g>
+
+                    <!-- ========== EXTERNAL INTEGRATIONS (Right side) ========== -->
+                    <g id="external-integrations">
+                        <!-- DocuSign -->
+                        <rect x="1020" y="790" width="150" height="50" fill="#e3f2fd" stroke="#0066cc" stroke-width="2" rx="5"/>
+                        <text x="1095" y="810" text-anchor="middle" font-weight="bold" font-size="12" fill="#0066cc">DocuSign API</text>
+                        <text x="1095" y="828" text-anchor="middle" font-size="10" fill="#666">Agreement signing</text>
+
+                        <!-- Email -->
+                        <rect x="1190" y="790" width="150" height="50" fill="#e3f2fd" stroke="#0066cc" stroke-width="2" rx="5"/>
+                        <text x="1265" y="810" text-anchor="middle" font-weight="bold" font-size="12" fill="#0066cc">CTC Email Service</text>
+                        <text x="1265" y="828" text-anchor="middle" font-size="10" fill="#666">Notifications</text>
+
+                        <!-- LEA Registry -->
+                        <rect x="1020" y="860" width="150" height="50" fill="#e3f2fd" stroke="#0066cc" stroke-width="2" rx="5"/>
+                        <text x="1095" y="880" text-anchor="middle" font-weight="bold" font-size="12" fill="#0066cc">LEA Registry</text>
+                        <text x="1095" y="898" text-anchor="middle" font-size="10" fill="#666">Org data prefill</text>
+
+                        <!-- Fiscal System -->
+                        <rect x="1190" y="860" width="150" height="50" fill="#fff3cd" stroke="#ffc107" stroke-width="2" rx="5"/>
+                        <text x="1265" y="880" text-anchor="middle" font-weight="bold" font-size="12" fill="#856404">Fiscal System</text>
+                        <text x="1265" y="898" text-anchor="middle" font-size="10" fill="#856404">CSV now, API later</text>
+
+                        <!-- Logging/Metrics -->
+                        <rect x="1020" y="930" width="320" height="50" fill="#e3f2fd" stroke="#0066cc" stroke-width="2" rx="5"/>
+                        <text x="1180" y="950" text-anchor="middle" font-weight="bold" font-size="12" fill="#0066cc">CTC Logging & Metrics (CIMS)</text>
+                        <text x="1180" y="968" text-anchor="middle" font-size="10" fill="#666">Monitoring, alerts, audit logs</text>
+
+                        <!-- Arrows: App Services to External -->
+                        <line x1="835" y1="620" x2="1020" y2="815" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+                        <line x1="835" y1="600" x2="1190" y2="815" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+                        <line x1="835" y1="580" x2="1020" y2="885" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+                        <line x1="835" y1="560" x2="1190" y2="885" stroke="#ffc107" stroke-width="2" marker-end="url(#arrowhead)"/>
+                        <line x1="835" y1="540" x2="1020" y2="955" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+                    </g>
+
+                    <!-- ========== GRANT LIFECYCLE ANNOTATION ========== -->
+                    <g id="lifecycle">
+                        <rect x="900" y="510" width="480" height="180" fill="#f8f9fa" stroke="#666" stroke-width="2" stroke-dasharray="5,5" rx="8"/>
+                        <text x="1140" y="535" text-anchor="middle" font-weight="bold" font-size="14" fill="#333">GRANT LIFECYCLE FLOW</text>
+
+                        <text x="920" y="560" text-anchor="start" font-size="11" fill="#555">1. <tspan font-weight="bold">Intake:</tspan> Grantee submits application</text>
+                        <text x="920" y="580" text-anchor="start" font-size="11" fill="#555">2. <tspan font-weight="bold">Review:</tspan> Staff assigns reviewers, scoring</text>
+                        <text x="920" y="600" text-anchor="start" font-size="11" fill="#555">3. <tspan font-weight="bold">Award:</tspan> Generate awards from scores</text>
+                        <text x="920" y="620" text-anchor="start" font-size="11" fill="#555">4. <tspan font-weight="bold">Agreement:</tspan> DocuSign workflow</text>
+                        <text x="920" y="640" text-anchor="start" font-size="11" fill="#555">5. <tspan font-weight="bold">Data Collection:</tspan> Participant links (JWT)</text>
+                        <text x="920" y="660" text-anchor="start" font-size="11" fill="#555">6. <tspan font-weight="bold">Reporting:</tspan> Progress & expenditure reports</text>
+                        <text x="920" y="680" text-anchor="start" font-size="11" fill="#555">7. <tspan font-weight="bold">Closeout:</tspan> Final surveys, fiscal export</text>
+                    </g>
+
+                    <!-- ========== KEY ANNOTATION ========== -->
+                    <rect x="50" y="960" width="600" height="100" fill="#f8f9fa" stroke="#999" stroke-width="1" rx="4"/>
+                    <text x="60" y="980" font-weight="bold" font-size="12" fill="#333">KEY TECHNOLOGY COMPONENTS:</text>
+                    <text x="60" y="1000" font-size="10" fill="#555">• ASP.NET Core 9+ MVC + WebAPI | Telerik UI for ASP.NET Core | Entity Framework Core 9</text>
+                    <text x="60" y="1015" font-size="10" fill="#555">• Azure App Services (hosting) | Azure SQL Managed Instances (database)</text>
+                    <text x="60" y="1030" font-size="10" fill="#555">• JWT Tokens | JSON Schema validation | JsonLogic/CEL expression engine</text>
+                    <text x="60" y="1045" font-size="10" fill="#555">• Telerik Reporting | MESCIUS Document Solutions | Bootstrap 5.3</text>
+                </svg>
+            </div>
+
+            <h3>Key Interfaces</h3>
+
+            <pre><code>public interface IGrantPackStore {
+    Task&lt;GrantPack&gt; GetAsync(string packId, string version);
+    Task&lt;IReadOnlyList&lt;GrantPackSummary&gt;&gt; ListAsync();
+}
+
+public interface IExpressionEngine {
+    object? Evaluate(string exprName, object data); // formulas
+    ValidationResult Validate(string ruleName, object data); // rules
+}
+
+public interface IUiRenderer {
+    Task&lt;IHtmlContent&gt; RenderAsync(GrantPack pack, object? data);
+}
+
+public interface IWorkflowEngine {
+    Task&lt;GrantState&gt; TransitionAsync(Guid grantId, string trigger, ClaimsPrincipal user);
+}
+
+public interface IParticipantLinkService {
+    Task&lt;ParticipantLink&gt; GenerateAsync(Guid participantId, string email, TimeSpan ttl);
+    Task&lt;ValidationResult&gt; ValidateAsync(string token);
+}</code></pre>
+
+            <h3>Security Model</h3>
+
+            <ul>
+                <li><strong>Authentication:</strong> CTC IAM (no local users); JWT/claims consumed by app</li>
+                <li><strong>Authorization:</strong> Policy-based; external roles mapped to permissions
+                    <ul>
+                        <li><code>CanViewLEA(leaId)</code> → LEA.POC role + lea_ids claim match</li>
+                        <li><code>CanReviewApplications</code> → CTC.GrantManager role</li>
+                    </ul>
+                </li>
+                <li><strong>Audit Trail:</strong> All actions log external user ID + timestamp; temporal tables track data changes</li>
+                <li><strong>PII Protection:</strong> TDE + column-level encryption for sensitive fields; role-based field visibility</li>
+                <li><strong>Participant Links:</strong> JWT or opaque tokens, single-use, expiring, revocable, rate-limited</li>
+            </ul>
+
+            <h3>Workflow States (STSP Example)</h3>
+
+            <pre><code>DRAFT
+  ↓ [SUBMIT: validation rules pass]
+ELIGIBILITY_PASSED
+  ↓ [STAFF_APPROVE]
+SUBMITTED
+  ↓ [REVIEWER_APPROVE]
+IN_REVIEW
+  ↓ [DOCUSIGN_SEND]
+DOCUSIGN_OUT
+  ↓ [webhook: signature complete]
+AGREED
+  ↓ [START_DATA_COLLECTION]
+DATA_COLLECTION
+  ↓ [VALIDATE_DATA: automated + manual]
+VALIDATION_PASSED
+  ↓ [COMPUTE_PRIORITY]
+READY_FOR_DISBURSEMENT
+  ↓ [EXPORT_TO_FISCAL: CSV now, API later]
+EXPORTED_TO_FISCAL
+  ↓ [SURVEY_COMPLETE + final 10%]
+CLOSED</code></pre>
+        </section>
+
+        <section id="pack-configuration">
+            <h2>6. Grant Pack Configuration Guide</h2>
+
+            <div class="alert alert-info">
+                <strong>Based on Analysis of 8 CTC Grant Templates:</strong> School Counselor, Teacher Residency, Classified, Integrated, Computer Science, Reading & Literacy, DELPI, and Process Flow templates. This section provides detailed guidance on building grant pack configurations.
+            </div>
+
+            <h3>Template Analysis Findings</h3>
+
+            <p>Analysis of 8 existing CTC grant templates reveals strong universal patterns and clear grant-specific variations:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pattern</th>
+                        <th>Occurrence</th>
+                        <th>Implementation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Instructions Sheet</strong></td>
+                        <td>7/8 templates (88%)</td>
+                        <td>CMS-driven content (GrantPage entities)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Program Enrollment</strong></td>
+                        <td>6/8 templates (75%)</td>
+                        <td>Core Participant entity + JSON extensions</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Demographics</strong> (Ethnicity, Gender, Sexual Orientation)</td>
+                        <td>7/8 templates (88%)</td>
+                        <td>Universal lookups + named ranges</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Summary Data + Narrative</strong></td>
+                        <td>8/8 templates (100%)</td>
+                        <td>Annual survey with gating + auto-aggregated reports</td>
+                    </tr>
+                    <tr>
+                        <td><strong>List Validations</strong></td>
+                        <td>7/8 templates (88%)</td>
+                        <td>JsonSchema enums + Kendo DropDown</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Custom Formulas</strong></td>
+                        <td>6/8 templates (75%)</td>
+                        <td>JsonLogic/CEL expressions</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Universal vs Grant-Specific Matrix</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Universal (Core Platform)</th>
+                        <th>Grant-Specific (Pack Config)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Workflow</strong></td>
+                        <td>Enrollment → Progress → Funding → Completion → Survey</td>
+                        <td>Number of years, service requirement, cohort structure</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Demographics</strong></td>
+                        <td>Ethnicity, Gender, Sexual Orientation fields</td>
+                        <td>Visibility toggles, additional custom fields</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Validations</strong></td>
+                        <td>List, Custom, TextLength, Date types</td>
+                        <td>Specific rules, dropdown options, formulas</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Funding</strong></td>
+                        <td>Grant amount, match amount (nullable)</td>
+                        <td>Per-participant caps, match ratio, multi-year structure</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Surveys</strong></td>
+                        <td>Annual survey with disbursement gating</td>
+                        <td>Questions, schedule, withheld percentage</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Reporting</strong></td>
+                        <td>Summary data + narrative pattern</td>
+                        <td>Metrics to aggregate, narrative prompts</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Complete Pack Structure</h3>
+
+            <p>A grant pack consists of 8 JSON files that define all aspects of a grant program:</p>
+
+            <h4>1. pack.json - Metadata & Provenance</h4>
+
+            <pre><code>{
+  "id": "teacher-residency-impl",
+  "version": "1.0.0",
+  "name": "Teacher Residency Implementation Grant",
+  "description": "Multi-year residency program with 4-year service requirement",
+  "created": "2025-10-24T00:00:00Z",
+  "createdBy": "grants-team@ctc.ca.gov",
+  "compatibilityVersion": "1.0",
+  "tags": ["residency", "teaching", "multi-year"],
+  "effectiveDate": "2025-07-01",
+  "expirationDate": null,
+  "sourceWorkbook": {
+    "filename": "Teacher Residency Implementation Template.xlsx",
+    "hash": "sha256:abc123..."
+  }
+}</code></pre>
+
+            <h4>2. schema.json - Data Structure & Types</h4>
+
+            <p>Uses JSON Schema to define the shape of application data:</p>
+
+            <pre><code>{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "teacher-residency-impl/1.0.0/schema",
+  "type": "object",
+  "properties": {
+    "enrollment": {
+      "type": "array",
+      "title": "Program Enrollment",
+      "items": {
+        "type": "object",
+        "properties": {
+          "firstName": { "type": "string", "minLength": 1 },
+          "lastName": { "type": "string", "minLength": 1 },
+          "email": { "type": "string", "format": "email" },
+          "credentialPursuing": {
+            "type": "string",
+            "enum": ["Multiple Subject", "Single Subject", "Education Specialist"]
+          },
+          "pathwayType": {
+            "type": "string",
+            "enum": ["Traditional", "Intern", "Residency"]
+          },
+          "teacherShortageArea": {
+            "type": "string",
+            "enum": ["Mathematics", "Science", "Special Education", "Bilingual Education"]
+          },
+          "startDate": { "type": "string", "format": "date" },
+          "expectedCompletionDate": { "type": "string", "format": "date" }
+        },
+        "required": ["firstName", "lastName", "email", "credentialPursuing"]
+      }
+    },
+    "funding": {
+      "type": "array",
+      "title": "Funding Lines",
+      "items": {
+        "type": "object",
+        "properties": {
+          "participantId": { "type": "string", "format": "uuid" },
+          "year": { "type": "integer", "minimum": 1, "maximum": 4 },
+          "grantAmount": { "type": "number", "minimum": 0 },
+          "matchAmount": { "type": "number", "minimum": 0 },
+          "source": { "type": "string" }
+        },
+        "required": ["participantId", "year", "grantAmount", "matchAmount"]
+      }
+    },
+    "completion": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "participantId": { "type": "string", "format": "uuid" },
+          "credentialAwarded": { "type": "string" },
+          "awardDate": { "type": "string", "format": "date" },
+          "placementLEA": { "type": "string" },
+          "placementSchool": { "type": "string" },
+          "subjectTaught": { "type": "string" }
+        }
+      }
+    },
+    "service": {
+      "type": "array",
+      "title": "Service Requirement Tracking (Years 1-4)",
+      "items": {
+        "type": "object",
+        "properties": {
+          "participantId": { "type": "string", "format": "uuid" },
+          "serviceYear": { "type": "integer", "minimum": 1, "maximum": 4 },
+          "schoolYear": { "type": "string", "pattern": "^\\d{4}-\\d{2}$" },
+          "placementLEA": { "type": "string" },
+          "placementSchool": { "type": "string" },
+          "ftePercentage": { "type": "number", "minimum": 0, "maximum": 100 },
+          "subjectTaught": { "type": "string" },
+          "completed": { "type": "boolean" }
+        },
+        "required": ["participantId", "serviceYear", "schoolYear"]
+      }
+    }
+  },
+  "required": ["enrollment"]
+}</code></pre>
+
+            <h4>3. ui.json - Telerik Component Mapping</h4>
+
+            <pre><code>{
+  "pages": [
+    {
+      "id": "enrollment",
+      "title": "Program Enrollment",
+      "icon": "users",
+      "sections": [
+        {
+          "title": "Instructions",
+          "type": "html",
+          "content": "&lt;p&gt;Enter one row per participant. Update annually as new residents enroll.&lt;/p&gt;"
+        },
+        {
+          "type": "grid",
+          "path": "enrollment",
+          "editable": "incell",
+          "toolbar": ["create", "save", "cancel"],
+          "pageable": { "pageSize": 50 },
+          "columns": [
+            {
+              "field": "firstName",
+              "title": "First Name",
+              "width": 150,
+              "editor": "text",
+              "validation": { "required": true }
+            },
+            {
+              "field": "lastName",
+              "title": "Last Name",
+              "width": 150,
+              "editor": "text",
+              "validation": { "required": true }
+            },
+            {
+              "field": "email",
+              "title": "Email",
+              "width": 200,
+              "editor": "text",
+              "validation": { "email": true }
+            },
+            {
+              "field": "credentialPursuing",
+              "title": "Credential Pursuing",
+              "width": 180,
+              "editor": "dropdownlist",
+              "dataSource": "@CredentialProgram"
+            },
+            {
+              "field": "pathwayType",
+              "title": "Pathway Type",
+              "width": 150,
+              "editor": "dropdownlist",
+              "values": ["Traditional", "Intern", "Residency"]
+            },
+            {
+              "field": "teacherShortageArea",
+              "title": "Teacher Shortage Area",
+              "width": 200,
+              "editor": "dropdownlist",
+              "values": ["Mathematics", "Science", "Special Education", "Bilingual Education"]
+            },
+            {
+              "field": "startDate",
+              "title": "Start Date",
+              "width": 120,
+              "editor": "datepicker",
+              "format": "{0:yyyy-MM-dd}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "funding",
+      "title": "Funding (Grant & Match)",
+      "icon": "dollar",
+      "sections": [
+        {
+          "title": "Instructions",
+          "type": "html",
+          "content": "&lt;p&gt;Participant names auto-populate from Enrollment. Enter grant and match amounts per year.&lt;/p&gt;"
+        },
+        {
+          "type": "grid",
+          "path": "funding",
+          "editable": "incell",
+          "groupable": true,
+          "footerTemplate": {
+            "grantAmount": "Total: #= kendo.toString(sum, 'c2') #",
+            "matchAmount": "Total: #= kendo.toString(sum, 'c2') #"
+          },
+          "columns": [
+            {
+              "field": "participantId",
+              "title": "Participant",
+              "width": 200,
+              "template": "#= getParticipantName(participantId) #",
+              "editor": "dropdownlist",
+              "dataSource": "@Participants"
+            },
+            {
+              "field": "year",
+              "title": "Year",
+              "width": 80,
+              "editor": "numeric",
+              "validation": { "min": 1, "max": 4 }
+            },
+            {
+              "field": "grantAmount",
+              "title": "Grant Amount",
+              "width": 150,
+              "editor": "numeric",
+              "format": "{0:c2}",
+              "footerTemplate": "sum"
+            },
+            {
+              "field": "matchAmount",
+              "title": "Match Amount",
+              "width": 150,
+              "editor": "numeric",
+              "format": "{0:c2}",
+              "footerTemplate": "sum"
+            },
+            {
+              "field": "source",
+              "title": "Match Source",
+              "width": 200,
+              "editor": "text"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "service",
+      "title": "Service Requirement (Years 1-4)",
+      "icon": "check",
+      "sections": [
+        {
+          "type": "wizard",
+          "steps": [
+            { "title": "Year 1 Teaching", "path": "service", "filter": { "serviceYear": 1 } },
+            { "title": "Year 2 Teaching", "path": "service", "filter": { "serviceYear": 2 } },
+            { "title": "Year 3 Teaching", "path": "service", "filter": { "serviceYear": 3 } },
+            { "title": "Year 4 Teaching", "path": "service", "filter": { "serviceYear": 4 } }
+          ]
+        }
+      ]
+    }
+  ]
+}</code></pre>
+
+            <h4>4. rules.json - Validation Rules</h4>
+
+            <pre><code>{
+  "enrollment": [
+    {
+      "name": "unique_email",
+      "level": "error",
+      "when": "SUBMIT",
+      "message": "Each participant must have a unique email address",
+      "expr": {
+        "==": [
+          { "var": "enrollment" },
+          {
+            "reduce": [
+              { "var": "enrollment" },
+              {
+                "merge": [
+                  { "var": "accumulator" },
+                  { "var": "current.email" }
+                ]
+              },
+              []
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "funding": [
+    {
+      "name": "match_required",
+      "level": "error",
+      "when": "SUBMIT",
+      "message": "Match amount must equal or exceed grant amount",
+      "expr": {
+        "all": [
+          { "var": "funding" },
+          {
+            ">=": [
+              { "var": "matchAmount" },
+              { "var": "grantAmount" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "four_year_funding",
+      "level": "warning",
+      "when": "SAVE",
+      "message": "Most participants require funding for all 4 years",
+      "expr": {
+        ">=": [
+          {
+            "reduce": [
+              { "var": "funding" },
+              {
+                "+": [
+                  { "var": "accumulator" },
+                  { "if": [{ "==": [{ "var": "current.year" }, 4] }, 1, 0] }
+                ]
+              },
+              0
+            ]
+          },
+          { "*": [{ "var": "enrollment.length" }, 0.8] }
+        ]
+      }
+    }
+  ],
+  "service": [
+    {
+      "name": "full_time_service",
+      "level": "warning",
+      "when": "SAVE",
+      "message": "Service requirement typically requires 100% FTE",
+      "expr": {
+        "all": [
+          { "var": "service" },
+          { ">=": [{ "var": "ftePercentage" }, 80] }
+        ]
+      }
+    }
+  ]
+}</code></pre>
+
+            <h4>5. formulas.json - Computed Fields (DAG)</h4>
+
+            <pre><code>{
+  "computed": {
+    "totals.enrollment_count": {
+      "expr": { "var": "enrollment.length" },
+      "recompute": ["enrollment"]
+    },
+    "totals.grant_funding": {
+      "expr": {
+        "reduce": [
+          { "var": "funding" },
+          { "+": [{ "var": "accumulator" }, { "var": "current.grantAmount" }] },
+          0
+        ]
+      },
+      "recompute": ["funding"]
+    },
+    "totals.match_funding": {
+      "expr": {
+        "reduce": [
+          { "var": "funding" },
+          { "+": [{ "var": "accumulator" }, { "var": "current.matchAmount" }] },
+          0
+        ]
+      },
+      "recompute": ["funding"]
+    },
+    "totals.total_funding": {
+      "expr": {
+        "+": [
+          { "var": "totals.grant_funding" },
+          { "var": "totals.match_funding" }
+        ]
+      },
+      "recompute": ["totals.grant_funding", "totals.match_funding"]
+    },
+    "totals.match_ratio": {
+      "expr": {
+        "if": [
+          { ">": [{ "var": "totals.grant_funding" }, 0] },
+          { "/": [{ "var": "totals.match_funding" }, { "var": "totals.grant_funding" }] },
+          0
+        ]
+      },
+      "recompute": ["totals.grant_funding", "totals.match_funding"]
+    },
+    "per_participant": {
+      "expr": {
+        "map": [
+          { "var": "enrollment" },
+          {
+            "merge": [
+              { "var": "current" },
+              {
+                "total_funding": {
+                  "reduce": [
+                    {
+                      "filter": [
+                        { "var": "funding" },
+                        { "==": [{ "var": "participantId" }, { "var": "current.id" }] }
+                      ]
+                    },
+                    { "+": [{ "var": "accumulator" }, { "var": "current.grantAmount" }, { "var": "current.matchAmount" }] },
+                    0
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "recompute": ["enrollment", "funding"]
+    }
+  }
+}</code></pre>
+
+            <h4>6. workflow.json - State Machine & DocuSign</h4>
+
+            <pre><code>{
+  "initialState": "DRAFT",
+  "states": {
+    "DRAFT": {
+      "displayName": "Draft",
+      "description": "Application in progress",
+      "allowedRoles": ["LEA.POC"],
+      "transitions": {
+        "SUBMIT": {
+          "to": "ELIGIBILITY_CHECK",
+          "guards": [
+            { "expr": { ">=": [{ "var": "enrollment.length" }, 1] }, "error": "At least one participant required" }
+          ]
+        }
+      }
+    },
+    "ELIGIBILITY_CHECK": {
+      "displayName": "Eligibility Check",
+      "description": "Automated eligibility validation",
+      "autoTransition": {
+        "onEnter": "RUN_ELIGIBILITY_RULES",
+        "success": "SUBMITTED",
+        "failure": "DRAFT"
+      }
+    },
+    "SUBMITTED": {
+      "displayName": "Submitted",
+      "description": "Awaiting CTC review",
+      "allowedRoles": ["CTC.GrantManager"],
+      "transitions": {
+        "APPROVE": { "to": "DOCUSIGN_OUT" },
+        "RETURN": {
+          "to": "DRAFT",
+          "requiresComment": true
+        },
+        "REJECT": { "to": "REJECTED", "requiresComment": true }
+      }
+    },
+    "DOCUSIGN_OUT": {
+      "displayName": "Agreement Pending",
+      "description": "DocuSign envelope sent to LEA signatory",
+      "onEnter": {
+        "action": "SEND_DOCUSIGN",
+        "templateId": "ctc-teacher-residency-2025",
+        "mergeFields": {
+          "LEAName": "$.lea.name",
+          "GrantAmount": "$.totals.grant_funding",
+          "MatchAmount": "$.totals.match_funding",
+          "ParticipantCount": "$.enrollment.length",
+          "EffectiveDate": "$.grantCycle.startDate",
+          "ExpirationDate": "$.grantCycle.endDate"
+        },
+        "signers": [
+          {
+            "role": "LEA Signatory",
+            "email": "$.lea.signatoryEmail",
+            "name": "$.lea.signatoryName"
+          }
+        ]
+      },
+      "transitions": {
+        "DOCUSIGN_COMPLETED": { "to": "AGREED", "webhook": true },
+        "DOCUSIGN_DECLINED": { "to": "DRAFT", "webhook": true }
+      }
+    },
+    "AGREED": {
+      "displayName": "Agreement Signed",
+      "description": "LEA has signed grant agreement",
+      "transitions": {
+        "START_DATA_COLLECTION": { "to": "DATA_COLLECTION" }
+      }
+    },
+    "DATA_COLLECTION": {
+      "displayName": "Data Collection",
+      "description": "Ongoing participant and funding data entry",
+      "allowedRoles": ["LEA.POC"],
+      "transitions": {
+        "REQUEST_VALIDATION": { "to": "VALIDATION_QUEUE" }
+      }
+    },
+    "VALIDATION_QUEUE": {
+      "displayName": "Validation Queue",
+      "description": "Automated + manual validation in progress",
+      "allowedRoles": ["CTC.GrantManager"],
+      "transitions": {
+        "VALIDATION_PASSED": { "to": "READY_FOR_DISBURSEMENT" },
+        "VALIDATION_FAILED": { "to": "DATA_COLLECTION", "requiresComment": true }
+      }
+    },
+    "READY_FOR_DISBURSEMENT": {
+      "displayName": "Ready for Disbursement",
+      "description": "Approved for fiscal export",
+      "transitions": {
+        "EXPORT_TO_FISCAL": { "to": "EXPORTED_TO_FISCAL" }
+      }
+    },
+    "EXPORTED_TO_FISCAL": {
+      "displayName": "Exported to Fiscal",
+      "description": "Data sent to finance system",
+      "transitions": {
+        "SURVEY_REMINDER": { "to": "SURVEY_DUE" }
+      }
+    },
+    "SURVEY_DUE": {
+      "displayName": "Survey Due",
+      "description": "Annual survey required for final disbursement",
+      "allowedRoles": ["LEA.POC"],
+      "transitions": {
+        "SURVEY_COMPLETE": { "to": "CLOSED" }
+      }
+    },
+    "CLOSED": {
+      "displayName": "Closed",
+      "description": "Grant cycle complete",
+      "terminal": true
+    }
+  }
+}</code></pre>
+
+            <h4>7. surveys.json - Annual Survey Configuration</h4>
+
+            <pre><code>{
+  "annual": {
+    "title": "Annual Grant Reflection",
+    "description": "Complete this survey annually to maintain full grant eligibility. Final 10% disbursement withheld until survey is completed.",
+    "schedule": {
+      "frequency": "yearly",
+      "dueDate": {
+        "month": 9,
+        "day": 1
+      },
+      "reminderDays": [30, 14, 7, 1]
+    },
+    "gating": {
+      "enabled": true,
+      "withholdPercent": 10,
+      "releaseOn": "SURVEY_COMPLETE"
+    },
+    "questions": [
+      {
+        "id": "q1",
+        "type": "textarea",
+        "required": true,
+        "title": "Program Impact",
+        "prompt": "How is this grant helping your LEA meet its objectives for teacher recruitment and retention?",
+        "maxLength": 2000
+      },
+      {
+        "id": "q2",
+        "type": "textarea",
+        "required": true,
+        "title": "Challenges",
+        "prompt": "What challenges did you encounter in implementing the program this year?",
+        "maxLength": 2000
+      },
+      {
+        "id": "q3",
+        "type": "textarea",
+        "required": true,
+        "title": "Outcomes",
+        "prompt": "Describe any measurable outcomes or success stories from participants in the program.",
+        "maxLength": 2000
+      },
+      {
+        "id": "q4",
+        "type": "multiselect",
+        "required": true,
+        "title": "Partnership Activities",
+        "prompt": "Which partnership activities did you engage in this year? (Select all that apply)",
+        "options": [
+          "Joint professional development",
+          "Collaborative curriculum design",
+          "Observation and feedback cycles",
+          "Co-teaching arrangements",
+          "Mentor training",
+          "Family engagement events"
+        ]
+      },
+      {
+        "id": "q5",
+        "type": "number",
+        "required": true,
+        "title": "Retention Rate",
+        "prompt": "What percentage of participants from last year's cohort are still actively enrolled?",
+        "min": 0,
+        "max": 100,
+        "suffix": "%"
+      },
+      {
+        "id": "q6",
+        "type": "textarea",
+        "required": false,
+        "title": "Additional Comments",
+        "prompt": "Any additional feedback or suggestions for improving the grant program?",
+        "maxLength": 1000
+      }
+    ]
+  },
+  "final": {
+    "title": "Final Grant Summary",
+    "description": "Summative reflection on the entire grant period.",
+    "schedule": {
+      "frequency": "once",
+      "triggerState": "VALIDATION_PASSED"
+    },
+    "questions": [
+      {
+        "id": "f1",
+        "type": "textarea",
+        "required": true,
+        "title": "Overall Impact",
+        "prompt": "Reflecting on the entire grant period, what was the overall impact of this program on your LEA?",
+        "maxLength": 3000
+      },
+      {
+        "id": "f2",
+        "type": "textarea",
+        "required": true,
+        "title": "Sustainability",
+        "prompt": "What aspects of the program will you continue after grant funding ends?",
+        "maxLength": 2000
+      }
+    ]
+  }
+}</code></pre>
+
+            <h4>8. exports.json - Fiscal & Legislative Reports</h4>
+
+            <pre><code>{
+  "fiscal": {
+    "filename": "TR_Disbursement_{yyyy-MM-dd}.xlsx",
+    "sheets": [
+      {
+        "name": "Participants",
+        "columns": [
+          { "header": "LEA Name", "path": "$.lea.name" },
+          { "header": "LEA Code", "path": "$.lea.cdsCdeCode" },
+          { "header": "Participant First Name", "path": "$.participant.firstName" },
+          { "header": "Participant Last Name", "path": "$.participant.lastName" },
+          { "header": "Year", "path": "$.fundingLine.year" },
+          { "header": "Grant Amount", "path": "$.fundingLine.grantAmount", "format": "currency" },
+          { "header": "Match Amount", "path": "$.fundingLine.matchAmount", "format": "currency" },
+          { "header": "Total", "formula": "=F{row}+G{row}", "format": "currency" }
+        ],
+        "query": "SELECT a.Id, l.Name AS LEAName, l.CdsCdeCode, p.FirstName, p.LastName, f.Year, f.GrantAmount, f.MatchAmount FROM Application a JOIN LEA l ON a.LEAId = l.Id CROSS APPLY OPENJSON(a.Data, '$.enrollment') WITH (firstName nvarchar(100) '$.firstName', lastName nvarchar(100) '$.lastName') p CROSS APPLY OPENJSON(a.Data, '$.funding') WITH (year int '$.year', grantAmount decimal(18,2) '$.grantAmount', matchAmount decimal(18,2) '$.matchAmount') f WHERE a.GrantCycleId = @GrantCycleId AND a.Status = 'READY_FOR_DISBURSEMENT'"
+      },
+      {
+        "name": "Summary",
+        "columns": [
+          { "header": "LEA Name", "path": "$.lea.name" },
+          { "header": "Total Participants", "aggregate": "count", "groupBy": "lea.id" },
+          { "header": "Total Grant", "aggregate": "sum", "field": "fundingLine.grantAmount", "format": "currency" },
+          { "header": "Total Match", "aggregate": "sum", "field": "fundingLine.matchAmount", "format": "currency" },
+          { "header": "Grand Total", "formula": "=C{row}+D{row}", "format": "currency" }
+        ]
+      }
+    ]
+  },
+  "legislative": {
+    "title": "Teacher Residency Implementation Grant - Annual Report",
+    "sections": [
+      {
+        "title": "Program Summary",
+        "metrics": [
+          { "label": "Total LEAs Participating", "query": "SELECT COUNT(DISTINCT LEAId) FROM Application WHERE GrantCycleId = @GrantCycleId" },
+          { "label": "Total Participants Enrolled", "path": "$.totals.enrollment_count", "aggregate": "sum" },
+          { "label": "Total Grant Funding", "path": "$.totals.grant_funding", "aggregate": "sum", "format": "currency" },
+          { "label": "Total Match Funding", "path": "$.totals.match_funding", "aggregate": "sum", "format": "currency" }
+        ]
+      },
+      {
+        "title": "Demographics",
+        "suppressionRule": { "minCount": 11 },
+        "charts": [
+          {
+            "type": "bar",
+            "title": "Participants by Ethnicity",
+            "groupBy": "participant.ethnicity",
+            "aggregate": "count"
+          },
+          {
+            "type": "pie",
+            "title": "Participants by Gender",
+            "groupBy": "participant.genderIdentification",
+            "aggregate": "count"
+          }
+        ]
+      },
+      {
+        "title": "Program Outcomes",
+        "metrics": [
+          { "label": "Credentials Awarded", "path": "$.completion[?(@.credentialAwarded)]", "aggregate": "count" },
+          { "label": "Service Requirement Met (Year 1)", "path": "$.service[?(@.serviceYear == 1 && @.completed == true)]", "aggregate": "count" }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+
+            <h3>Excel → Pack Translation Guide</h3>
+
+            <h4>Translating Common Excel Patterns</h4>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Excel Pattern</th>
+                        <th>Pack Configuration</th>
+                        <th>Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Named Range</strong><br>(CredentialProgram)</td>
+                        <td>Lookup enum in lookups section OR named range reference</td>
+                        <td><code>"dataSource": "@CredentialProgram"</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Data Validation: List</strong></td>
+                        <td>JSON Schema enum + UI dropdown</td>
+                        <td><code>"enum": ["Option1", "Option2"]</code><br><code>"editor": "dropdownlist"</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Data Validation: Whole Number (1-4)</strong></td>
+                        <td>JSON Schema integer with min/max</td>
+                        <td><code>{"type": "integer", "minimum": 1, "maximum": 4}</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Data Validation: Date</strong></td>
+                        <td>JSON Schema format: date</td>
+                        <td><code>{"type": "string", "format": "date"}</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Data Validation: Custom Formula</strong></td>
+                        <td>JsonLogic rule in rules.json</td>
+                        <td><code>{">=": [{"var": "matchAmount"}, {"var": "grantAmount"}]}</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>=SUM(B4:B20)</strong></td>
+                        <td>JsonLogic reduce formula</td>
+                        <td><code>{"reduce": [{"var": "funding"}, {"+": [{"var": "accumulator"}, {"var": "current.amount"}]}, 0]}</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>=IF(ISBLANK(A3),"",A3)</strong></td>
+                        <td>Auto-population via UI template</td>
+                        <td><code>"template": "#= getParticipantName(participantId) #"</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Conditional Formatting</strong></td>
+                        <td>UI warning level in rules.json</td>
+                        <td><code>{"level": "warning", "message": "..."}</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Multi-year tabs (Year 1-4)</strong></td>
+                        <td>Wizard steps with filters OR repeated schema</td>
+                        <td><code>"steps": [{"title": "Year 1", "filter": {"year": 1}}]</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Merged header cells</strong></td>
+                        <td>Section title in UI</td>
+                        <td><code>{"title": "Participant Information", "type": "header"}</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Grant Type Examples</h3>
+
+            <h4>Residency Grants (Teacher Residency, School Counselor)</h4>
+
+            <p><strong>Characteristics:</strong></p>
+            <ul>
+                <li>Multi-year tracking (4 years post-completion)</li>
+                <li>Grant + Match funding (separate tabs)</li>
+                <li>Service requirement enforcement</li>
+                <li>Placement tracking (LEA, school, FTE%)</li>
+            </ul>
+
+            <p><strong>Pack Configuration Highlights:</strong></p>
+            <pre><code>{
+  "lifecycle": {
+    "stages": ["enrollment", "completion", "funding", "service"],
+    "yearsToTrack": 4,
+    "serviceRequirement": {
+      "enabled": true,
+      "years": 4,
+      "type": "Teaching",
+      "minFTE": 80
+    }
+  },
+  "funding": {
+    "structure": "grant_and_match",
+    "matchRequired": true,
+    "matchRatio": 1.0,
+    "separateTabs": true
+  }
+}</code></pre>
+
+            <h4>Implementation Grants (Computer Science, Reading & Literacy)</h4>
+
+            <p><strong>Characteristics:</strong></p>
+            <ul>
+                <li>Per-participant caps ($2,500 typically)</li>
+                <li>Annual allocations (not multi-year)</li>
+                <li>No match required</li>
+                <li>Completion tracking only (no service requirement)</li>
+            </ul>
+
+            <p><strong>Pack Configuration Highlights:</strong></p>
+            <pre><code>{
+  "lifecycle": {
+    "stages": ["enrollment", "progress", "completion"],
+    "yearsToTrack": 4
+  },
+  "funding": {
+    "structure": "per_participant",
+    "maxPerParticipant": 2500,
+    "matchRequired": false,
+    "capEnforcement": "hard"
+  }
+}</code></pre>
+
+            <h4>Pipeline Grants (DELPI - Admin Pipeline)</h4>
+
+            <p><strong>Characteristics:</strong></p>
+            <ul>
+                <li>Multi-cohort tracking (3 cohorts entering over 3 years)</li>
+                <li>Admin-specific credential tracking</li>
+                <li>Support types tracking (mentorship, PD, etc.)</li>
+                <li>Current admins receiving support</li>
+            </ul>
+
+            <p><strong>Pack Configuration Highlights:</strong></p>
+            <pre><code>{
+  "lifecycle": {
+    "stages": ["enrollment", "credential_progress", "service_tracking", "support"],
+    "cohortBased": true,
+    "cohorts": [
+      { "id": "cohort-2024-25", "startYear": 2024 },
+      { "id": "cohort-2025-26", "startYear": 2025 },
+      { "id": "cohort-2026-27", "startYear": 2026 }
+    ]
+  },
+  "additionalTracking": {
+    "currentAdmins": true,
+    "supportTypes": ["Mentorship", "Professional Development", "Coaching", "Network Building"]
+  }
+}</code></pre>
+
+            <h3>Lookups & Named Ranges Strategy</h3>
+
+            <p><strong>Universal Lookups (in database):</strong></p>
+            <ul>
+                <li><code>Ethnicity</code> - CDE standard values</li>
+                <li><code>GenderIdentification</code> - CDE standard values</li>
+                <li><code>SexualOrientation</code> - CDE standard values</li>
+                <li><code>States</code> - US states/territories</li>
+            </ul>
+
+            <p><strong>Grant-Specific Lookups (in pack.json):</strong></p>
+            <pre><code>{
+  "lookups": {
+    "CredentialProgram": {
+      "type": "list",
+      "values": [
+        "Multiple Subject",
+        "Single Subject - English",
+        "Single Subject - Mathematics",
+        "Single Subject - Science",
+        "Education Specialist - Mild/Moderate",
+        "Education Specialist - Moderate/Severe"
+      ]
+    },
+    "PathwayType": {
+      "type": "list",
+      "values": ["Traditional", "Intern", "Residency"]
+    },
+    "TeacherShortageArea": {
+      "type": "list",
+      "values": [
+        "Mathematics",
+        "Science",
+        "Special Education",
+        "Bilingual Education",
+        "Computer Science"
+      ]
+    }
+  }
+}</code></pre>
+
+            <h3>Validation Strategy</h3>
+
+            <h4>Three Levels of Validation</h4>
+
+            <ol>
+                <li><strong>Schema Validation (JSON Schema):</strong> Types, required fields, formats, min/max</li>
+                <li><strong>Business Rules (rules.json):</strong> Cross-field validations, complex logic</li>
+                <li><strong>Manual Review:</strong> Flags for grant manager review</li>
+            </ol>
+
+            <h4>Validation Timing</h4>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>When</th>
+                        <th>Rules Run</th>
+                        <th>Level</th>
+                        <th>Blocks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>CHANGE</code></td>
+                        <td>Field-level schema validation</td>
+                        <td>error</td>
+                        <td>Field entry</td>
+                    </tr>
+                    <tr>
+                        <td><code>SAVE</code></td>
+                        <td>All error rules + warning rules</td>
+                        <td>error, warning</td>
+                        <td>Save (if errors)</td>
+                    </tr>
+                    <tr>
+                        <td><code>SUBMIT</code></td>
+                        <td>All rules + manual review flags</td>
+                        <td>error, warning, info</td>
+                        <td>Submit (if errors)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Formula DAG Best Practices</h3>
+
+            <ol>
+                <li><strong>Declare dependencies explicitly:</strong> <code>"recompute": ["enrollment", "funding"]</code></li>
+                <li><strong>Order by dependency depth:</strong> Base fields → Aggregates → Ratios</li>
+                <li><strong>Cache computed values:</strong> Store in database for reporting performance</li>
+                <li><strong>Test formula evaluation:</strong> Unit test each formula with sample data</li>
+                <li><strong>Document formulas:</strong> Add <code>"description"</code> field explaining what it computes</li>
+            </ol>
+
+            <h3>Testing Grant Packs</h3>
+
+            <h4>Pack Linter Checks</h4>
+
+            <ul>
+                <li>✓ JSON syntax valid in all files</li>
+                <li>✓ All <code>@NamedRange</code> references exist in lookups</li>
+                <li>✓ All <code>$.json.path</code> references match schema</li>
+                <li>✓ Formula DAG has no cycles</li>
+                <li>✓ All <code>dataSource</code> references resolve</li>
+                <li>✓ UI column <code>field</code> values match schema properties</li>
+                <li>✓ Workflow state transitions form valid state machine</li>
+                <li>✓ DocuSign merge fields match available data paths</li>
+            </ul>
+
+            <h4>Pack Acceptance Tests</h4>
+
+            <ol>
+                <li><strong>Parity Test:</strong> Given 20 reference Excel files, verify web form produces identical totals/ratios/caps</li>
+                <li><strong>Validation Test:</strong> 10 invalid data scenarios correctly blocked with proper error messages</li>
+                <li><strong>Formula Test:</strong> All computed fields match expected values for 5 sample applications</li>
+                <li><strong>UI Test:</strong> All pages/sections/grids render correctly in Telerik</li>
+                <li><strong>Round-trip Test:</strong> Save → load → save produces identical JSON (idempotent)</li>
+            </ol>
+
+            <div class="alert alert-success">
+                <strong>Key Takeaway:</strong> The grant pack approach enables CTC to add new grants in <strong>days/weeks (configuration)</strong> instead of <strong>months (development)</strong>. Once the core engine is built, the platform becomes a grants authoring tool, not a software project.
+            </div>
+        </section>
+
+        <section id="delivery-phases">
+            <h2>7. Phased Delivery Plan</h2>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-date">April 1, 2026 – V0: STSP Production Launch</div>
+                    <p><strong>Goal:</strong> Single grant (STSP) fully operational; no pack builder yet.</p>
+
+                    <div class="priority-high">
+                        <h4>Must-Have Features</h4>
+                        <ul>
+                            <li>CTC IAM integration (consume claims, policies)</li>
+                            <li>LEA profile prefill from CTC registry (24h cache, manual refresh)</li>
+                            <li>STSP grant pack v1.0 (immutable, hard-coded initially)</li>
+                            <li>Application wizard: cover → participants → funding → attestations</li>
+                            <li>Telerik Grid for line items with client + server validations</li>
+                            <li>Eligibility check (real-time, explainable)</li>
+                            <li>DocuSign agreement (envelope from pack template, webhook integration)</li>
+                            <li>Participant "magic links" (email-bound, expiring, single-use, revocable)</li>
+                            <li>Automated validations + manual review queue</li>
+                            <li>Funds ledger (awarded/allocated/held/remaining)</li>
+                            <li>Fiscal handoff (CSV/XLSX export + printable summary)</li>
+                            <li>Annual survey with gating (final 10% disbursement)</li>
+                            <li>Audit trail (temporal tables, immutable submissions)</li>
+                            <li>Basic public portal: catalog, eligibility, status lookup, announcements, one report (PDF/CSV)</li>
+                            <li>WCAG 2.1 AA, Spanish translation, print-friendly</li>
+                        </ul>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <strong>Explicitly Out of Scope:</strong> Pack Builder UI, Excel-to-pack importer, ad-hoc BI, Fiscal API, multi-grant catalog, advanced public dashboards.
+                    </div>
+
+                    <h4>Acceptance Criteria</h4>
+                    <ul>
+                        <li>20 reference cases: totals/ratios/caps match legacy Excel</li>
+                        <li>15 eligibility scenarios yield correct explanations</li>
+                        <li>DocuSign end-to-end in lower env; retries + dead-letter queue</li>
+                        <li>Pen test: participant links invalid after use/expiry</li>
+                        <li>10 failing validations yield correct messages; overrides require reasons</li>
+                        <li>Ledger math reconciles for multi-year + cancellations</li>
+                        <li>Finance can post 20 sample disbursements solely from export</li>
+                        <li>Disbursement blocked until survey COMPLETED</li>
+                        <li>WCAG scan clean; p95 &lt; 300ms read, &lt; 800ms save on 1k-row forms</li>
+                    </ul>
+
+                    <h4>Timeline (Back-Planned)</h4>
+                    <ul>
+                        <li><strong>Nov–Dec 2025:</strong> Lock STSP pack spec; IAM & LEA adapter; DocuSign template; Fiscal export schema</li>
+                        <li><strong>Jan 2026:</strong> Wizard + validations + participant links + ledger; first end-to-end in lower env</li>
+                        <li><strong>Feb 2026:</strong> UAT with 3 pilot LEAs; parity tests vs Excel; reviewer queue; reporting v1</li>
+                        <li><strong>Mar 2026:</strong> Perf/a11y/security hardening; data migration (if any); go-live docs; soft launch</li>
+                        <li><strong>Apr 1, 2026:</strong> Production launch</li>
+                    </ul>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-date">April 1, 2027 – V1: Multi-Grant Platform</div>
+                    <p><strong>Goal:</strong> Generalizable engine supporting multiple grants; business can configure new grants without code.</p>
+
+                    <div class="priority-medium">
+                        <h4>Must-Have Features</h4>
+                        <ul>
+                            <li>Multi-grant runtime (pack registry, side-by-side packs)</li>
+                            <li>Config surface expansion (eligibility, surveys, workflow, fiscal mapping all declarative)</li>
+                            <li>Pack Builder v1 (admin-only):
+                                <ul>
+                                    <li>Field library, section/page layout</li>
+                                    <li>Validation & formula editor with live eval</li>
+                                    <li>Preview with real Telerik controls</li>
+                                    <li>Linter (broken refs, cycles, unused fields)</li>
+                                </ul>
+                            </li>
+                            <li>Excel importer (assisted):
+                                <ul>
+                                    <li>ClosedXML-based inference</li>
+                                    <li>Mapping DSL for curation</li>
+                                    <li>Round-trip validation</li>
+                                </ul>
+                            </li>
+                            <li>Reporting v2 (internal + legislative):
+                                <ul>
+                                    <li>Reusable report specs (groupings/filters/exports)</li>
+                                    <li>Sensitive-data suppression (n &lt; 11)</li>
+                                    <li>Share-link to PDFs</li>
+                                </ul>
+                            </li>
+                            <li>Operations at scale:
+                                <ul>
+                                    <li>Cross-grant dashboards</li>
+                                    <li>Bulk communications</li>
+                                    <li>Stronger search (JSON indexes/views)</li>
+                                    <li>P95 &lt; 500ms with 10k applications</li>
+                                </ul>
+                            </li>
+                            <li>Enhanced public portal:
+                                <ul>
+                                    <li>Multi-grant catalog with filters</li>
+                                    <li>Self-serve eligibility previewers</li>
+                                    <li>Interactive dashboards (suppressed)</li>
+                                    <li>Open data endpoints (JSON/CSV)</li>
+                                    <li>Content governance workflow</li>
+                                </ul>
+                            </li>
+                            <li>Fiscal API (stretch goal):
+                                <ul>
+                                    <li>Swappable IFiscalExporter: CSV → API</li>
+                                    <li>Receipts, retries, reconciliation UI</li>
+                                    <li>Idempotent posting</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <h4>Acceptance Criteria</h4>
+                    <ul>
+                        <li>STSP v1.0 and Grant-B v1.0 run concurrently without code changes</li>
+                        <li>Business can tweak rules/surveys by shipping a new pack version (no redeploy)</li>
+                        <li>Author Grant-B pack entirely through builder + text diffs</li>
+                        <li>Round-trip 2 existing workbooks to usable packs within a day</li>
+                        <li>Both grants produce required legislative aggregates with suppression rules</li>
+                        <li>P95 &lt; 500ms under 10k apps; computed columns/indexes used</li>
+                        <li>(If Fiscal API) Idempotent posting; nightly reconciliation zero-drift on pilot batch</li>
+                    </ul>
+
+                    <h4>Timeline</h4>
+                    <ul>
+                        <li><strong>May–Dec 2026:</strong> Pack Builder v1, Excel importer, multi-grant registry, reporting v2</li>
+                        <li><strong>Jan–Mar 2027:</strong> Grant-B config, Fiscal API pilot, scale tests</li>
+                        <li><strong>Apr 1, 2027:</strong> Phase 2 launch</li>
+                    </ul>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-date">Beyond 2027 – Nice-to-Haves</div>
+
+                    <div class="priority-low">
+                        <h4>Future Enhancements</h4>
+                        <ul>
+                            <li>Pack Builder v2: formula editor with Excel-subset, drag-drop reports, workflow visual editor</li>
+                            <li>Excel-parity: optional HyperFormula in FE for comfort; server parity via evaluator</li>
+                            <li>Public portal enhancements: open data extracts with data dictionary, advanced filtering</li>
+                            <li>Deeper integrations: SFTP inbox for legacy files, data warehouse feed, DocuSign provider abstraction</li>
+                            <li>Privacy & retention policies per pack: auto-anonymize after N years, right-to-be-forgotten workflow</li>
+                            <li>A11y polish: screen-reader-optimized grid editing</li>
+                            <li>Performance: columnstore summaries for ≥100k participants, background pre-compute of hot aggregates</li>
+                            <li>Participant self-service portal: view status, upload documents, update contact info</li>
+                            <li>Analytics cubes: power BI integration, custom dashboards</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="gov-priorities">
+            <h2>8. Government-Core Priorities</h2>
+
+            <p>Government systems have heightened requirements compared to commercial software in these areas:</p>
+
+            <div class="priority-high">
+                <h4>1. Accessibility & Language Access (Non-Negotiable)</h4>
+                <ul>
+                    <li>WCAG 2.1/2.2 AA compliance (Section 508 mindset)</li>
+                    <li>Keyboard-only navigation paths</li>
+                    <li>Screen reader compatibility (ARIA labels, semantic HTML)</li>
+                    <li>Spanish baseline; additional languages by audience (e.g., Chinese, Vietnamese)</li>
+                    <li>Phone/TTY alternatives documented</li>
+                    <li>Captioning/alt text for all media</li>
+                </ul>
+            </div>
+
+            <div class="priority-high">
+                <h4>2. Public Records Readiness (FOIA/CPRA)</h4>
+                <ul>
+                    <li>Retention schedules documented per data type</li>
+                    <li>Exportable, redactable records</li>
+                    <li>Immutable audit trails (who, what, when)</li>
+                    <li>Content inventory to respond quickly to records requests</li>
+                    <li>Temporal tables + ledger tables for complete history</li>
+                </ul>
+            </div>
+
+            <div class="priority-high">
+                <h4>3. Privacy by Design (Minimize & Explain)</h4>
+                <ul>
+                    <li>Collect only necessary fields; clear privacy notices</li>
+                    <li>Aggregation/suppression for public stats (hide cells where n &lt; 11)</li>
+                    <li>PIAs/STRAs for sensitive flows</li>
+                    <li>Documented data lineage & sharing agreements</li>
+                    <li>Cell-level encryption for highly sensitive fields (DOB, SSN if collected)</li>
+                </ul>
+            </div>
+
+            <div class="priority-high">
+                <h4>4. Security & Compliance First</h4>
+                <ul>
+                    <li>Least-privilege access (role-based + field-level permissions)</li>
+                    <li>Strong audit logging (who viewed/edited what)</li>
+                    <li>Configuration as code (reviewable, version-controlled)</li>
+                    <li>Regular vulnerability scans (OWASP A-level)</li>
+                    <li>NIST-style controls: change management, incident response, backups, RTO/RPO</li>
+                    <li>No third-party trackers without legal review</li>
+                    <li>Privacy-respecting analytics (no PII in logs)</li>
+                </ul>
+            </div>
+
+            <div class="priority-medium">
+                <h4>5. Equity & Harm Reduction</h4>
+                <ul>
+                    <li>Small-cell suppression, top-coding for public data</li>
+                    <li>Differential privacy mindset (add noise to aggregates if needed)</li>
+                    <li>Inclusive content: plain language (8th grade level), examples, "what if you don't have X" guidance</li>
+                    <li>Avoid bias in automated decisions (e.g., priority ordering)</li>
+                </ul>
+            </div>
+
+            <div class="priority-medium">
+                <h4>6. Transparency & Accountability</h4>
+                <ul>
+                    <li>Public change logs (what changed in this grant cycle)</li>
+                    <li>Data dictionaries (field definitions, sources)</li>
+                    <li>Methodology notes for reports (how computed, known limitations)</li>
+                    <li>Program calendars, governance contacts, escalation paths</li>
+                    <li>Service-level commitments (e.g., review timelines)</li>
+                </ul>
+            </div>
+
+            <div class="priority-medium">
+                <h4>7. Resilience & Inclusivity</h4>
+                <ul>
+                    <li>Works on old devices/low bandwidth (minimize JS, optimize images)</li>
+                    <li>Print-ready pages (public portal)</li>
+                    <li>No JS-blocking for critical info (progressive enhancement)</li>
+                    <li>Graceful degradation (if dashboards fail, data still available via CSV/PDF)</li>
+                </ul>
+            </div>
+
+            <div class="priority-low">
+                <h4>8. Design Standards & Consistency</h4>
+                <ul>
+                    <li>Prefer a government design system (e.g., USWDS-style patterns)</li>
+                    <li>Consistent typography, spacing, form patterns</li>
+                    <li>Clear ownership on each page (program owner, last updated timestamp)</li>
+                </ul>
+            </div>
+
+            <div class="priority-low">
+                <h4>9. Procurement/Vendor Independence</h4>
+                <ul>
+                    <li>Open formats (CSV, JSON, PDF/A)</li>
+                    <li>Avoid lock-in (documented APIs, standard protocols)</li>
+                    <li>Reproducible build/deploy (infrastructure as code)</li>
+                </ul>
+            </div>
+
+            <div class="priority-low">
+                <h4>10. Measurable Service Quality</h4>
+                <ul>
+                    <li>Publish service levels (e.g., "Reviews completed within 5 business days")</li>
+                    <li>Queue status ranges visible to applicants</li>
+                    <li>Maintenance windows announced with notice</li>
+                    <li>Uptime targets (99.9% during application periods)</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="risk-mitigation">
+            <h2>9. Risk Mitigation</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Risk</th>
+                        <th>Impact</th>
+                        <th>Likelihood</th>
+                        <th>Mitigation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>STSP pack spec changes late</td>
+                        <td>High</td>
+                        <td>Medium</td>
+                        <td>Lock spec by Dec 2025; change control board for post-lock changes; versioning allows rollback</td>
+                    </tr>
+                    <tr>
+                        <td>CTC IAM integration delays</td>
+                        <td>High</td>
+                        <td>Low</td>
+                        <td>Early spike (Nov 2025); fallback to mock claims for dev/test; parallel integration track</td>
+                    </tr>
+                    <tr>
+                        <td>LEA Registry API unavailable</td>
+                        <td>Medium</td>
+                        <td>Medium</td>
+                        <td>Graceful degradation: allow manual entry if prefill fails; 24h cache; monitor uptime</td>
+                    </tr>
+                    <tr>
+                        <td>DocuSign webhook delivery issues</td>
+                        <td>Medium</td>
+                        <td>Medium</td>
+                        <td>Periodic status polling as backup; dead-letter queue; retry with exponential backoff</td>
+                    </tr>
+                    <tr>
+                        <td>Excel-to-pack importer complexity</td>
+                        <td>Low</td>
+                        <td>High</td>
+                        <td>Defer to post-V0 (hard-code STSP pack); v1 importer is assisted (human curation required)</td>
+                    </tr>
+                    <tr>
+                        <td>Performance with 10k+ applications</td>
+                        <td>Medium</td>
+                        <td>Low</td>
+                        <td>Load testing in Jan 2026; JSON indexes/views; grid virtualization; server paging/filtering</td>
+                    </tr>
+                    <tr>
+                        <td>Participant link abuse</td>
+                        <td>Medium</td>
+                        <td>Low</td>
+                        <td>Rate limiting by IP/LinkId; expiring tokens (24-72h); revocation by POC; audit trail</td>
+                    </tr>
+                    <tr>
+                        <td>Fiscal export schema mismatch</td>
+                        <td>High</td>
+                        <td>Low</td>
+                        <td>Lock schema by Dec 2025; acceptance test with Finance team; version exports</td>
+                    </tr>
+                    <tr>
+                        <td>Accessibility compliance gaps</td>
+                        <td>High</td>
+                        <td>Medium</td>
+                        <td>WCAG scans throughout dev (AXE, PA11Y); manual testing with screen readers; pilot with users</td>
+                    </tr>
+                    <tr>
+                        <td>Data migration from legacy</td>
+                        <td>Medium</td>
+                        <td>Low</td>
+                        <td>STSP is new cycle (minimal/no migration); if needed, bulk import via ingest.yaml; validation suite</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="acceptance-criteria">
+            <h2>10. Acceptance Criteria</h2>
+
+            <h3>V0 (April 2026) Go/No-Go Checklist</h3>
+
+            <h4>Functional</h4>
+            <ul>
+                <li>☐ IAM integration: role→route access matrix verified (10 scenarios)</li>
+                <li>☐ LEA prefill: 10 random LEAs match source-of-truth</li>
+                <li>☐ Application wizard: 20 reference cases yield correct totals/ratios/caps vs Excel</li>
+                <li>☐ Eligibility: 15 scenarios produce correct explanations</li>
+                <li>☐ DocuSign: end-to-end in lower env; webhook flips status; retries work</li>
+                <li>☐ Participant links: pen test abuse cases; tokens invalid after use/expiry</li>
+                <li>☐ Validations: 10 failing cases yield correct messages; overrides require reasons</li>
+                <li>☐ Funds ledger: math reconciles for multi-year + cancellations</li>
+                <li>☐ Fiscal export: Finance can post 20 sample disbursements solely from export</li>
+                <li>☐ Survey gate: disbursement blocked until survey COMPLETED</li>
+                <li>☐ Public portal: catalog, status lookup, one report (PDF/CSV) with suppression</li>
+            </ul>
+
+            <h4>Non-Functional</h4>
+            <ul>
+                <li>☐ WCAG 2.1 AA: AXE/PA11Y scans clean; manual screen-reader test passed</li>
+                <li>☐ Spanish translation: all top task strings translated; language toggle works</li>
+                <li>☐ Performance: p95 &lt; 300ms read, &lt; 800ms save on 1k-row forms (200 concurrent users)</li>
+                <li>☐ Security: OWASP A-level scan clean; PII encrypted at rest; audit trails complete</li>
+                <li>☐ Audit: temporal tables active; immutable submissions; who/what/when captured</li>
+                <li>☐ Documentation: go-live runbook, on-call procedures, user guides, training materials</li>
+                <li>☐ UAT: 3 pilot LEAs complete end-to-end test; feedback incorporated</li>
+            </ul>
+
+            <h3>V1 (April 2027) Go/No-Go Checklist</h3>
+
+            <h4>Functional</h4>
+            <ul>
+                <li>☐ Multi-grant: STSP v1.0 and Grant-B v1.0 run concurrently without code changes</li>
+                <li>☐ Pack Builder: author Grant-B pack entirely through builder; text diffs verify</li>
+                <li>☐ Excel importer: round-trip 2 existing workbooks to usable packs within 1 day</li>
+                <li>☐ Reporting v2: both grants produce required legislative aggregates with suppression</li>
+                <li>☐ Fiscal API (if scoped): idempotent posting; nightly reconciliation zero-drift on pilot</li>
+                <li>☐ Public portal: multi-grant catalog with filters; dashboards with suppression; open data endpoints</li>
+            </ul>
+
+            <h4>Non-Functional</h4>
+            <ul>
+                <li>☐ Performance: p95 &lt; 500ms with 10k applications; JSON indexes/views used</li>
+                <li>☐ Additional language: at least one more language beyond Spanish (e.g., Chinese)</li>
+                <li>☐ Content governance: editorial workflow for public portal; scheduled publishing works</li>
+            </ul>
+        </section>
+
+        <footer style="margin-top: 60px; padding-top: 20px; border-top: 2px solid #e0e0e0; color: #666; font-size: 0.9em;">
+            <p><strong>Document Owner:</strong> GMS Project Team</p>
+            <p><strong>Last Updated:</strong> October 24, 2025</p>
+            <p><strong>Version:</strong> 2.0 (includes template audit findings and detailed pack configuration guide)</p>
+            <p><strong>Next Review:</strong> December 1, 2025 (post-spec lock)</p>
+        </footer>
+    </div>
+</body>
+</html>
