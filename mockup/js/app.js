@@ -27,6 +27,17 @@ const App = {
     },
 
     switchPortal(portal) {
+        // Handle public portal separately
+        if (portal === 'public') {
+            this.showPublicPortal();
+            return;
+        }
+
+        // Restore sidebar if coming from public portal
+        if (this.currentPortal === 'public') {
+            document.getElementById('sidebar').style.display = 'block';
+        }
+
         this.currentPortal = portal;
 
         // Update current user
@@ -200,16 +211,25 @@ const App = {
     },
 
     showPublicPortal() {
-        // Hide sidebar and user info for public portal
+        // Hide sidebar for public portal
         document.getElementById('sidebar').style.display = 'none';
         document.getElementById('current-user-name').textContent = 'Guest';
 
         this.currentPortal = 'public';
         this.currentView = 'dashboard';
 
-        document.querySelectorAll('.portal-btn').forEach(btn => btn.classList.remove('active'));
+        // Update active button
+        document.querySelectorAll('.portal-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.portal === 'public') {
+                btn.classList.add('active');
+            }
+        });
 
+        // Render public portal
         document.getElementById('content-area').innerHTML = PublicPortal.render();
+
+        Utils.showToast('Viewing Public Portal', 'info');
     },
 
     hidePublicPortal() {
