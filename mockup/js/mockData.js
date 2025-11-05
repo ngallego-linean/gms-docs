@@ -408,6 +408,150 @@ const mockData = {
         }
     },
 
+    // Magic Links for student data collection
+    magicLinks: [
+        {
+            id: 1,
+            studentId: 1,
+            token: "ml_abc123xyz789",
+            sentAt: "2025-09-16T08:00:00Z",
+            completedAt: "2025-09-17T14:30:00Z",
+            status: "COMPLETED",
+            data: {
+                ethnicity: "Hispanic or Latino",
+                genderIdentity: "Female",
+                sexualOrientation: "Prefer not to say",
+                firstGenerationCollege: true,
+                languagesSpoken: ["English", "Spanish"]
+            }
+        },
+        {
+            id: 2,
+            studentId: 2,
+            token: "ml_def456uvw012",
+            sentAt: "2025-09-16T08:05:00Z",
+            completedAt: "2025-09-16T20:15:00Z",
+            status: "COMPLETED",
+            data: {
+                ethnicity: "Asian",
+                genderIdentity: "Female",
+                sexualOrientation: "Heterosexual",
+                firstGenerationCollege: false,
+                languagesSpoken: ["English", "Spanish", "Cantonese"]
+            }
+        },
+        {
+            id: 3,
+            studentId: 3,
+            token: "ml_ghi789rst345",
+            sentAt: "2025-11-02T09:00:00Z",
+            completedAt: null,
+            status: "PENDING",
+            data: null
+        },
+        {
+            id: 4,
+            studentId: 5,
+            token: "ml_jkl012mno678",
+            sentAt: "2025-10-21T10:30:00Z",
+            completedAt: "2025-10-22T16:45:00Z",
+            status: "COMPLETED",
+            data: {
+                ethnicity: "Asian",
+                genderIdentity: "Female",
+                sexualOrientation: "Prefer not to say",
+                firstGenerationCollege: true,
+                languagesSpoken: ["English", "Korean"]
+            }
+        }
+    ],
+
+    // Reports (IHE and LEA submit after award completion)
+    reports: [
+        {
+            id: 1,
+            studentId: 1,
+            reportType: "IHE_COMPLETION",
+            status: "SUBMITTED",
+            submittedAt: "2025-10-10T15:00:00Z",
+            submittedBy: "coordinator@fullerton.edu",
+            dueDate: "2026-08-01",
+            data: {
+                completedProgram: true,
+                completionDate: "2026-05-31",
+                credentialEarned: true,
+                credentialArea: "Multiple Subject",
+                credentialNumber: "MS-2026-12345",
+                employmentStatus: "Employed in education",
+                employmentLEA: "Los Angeles Unified School District",
+                employmentPosition: "Elementary Teacher",
+                remainedInCredentialArea: true,
+                notes: "Excellent student teacher performance"
+            }
+        },
+        {
+            id: 2,
+            studentId: 1,
+            reportType: "LEA_PAYMENT",
+            status: "SUBMITTED",
+            submittedAt: "2025-10-12T11:00:00Z",
+            submittedBy: "fiscal@lausd.net",
+            dueDate: "2026-08-15",
+            data: {
+                paymentCategory: "Classified",
+                paymentSchedule: "One payment",
+                paymentAmount: 10000,
+                paymentDate: "2025-10-08",
+                hoursCompleted: 560,
+                eligibilityConfirmed: true,
+                studentTeacherHired: true,
+                hireDate: "2026-08-15",
+                notes: "Student teacher hired as full-time teacher"
+            }
+        },
+        {
+            id: 3,
+            studentId: 2,
+            reportType: "IHE_COMPLETION",
+            status: "SUBMITTED",
+            submittedAt: "2025-10-10T15:05:00Z",
+            submittedBy: "coordinator@fullerton.edu",
+            dueDate: "2026-08-01",
+            data: {
+                completedProgram: true,
+                completionDate: "2026-05-31",
+                credentialEarned: true,
+                credentialArea: "Single Subject - Mathematics",
+                credentialNumber: "SS-MATH-2026-67890",
+                employmentStatus: "Employed in education",
+                employmentLEA: "Long Beach Unified School District",
+                employmentPosition: "High School Math Teacher",
+                remainedInCredentialArea: true,
+                notes: ""
+            }
+        },
+        {
+            id: 4,
+            studentId: 2,
+            reportType: "LEA_PAYMENT",
+            status: "DRAFT",
+            submittedAt: null,
+            submittedBy: null,
+            dueDate: "2026-08-15",
+            data: {
+                paymentCategory: "Classified",
+                paymentSchedule: "One payment",
+                paymentAmount: 10000,
+                paymentDate: "2025-10-08",
+                hoursCompleted: 560,
+                eligibilityConfirmed: true,
+                studentTeacherHired: false,
+                hireDate: null,
+                notes: ""
+            }
+        }
+    ],
+
     // Fund depletion timeline for charting
     fundDepletionTimeline: [
         {
@@ -639,5 +783,43 @@ const dataHelpers = {
             uniqueLEAs,
             statusCounts
         };
+    },
+
+    getMagicLinkByStudent(studentId) {
+        return mockData.magicLinks.find(ml => ml.studentId === studentId);
+    },
+
+    getMagicLinkByToken(token) {
+        return mockData.magicLinks.find(ml => ml.token === token);
+    },
+
+    getReportsByStudent(studentId) {
+        return mockData.reports.filter(r => r.studentId === studentId);
+    },
+
+    getReportsByPortal(portal) {
+        const currentUser = mockData.portalUsers[portal];
+        if (portal === 'staff') {
+            return mockData.reports;
+        } else if (portal === 'ihe') {
+            // Get reports for students from this IHE's applications
+            const iheApps = mockData.applications.filter(a => a.iheId === currentUser.organizationId);
+            const iheStudentIds = mockData.students
+                .filter(s => iheApps.some(a => a.id === s.applicationId))
+                .map(s => s.id);
+            return mockData.reports.filter(r =>
+                iheStudentIds.includes(r.studentId) && r.reportType === 'IHE_COMPLETION'
+            );
+        } else if (portal === 'lea') {
+            // Get reports for students from this LEA's applications
+            const leaApps = mockData.applications.filter(a => a.leaId === currentUser.organizationId);
+            const leaStudentIds = mockData.students
+                .filter(s => leaApps.some(a => a.id === s.applicationId))
+                .map(s => s.id);
+            return mockData.reports.filter(r =>
+                leaStudentIds.includes(r.studentId) && r.reportType === 'LEA_PAYMENT'
+            );
+        }
+        return [];
     }
 };

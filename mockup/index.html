@@ -15,6 +15,7 @@
             <span class="env-badge">MOCKUP - NO DATA SAVED</span>
         </div>
         <div class="portal-switcher">
+            <button class="portal-btn" onclick="App.showPublicPortal()">🌐 Public Portal</button>
             <button class="portal-btn active" data-portal="staff">Staff Portal</button>
             <button class="portal-btn" data-portal="ihe">IHE Portal</button>
             <button class="portal-btn" data-portal="lea">LEA Portal</button>
@@ -54,6 +55,9 @@
         </main>
     </div>
 
+    <!-- App Content Container (for magic link portal) -->
+    <div id="app-content" style="display:none;"></div>
+
     <!-- Modal Container -->
     <div id="modal-overlay" class="modal-overlay hidden">
         <div class="modal" id="modal-content">
@@ -70,6 +74,9 @@
     <script src="js/components/dashboard.js"></script>
     <script src="js/components/applications.js"></script>
     <script src="js/components/awards.js"></script>
+    <script src="js/components/reports.js"></script>
+    <script src="js/components/publicPortal.js"></script>
+    <script src="js/components/magicLinkPortal.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
