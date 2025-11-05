@@ -27,6 +27,17 @@ const App = {
     },
 
     switchPortal(portal) {
+        // Handle public portal separately
+        if (portal === 'public') {
+            this.showPublicPortal();
+            return;
+        }
+
+        // Restore sidebar if coming from public portal
+        if (this.currentPortal === 'public') {
+            document.getElementById('sidebar').style.display = 'block';
+        }
+
         this.currentPortal = portal;
 
         // Update current user
@@ -87,6 +98,7 @@ const App = {
                 <ul class="sidebar-nav">
                     <li><a href="#" class="${this.currentView === 'dashboard' ? 'active' : ''}" data-view="dashboard">Dashboard</a></li>
                     <li><a href="#" class="${this.currentView === 'applications' ? 'active' : ''}" data-view="applications">Manage Students</a></li>
+                    <li><a href="#" class="${this.currentView === 'reports' ? 'active' : ''}" data-view="reports">Reports</a></li>
                 </ul>
             </div>
             <div class="sidebar-section">
@@ -103,6 +115,7 @@ const App = {
                 <ul class="sidebar-nav">
                     <li><a href="#" class="${this.currentView === 'dashboard' ? 'active' : ''}" data-view="dashboard">Dashboard</a></li>
                     <li><a href="#" class="${this.currentView === 'applications' ? 'active' : ''}" data-view="applications">Pending Students</a></li>
+                    <li><a href="#" class="${this.currentView === 'reports' ? 'active' : ''}" data-view="reports">Reports</a></li>
                 </ul>
             </div>
             <div class="sidebar-section">
@@ -170,7 +183,11 @@ const App = {
 
         switch (this.currentView) {
             case 'dashboard':
-                html = Dashboard.render(1);
+                if (this.currentPortal === 'public') {
+                    html = PublicPortal.render();
+                } else {
+                    html = Dashboard.render(1);
+                }
                 break;
             case 'applications':
                 html = Applications.render(this.currentPortal);
@@ -179,7 +196,7 @@ const App = {
                 html = Awards.render(this.currentPortal);
                 break;
             case 'reports':
-                html = '<div class="card"><p>Reports view coming soon...</p></div>';
+                html = Reports.render(this.currentPortal);
                 break;
             default:
                 html = '<div class="card"><p>View not found</p></div>';
@@ -188,18 +205,69 @@ const App = {
         contentArea.innerHTML = html;
 
         // Attach component-specific event listeners
-        if (this.currentView === 'dashboard') {
+        if (this.currentView === 'dashboard' && this.currentPortal !== 'public') {
             Dashboard.attachEventListeners();
         }
+    },
+
+    showPublicPortal() {
+        // Hide sidebar for public portal
+        document.getElementById('sidebar').style.display = 'none';
+        document.getElementById('current-user-name').textContent = 'Guest';
+
+        this.currentPortal = 'public';
+        this.currentView = 'dashboard';
+
+        // Update active button
+        document.querySelectorAll('.portal-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.portal === 'public') {
+                btn.classList.add('active');
+            }
+        });
+
+        // Render public portal
+        document.getElementById('content-area').innerHTML = PublicPortal.render();
+
+        Utils.showToast('Viewing Public Portal', 'info');
+    },
+
+    hidePublicPortal() {
+        // Restore sidebar
+        document.getElementById('sidebar').style.display = 'block';
+        this.switchPortal('staff');
     }
 };
 
 // Utility Functions
 const Utils = {
-    showModal(content) {
+    showModal(titleOrContent, body = null, buttons = null) {
         const overlay = document.getElementById('modal-overlay');
         const modal = document.getElementById('modal-content');
-        modal.innerHTML = content;
+
+        // If only one argument and it's a string with HTML, use it directly
+        if (body === null && buttons === null && typeof titleOrContent === 'string' && titleOrContent.includes('<')) {
+            modal.innerHTML = titleOrContent;
+        } else {
+            // Build modal with title, body, and buttons
+            const buttonsHTML = buttons ? buttons.map(btn =>
+                `<button class="btn ${btn.class || 'btn-secondary'}" onclick="${btn.action ? `(${btn.action.toString()})(); Utils.closeModal();` : 'Utils.closeModal();'}">${btn.text}</button>`
+            ).join('') : '<button class="btn btn-secondary" onclick="Utils.closeModal()">Close</button>';
+
+            modal.innerHTML = `
+                <div class="modal-header">
+                    <h3>${titleOrContent}</h3>
+                    <button class="modal-close" onclick="Utils.closeModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    ${body}
+                </div>
+                <div class="modal-footer">
+                    ${buttonsHTML}
+                </div>
+            `;
+        }
+
         overlay.classList.remove('hidden');
     },
 

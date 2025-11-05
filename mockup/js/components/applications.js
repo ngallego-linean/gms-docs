@@ -101,6 +101,10 @@ const Applications = {
                     <button class="btn btn-primary" onclick="Applications.showAddStudentModal(${app.id})">
                         + Add Student
                     </button>
+                ` : portal === 'lea' ? `
+                    <button class="btn btn-secondary" onclick="Applications.viewDataCollectionStatus(${app.id})">
+                        📋 View Data Collection Status
+                    </button>
                 ` : ''}
             </div>
 
@@ -307,8 +311,25 @@ const Applications = {
                 return `<button class="btn btn-secondary btn-sm" onclick="Applications.viewStudent(${student.id})">View</button>`;
             }
         } else if (portal === 'lea') {
+            const magicLink = dataHelpers.getMagicLinkByStudent(student.id);
+
             if (student.status === 'PENDING_LEA') {
                 return `<button class="btn btn-primary btn-sm" onclick="Applications.completeLEAInfo(${student.id})">Complete LEA Info</button>`;
+            } else if (student.status !== 'DRAFT' && !magicLink) {
+                return `
+                    <button class="btn btn-secondary btn-sm" onclick="Applications.viewStudent(${student.id})">View</button>
+                    <button class="btn btn-primary btn-sm" onclick="Applications.sendMagicLink(${student.id})">Send Data Link</button>
+                `;
+            } else if (magicLink && magicLink.status === 'PENDING') {
+                return `
+                    <button class="btn btn-secondary btn-sm" onclick="Applications.viewStudent(${student.id})">View</button>
+                    <span class="badge badge-submitted" style="margin-left: 0.5rem;">Data Link Sent</span>
+                `;
+            } else if (magicLink && magicLink.status === 'COMPLETED') {
+                return `
+                    <button class="btn btn-secondary btn-sm" onclick="Applications.viewStudent(${student.id})">View</button>
+                    <button class="btn btn-sm btn-secondary" onclick="Applications.viewCollectedData(${student.id})">View Data</button>
+                `;
             } else {
                 return `<button class="btn btn-secondary btn-sm" onclick="Applications.viewStudent(${student.id})">View</button>`;
             }
@@ -762,5 +783,237 @@ const Applications = {
             month: 'short',
             day: 'numeric'
         });
+    },
+
+    // Magic Link Functions
+    sendMagicLink(studentId) {
+        const student = dataHelpers.getStudent(studentId);
+        let magicLink = dataHelpers.getMagicLinkByStudent(studentId);
+
+        if (!magicLink) {
+            // Create new magic link
+            const token = 'ml_' + Math.random().toString(36).substr(2, 12);
+            magicLink = {
+                id: mockData.magicLinks.length + 1,
+                studentId: studentId,
+                token: token,
+                sentAt: new Date().toISOString(),
+                completedAt: null,
+                status: 'PENDING',
+                data: null
+            };
+            mockData.magicLinks.push(magicLink);
+        }
+
+        Utils.showModal(
+            'Data Collection Link Sent',
+            `
+                <div style="background: #E7F3FF; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <h4 style="margin-top: 0;">✅ Link Generated Successfully</h4>
+                    <p>A secure data collection link has been sent to:</p>
+                    <p style="font-weight: bold; font-size: 1.1rem; margin: 1rem 0;">${student.firstName} ${student.lastName}</p>
+                    <p style="font-size: 0.9rem; color: var(--gray-medium);">
+                        The student will receive an email with a unique link to provide demographic
+                        information and grant-specific data directly to the system.
+                    </p>
+                </div>
+
+                <div style="background: #FFF3CD; padding: 1rem; border-radius: 4px; border-left: 4px solid #FFC107;">
+                    <strong>📋 For Testing:</strong> Mock link URL:<br>
+                    <code style="background: white; padding: 0.5rem; display: block; margin-top: 0.5rem; border-radius: 4px; word-break: break-all;">
+                        https://gms.ctc.ca.gov/collect/${magicLink.token}
+                    </code>
+                    <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem;">
+                        <a href="#" onclick="MagicLinkPortal.openCollectionForm('${magicLink.token}'); Utils.closeModal(); return false;">
+                            → Open data collection form in mockup
+                    </a>
+                    </p>
+                </div>
+            `,
+            [{ text: 'OK', class: 'btn-primary', action: () => {} }]
+        );
+
+        App.renderCurrentView();
+    },
+
+    viewDataCollectionStatus(applicationId) {
+        const app = dataHelpers.getApplication(applicationId);
+        if (!app) return;
+
+        const studentsWithLinks = app.students
+            .filter(s => s.status !== 'DRAFT')
+            .map(student => {
+                const magicLink = dataHelpers.getMagicLinkByStudent(student.id);
+                return {
+                    student,
+                    magicLink
+                };
+            });
+
+        const completedCount = studentsWithLinks.filter(s => s.magicLink?.status === 'COMPLETED').length;
+        const pendingCount = studentsWithLinks.filter(s => s.magicLink?.status === 'PENDING').length;
+        const notSentCount = studentsWithLinks.filter(s => !s.magicLink).length;
+
+        const modal = `
+            <div class="modal-header">
+                <h3>Student Data Collection Status</h3>
+                <button class="modal-close" onclick="Utils.closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="dashboard-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 1.5rem;">
+                    <div class="metric-card">
+                        <div class="metric-label">Completed</div>
+                        <div class="metric-value">${completedCount}</div>
+                    </div>
+                    <div class="metric-card status-warning">
+                        <div class="metric-label">Pending</div>
+                        <div class="metric-value">${pendingCount}</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Not Sent</div>
+                        <div class="metric-value">${notSentCount}</div>
+                    </div>
+                </div>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Status</th>
+                            <th>Date Sent</th>
+                            <th>Date Completed</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${studentsWithLinks.map(({student, magicLink}) => {
+                            let statusBadge, dateSent, dateCompleted, actions;
+
+                            if (!magicLink) {
+                                statusBadge = '<span class="badge badge-pending">Not Sent</span>';
+                                dateSent = '-';
+                                dateCompleted = '-';
+                                actions = `<button class="btn btn-sm btn-primary" onclick="Applications.sendMagicLink(${student.id}); Utils.closeModal();">Send Link</button>`;
+                            } else if (magicLink.status === 'PENDING') {
+                                statusBadge = '<span class="badge badge-submitted">Pending</span>';
+                                dateSent = new Date(magicLink.sentAt).toLocaleDateString();
+                                dateCompleted = '-';
+                                actions = `<button class="btn btn-sm btn-secondary" onclick="Applications.resendMagicLink(${student.id})">Resend</button>`;
+                            } else {
+                                statusBadge = '<span class="badge badge-approved">✓ Completed</span>';
+                                dateSent = new Date(magicLink.sentAt).toLocaleDateString();
+                                dateCompleted = new Date(magicLink.completedAt).toLocaleDateString();
+                                actions = `<button class="btn btn-sm btn-secondary" onclick="Applications.viewCollectedData(${student.id})">View Data</button>`;
+                            }
+
+                            return `
+                                <tr>
+                                    <td><strong>${student.firstName} ${student.lastName}</strong></td>
+                                    <td>${statusBadge}</td>
+                                    <td>${dateSent}</td>
+                                    <td>${dateCompleted}</td>
+                                    <td>${actions}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+
+                ${notSentCount > 0 || pendingCount > 0 ? `
+                    <div style="background: #FFF3CD; padding: 1rem; border-radius: 4px; margin-top: 1.5rem;">
+                        <strong>⚠️ Note:</strong> Applications with pending or unsent data collection links can still be submitted,
+                        but complete data improves reporting quality.
+                    </div>
+                ` : ''}
+            </div>
+            <div class="modal-footer">
+                ${notSentCount > 0 ? `
+                    <button class="btn btn-primary" onclick="Applications.sendAllMagicLinks(${applicationId})">Send All Remaining Links</button>
+                ` : ''}
+                <button class="btn btn-secondary" onclick="Utils.closeModal()">Close</button>
+            </div>
+        `;
+
+        Utils.showModal(modal);
+    },
+
+    resendMagicLink(studentId) {
+        const student = dataHelpers.getStudent(studentId);
+        const magicLink = dataHelpers.getMagicLinkByStudent(studentId);
+
+        if (magicLink) {
+            magicLink.sentAt = new Date().toISOString();
+        }
+
+        Utils.showToast(`Data collection link resent to ${student.firstName} ${student.lastName}`, 'success');
+        // Refresh the modal
+        const application = mockData.applications.find(app => app.students && app.students.some(s => s.id === studentId));
+        if (application) {
+            setTimeout(() => this.viewDataCollectionStatus(application.id), 100);
+        }
+    },
+
+    sendAllMagicLinks(applicationId) {
+        const app = dataHelpers.getApplication(applicationId);
+        const studentsNeedingLinks = app.students.filter(s => {
+            if (s.status === 'DRAFT') return false;
+            const magicLink = dataHelpers.getMagicLinkByStudent(s.id);
+            return !magicLink;
+        });
+
+        studentsNeedingLinks.forEach(student => {
+            const token = 'ml_' + Math.random().toString(36).substr(2, 12);
+            const magicLink = {
+                id: mockData.magicLinks.length + 1,
+                studentId: student.id,
+                token: token,
+                sentAt: new Date().toISOString(),
+                completedAt: null,
+                status: 'PENDING',
+                data: null
+            };
+            mockData.magicLinks.push(magicLink);
+        });
+
+        Utils.showToast(`Sent data collection links to ${studentsNeedingLinks.length} students`, 'success');
+        setTimeout(() => this.viewDataCollectionStatus(applicationId), 100);
+    },
+
+    viewCollectedData(studentId) {
+        const student = dataHelpers.getStudent(studentId);
+        const magicLink = dataHelpers.getMagicLinkByStudent(studentId);
+
+        if (!magicLink || !magicLink.data) {
+            Utils.showToast('No data collected yet', 'info');
+            return;
+        }
+
+        const data = magicLink.data;
+        const modal = `
+            <div class="modal-header">
+                <h3>Collected Data: ${student.firstName} ${student.lastName}</h3>
+                <button class="modal-close" onclick="Utils.closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="background: #F0F7FF; padding: 1.5rem; border-radius: 8px;">
+                    <h4 style="margin-top: 0;">Demographic Information</h4>
+                    <table style="width: 100%; font-size: 0.95rem;">
+                        <tr><td style="padding: 0.5rem 0; font-weight: 600; width: 200px;">Ethnicity:</td><td>${data.ethnicity || 'Not provided'}</td></tr>
+                        <tr><td style="padding: 0.5rem 0; font-weight: 600;">Gender Identity:</td><td>${data.genderIdentity || 'Not provided'}</td></tr>
+                        <tr><td style="padding: 0.5rem 0; font-weight: 600;">Sexual Orientation:</td><td>${data.sexualOrientation || 'Not provided'}</td></tr>
+                        <tr><td style="padding: 0.5rem 0; font-weight: 600;">First Generation College:</td><td>${data.firstGenerationCollege ? 'Yes' : 'No'}</td></tr>
+                        <tr><td style="padding: 0.5rem 0; font-weight: 600;">Languages Spoken:</td><td>${data.languagesSpoken ? data.languagesSpoken.join(', ') : 'Not provided'}</td></tr>
+                    </table>
+                </div>
+                <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--gray-medium);">
+                    <strong>Completed:</strong> ${new Date(magicLink.completedAt).toLocaleString()}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="Utils.closeModal()">Close</button>
+            </div>
+        `;
+
+        Utils.showModal(modal);
     }
 };

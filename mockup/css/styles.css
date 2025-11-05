@@ -818,3 +818,300 @@ body {
 
 .gap-1 { gap: 0.5rem; }
 .gap-2 { gap: 1rem; }
+
+/* Public Portal Styles */
+.public-portal {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.public-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+}
+
+.public-header h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 2.5rem;
+}
+
+.public-header h2 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.5rem;
+    font-weight: normal;
+}
+
+.public-header .subtitle {
+    font-size: 1.1rem;
+    opacity: 0.95;
+    margin: 0;
+}
+
+/* Grant Cards */
+.grant-card {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background: white;
+}
+
+.grant-card.grant-open {
+    border-left: 4px solid var(--success-green);
+}
+
+.grant-card.grant-closed {
+    border-left: 4px solid var(--gray-medium);
+}
+
+.grant-card-header {
+    margin-bottom: 1rem;
+}
+
+.grant-card-header h3 {
+    margin: 0 0 0.5rem 0;
+}
+
+.grant-card-body {
+    margin-top: 1rem;
+}
+
+.grant-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.grant-metric {
+    padding: 1rem;
+    background: #F8F9FA;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.grant-metric-label {
+    font-size: 0.85rem;
+    color: var(--gray-medium);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.grant-metric-value {
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: var(--primary-blue);
+    margin-bottom: 0.25rem;
+}
+
+.grant-metric-subtext {
+    font-size: 0.85rem;
+    color: var(--gray-medium);
+}
+
+.grant-description {
+    color: var(--gray-dark);
+    line-height: 1.6;
+    margin: 1rem 0;
+}
+
+.grant-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+/* Process Steps */
+.process-steps {
+    margin: 2rem 0;
+}
+
+.process-step {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.process-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 45px;
+    bottom: -35px;
+    width: 2px;
+    background: var(--border-color);
+}
+
+.process-step-number {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    background: var(--primary-blue);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.25rem;
+}
+
+.process-step-content h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--gray-dark);
+}
+
+.process-step-content p {
+    margin: 0;
+    color: var(--gray-medium);
+    line-height: 1.6;
+}
+
+/* Info Grid */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin: 1.5rem 0;
+}
+
+.info-grid h3 {
+    margin-top: 0;
+    color: var(--gray-dark);
+}
+
+.info-grid ul {
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+}
+
+.info-grid li {
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+}
+
+/* Data Table */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+
+.data-table thead {
+    background: #F8F9FA;
+}
+
+.data-table th {
+    padding: 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--gray-dark);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.data-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table tr:hover {
+    background: #F8F9FA;
+}
+
+/* Report Forms */
+.form-section {
+    margin: 2rem 0;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.form-section:last-child {
+    border-bottom: none;
+}
+
+.form-section h3 {
+    margin: 0 0 1.5rem 0;
+    color: var(--gray-dark);
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--gray-dark);
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group input[type="date"],
+.form-group input[type="email"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.form-group input[type="checkbox"] {
+    margin-right: 0.5rem;
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--gray-medium);
+    font-size: 0.85rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Status-specific metric cards */
+.metric-card.status-warning {
+    background: #FFF3CD;
+    border-color: #FFC107;
+}
+
+/* Text utilities */
+.text-error {
+    color: var(--error-red);
+}
+
+.text-center {
+    text-align: center;
+}
+
+.flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Magic Link Portal specific styles */
+#app-content {
+    min-height: 100vh;
+    background: #F8F9FA;
+}
+
+#app-content .public-portal {
+    padding-top: 2rem;
+}
