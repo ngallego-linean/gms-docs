@@ -1,0 +1,117 @@
+{
+  "version": 3,
+  "targets": {
+    "net9.0": {
+      "Ctc.GMS/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v9.0",
+        "compile": {
+          "bin/placeholder/Ctc.GMS.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Ctc.GMS.dll": {}
+        }
+      },
+      "Ctc.GMS.Data/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v9.0",
+        "dependencies": {
+          "Ctc.GMS": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/Ctc.GMS.Data.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Ctc.GMS.Data.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Ctc.GMS/1.0.0": {
+      "type": "project",
+      "path": "../Ctc.GMS/Ctc.GMS.csproj",
+      "msbuildProject": "../Ctc.GMS/Ctc.GMS.csproj"
+    },
+    "Ctc.GMS.Data/1.0.0": {
+      "type": "project",
+      "path": "../Ctc.GMS.Data/Ctc.GMS.Data.csproj",
+      "msbuildProject": "../Ctc.GMS.Data/Ctc.GMS.Data.csproj"
+    }
+  },
+  "projectFileDependencyGroups": {
+    "net9.0": [
+      "Ctc.GMS >= 1.0.0",
+      "Ctc.GMS.Data >= 1.0.0"
+    ]
+  },
+  "packageFolders": {
+    "/Users/noahgallego/.nuget/packages/": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Business/Ctc.GMS.Business.csproj",
+      "projectName": "Ctc.GMS.Business",
+      "projectPath": "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Business/Ctc.GMS.Business.csproj",
+      "packagesPath": "/Users/noahgallego/.nuget/packages/",
+      "outputPath": "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Business/obj/",
+      "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "/Users/noahgallego/.nuget/NuGet/NuGet.Config"
+      ],
+      "originalTargetFrameworks": [
+        "net9.0"
+      ],
+      "sources": {
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "projectReferences": {
+            "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Data/Ctc.GMS.Data.csproj": {
+              "projectPath": "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Data/Ctc.GMS.Data.csproj"
+            },
+            "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS/Ctc.GMS.csproj": {
+              "projectPath": "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS/Ctc.GMS.csproj"
+            }
+          }
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
+      },
+      "SdkAnalysisLevel": "9.0.300"
+    },
+    "frameworks": {
+      "net9.0": {
+        "targetAlias": "net9.0",
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48",
+          "net481"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "frameworkReferences": {
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          }
+        },
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.306/PortableRuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}

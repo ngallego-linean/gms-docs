@@ -1,0 +1,156 @@
+@model GAAListViewModel
+
+@{
+    ViewData["Title"] = "Generate GAA Documents";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "FiscalTeam")">Fiscal Team</a></li>
+        <li class="breadcrumb-item active">Generate GAA Documents</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-file-document-outline"></i> Generate Grant Award Agreements</h2>
+    <p class="subtitle">@Model.GrantCycleName</p>
+</div>
+
+@if (!Model.Students.Any())
+{
+    <div class="alert alert-info">
+        <i class="mdi mdi-information-outline"></i>
+        No approved students are currently waiting for GAA generation. All GAAs have been processed.
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        <i class="mdi mdi-alert-outline"></i>
+        <strong>@Model.Students.Count approved student(s)</strong> are ready for Grant Award Agreement generation.
+    </div>
+
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-file-document-multiple-outline"></i> Approved Students Needing GAA</h4>
+            <div class="card-actions">
+                <button type="button" class="r4-button r4-button-primary" onclick="generateSelectedGAAs()">
+                    <i class="mdi mdi-file-plus-outline"></i> Generate Selected GAAs
+                </button>
+                <button type="button" class="r4-button r4-button-success" onclick="generateAllGAAs()">
+                    <i class="mdi mdi-file-document-check-outline"></i> Generate All GAAs
+                </button>
+            </div>
+        </div>
+        <div class="r4-card-body">
+            <table class="r4-table">
+                <thead>
+                    <tr>
+                        <th>
+                            <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)">
+                        </th>
+                        <th>Student Name</th>
+                        <th>SEID</th>
+                        <th>IHE Institution</th>
+                        <th>LEA District</th>
+                        <th>Credential Area</th>
+                        <th>Award Amount</th>
+                        <th>Approved Date</th>
+                        <th>GAA Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var student in Model.Students)
+                    {
+                        <tr>
+                            <td>
+                                <input type="checkbox" class="student-checkbox" value="@student.StudentId">
+                            </td>
+                            <td>@student.StudentName</td>
+                            <td>@student.SEID</td>
+                            <td>@student.IHEName</td>
+                            <td>@student.LEAName</td>
+                            <td>
+                                <span class="badge badge-primary">@student.CredentialArea</span>
+                            </td>
+                            <td>@student.AwardAmount.ToString("C0")</td>
+                            <td>
+                                @if (student.ApprovedDate.HasValue)
+                                {
+                                    @student.ApprovedDate.Value.ToString("MM/dd/yyyy")
+                                    var daysSince = (DateTime.Now - student.ApprovedDate.Value).Days;
+                                    if (daysSince > 0)
+                                    {
+                                        <small class="text-muted">(@daysSince day(s) ago)</small>
+                                    }
+                                }
+                            </td>
+                            <td>
+                                @if (string.IsNullOrEmpty(student.GAAStatus))
+                                {
+                                    <span class="badge badge-warning">Pending</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-success">@student.GAAStatus</span>
+                                }
+                            </td>
+                            <td>
+                                <button type="button" class="r4-button r4-button-sm" onclick="generateSingleGAA(@student.StudentId)">
+                                    <i class="mdi mdi-file-document-outline"></i> Generate
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        function toggleSelectAll(checkbox) {
+            const checkboxes = document.querySelectorAll('.student-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = checkbox.checked;
+            });
+        }
+
+        function generateSingleGAA(studentId) {
+            if (confirm('Generate GAA for this student?\n\nThis will create a Grant Award Agreement document and mark the student as ready for DocuSign.')) {
+                alert('GAA Generation for Student ' + studentId + '\n\nIn production, this would:\n1. Generate GAA PDF document\n2. Update student GAA status\n3. Mark funds as encumbered\n4. Prepare for DocuSign upload');
+                location.reload();
+            }
+        }
+
+        function generateSelectedGAAs() {
+            const checkboxes = document.querySelectorAll('.student-checkbox:checked');
+            const selectedCount = checkboxes.length;
+
+            if (selectedCount === 0) {
+                alert('Please select at least one student to generate GAAs.');
+                return;
+            }
+
+            if (confirm(`Generate GAAs for ${selectedCount} selected student(s)?\n\nThis will create Grant Award Agreement documents for all selected students.`)) {
+                alert(`Generating ${selectedCount} GAA document(s)\n\nIn production, this would:\n1. Generate GAA PDF documents\n2. Update student GAA statuses\n3. Mark funds as encumbered\n4. Prepare for DocuSign upload`);
+                location.reload();
+            }
+        }
+
+        function generateAllGAAs() {
+            const totalCount = @Model.Students.Count;
+
+            if (confirm(`Generate GAAs for ALL ${totalCount} approved student(s)?\n\nThis will create Grant Award Agreement documents for all students in the list.`)) {
+                alert(`Generating ${totalCount} GAA document(s)\n\nIn production, this would:\n1. Generate all GAA PDF documents\n2. Update all student GAA statuses\n3. Mark all funds as encumbered\n4. Prepare batch for DocuSign upload`);
+                location.reload();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('GAA Generation page loaded with @Model.Students.Count student(s) ready for processing');
+        });
+    </script>
+}

@@ -1,0 +1,195 @@
+@model LEADashboardViewModel
+
+@{
+    ViewData["Title"] = "LEA Portal Dashboard";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item active">LEA Portal</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-domain"></i> LEA Portal Dashboard</h2>
+    <p class="subtitle">@Model.LEAName - @Model.GrantCycleName</p>
+</div>
+
+@if (Model.ActionItems.Any())
+{
+    @foreach (var item in Model.ActionItems)
+    {
+        <div class="alert alert-warning">
+            <i class="mdi mdi-alert-outline"></i>
+            <strong>Action Required:</strong> @item.Description
+            @if (Model.Applications.Any())
+            {
+                <a href="@Url.Action("CompleteApplication", "LEAPortal", new { id = Model.Applications.First().Id })" class="alert-link">Complete Now</a>
+            }
+        </div>
+    }
+}
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-chart-bar"></i> Application Status Overview</h4>
+        <div class="card-actions">
+            <a href="@Url.Action("Applications", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button">
+                View All Applications
+            </a>
+        </div>
+    </div>
+    <div class="r4-card-body">
+        <div class="dashboard-grid">
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-folder-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.TotalApplications</div>
+                    <div class="metric-label">Total Applications</div>
+                    <div class="metric-description">Partnership applications this cycle</div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-account-group-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.TotalStudents</div>
+                    <div class="metric-label">Total Student Teachers</div>
+                    <div class="metric-description">All candidates in applications</div>
+                </div>
+            </div>
+
+            <div class="metric-card metric-pending">
+                <div class="metric-icon">
+                    <i class="mdi mdi-file-document-edit-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.PendingCompletionCount</div>
+                    <div class="metric-label">Pending Completion</div>
+                    <div class="metric-description">Need your action</div>
+                </div>
+            </div>
+
+            <div class="metric-card metric-review">
+                <div class="metric-icon">
+                    <i class="mdi mdi-clock-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.SubmittedCount</div>
+                    <div class="metric-label">Under Review</div>
+                    <div class="metric-description">Awaiting CTC approval</div>
+                </div>
+            </div>
+
+            <div class="metric-card metric-approved">
+                <div class="metric-icon">
+                    <i class="mdi mdi-check-circle-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.ApprovedCount</div>
+                    <div class="metric-label">Approved</div>
+                    <div class="metric-description">Ready for payment</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.Applications.Any())
+{
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-folder-open-outline"></i> Your Applications</h4>
+        </div>
+        <div class="r4-card-body">
+            <table class="r4-table">
+                <thead>
+                    <tr>
+                        <th>IHE Partner</th>
+                        <th>Total Students</th>
+                        <th>Pending Completion</th>
+                        <th>Submitted</th>
+                        <th>Approved</th>
+                        <th>Last Modified</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var app in Model.Applications)
+                    {
+                        var pendingCompletion = app.TotalStudents - app.PendingCount - app.ApprovedCount;
+
+                        <tr>
+                            <td>@app.IHEName</td>
+                            <td>@app.TotalStudents</td>
+                            <td>
+                                @if (pendingCompletion > 0)
+                                {
+                                    <span class="badge badge-warning">@pendingCompletion</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">0</span>
+                                }
+                            </td>
+                            <td>
+                                @if (app.PendingCount > 0)
+                                {
+                                    <span class="badge badge-secondary">@app.PendingCount</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">0</span>
+                                }
+                            </td>
+                            <td>
+                                @if (app.ApprovedCount > 0)
+                                {
+                                    <span class="badge badge-success">@app.ApprovedCount</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">0</span>
+                                }
+                            </td>
+                            <td>@app.LastModified.ToString("MM/dd/yyyy")</td>
+                            <td>
+                                @if (pendingCompletion > 0)
+                                {
+                                    <a href="@Url.Action("CompleteApplication", "LEAPortal", new { id = app.Id })" class="r4-button r4-button-primary r4-button-sm">
+                                        <i class="mdi mdi-file-document-edit-outline"></i> Complete
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a href="@Url.Action("Details", "Application", new { id = app.Id })" class="r4-button r4-button-sm">
+                                        <i class="mdi mdi-eye-outline"></i> View
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        <i class="mdi mdi-information-outline"></i>
+        You do not have any applications for this grant cycle yet. Your IHE partner will submit candidate lists that you will need to complete.
+    </div>
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('LEA Portal loaded for: @Model.LEAName');
+        });
+    </script>
+}

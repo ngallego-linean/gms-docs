@@ -1,0 +1,256 @@
+@model StudentReviewViewModel
+
+@{
+    ViewData["Title"] = "Review Student Application";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam")">Grants Team</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("Review", "GrantsTeam")">Review Queue</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("Details", "Application", new { id = Model.ApplicationId })">Application @Model.ApplicationId</a></li>
+        <li class="breadcrumb-item active">Review Student</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-account-check-outline"></i> Review Student Application</h2>
+    <p class="subtitle">@Model.Student.FirstName @Model.Student.LastName</p>
+</div>
+
+<div class="alert alert-info">
+    <i class="mdi mdi-information-outline"></i>
+    Please review all student information carefully before making a decision. This application was submitted by <strong>@Model.IHEName</strong> in partnership with <strong>@Model.LEAName</strong>.
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-account-outline"></i> Student Information</h4>
+        <div class="card-actions">
+            <span class="badge badge-warning">@Model.Student.Status</span>
+        </div>
+    </div>
+    <div class="r4-card-body">
+        <dl class="r4-dl-horizontal">
+            <dt>Student Name</dt>
+            <dd>@Model.Student.FirstName @Model.Student.LastName</dd>
+
+            <dt>SEID</dt>
+            <dd>
+                <strong>@Model.Student.SEID</strong>
+                <button type="button" class="r4-button r4-button-sm" onclick="verifySEID('@Model.Student.SEID')">
+                    <i class="mdi mdi-magnify"></i> Verify in CTC System
+                </button>
+            </dd>
+
+            <dt>Credential Area</dt>
+            <dd>
+                <span class="badge badge-primary">@Model.Student.CredentialArea</span>
+            </dd>
+
+            <dt>Award Amount</dt>
+            <dd>@Model.Student.AwardAmount.ToString("C0")</dd>
+
+            <dt>Application ID</dt>
+            <dd>@Model.ApplicationId</dd>
+
+            <dt>Submitted Date</dt>
+            <dd>
+                @if (Model.Student.SubmittedAt.HasValue)
+                {
+                    @Model.Student.SubmittedAt.Value.ToString("MMMM dd, yyyy 'at' hh:mm tt")
+                    var daysSince = (DateTime.Now - Model.Student.SubmittedAt.Value).Days;
+                    if (daysSince > 0)
+                    {
+                        <small class="text-muted">(@daysSince day(s) ago)</small>
+                    }
+                }
+                else
+                {
+                    <span class="text-muted">Not yet submitted</span>
+                }
+            </dd>
+        </dl>
+    </div>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-school-outline"></i> Partnership Information</h4>
+    </div>
+    <div class="r4-card-body">
+        <dl class="r4-dl-horizontal">
+            <dt>IHE Institution</dt>
+            <dd>@Model.IHEName</dd>
+
+            <dt>LEA District</dt>
+            <dd>@Model.LEAName</dd>
+
+            <dt>Partnership Status</dt>
+            <dd>
+                <span class="badge badge-success">
+                    <i class="mdi mdi-check-circle"></i> Verified Active Partnership
+                </span>
+            </dd>
+        </dl>
+    </div>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-clipboard-check-outline"></i> Review Checklist</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="review-checklist">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkSEID">
+                <label class="form-check-label" for="checkSEID">
+                    SEID verified in CTC credential system
+                </label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkCredential">
+                <label class="form-check-label" for="checkCredential">
+                    Credential area is eligible for this grant cycle
+                </label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkEnrollment">
+                <label class="form-check-label" for="checkEnrollment">
+                    Student is enrolled in approved credential program at IHE
+                </label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkEmployment">
+                <label class="form-check-label" for="checkEmployment">
+                    LEA employment verification is complete
+                </label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkDuplicate">
+                <label class="form-check-label" for="checkDuplicate">
+                    No duplicate applications found for this student
+                </label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkAmount">
+                <label class="form-check-label" for="checkAmount">
+                    Award amount is within allowed limits
+                </label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-gavel"></i> Make Decision</h4>
+    </div>
+    <div class="r4-card-body">
+        <form method="post" action="@Url.Action("ProcessReview", "GrantsTeam")" id="reviewForm">
+            <input type="hidden" name="studentId" value="@Model.Student.Id" />
+            <input type="hidden" name="applicationId" value="@Model.ApplicationId" />
+            <input type="hidden" name="decision" id="decisionInput" value="" />
+
+            <div class="form-group">
+                <label for="reviewNotes">Review Notes</label>
+                <textarea class="form-control" id="reviewNotes" name="reviewNotes" rows="4" placeholder="Enter any notes or comments about your decision..."></textarea>
+                <small class="form-text text-muted">These notes will be included in the notification sent to the IHE and LEA.</small>
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="r4-button r4-button-success" onclick="submitDecision('APPROVED')">
+                    <i class="mdi mdi-check-circle-outline"></i> Approve Application
+                </button>
+
+                <button type="button" class="r4-button r4-button-danger" onclick="submitDecision('REJECTED')">
+                    <i class="mdi mdi-close-circle-outline"></i> Reject Application
+                </button>
+
+                <a href="@Url.Action("Details", "Application", new { id = Model.ApplicationId })" class="r4-button r4-button-secondary">
+                    <i class="mdi mdi-arrow-left"></i> Back to Application
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-information-outline"></i> Common Rejection Reasons</h4>
+    </div>
+    <div class="r4-card-body">
+        <ul>
+            <li><strong>SEID Not Found:</strong> The SEID provided does not exist in the CTC credential system</li>
+            <li><strong>Credential Area Ineligible:</strong> The credential area is not covered by this grant cycle</li>
+            <li><strong>Incomplete Verification:</strong> LEA employment verification is missing or incomplete</li>
+            <li><strong>Duplicate Application:</strong> Student has already received an award for this grant cycle</li>
+            <li><strong>Award Limit Exceeded:</strong> Student has reached the maximum allowable award amount</li>
+            <li><strong>Program Not Approved:</strong> The credential program is not on the approved list</li>
+        </ul>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function verifySEID(seid) {
+            alert('SEID Verification: ' + seid + '\n\nIn production, this would connect to the CTC credential system API to verify the SEID.');
+        }
+
+        function submitDecision(decision) {
+            const checkboxes = document.querySelectorAll('.review-checklist input[type="checkbox"]');
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+
+            if (!allChecked && decision === 'APPROVED') {
+                if (!confirm('Not all checklist items are marked. Are you sure you want to approve this application?')) {
+                    return;
+                }
+            }
+
+            const reviewNotes = document.getElementById('reviewNotes').value.trim();
+            if (decision === 'REJECTED' && reviewNotes === '') {
+                alert('Please provide a reason for rejection in the review notes.');
+                document.getElementById('reviewNotes').focus();
+                return;
+            }
+
+            let confirmMessage = decision === 'APPROVED'
+                ? 'Are you sure you want to APPROVE this student application?\n\nThe student will be added to the GAA generation queue and notifications will be sent to the IHE and LEA.'
+                : 'Are you sure you want to REJECT this student application?\n\nThe IHE and LEA will be notified of the rejection with your notes.';
+
+            if (confirm(confirmMessage)) {
+                document.getElementById('decisionInput').value = decision;
+
+                // In production, this would submit to the server
+                alert('Decision: ' + decision + '\n\nIn production, this would:\n1. Update the student status\n2. Send notifications to IHE and LEA\n3. Log the decision in audit trail\n4. Return to review queue');
+
+                // Redirect back to the review queue
+                window.location.href = '@Url.Action("Review", "GrantsTeam")';
+            }
+        }
+
+        // Auto-check checkboxes for demo purposes
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('.review-checklist input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                cb.addEventListener('change', function() {
+                    updateChecklistProgress();
+                });
+            });
+
+            updateChecklistProgress();
+        });
+
+        function updateChecklistProgress() {
+            const checkboxes = document.querySelectorAll('.review-checklist input[type="checkbox"]');
+            const checked = Array.from(checkboxes).filter(cb => cb.checked).length;
+            const total = checkboxes.length;
+            console.log(`Checklist progress: ${checked}/${total} items completed`);
+        }
+    </script>
+}

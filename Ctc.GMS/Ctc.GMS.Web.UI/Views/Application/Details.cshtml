@@ -1,0 +1,193 @@
+@* ~/Views/Application/Details.cshtml *@
+@model ApplicationViewModel
+
+@{
+    ViewData["Title"] = "Application Details";
+
+    var pendingLEACount = Model.Students.Count(s => s.Status == "PENDING_LEA");
+    var draftCount = Model.Students.Count(s => s.Status == "DRAFT");
+    var approvedCount = Model.Students.Count(s => s.Status == "APPROVED");
+    var submittedCount = Model.Students.Count(s => s.Status == "SUBMITTED" || s.Status == "UNDER_REVIEW");
+    var totalStudents = Model.Students.Count;
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Dashboard</a></li>
+        <li class="breadcrumb-item"><a asp-controller="Application" asp-action="Index">Applications</a></li>
+        <li class="breadcrumb-item active">Application Details</li>
+    </ol>
+}
+
+@* Page Header *@
+<div class="page-header">
+    <h2><i class="mdi mdi-file-document-outline"></i> Application Details</h2>
+    <p class="subtitle">@Model.IHE.Name → @Model.LEA.Name</p>
+</div>
+
+@* Action Button *@
+<div class="page-actions">
+    <a asp-controller="Application" asp-action="Index" class="r4-button r4-button-secondary">
+        <i class="mdi mdi-arrow-left"></i> Back to Applications
+    </a>
+</div>
+
+@* Application Information Card *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-information-outline"></i> Application Information</h4>
+    </div>
+    <div class="r4-card-body">
+        <dl class="r4-dl-horizontal">
+            <dt>Application ID:</dt>
+            <dd><strong>#@Model.Id</strong></dd>
+
+            <dt>Grant Cycle:</dt>
+            <dd>@Model.GrantCycle.Name</dd>
+
+            <dt>Status:</dt>
+            <dd>
+                <span class="badge badge-success">
+                    <i class="mdi mdi-check-circle"></i> @Model.Status
+                </span>
+            </dd>
+
+            <dt>IHE Institution:</dt>
+            <dd>@Model.IHE.Name</dd>
+
+            <dt>LEA District:</dt>
+            <dd>@Model.LEA.Name</dd>
+
+            <dt>Created Date:</dt>
+            <dd>@Model.CreatedAt.ToShortDateString()</dd>
+
+            <dt>Last Modified:</dt>
+            <dd>@Model.LastModified.ToShortDateString()</dd>
+
+            <dt>Created By:</dt>
+            <dd>@Model.CreatedBy</dd>
+        </dl>
+    </div>
+</div>
+
+@* Application Progress Card *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-chart-timeline-variant"></i> Application Progress</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="progress-summary-grid">
+            <div class="progress-stat">
+                <div class="progress-stat-icon">
+                    <i class="mdi mdi-account-group-outline"></i>
+                </div>
+                <div class="progress-stat-content">
+                    <div class="progress-stat-value">@totalStudents</div>
+                    <div class="progress-stat-label">Total Students</div>
+                </div>
+            </div>
+            <div class="progress-stat progress-stat-draft">
+                <div class="progress-stat-icon">
+                    <i class="mdi mdi-file-document-edit-outline"></i>
+                </div>
+                <div class="progress-stat-content">
+                    <div class="progress-stat-value">@draftCount</div>
+                    <div class="progress-stat-label">Drafts</div>
+                </div>
+            </div>
+            <div class="progress-stat progress-stat-pending">
+                <div class="progress-stat-icon">
+                    <i class="mdi mdi-clock-outline"></i>
+                </div>
+                <div class="progress-stat-content">
+                    <div class="progress-stat-value">@pendingLEACount</div>
+                    <div class="progress-stat-label">Pending LEA</div>
+                </div>
+            </div>
+            <div class="progress-stat progress-stat-review">
+                <div class="progress-stat-icon">
+                    <i class="mdi mdi-magnify"></i>
+                </div>
+                <div class="progress-stat-content">
+                    <div class="progress-stat-value">@submittedCount</div>
+                    <div class="progress-stat-label">Under Review</div>
+                </div>
+            </div>
+            <div class="progress-stat progress-stat-approved">
+                <div class="progress-stat-icon">
+                    <i class="mdi mdi-check-circle-outline"></i>
+                </div>
+                <div class="progress-stat-content">
+                    <div class="progress-stat-value">@approvedCount</div>
+                    <div class="progress-stat-label">Approved</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Student List *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-account-group-outline"></i> Students</h4>
+    </div>
+    <div class="r4-card-body">
+        @if (!Model.Students.Any())
+        {
+            <div class="alert alert-info">
+                <i class="mdi mdi-information-outline"></i>
+                No students have been added to this application yet.
+            </div>
+        }
+        else
+        {
+            <table class="r4-table">
+                <thead>
+                    <tr>
+                        <th>SEID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Credential Area</th>
+                        <th>Status</th>
+                        <th class="text-right">Award Amount</th>
+                        <th>Submitted</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var student in Model.Students)
+                    {
+                        <tr>
+                            <td>@student.SEID</td>
+                            <td>@student.FirstName</td>
+                            <td>@student.LastName</td>
+                            <td>@student.CredentialArea</td>
+                            <td>
+                                <span class="badge badge-@(GetStatusBadgeClass(student.Status))">
+                                    @student.Status
+                                </span>
+                            </td>
+                            <td class="text-right">@student.AwardAmount.ToString("C0")</td>
+                            <td>@(student.SubmittedAt?.ToShortDateString() ?? "-")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+@functions {
+    string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "APPROVED" => "success",
+            "SUBMITTED" => "warning",
+            "UNDER_REVIEW" => "info",
+            "REJECTED" => "danger",
+            "PENDING_LEA" => "warning",
+            "DRAFT" => "secondary",
+            _ => "secondary"
+        };
+    }
+}

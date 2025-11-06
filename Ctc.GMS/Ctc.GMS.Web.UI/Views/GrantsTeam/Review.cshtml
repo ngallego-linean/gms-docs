@@ -1,0 +1,118 @@
+@model ApplicationListViewModel
+
+@{
+    ViewData["Title"] = "Review Queue";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam")">Grants Team</a></li>
+        <li class="breadcrumb-item active">Review Queue</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-clipboard-check-outline"></i> Review Queue</h2>
+    <p class="subtitle">@Model.GrantCycleName - Applications Pending Review</p>
+</div>
+
+@if (!Model.Applications.Any())
+{
+    <div class="alert alert-info">
+        <i class="mdi mdi-information-outline"></i>
+        No applications are currently pending review. All applications have been processed.
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        <i class="mdi mdi-alert-outline"></i>
+        <strong>@Model.Applications.Sum(a => a.PendingCount) student(s)</strong> from <strong>@Model.Applications.Count application(s)</strong> are waiting for your review.
+    </div>
+
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-folder-open-outline"></i> Applications Requiring Review</h4>
+        </div>
+        <div class="r4-card-body">
+            <table class="r4-table">
+                <thead>
+                    <tr>
+                        <th>Submitted Date</th>
+                        <th>IHE Institution</th>
+                        <th>LEA District</th>
+                        <th>Total Students</th>
+                        <th>Pending Review</th>
+                        <th>Already Approved</th>
+                        <th>Priority</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var app in Model.Applications)
+                    {
+                        var daysSinceSubmission = (DateTime.Now - app.LastModified).Days;
+                        var isUrgent = daysSinceSubmission > 5;
+
+                        <tr class="@(isUrgent ? "table-warning" : "")">
+                            <td>
+                                @app.LastModified.ToString("MM/dd/yyyy")
+                                @if (daysSinceSubmission > 0)
+                                {
+                                    <small class="text-muted">(@daysSinceSubmission day(s) ago)</small>
+                                }
+                            </td>
+                            <td>@app.IHEName</td>
+                            <td>@app.LEAName</td>
+                            <td>
+                                <span class="badge badge-secondary">@app.TotalStudents</span>
+                            </td>
+                            <td>
+                                <span class="badge badge-warning">@app.PendingCount</span>
+                            </td>
+                            <td>
+                                @if (app.ApprovedCount > 0)
+                                {
+                                    <span class="badge badge-success">@app.ApprovedCount</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">None</span>
+                                }
+                            </td>
+                            <td>
+                                @if (isUrgent)
+                                {
+                                    <span class="badge badge-danger">
+                                        <i class="mdi mdi-alert"></i> Urgent
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-secondary">Normal</span>
+                                }
+                            </td>
+                            <td>
+                                <a href="@Url.Action("Details", "Application", new { id = app.Id })" class="r4-button r4-button-primary r4-button-sm">
+                                    <i class="mdi mdi-eye-outline"></i> Review Students
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Highlight urgent items
+            const urgentRows = document.querySelectorAll('.table-warning');
+            if (urgentRows.length > 0) {
+                console.log(`Found ${urgentRows.length} urgent application(s) requiring immediate attention`);
+            }
+        });
+    </script>
+}

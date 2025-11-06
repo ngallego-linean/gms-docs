@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Ctc.GMS\Ctc.GMS.csproj" />
+    <ProjectReference Include="..\Ctc.GMS.Data\Ctc.GMS.Data.csproj" />
+    <ProjectReference Include="..\Ctc.GMS.Business\Ctc.GMS.Business.csproj" />
+    <ProjectReference Include="..\Ctc.GMS.AspNetCore\Ctc.GMS.AspNetCore.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+</Project>

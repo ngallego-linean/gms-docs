@@ -1,0 +1,97 @@
+@model ApplicationListViewModel
+
+@{
+    ViewData["Title"] = "My Applications";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "LEAPortal", new { leaId = ViewContext.RouteData.Values["leaId"], grantCycleId = Model.GrantCycleId })">LEA Portal</a></li>
+        <li class="breadcrumb-item active">Applications</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-file-document-multiple"></i> My Applications</h2>
+    <p class="subtitle">@Model.GrantCycleName</p>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-table"></i> Application Results</h4>
+    </div>
+    <div class="r4-card-body">
+        @if (!Model.Applications.Any())
+        {
+            <div class="alert alert-info">
+                <i class="mdi mdi-information-outline"></i>
+                No applications found for your LEA in this grant cycle.
+            </div>
+        }
+        else
+        {
+            <div class="table-wrapper">
+                <table class="r4-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>IHE Institution</th>
+                            <th>Students</th>
+                            <th>Approved</th>
+                            <th>Pending</th>
+                            <th>Status</th>
+                            <th>Last Modified</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var app in Model.Applications)
+                        {
+                            <tr>
+                                <td><a href="@Url.Action("Details", "Application", new { id = app.Id })">@app.Id</a></td>
+                                <td>@app.IHEName</td>
+                                <td>@app.TotalStudents</td>
+                                <td>@app.ApprovedCount</td>
+                                <td>@app.PendingCount</td>
+                                <td>
+                                    <span class="badge badge-@(GetStatusClass(app.Status))">
+                                        @app.Status
+                                    </span>
+                                </td>
+                                <td>@app.LastModified.ToShortDateString()</td>
+                                <td>
+                                    <a href="@Url.Action("Details", "Application", new { id = app.Id })" class="r4-button r4-button-primary r4-button-sm">
+                                        <i class="mdi mdi-eye"></i> View
+                                    </a>
+                                    @if (app.PendingCount > 0)
+                                    {
+                                        <a href="@Url.Action("CompleteApplication", "LEAPortal", new { id = app.Id })" class="r4-button r4-button-success r4-button-sm">
+                                            <i class="mdi mdi-pencil"></i> Complete
+                                        </a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@functions {
+    string GetStatusClass(string status)
+    {
+        return status switch
+        {
+            "APPROVED" => "success",
+            "ACTIVE" => "primary",
+            "SUBMITTED" => "warning",
+            "UNDER_REVIEW" => "info",
+            "COMPLETED" => "success",
+            "DRAFT" => "secondary",
+            "PENDING_LEA" => "warning",
+            _ => "secondary"
+        };
+    }
+}

@@ -1,0 +1,17 @@
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Business/bin/Debug/net9.0/Ctc.GMS.Business.deps.json
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Business/bin/Debug/net9.0/Ctc.GMS.Business.dll
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Business/bin/Debug/net9.0/Ctc.GMS.Business.pdb
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Business/bin/Debug/net9.0/Ctc.GMS.Data.dll
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Business/bin/Debug/net9.0/Ctc.GMS.dll
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Business/bin/Debug/net9.0/Ctc.GMS.pdb
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Business/bin/Debug/net9.0/Ctc.GMS.Data.pdb
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Business/obj/Debug/net9.0/Ctc.GMS.Business.csproj.AssemblyReference.cache
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Business/obj/Debug/net9.0/Ctc.GMS.Business.GeneratedMSBuildEditorConfig.editorconfig
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Business/obj/Debug/net9.0/Ctc.GMS.Business.AssemblyInfoInputs.cache
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Business/obj/Debug/net9.0/Ctc.GMS.Business.AssemblyInfo.cs
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Business/obj/Debug/net9.0/Ctc.GMS.Business.csproj.CoreCompileInputs.cache
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Business/obj/Debug/net9.0/Ctc.GMS..03E5EA75.Up2Date
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Business/obj/Debug/net9.0/Ctc.GMS.Business.dll
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Business/obj/Debug/net9.0/refint/Ctc.GMS.Business.dll
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Business/obj/Debug/net9.0/Ctc.GMS.Business.pdb
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Business/obj/Debug/net9.0/ref/Ctc.GMS.Business.dll

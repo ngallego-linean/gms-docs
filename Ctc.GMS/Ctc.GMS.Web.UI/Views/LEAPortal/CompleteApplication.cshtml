@@ -1,0 +1,299 @@
+@model CompleteApplicationViewModel
+
+@{
+    ViewData["Title"] = "Complete Application";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "LEAPortal")">LEA Portal</a></li>
+        <li class="breadcrumb-item active">Complete Application</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-file-document-edit-outline"></i> Complete Application</h2>
+    <p class="subtitle">Partnership with @Model.IHEName</p>
+</div>
+
+<div class="alert alert-info">
+    <i class="mdi mdi-information-outline"></i>
+    Your IHE partner has submitted a candidate list. Please review the candidates and provide the required LEA information to complete the application.
+</div>
+
+<form method="post" action="@Url.Action("ProcessApplication", "LEAPortal")" id="applicationForm">
+    <input type="hidden" name="ApplicationId" value="@Model.ApplicationId" />
+
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-account-group-outline"></i> Candidates Submitted by IHE</h4>
+        </div>
+        <div class="r4-card-body">
+            @if (Model.Students.Any())
+            {
+                <table class="r4-table">
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Credential Area</th>
+                            <th>Award Amount</th>
+                            <th>SEID <span class="text-danger">*</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.Students.Count; i++)
+                        {
+                            var student = Model.Students[i];
+                            <tr>
+                                <td>
+                                    @student.FirstName @student.LastName
+                                    <input type="hidden" name="Students[@i].Id" value="@student.Id" />
+                                </td>
+                                <td>
+                                    <span class="badge badge-primary">@student.CredentialArea</span>
+                                </td>
+                                <td>@student.AwardAmount.ToString("C0")</td>
+                                <td>
+                                    <input type="text" class="form-control" name="Students[@i].SEID" placeholder="Enter SEID" required>
+                                    <small class="form-text text-muted">9-digit state education identifier</small>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p class="text-muted">No candidates pending completion.</p>
+            }
+        </div>
+    </div>
+
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-account-outline"></i> LEA Point of Contact</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="POCFirstName">First Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="POCFirstName" name="POCFirstName" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="POCLastName">Last Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="POCLastName" name="POCLastName" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="POCEmail">Email <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" id="POCEmail" name="POCEmail" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="POCPhone">Phone <span class="text-danger">*</span></label>
+                    <input type="tel" class="form-control" id="POCPhone" name="POCPhone" placeholder="(555) 123-4567" required>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-file-sign"></i> GAA Authorized Signer</h4>
+        </div>
+        <div class="r4-card-body">
+            <p class="text-muted">The person authorized to sign Grant Award Agreements on behalf of the LEA (typically Superintendent or designee)</p>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="GAASignerName">Full Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="GAASignerName" name="GAASignerName" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="GAASignerTitle">Title <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="GAASignerTitle" name="GAASignerTitle" placeholder="e.g., Superintendent, Assistant Superintendent" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="GAASignerEmail">Email <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" id="GAASignerEmail" name="GAASignerEmail" required>
+                <small class="form-text text-muted">DocuSign will be sent to this email address</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-currency-usd"></i> Fiscal Agent Information</h4>
+        </div>
+        <div class="r4-card-body">
+            <p class="text-muted">The person who will manage grant funds and process payments to student teachers</p>
+            <div class="form-group">
+                <label for="FiscalAgentName">Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="FiscalAgentName" name="FiscalAgentName" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="FiscalAgentEmail">Email <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" id="FiscalAgentEmail" name="FiscalAgentEmail" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="FiscalAgentPhone">Phone <span class="text-danger">*</span></label>
+                    <input type="tel" class="form-control" id="FiscalAgentPhone" name="FiscalAgentPhone" placeholder="(555) 123-4567" required>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-account-tie"></i> Superintendent Information</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="form-group">
+                <label for="SuperintendentName">Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="SuperintendentName" name="SuperintendentName" required>
+            </div>
+            <div class="form-group">
+                <label for="SuperintendentEmail">Email <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" id="SuperintendentEmail" name="SuperintendentEmail" required>
+            </div>
+        </div>
+    </div>
+
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-cash-multiple"></i> Payment Information</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="form-group">
+                <label for="PaymentIntent">Payment Intent <span class="text-danger">*</span></label>
+                <select class="form-control" id="PaymentIntent" name="PaymentIntent" required>
+                    <option value="">Select payment intent...</option>
+                    <option value="stipend">Stipend to Student Teacher</option>
+                    <option value="salary">Salary Supplement</option>
+                    <option value="tuition">Tuition Support</option>
+                    <option value="other">Other (Specify in Notes)</option>
+                </select>
+                <small class="form-text text-muted">How will the grant funds be used?</small>
+            </div>
+
+            <div class="form-group">
+                <label for="PaymentSchedule">Payment Schedule <span class="text-danger">*</span></label>
+                <select class="form-control" id="PaymentSchedule" name="PaymentSchedule" required>
+                    <option value="">Select payment schedule...</option>
+                    <option value="lump_sum">Lump Sum (One-time payment)</option>
+                    <option value="monthly">Monthly Installments</option>
+                    <option value="quarterly">Quarterly Payments</option>
+                    <option value="semester">Per Semester</option>
+                </select>
+                <small class="form-text text-muted">When will payments be made to student teachers?</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="r4-button r4-button-success">
+            <i class="mdi mdi-send-outline"></i> Submit Application to CTC
+        </button>
+        <a href="@Url.Action("Dashboard", "LEAPortal")" class="r4-button r4-button-secondary">
+            <i class="mdi mdi-arrow-left"></i> Save Draft & Return Later
+        </a>
+    </div>
+</form>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-information-outline"></i> Required Information Checklist</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="review-checklist">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkSEID">
+                <label class="form-check-label" for="checkSEID">
+                    SEID confirmed for all candidates
+                </label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkPOC">
+                <label class="form-check-label" for="checkPOC">
+                    LEA point of contact information provided
+                </label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkGAA">
+                <label class="form-check-label" for="checkGAA">
+                    GAA authorized signer designated
+                </label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkFiscal">
+                <label class="form-check-label" for="checkFiscal">
+                    Fiscal agent information complete
+                </label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkSuper">
+                <label class="form-check-label" for="checkSuper">
+                    Superintendent information provided
+                </label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkPayment">
+                <label class="form-check-label" for="checkPayment">
+                    Payment intent and schedule specified
+                </label>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('applicationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const checkboxes = document.querySelectorAll('.review-checklist input[type="checkbox"]');
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+
+            if (!allChecked) {
+                if (!confirm('Not all checklist items are marked. Are you sure all required information has been provided?')) {
+                    return;
+                }
+            }
+
+            const studentCount = @Model.Students.Count;
+
+            if (confirm(`Submit completed application to CTC for ${studentCount} candidate(s)?\n\nAfter submission:\n- CTC Grants Team will review the application\n- You will receive email notification of approval decision\n- Approved students will receive Grant Award Agreements`)) {
+                alert(`Application submitted to CTC!\n\nIn production, this would:\n1. Update student statuses to "SUBMITTED"\n2. Send notification to CTC Grants Team\n3. Send confirmation email to you\n4. Redirect to dashboard`);
+
+                window.location.href = '@Url.Action("Dashboard", "LEAPortal")';
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('applicationForm');
+            const checkboxes = document.querySelectorAll('.review-checklist input[type="checkbox"]');
+
+            form.addEventListener('input', function() {
+                updateChecklistProgress();
+            });
+
+            checkboxes.forEach(cb => {
+                cb.addEventListener('change', function() {
+                    updateChecklistProgress();
+                });
+            });
+
+            function updateChecklistProgress() {
+                const checked = Array.from(checkboxes).filter(cb => cb.checked).length;
+                const total = checkboxes.length;
+                console.log(`Checklist progress: ${checked}/${total} items completed`);
+            }
+        });
+    </script>
+}

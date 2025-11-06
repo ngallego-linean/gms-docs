@@ -1,0 +1,125 @@
+@* ~/Views/Application/Index.cshtml *@
+@model ApplicationListViewModel
+
+@{
+    ViewData["Title"] = "Applications";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Dashboard</a></li>
+        <li class="breadcrumb-item active">Applications</li>
+    </ol>
+}
+
+@* Page Header *@
+<div class="page-header">
+    <h2><i class="mdi mdi-file-document-multiple"></i> Applications</h2>
+    <p class="subtitle">All IHE-LEA applications for current grant cycle</p>
+</div>
+
+@* R4 Search/Filter Card (UI-252) *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-magnify"></i> Search Applications</h4>
+    </div>
+    <div class="r4-card-body">
+        <form method="get" asp-controller="Application" asp-action="Index">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="IHEId">IHE Institution</label>
+                    <select asp-for="SearchCriteria.IHEId" class="form-control" id="IHEId">
+                        <option value="">--Unspecified--</option>
+                        @* In real app, this would be populated from controller *@
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="LEAId">LEA District</label>
+                    <select asp-for="SearchCriteria.LEAId" class="form-control" id="LEAId">
+                        <option value="">--Unspecified--</option>
+                        @* In real app, this would be populated from controller *@
+                    </select>
+                </div>
+            </div>
+
+            <div class="search-actions">
+                <button type="submit" class="r4-button r4-button-primary">
+                    <i class="mdi mdi-magnify"></i> Search
+                </button>
+                <a asp-controller="Application" asp-action="Index" class="r4-button r4-button-secondary">
+                    <i class="mdi mdi-close-circle"></i> Clear
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@* R4 Results Card *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-table"></i> Application Results</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="table-wrapper">
+            <table class="r4-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>IHE Institution</th>
+                        <th>LEA District</th>
+                        <th>Students</th>
+                        <th>Approved</th>
+                        <th>Pending</th>
+                        <th>Status</th>
+                        <th>Last Modified</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Applications.Any())
+                    {
+                        <tr>
+                            <td colspan="9" class="text-center">No applications found</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var app in Model.Applications)
+                        {
+                            <tr>
+                                <td><a asp-controller="Application" asp-action="Details" asp-route-id="@app.Id">@app.Id</a></td>
+                                <td>@app.IHEName</td>
+                                <td>@app.LEAName</td>
+                                <td>@app.TotalStudents</td>
+                                <td>@app.ApprovedCount</td>
+                                <td>@app.PendingCount</td>
+                                <td>
+                                    @{
+                                        var badgeClass = app.Status switch
+                                        {
+                                            "APPROVED" => "badge-success",
+                                            "ACTIVE" => "badge-primary",
+                                            "SUBMITTED" => "badge-warning",
+                                            "UNDER_REVIEW" => "badge-info",
+                                            "COMPLETED" => "badge-success",
+                                            "DRAFT" => "badge-secondary",
+                                            _ => "badge-secondary"
+                                        };
+                                    }
+                                    <span class="badge @badgeClass">@app.Status</span>
+                                </td>
+                                <td>@app.LastModified.ToString("MM/dd/yyyy")</td>
+                                <td>
+                                    <a asp-controller="Application" asp-action="Details" asp-route-id="@app.Id" class="r4-button r4-button-primary r4-button-sm" style="display: inline-block !important; min-width: 100px !important; text-align: center !important; padding: 0.5rem 1rem !important; color: white !important;">
+                                        <i class="mdi mdi-eye" style="margin-right: 0.5rem; color: white !important;"></i><span style="display: inline !important; color: white !important; visibility: visible !important;">View</span>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

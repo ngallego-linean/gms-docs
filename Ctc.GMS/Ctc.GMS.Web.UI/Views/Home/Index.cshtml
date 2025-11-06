@@ -1,0 +1,305 @@
+@* ~/Views/Home/Index.cshtml *@
+@model DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item active">Dashboard</li>
+    </ol>
+}
+
+@* Page Header *@
+<div class="page-header">
+    <h2><i class="mdi mdi-shield-check-outline"></i> Grants Team Dashboard</h2>
+    <p class="subtitle">@Model.GrantCycleName</p>
+</div>
+
+@* Action Required Alert *@
+@if (Model.PendingReviewCount > 0)
+{
+    <div class="alert alert-warning">
+        <i class="mdi mdi-alert-outline"></i>
+        <strong>Action Required:</strong> @Model.PendingReviewCount student application@(Model.PendingReviewCount != 1 ? "s" : "") waiting for your review.
+        <a asp-controller="Application" asp-action="Index" asp-route-filter="pending" class="alert-link">Review now →</a>
+    </div>
+}
+
+@* Grants Team Metrics - R4 Card Pattern (UI-200 to UI-204) *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-clipboard-check-outline"></i> Review Status</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="dashboard-grid">
+            <div class="metric-card metric-pending">
+                <div class="metric-icon">
+                    <i class="mdi mdi-clock-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Metrics.StatusCounts.Submitted</div>
+                    <div class="metric-label">Pending Review</div>
+                    <div class="metric-description">Students awaiting your approval</div>
+                </div>
+            </div>
+
+            <div class="metric-card metric-approved">
+                <div class="metric-icon">
+                    <i class="mdi mdi-check-circle-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Metrics.StatusCounts.Approved</div>
+                    <div class="metric-label">Approved</div>
+                    <div class="metric-description">Students approved for awards</div>
+                </div>
+            </div>
+
+            <div class="metric-card metric-review">
+                <div class="metric-icon">
+                    <i class="mdi mdi-magnify"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Metrics.StatusCounts.UnderReview</div>
+                    <div class="metric-label">Under Review</div>
+                    <div class="metric-description">Currently being evaluated</div>
+                </div>
+            </div>
+
+            <div class="metric-card metric-rejected">
+                <div class="metric-icon">
+                    <i class="mdi mdi-close-circle-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Metrics.StatusCounts.Rejected</div>
+                    <div class="metric-label">Rejected</div>
+                    <div class="metric-description">Applications denied</div>
+                </div>
+            </div>
+
+            <div class="metric-card metric-draft">
+                <div class="metric-icon">
+                    <i class="mdi mdi-file-document-edit-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@(Model.Metrics.StatusCounts.Draft + Model.Metrics.StatusCounts.PendingLEA)</div>
+                    <div class="metric-label">Drafts</div>
+                    <div class="metric-description">IHE/LEA in progress</div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-account-group-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Metrics.TotalStudents</div>
+                    <div class="metric-label">Total Students</div>
+                    <div class="metric-description">All student applications</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Applications Needing Review *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-file-document-alert-outline"></i> Applications Needing Review</h4>
+        <div class="card-actions">
+            <a asp-controller="Application" asp-action="Index" class="r4-button r4-button-sm">
+                <i class="mdi mdi-view-list"></i> View All Applications
+            </a>
+        </div>
+    </div>
+    <div class="r4-card-body">
+        @if (!Model.ApplicationsWithPendingStudents.Any())
+        {
+            <div class="alert alert-success">
+                <i class="mdi mdi-check-circle-outline"></i>
+                All caught up! No applications currently need review.
+            </div>
+        }
+        else
+        {
+            <div class="application-cards-grid">
+                @foreach (var app in Model.ApplicationsWithPendingStudents)
+                {
+                    <div class="application-card">
+                        <div class="application-card-header">
+                            <div class="application-id">#@app.Id</div>
+                            <span class="badge badge-warning">Needs Review</span>
+                        </div>
+                        <div class="application-card-body">
+                            <div class="org-info">
+                                <div class="org-label">IHE:</div>
+                                <div class="org-name">@app.IHEName</div>
+                            </div>
+                            <div class="org-info">
+                                <div class="org-label">LEA:</div>
+                                <div class="org-name">@app.LEAName</div>
+                            </div>
+                            <div class="student-counts">
+                                <span class="count-badge">
+                                    <i class="mdi mdi-account-alert"></i>
+                                    @app.PendingCount Pending
+                                </span>
+                                <span class="count-badge">
+                                    <i class="mdi mdi-account"></i>
+                                    @app.TotalStudents Total
+                                </span>
+                            </div>
+                        </div>
+                        <div class="application-card-footer">
+                            <a asp-controller="Application" asp-action="Details" asp-route-id="@app.Id" class="r4-button r4-button-primary r4-button-sm">
+                                <i class="mdi mdi-eye"></i> Review Students
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@* Program Statistics *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-chart-box-outline"></i> Program Statistics</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="dashboard-grid">
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-school-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Metrics.UniqueIHEs</div>
+                    <div class="metric-label">IHEs Participating</div>
+                    <div class="metric-description">Higher education institutions</div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-domain"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Metrics.UniqueLEAs</div>
+                    <div class="metric-label">LEAs Participating</div>
+                    <div class="metric-description">Local education agencies</div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-handshake-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Metrics.ActivePartnerships</div>
+                    <div class="metric-label">Active Partnerships</div>
+                    <div class="metric-description">IHE-LEA partnerships</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Fund Depletion Chart *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-chart-line"></i> Fund Depletion Over Time</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="fund-depletion-chart">
+            <svg viewBox="0 0 1200 400" class="depletion-svg">
+                <!-- Grid lines -->
+                <line x1="80" y1="50" x2="1150" y2="50" class="grid-line" />
+                <line x1="80" y1="125" x2="1150" y2="125" class="grid-line" />
+                <line x1="80" y1="200" x2="1150" y2="200" class="grid-line" />
+                <line x1="80" y1="275" x2="1150" y2="275" class="grid-line" />
+                <line x1="80" y1="350" x2="1150" y2="350" class="grid-line" />
+
+                <!-- Y-axis labels -->
+                <text x="70" y="55" class="axis-label" text-anchor="end">$25.0M</text>
+                <text x="70" y="130" class="axis-label" text-anchor="end">$20.0M</text>
+                <text x="70" y="205" class="axis-label" text-anchor="end">$15.0M</text>
+                <text x="70" y="280" class="axis-label" text-anchor="end">$10.0M</text>
+                <text x="70" y="355" class="axis-label" text-anchor="end">$5.0M</text>
+
+                <!-- X-axis labels -->
+                <text x="80" y="380" class="axis-label" text-anchor="middle">Jun 30</text>
+                <text x="312" y="380" class="axis-label" text-anchor="middle">Jul 31</text>
+                <text x="544" y="380" class="axis-label" text-anchor="middle">Aug 31</text>
+                <text x="776" y="380" class="axis-label" text-anchor="middle">Sep 30</text>
+                <text x="1008" y="380" class="axis-label" text-anchor="middle">Oct 31</text>
+                <text x="1150" y="380" class="axis-label" text-anchor="middle">Nov 3</text>
+
+                <!-- Area fill (depleted funds) -->
+                <path class="depletion-area" d="M 80,50 L 80,50 L 312,85 L 544,135 L 776,210 L 1008,285 L 1150,335 L 1150,350 L 80,350 Z" />
+
+                <!-- Line (remaining funds) -->
+                <path class="depletion-line" d="M 80,50 L 312,85 L 544,135 L 776,210 L 1008,285 L 1150,335" />
+
+                <!-- Data points -->
+                <circle cx="80" cy="50" r="5" class="data-point" />
+                <circle cx="312" cy="85" r="5" class="data-point" />
+                <circle cx="544" cy="135" r="5" class="data-point" />
+                <circle cx="776" cy="210" r="5" class="data-point" />
+                <circle cx="1008" cy="285" r="5" class="data-point" />
+                <circle cx="1150" cy="335" r="7" class="data-point-today" />
+
+                <!-- Current date marker -->
+                <line x1="1150" y1="50" x2="1150" y2="350" class="current-date-line" stroke-dasharray="5,5" />
+                <text x="1150" y="40" class="current-date-label" text-anchor="middle">TODAY</text>
+            </svg>
+
+            <div class="chart-legend">
+                <div class="legend-item">
+                    <span class="legend-color legend-depleted"></span>
+                    <span class="legend-text">Funds Depleted</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color legend-remaining"></span>
+                    <span class="legend-text">Remaining Funds</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color legend-current"></span>
+                    <span class="legend-text">Current Date</span>
+                </div>
+            </div>
+
+            <div class="chart-metrics">
+                <div class="chart-metric">
+                    <div class="chart-metric-label">Depletion Rate</div>
+                    <div class="chart-metric-value">
+                        @{
+                            var depletionRate = (Model.Metrics.ApproprietedAmount - Model.Metrics.RemainingAmount) / 126m;
+                        }
+                        $@depletionRate.ToString("N0")/day
+                    </div>
+                </div>
+                <div class="chart-metric">
+                    <div class="chart-metric-label">Projected Depletion</div>
+                    <div class="chart-metric-value">
+                        @{
+                            var daysRemaining = Model.Metrics.RemainingAmount / ((Model.Metrics.ApproprietedAmount - Model.Metrics.RemainingAmount) / 126m);
+                            var projectedDate = DateTime.Now.AddDays((double)daysRemaining);
+                        }
+                        @projectedDate.ToString("MMM dd, yyyy")
+                    </div>
+                </div>
+                <div class="chart-metric">
+                    <div class="chart-metric-label">Total Committed</div>
+                    <div class="chart-metric-value">
+                        @{
+                            var totalCommitted = Model.Metrics.ApproprietedAmount - Model.Metrics.RemainingAmount;
+                        }
+                        $@totalCommitted.ToString("N0")
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

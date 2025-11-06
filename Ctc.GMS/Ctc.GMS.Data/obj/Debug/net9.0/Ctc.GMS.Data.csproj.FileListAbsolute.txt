@@ -1,0 +1,15 @@
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Data/bin/Debug/net9.0/Ctc.GMS.Data.deps.json
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Data/bin/Debug/net9.0/Ctc.GMS.Data.dll
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Data/bin/Debug/net9.0/Ctc.GMS.Data.pdb
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Data/bin/Debug/net9.0/Ctc.GMS.dll
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Data/bin/Debug/net9.0/Ctc.GMS.pdb
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Data/obj/Debug/net9.0/Ctc.GMS.Data.csproj.AssemblyReference.cache
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Data/obj/Debug/net9.0/Ctc.GMS.Data.GeneratedMSBuildEditorConfig.editorconfig
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Data/obj/Debug/net9.0/Ctc.GMS.Data.AssemblyInfoInputs.cache
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Data/obj/Debug/net9.0/Ctc.GMS.Data.AssemblyInfo.cs
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Data/obj/Debug/net9.0/Ctc.GMS.Data.csproj.CoreCompileInputs.cache
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Data/obj/Debug/net9.0/Ctc.GMS..43849F9D.Up2Date
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Data/obj/Debug/net9.0/Ctc.GMS.Data.dll
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Data/obj/Debug/net9.0/refint/Ctc.GMS.Data.dll
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Data/obj/Debug/net9.0/Ctc.GMS.Data.pdb
+/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Data/obj/Debug/net9.0/ref/Ctc.GMS.Data.dll
