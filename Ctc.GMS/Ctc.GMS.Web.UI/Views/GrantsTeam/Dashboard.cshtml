@@ -1,32 +1,24 @@
 @model DashboardViewModel
 
 @{
-    ViewData["Title"] = "Grants Team Dashboard";
+    ViewData["Title"] = "Grants/Fiscal Team Dashboard";
 }
 
 @section Breadcrumbs {
     <ol class="breadcrumb">
-        <li class="breadcrumb-item active">Grants Team Dashboard</li>
+        <li class="breadcrumb-item active">Grants/Fiscal Team Dashboard</li>
     </ol>
 }
 
 <div class="page-header">
-    <h2><i class="mdi mdi-clipboard-check-outline"></i> Grants Team Dashboard</h2>
+    <h2><i class="mdi mdi-clipboard-check-outline"></i> Grants/Fiscal Team Dashboard</h2>
     <p class="subtitle">@Model.GrantCycleName</p>
 </div>
 
-@if (Model.PendingReviewCount > 0)
-{
-    <div class="alert alert-warning">
-        <i class="mdi mdi-alert-outline"></i>
-        <strong>Action Required:</strong> @Model.PendingReviewCount student application@(Model.PendingReviewCount != 1 ? "s" : "") waiting for your review.
-        <a href="@Url.Action("Review", "GrantsTeam", new { grantCycleId = Model.GrantCycleId })" class="alert-link">Review Now</a>
-    </div>
-}
-
+@* GRANTS TEAM - Action Items *@
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-clipboard-check-outline"></i> Review Status</h4>
+        <h4><i class="mdi mdi-clipboard-check-outline"></i> GRANTS TEAM - Action Items</h4>
         <div class="card-actions">
             <a href="@Url.Action("Review", "GrantsTeam", new { grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-primary">
                 <i class="mdi mdi-eye-outline"></i> Review Queue
@@ -34,51 +26,20 @@
         </div>
     </div>
     <div class="r4-card-body">
-        <div class="dashboard-grid">
-            <div class="metric-card metric-pending">
-                <div class="metric-icon">
-                    <i class="mdi mdi-clock-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.Metrics.StatusCounts.Submitted</div>
-                    <div class="metric-label">Pending Review</div>
-                    <div class="metric-description">Students awaiting your approval</div>
-                </div>
+        @if (Model.PendingReviewCount > 0)
+        {
+            <div class="alert alert-warning">
+                <i class="mdi mdi-alert-outline"></i>
+                <strong>@Model.PendingReviewCount student application@(Model.PendingReviewCount != 1 ? "s" : "") waiting for review</strong>
             </div>
-
-            <div class="metric-card metric-review">
-                <div class="metric-icon">
-                    <i class="mdi mdi-magnify"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.Metrics.StatusCounts.UnderReview</div>
-                    <div class="metric-label">Under Review</div>
-                    <div class="metric-description">Applications in progress</div>
-                </div>
+        }
+        else
+        {
+            <div class="alert alert-success">
+                <i class="mdi mdi-check-circle-outline"></i>
+                All caught up! No applications currently need review.
             </div>
-
-            <div class="metric-card metric-approved">
-                <div class="metric-icon">
-                    <i class="mdi mdi-check-circle-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.Metrics.StatusCounts.Approved</div>
-                    <div class="metric-label">Approved</div>
-                    <div class="metric-description">Ready for GAA generation</div>
-                </div>
-            </div>
-
-            <div class="metric-card metric-rejected">
-                <div class="metric-icon">
-                    <i class="mdi mdi-close-circle-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.Metrics.StatusCounts.Rejected</div>
-                    <div class="metric-label">Not Approved</div>
-                    <div class="metric-description">Applications denied</div>
-                </div>
-            </div>
-        </div>
+        }
     </div>
 </div>
 
@@ -188,51 +149,151 @@
     </div>
 }
 
+@* FISCAL TEAM - Action Items *@
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-chart-bar"></i> Grant Cycle Overview</h4>
+        <h4><i class="mdi mdi-currency-usd"></i> FISCAL TEAM - Action Items</h4>
+        <div class="card-actions">
+            <a href="@Url.Action("GAA", "FiscalTeam", new { grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-primary">
+                <i class="mdi mdi-file-plus-outline"></i> Generate GAAs
+            </a>
+        </div>
+    </div>
+    <div class="r4-card-body">
+        @if (Model.Metrics.StatusCounts.Approved > 0)
+        {
+            <div class="alert alert-info">
+                <i class="mdi mdi-information-outline"></i>
+                <strong>@Model.Metrics.StatusCounts.Approved approved student@(Model.Metrics.StatusCounts.Approved != 1 ? "s" : "") ready for GAA processing</strong>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-success">
+                <i class="mdi mdi-check-circle-outline"></i>
+                All caught up! No GAAs currently need processing.
+            </div>
+        }
+    </div>
+</div>
+
+@* Budget Overview *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-chart-bar"></i> Budget Overview</h4>
     </div>
     <div class="r4-card-body">
         <div class="dashboard-grid">
             <div class="metric-card">
                 <div class="metric-icon">
-                    <i class="mdi mdi-account-group-outline"></i>
+                    <i class="mdi mdi-currency-usd"></i>
                 </div>
                 <div class="metric-content">
-                    <div class="metric-value">@Model.Metrics.TotalStudents</div>
-                    <div class="metric-label">Total Students</div>
+                    <div class="metric-value">@Model.Metrics.ApproprietedAmount.ToString("C0")</div>
+                    <div class="metric-label">Appropriated Amount</div>
+                    <div class="metric-description">Total budget for cycle</div>
                 </div>
             </div>
 
-            <div class="metric-card">
+            <div class="metric-card metric-reserved">
                 <div class="metric-icon">
-                    <i class="mdi mdi-school-outline"></i>
+                    <i class="mdi mdi-lock-outline"></i>
                 </div>
                 <div class="metric-content">
-                    <div class="metric-value">@Model.Metrics.UniqueIHEs</div>
-                    <div class="metric-label">IHE Institutions</div>
+                    <div class="metric-value">@Model.Metrics.ReservedAmount.ToString("C0")</div>
+                    <div class="metric-label">Reserved</div>
+                    <div class="metric-description">Approved but not encumbered</div>
                 </div>
             </div>
 
-            <div class="metric-card">
+            <div class="metric-card metric-encumbered">
                 <div class="metric-icon">
-                    <i class="mdi mdi-domain"></i>
+                    <i class="mdi mdi-file-document-outline"></i>
                 </div>
                 <div class="metric-content">
-                    <div class="metric-value">@Model.Metrics.UniqueLEAs</div>
-                    <div class="metric-label">LEA Districts</div>
+                    <div class="metric-value">@Model.Metrics.EncumberedAmount.ToString("C0")</div>
+                    <div class="metric-label">Encumbered</div>
+                    <div class="metric-description">GAA generated and signed</div>
                 </div>
             </div>
 
-            <div class="metric-card">
+            <div class="metric-card metric-disbursed">
                 <div class="metric-icon">
-                    <i class="mdi mdi-handshake-outline"></i>
+                    <i class="mdi mdi-cash-check"></i>
                 </div>
                 <div class="metric-content">
-                    <div class="metric-value">@Model.Metrics.ActivePartnerships</div>
-                    <div class="metric-label">Active Partnerships</div>
+                    <div class="metric-value">@Model.Metrics.DisbursedAmount.ToString("C0")</div>
+                    <div class="metric-label">Disbursed</div>
+                    <div class="metric-description">Payments completed</div>
                 </div>
             </div>
+
+            <div class="metric-card metric-remaining">
+                <div class="metric-icon">
+                    <i class="mdi mdi-wallet-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Metrics.RemainingAmount.ToString("C0")</div>
+                    <div class="metric-label">Remaining</div>
+                    <div class="metric-description">@Model.Metrics.RemainingPercent.ToString("F1")% of budget</div>
+                </div>
+            </div>
+
+            <div class="metric-card metric-outstanding">
+                <div class="metric-icon">
+                    <i class="mdi mdi-alert-circle-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Metrics.OutstandingBalance.ToString("C0")</div>
+                    <div class="metric-label">Outstanding Balance</div>
+                    <div class="metric-description">Encumbered minus disbursed</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="budget-progress">
+            <h5>Budget Utilization</h5>
+            <div class="r4-progress">
+                @{
+                    var reservedPercent = Model.Metrics.ApproprietedAmount > 0
+                        ? (Model.Metrics.ReservedAmount / Model.Metrics.ApproprietedAmount * 100)
+                        : 0;
+                    var encumberedPercent = Model.Metrics.ApproprietedAmount > 0
+                        ? (Model.Metrics.EncumberedAmount / Model.Metrics.ApproprietedAmount * 100)
+                        : 0;
+                    var disbursedPercent = Model.Metrics.ApproprietedAmount > 0
+                        ? (Model.Metrics.DisbursedAmount / Model.Metrics.ApproprietedAmount * 100)
+                        : 0;
+                }
+                @if (reservedPercent > 0.1m)
+                {
+                    <div class="r4-progress-bar r4-progress-bar-reserved"
+                         style="width: @reservedPercent%"
+                         role="progressbar"
+                         aria-valuenow="@reservedPercent" aria-valuemin="0" aria-valuemax="100">
+                        Reserved @reservedPercent.ToString("F1")%
+                    </div>
+                }
+                @if (encumberedPercent > 0.1m)
+                {
+                    <div class="r4-progress-bar r4-progress-bar-encumbered"
+                         style="width: @encumberedPercent%"
+                         role="progressbar"
+                         aria-valuenow="@encumberedPercent" aria-valuemin="0" aria-valuemax="100">
+                        Encumbered @encumberedPercent.ToString("F1")%
+                    </div>
+                }
+                @if (disbursedPercent > 0.1m)
+                {
+                    <div class="r4-progress-bar r4-progress-bar-disbursed"
+                         style="width: @disbursedPercent%"
+                         role="progressbar"
+                         aria-valuenow="@disbursedPercent" aria-valuemin="0" aria-valuemax="100">
+                        Disbursed @disbursedPercent.ToString("F1")%
+                    </div>
+                }
+            </div>
+            <small class="text-muted">Remaining: @Model.Metrics.RemainingPercent.ToString("F1")%</small>
         </div>
     </div>
 </div>

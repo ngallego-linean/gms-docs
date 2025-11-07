@@ -63,12 +63,7 @@
                 <ul class="nav-menu">
                     <li>
                         <a asp-controller="GrantsTeam" asp-action="Dashboard" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "GrantsTeam" ? "active" : "")">
-                            <i class="mdi mdi-clipboard-check-outline"></i> Grants Team
-                        </a>
-                    </li>
-                    <li>
-                        <a asp-controller="FiscalTeam" asp-action="Dashboard" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "FiscalTeam" ? "active" : "")">
-                            <i class="mdi mdi-currency-usd"></i> Fiscal Team
+                            <i class="mdi mdi-clipboard-check-outline"></i> Grants/Fiscal Team
                         </a>
                     </li>
                     <li>
