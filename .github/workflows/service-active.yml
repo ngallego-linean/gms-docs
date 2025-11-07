@@ -1,11 +1,11 @@
 name: Keep Azure App Alive
 
-   on:
+on:
      schedule:
-       - cron: '*/45 * * * *'  # Every 45 minutes
+       - cron: '*/19 * * * *'  # Every 19 minutes
      workflow_dispatch:  # Allows manual trigger
 
-   jobs:
+jobs:
      ping:
        runs-on: ubuntu-latest
        steps:
