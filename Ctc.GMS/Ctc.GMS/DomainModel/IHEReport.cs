@@ -10,6 +10,7 @@ public class IHEReport
     public int Id { get; set; }
     public int StudentId { get; set; }
     public int ApplicationId { get; set; }
+    public int? PaymentId { get; set; }  // Link to Payment record
 
     // Completion Status (from flowchart: "Completion confirmation (date) or denial")
     public string CompletionStatus { get; set; } = string.Empty;  // COMPLETED, DENIED, IN_PROGRESS
@@ -55,4 +56,5 @@ public class IHEReport
     // Navigation
     public Student? Student { get; set; }
     public Application? Application { get; set; }
+    public Payment? Payment { get; set; }
 }

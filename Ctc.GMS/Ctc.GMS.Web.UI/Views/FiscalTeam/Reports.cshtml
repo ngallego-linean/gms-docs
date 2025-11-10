@@ -1,0 +1,240 @@
+@model List<PaymentWithReportsViewModel>
+
+@{
+    ViewData["Title"] = "Payment Reports";
+    var grantCycleName = ViewBag.GrantCycleName as string;
+    var grantCycleId = ViewBag.GrantCycleId as int? ?? 1;
+    var reportingMetrics = ViewBag.ReportingMetrics as ReportingDashboardViewModel;
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "FiscalTeam", new { grantCycleId })">Fiscal Team Dashboard</a></li>
+        <li class="breadcrumb-item active">Payment Reports</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-file-document-check-outline"></i> Payment Reports & Outcomes</h2>
+    <p class="subtitle">@grantCycleName</p>
+</div>
+
+@if (reportingMetrics != null && reportingMetrics.OutstandingReports > 0)
+{
+    <div class="alert alert-warning">
+        <i class="mdi mdi-alert-outline"></i>
+        <strong>Outstanding Reports:</strong> @reportingMetrics.OutstandingReports payment(s) are missing required reports.
+        <a href="@Url.Action("LEACompliance", "FiscalTeam", new { grantCycleId })" class="alert-link">View LEA Compliance</a>
+    </div>
+}
+
+@if (reportingMetrics != null)
+{
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-chart-line"></i> Reporting Summary</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="dashboard-grid">
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="mdi mdi-file-document-multiple"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value">@reportingMetrics.TotalPayments</div>
+                        <div class="metric-label">Total Payments</div>
+                    </div>
+                </div>
+
+                <div class="metric-card metric-submitted">
+                    <div class="metric-icon">
+                        <i class="mdi mdi-check-all"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value">@reportingMetrics.PaymentsWithReports</div>
+                        <div class="metric-label">Complete Reports</div>
+                    </div>
+                </div>
+
+                <div class="metric-card @(reportingMetrics.OutstandingReports > 0 ? "metric-outstanding" : "")">
+                    <div class="metric-icon">
+                        <i class="mdi mdi-file-alert-outline"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value">@reportingMetrics.OutstandingReports</div>
+                        <div class="metric-label">Outstanding Reports</div>
+                    </div>
+                </div>
+
+                <div class="metric-card @(reportingMetrics.ComplianceHealth == "GREEN" ? "metric-compliant" : reportingMetrics.ComplianceHealth == "YELLOW" ? "metric-warning" : "metric-alert")">
+                    <div class="metric-icon">
+                        <i class="mdi @(reportingMetrics.ComplianceHealth == "GREEN" ? "mdi-check-circle" : reportingMetrics.ComplianceHealth == "YELLOW" ? "mdi-alert" : "mdi-alert-circle")"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value">@reportingMetrics.ReportingComplianceRate.ToString("P0")</div>
+                        <div class="metric-label">Compliance Rate</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-table"></i> Payments with Report Status</h4>
+        <div class="card-actions">
+            <a href="@Url.Action("LEACompliance", "FiscalTeam", new { grantCycleId })" class="r4-button r4-button-sm">
+                <i class="mdi mdi-chart-box-outline"></i> LEA Compliance
+            </a>
+        </div>
+    </div>
+    <div class="r4-card-body">
+        @if (Model.Any())
+        {
+            <div class="table-wrapper">
+                <table class="r4-table">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>LEA District</th>
+                            <th>Amount Paid</th>
+                            <th>Payment Date</th>
+                            <th>LEA Report</th>
+                            <th>IHE Report</th>
+                            <th>Program Completion</th>
+                            <th>Credential</th>
+                            <th>Employment</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var payment in Model)
+                        {
+                            <tr class="@(payment.HasOutstandingReports ? "row-warning" : "")">
+                                <td>
+                                    <strong>@payment.StudentName</strong><br />
+                                    <small class="text-muted">@payment.SEID</small>
+                                </td>
+                                <td>@payment.LEAName</td>
+                                <td>@payment.AmountPaid.ToString("C0")</td>
+                                <td>
+                                    @if (payment.PaymentDate.HasValue)
+                                    {
+                                        @payment.PaymentDate.Value.ToString("MM/dd/yyyy")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (payment.LEAReportStatus == "Submitted")
+                                    {
+                                        <span class="badge badge-success"><i class="mdi mdi-check"></i> Submitted</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-warning"><i class="mdi mdi-clock-outline"></i> Pending</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (payment.IHEReportStatus == "Submitted")
+                                    {
+                                        <span class="badge badge-success"><i class="mdi mdi-check"></i> Submitted</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-warning"><i class="mdi mdi-clock-outline"></i> Pending</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(payment.ProgramCompletion))
+                                    {
+                                        @if (payment.ProgramCompletion == "COMPLETED")
+                                        {
+                                            <span class="badge badge-success"><i class="mdi mdi-check-circle"></i> Completed</span>
+                                        }
+                                        else if (payment.ProgramCompletion == "IN_PROGRESS")
+                                        {
+                                            <span class="badge badge-info"><i class="mdi mdi-progress-clock"></i> In Progress</span>
+                                        }
+                                        else if (payment.ProgramCompletion == "DENIED")
+                                        {
+                                            <span class="badge badge-danger"><i class="mdi mdi-close-circle"></i> Denied</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (payment.IHEReportStatus == "Submitted")
+                                    {
+                                        @if (payment.CredentialEarned)
+                                        {
+                                            <span class="badge badge-success"><i class="mdi mdi-certificate"></i> Earned</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-secondary"><i class="mdi mdi-certificate-outline"></i> Not Earned</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(payment.EmploymentStatus))
+                                    {
+                                        @if (payment.HiredInDistrict && payment.EmploymentStatus == "FULL_TIME")
+                                        {
+                                            <span class="badge badge-success"><i class="mdi mdi-briefcase-check"></i> Full-Time</span>
+                                        }
+                                        else if (payment.HiredInDistrict && payment.EmploymentStatus == "PART_TIME")
+                                        {
+                                            <span class="badge badge-info"><i class="mdi mdi-briefcase-clock"></i> Part-Time</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-secondary"><i class="mdi mdi-briefcase-remove"></i> Not Hired</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (payment.HasOutstandingReports)
+                                    {
+                                        <span class="badge badge-warning"><i class="mdi mdi-alert"></i> Outstanding</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-success"><i class="mdi mdi-check-all"></i> Complete</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="mdi mdi-file-document-outline"></i>
+                <p>No payment reports available for this grant cycle.</p>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // All styles are now in r4-styles.css
+    </script>
+}

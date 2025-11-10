@@ -10,6 +10,7 @@ public class LEAReport
     public int Id { get; set; }
     public int StudentId { get; set; }
     public int ApplicationId { get; set; }
+    public int? PaymentId { get; set; }  // Link to Payment record
 
     // Payment Categorization (from flowchart: "How they categorized ST for payment")
     public string PaymentCategorization { get; set; } = string.Empty;
@@ -57,4 +58,5 @@ public class LEAReport
     // Navigation
     public Student? Student { get; set; }
     public Application? Application { get; set; }
+    public Payment? Payment { get; set; }
 }

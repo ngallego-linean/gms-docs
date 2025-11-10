@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Ctc.GMS.AspNetCore.ViewModels;
 using GMS.Business.Services;
+using GMS.Business.DTOs;
 
 namespace Ctc.GMS.Web.UI.Controllers;
 
@@ -61,6 +62,10 @@ public class FiscalTeamController : Controller
                 });
             }
 
+            // Get reporting metrics
+            var reportingDashboardDTO = _grantService.GetReportingDashboardMetrics(grantCycleId);
+            var reportingDashboardMetrics = MapToReportingDashboardViewModel(reportingDashboardDTO);
+
             var model = new DashboardViewModel
             {
                 GrantCycleId = grantCycleId,
@@ -93,6 +98,9 @@ public class FiscalTeamController : Controller
                 CurrentUser = User.Identity?.Name ?? "Fiscal Team Member",
                 ActionItems = actionItems
             };
+
+            // Pass reporting metrics via ViewBag
+            ViewBag.ReportingMetrics = reportingDashboardMetrics;
 
             return View(model);
         }
@@ -180,5 +188,133 @@ public class FiscalTeamController : Controller
             _logger.LogError(ex, "Error loading payments page");
             return View("Error");
         }
+    }
+
+    [Route("Reports")]
+    public IActionResult Reports(int grantCycleId = 1)
+    {
+        try
+        {
+            var grantCycle = _grantService.GetGrantCycle(grantCycleId);
+
+            if (grantCycle == null)
+            {
+                return NotFound("Grant cycle not found");
+            }
+
+            var paymentsWithReportsDTO = _grantService.GetPaymentsWithReportStatus(grantCycleId);
+            var paymentsWithReports = paymentsWithReportsDTO.Select(MapToPaymentWithReportsViewModel).ToList();
+
+            var reportingMetricsDTO = _grantService.GetReportingDashboardMetrics(grantCycleId);
+            var reportingMetrics = MapToReportingDashboardViewModel(reportingMetricsDTO);
+
+            ViewBag.GrantCycleId = grantCycleId;
+            ViewBag.GrantCycleName = grantCycle.Name;
+            ViewBag.ReportingMetrics = reportingMetrics;
+
+            return View(paymentsWithReports);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading reports page");
+            return View("Error");
+        }
+    }
+
+    [Route("LEACompliance")]
+    public IActionResult LEACompliance(int grantCycleId = 1)
+    {
+        try
+        {
+            var grantCycle = _grantService.GetGrantCycle(grantCycleId);
+
+            if (grantCycle == null)
+            {
+                return NotFound("Grant cycle not found");
+            }
+
+            var complianceDataDTO = _grantService.GetReportingComplianceByLEA(grantCycleId);
+            var complianceData = complianceDataDTO.Select(MapToReportingComplianceViewModel).ToList();
+
+            var reportingMetricsDTO = _grantService.GetReportingDashboardMetrics(grantCycleId);
+            var reportingMetrics = MapToReportingDashboardViewModel(reportingMetricsDTO);
+
+            ViewBag.GrantCycleId = grantCycleId;
+            ViewBag.GrantCycleName = grantCycle.Name;
+            ViewBag.ReportingMetrics = reportingMetrics;
+
+            return View(complianceData);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading LEA compliance page");
+            return View("Error");
+        }
+    }
+
+    // Mapping methods
+    private PaymentWithReportsViewModel MapToPaymentWithReportsViewModel(PaymentWithReportsDTO dto)
+    {
+        return new PaymentWithReportsViewModel
+        {
+            PaymentId = dto.PaymentId,
+            StudentName = dto.StudentName,
+            SEID = dto.SEID,
+            LEAName = dto.LEAName,
+            AmountPaid = dto.AmountPaid,
+            PaymentDate = dto.PaymentDate,
+            PaymentStatus = dto.PaymentStatus,
+            LEAReportStatus = dto.LEAReportStatus,
+            IHEReportStatus = dto.IHEReportStatus,
+            HasOutstandingReports = dto.HasOutstandingReports,
+            ProgramCompletion = dto.ProgramCompletion,
+            CredentialEarned = dto.CredentialEarned,
+            EmploymentStatus = dto.EmploymentStatus,
+            HiredInDistrict = dto.HiredInDistrict
+        };
+    }
+
+    private ReportingComplianceViewModel MapToReportingComplianceViewModel(ReportingComplianceDTO dto)
+    {
+        return new ReportingComplianceViewModel
+        {
+            LEAName = dto.LEAName,
+            TotalPayments = dto.TotalPayments,
+            ReportsSubmitted = dto.ReportsSubmitted,
+            ReportsPending = dto.ReportsPending,
+            ComplianceRate = dto.ComplianceRate,
+            ComplianceStatus = dto.ComplianceStatus,
+            HasPaymentHoldWarning = dto.HasPaymentHoldWarning,
+            TotalDisbursed = dto.TotalDisbursed
+        };
+    }
+
+    private ReportingDashboardViewModel MapToReportingDashboardViewModel(ReportingDashboardDTO dto)
+    {
+        return new ReportingDashboardViewModel
+        {
+            TotalPayments = dto.TotalPayments,
+            PaymentsWithReports = dto.PaymentsWithReports,
+            OutstandingReports = dto.OutstandingReports,
+            ReportingComplianceRate = dto.ReportingComplianceRate,
+            ComplianceHealth = dto.ComplianceHealth,
+            OutcomeMetrics = MapToOutcomeMetricsViewModel(dto.OutcomeMetrics)
+        };
+    }
+
+    private OutcomeMetricsViewModel MapToOutcomeMetricsViewModel(OutcomeMetricsDTO dto)
+    {
+        return new OutcomeMetricsViewModel
+        {
+            TotalStudentsFunded = dto.TotalStudentsFunded,
+            ProgramCompletions = dto.ProgramCompletions,
+            CompletionRate = dto.CompletionRate,
+            CredentialsEarned = dto.CredentialsEarned,
+            CredentialRate = dto.CredentialRate,
+            TeachersEmployed = dto.TeachersEmployed,
+            EmploymentRate = dto.EmploymentRate,
+            TotalInvestment = dto.TotalInvestment,
+            CostPerSuccessfulTeacher = dto.CostPerSuccessfulTeacher
+        };
     }
 }

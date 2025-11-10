@@ -41,4 +41,11 @@ public class Payment
     // Navigation
     public Student? Student { get; set; }
     public Application? Application { get; set; }
+    public LEAReport? LEAReport { get; set; }
+    public IHEReport? IHEReport { get; set; }
+
+    // Computed Properties
+    public bool HasLEAReport => LEAReport != null && LEAReport.SubmittedDate != default;
+    public bool HasIHEReport => IHEReport != null && IHEReport.SubmittedDate != default;
+    public bool HasOutstandingReports => !HasLEAReport || !HasIHEReport;
 }
