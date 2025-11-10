@@ -11,12 +11,16 @@ public class MockRepository
     private readonly List<GrantCycle> _grantCycles;
     private readonly List<Organization> _organizations;
     private readonly List<Application> _applications;
+    private readonly List<ReportingPeriod> _reportingPeriods;
+    private readonly List<IHEReport> _iheReports;
 
     public MockRepository()
     {
         _grantCycles = InitializeGrantCycles();
         _organizations = InitializeOrganizations();
+        _reportingPeriods = InitializeReportingPeriods();
         _applications = InitializeApplications();
+        _iheReports = InitializeIHEReports();
     }
 
     private List<GrantCycle> InitializeGrantCycles()
@@ -48,6 +52,46 @@ public class MockRepository
             new Organization { Id = 6, Name = "San Diego Unified School District", Type = "LEA", Code = "37-68338-0000000" },
             new Organization { Id = 7, Name = "Fresno Unified School District", Type = "LEA", Code = "10-62281-0000000" },
             new Organization { Id = 8, Name = "Long Beach Unified School District", Type = "LEA", Code = "19-64733-1993647" }
+        };
+    }
+
+    private List<ReportingPeriod> InitializeReportingPeriods()
+    {
+        return new List<ReportingPeriod>
+        {
+            new ReportingPeriod
+            {
+                Id = 1,
+                GrantCycleId = 1,
+                PeriodName = "Mid-Year Progress Report",
+                StartDate = new DateTime(2025, 12, 1),
+                DueDate = new DateTime(2026, 1, 31),
+                IsActive = true,
+                Description = "Report on candidates who have completed at least 500 hours by mid-year",
+                ReportType = "Progress"
+            },
+            new ReportingPeriod
+            {
+                Id = 2,
+                GrantCycleId = 1,
+                PeriodName = "Final Completion Report",
+                StartDate = new DateTime(2026, 6, 1),
+                DueDate = new DateTime(2026, 7, 31),
+                IsActive = false,
+                Description = "Final report on program completion, credential earned, and employment outcomes",
+                ReportType = "Completion"
+            },
+            new ReportingPeriod
+            {
+                Id = 3,
+                GrantCycleId = 1,
+                PeriodName = "End-of-Year Employment Report",
+                StartDate = new DateTime(2026, 8, 1),
+                DueDate = new DateTime(2026, 9, 15),
+                IsActive = false,
+                Description = "Report on employment status one year after program completion",
+                ReportType = "Final"
+            }
         };
     }
 
@@ -229,6 +273,120 @@ public class MockRepository
         return applications;
     }
 
+    private List<IHEReport> InitializeIHEReports()
+    {
+        var reports = new List<IHEReport>();
+
+        // Get funded students (those with PAYMENT_COMPLETED status)
+        var fundedStudents = _applications.SelectMany(a => a.Students)
+            .Where(s => s.GAAStatus == "PAYMENT_COMPLETED")
+            .Take(30)
+            .ToList();
+
+        // Update some funded students with reporting status
+        var reportId = 1;
+        foreach (var student in fundedStudents.Take(20))
+        {
+            student.ReportingStatus = reportId <= 12 ? "SUBMITTED" : reportId <= 17 ? "IN_PROGRESS" : "NOT_STARTED";
+            student.CurrentReportingPeriodId = 1;
+        }
+
+        // Create sample IHE reports for the first 12 funded students (submitted reports)
+        for (int i = 0; i < 12 && i < fundedStudents.Count; i++)
+        {
+            var student = fundedStudents[i];
+            var isCompleted = i % 3 != 2;  // 2 out of 3 completed, 1 out of 3 in progress
+            var credentialEarned = i % 4 != 3;  // 3 out of 4 earned credential
+            var employed = i % 3 != 2;  // 2 out of 3 employed
+
+            reports.Add(new IHEReport
+            {
+                Id = reportId++,
+                StudentId = student.Id,
+                ApplicationId = student.ApplicationId,
+                ReportingPeriodId = 1,
+
+                // Completion Status
+                CompletionStatus = isCompleted ? "COMPLETED" : (i % 2 == 0 ? "IN_PROGRESS" : "DENIED"),
+                CompletionDate = isCompleted ? new DateTime(2025, 12, 15).AddDays(i) : null,
+                DenialReason = isCompleted ? string.Empty : "Did not meet attendance requirements",
+
+                // Intern Status
+                SwitchedToIntern = i % 5 == 0,
+                InternSwitchDate = i % 5 == 0 ? new DateTime(2026, 1, 15) : null,
+
+                // Hours
+                GrantProgramHours = isCompleted ? 500 + (i * 10) : 450 + (i * 10),
+                Met500Hours = isCompleted,
+                GrantProgramHoursNotes = isCompleted ? "Completed all required hours" : "In progress",
+                CredentialProgramHours = isCompleted ? 600 + (i * 15) : 550 + (i * 10),
+                Met600Hours = isCompleted && credentialEarned,
+                CredentialProgramHoursNotes = credentialEarned ? "Exceeded minimum requirements" : "Still completing",
+
+                // Credential
+                CredentialEarned = credentialEarned,
+                CredentialEarnedDate = credentialEarned ? new DateTime(2026, 1, 30).AddDays(i) : null,
+                CredentialType = credentialEarned ? student.CredentialArea : string.Empty,
+
+                // Employment
+                EmployedInDistrict = employed && i % 2 == 0,
+                EmployedInState = employed,
+                EmploymentStatus = employed ? "EMPLOYED" : (i % 2 == 0 ? "SEEKING" : "NOT_EMPLOYED"),
+                EmployerName = employed ? (i % 2 == 0 ? "Los Angeles Unified" : "Pasadena Unified") : string.Empty,
+                EmploymentStartDate = employed ? new DateTime(2026, 2, 1).AddDays(i) : null,
+                SchoolSite = employed ? $"Elementary School #{i + 1}" : string.Empty,
+                GradeLevel = employed ? (i % 3 == 0 ? "K-2" : i % 3 == 1 ? "3-5" : "6-8") : string.Empty,
+                SubjectArea = employed ? student.CredentialArea : string.Empty,
+
+                // Notes
+                AdditionalNotes = isCompleted ? "Excellent progress throughout the program" : "Needs additional support",
+
+                // Submission
+                Status = "SUBMITTED",
+                SubmittedDate = new DateTime(2025, 12, 20).AddDays(i),
+                SubmittedBy = "Jane Coordinator",
+                SubmittedByEmail = "coordinator@csuf.edu",
+                ApprovedDate = i < 8 ? new DateTime(2025, 12, 25).AddDays(i) : null,
+                ApprovedBy = i < 8 ? "CTC Staff" : string.Empty,
+                ConfirmationNumber = $"RPT-2026-{1000 + i}",
+
+                // Audit
+                CreatedAt = new DateTime(2025, 12, 15).AddDays(i),
+                LastModified = new DateTime(2025, 12, 20).AddDays(i)
+            });
+        }
+
+        // Create 5 draft reports (in progress, not submitted yet)
+        for (int i = 12; i < 17 && i < fundedStudents.Count; i++)
+        {
+            var student = fundedStudents[i];
+
+            reports.Add(new IHEReport
+            {
+                Id = reportId++,
+                StudentId = student.Id,
+                ApplicationId = student.ApplicationId,
+                ReportingPeriodId = 1,
+
+                // Partial data - draft report
+                CompletionStatus = "IN_PROGRESS",
+                GrantProgramHours = 480 + (i * 10),
+                Met500Hours = false,
+                CredentialProgramHours = 570 + (i * 10),
+                Met600Hours = false,
+
+                // Status
+                Status = "DRAFT",
+
+                // Audit
+                CreatedAt = new DateTime(2025, 12, 18).AddDays(i - 12),
+                LastModified = new DateTime(2025, 12, 19).AddDays(i - 12)
+            });
+        }
+
+        return reports;
+    }
+
     // Public methods to access mock data
     public GrantCycle? GetGrantCycle(int id)
     {
@@ -256,5 +414,49 @@ public class MockRepository
             return _organizations;
 
         return _organizations.Where(o => o.Type == type).ToList();
+    }
+
+    public List<ReportingPeriod> GetReportingPeriods(int? grantCycleId = null)
+    {
+        if (grantCycleId.HasValue)
+            return _reportingPeriods.Where(rp => rp.GrantCycleId == grantCycleId.Value).ToList();
+
+        return _reportingPeriods;
+    }
+
+    public ReportingPeriod? GetReportingPeriod(int id)
+    {
+        return _reportingPeriods.FirstOrDefault(rp => rp.Id == id);
+    }
+
+    public List<IHEReport> GetIHEReports(int? applicationId = null, int? studentId = null, int? reportingPeriodId = null)
+    {
+        var query = _iheReports.AsQueryable();
+
+        if (applicationId.HasValue)
+            query = query.Where(r => r.ApplicationId == applicationId.Value);
+
+        if (studentId.HasValue)
+            query = query.Where(r => r.StudentId == studentId.Value);
+
+        if (reportingPeriodId.HasValue)
+            query = query.Where(r => r.ReportingPeriodId == reportingPeriodId.Value);
+
+        return query.ToList();
+    }
+
+    public IHEReport? GetIHEReport(int id)
+    {
+        return _iheReports.FirstOrDefault(r => r.Id == id);
+    }
+
+    public void AddOrUpdateIHEReport(IHEReport report)
+    {
+        var existing = _iheReports.FirstOrDefault(r => r.Id == report.Id);
+        if (existing != null)
+        {
+            _iheReports.Remove(existing);
+        }
+        _iheReports.Add(report);
     }
 }

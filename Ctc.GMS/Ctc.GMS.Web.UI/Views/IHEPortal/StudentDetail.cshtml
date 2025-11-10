@@ -1,0 +1,364 @@
+@model StudentDetailViewModel
+
+@{
+    ViewData["Title"] = $"Student Detail - {Model.FullName}";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "IHEPortal")">IHE Portal</a></li>
+        <li class="breadcrumb-item active">Student Detail</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-account-details-outline"></i> Student Detail</h2>
+    <p class="subtitle">@Model.FullName - @Model.SEID</p>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-account-outline"></i> Personal Information</h4>
+        <div class="card-actions">
+            <span class="badge badge-@(Model.Status == "APPROVED" ? "success" : Model.Status == "SUBMITTED" ? "warning" : "secondary")">
+                @Model.Status
+            </span>
+        </div>
+    </div>
+    <div class="r4-card-body">
+        <div class="detail-grid">
+            <div class="detail-item">
+                <label>First Name</label>
+                <div class="detail-value">@Model.FirstName</div>
+            </div>
+            <div class="detail-item">
+                <label>Last Name</label>
+                <div class="detail-value">@Model.LastName</div>
+            </div>
+            <div class="detail-item">
+                <label>SEID</label>
+                <div class="detail-value">@Model.SEID</div>
+            </div>
+            <div class="detail-item">
+                <label>Date of Birth</label>
+                <div class="detail-value">@(Model.DateOfBirth?.ToString("MM/dd/yyyy") ?? "N/A")</div>
+            </div>
+            <div class="detail-item">
+                <label>Last 4 of SSN/ITIN</label>
+                <div class="detail-value">***-**-@Model.Last4SSN</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-account-details-outline"></i> Demographic Information</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="detail-grid">
+            <div class="detail-item">
+                <label>Race</label>
+                <div class="detail-value">@(!string.IsNullOrEmpty(Model.Race) ? Model.Race : "Not Specified")</div>
+            </div>
+            <div class="detail-item">
+                <label>Ethnicity</label>
+                <div class="detail-value">@(!string.IsNullOrEmpty(Model.Ethnicity) ? Model.Ethnicity : "Not Specified")</div>
+            </div>
+            <div class="detail-item">
+                <label>Gender</label>
+                <div class="detail-value">@(!string.IsNullOrEmpty(Model.Gender) ? Model.Gender : "Not Specified")</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-school-outline"></i> Credential & Program Information</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="detail-grid">
+            <div class="detail-item">
+                <label>Credential Area</label>
+                <div class="detail-value">@Model.CredentialArea</div>
+            </div>
+            <div class="detail-item">
+                <label>County CDS Code</label>
+                <div class="detail-value">@Model.CountyCDSCode</div>
+            </div>
+            <div class="detail-item">
+                <label>School CDS Code</label>
+                <div class="detail-value">@Model.SchoolCDSCode</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-domain"></i> Application Context</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="detail-grid">
+            <div class="detail-item">
+                <label>Grant Cycle</label>
+                <div class="detail-value">@Model.GrantCycleName</div>
+            </div>
+            <div class="detail-item">
+                <label>IHE</label>
+                <div class="detail-value">@Model.IHEName</div>
+            </div>
+            <div class="detail-item">
+                <label>LEA Partner</label>
+                <div class="detail-value">@Model.LEAName</div>
+            </div>
+            <div class="detail-item">
+                <label>Application ID</label>
+                <div class="detail-value">#@Model.ApplicationId</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-cash-outline"></i> Award & Payment Status</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="detail-grid">
+            <div class="detail-item">
+                <label>Award Amount</label>
+                <div class="detail-value">$@Model.AwardAmount.ToString("N2")</div>
+            </div>
+            <div class="detail-item">
+                <label>Payment Status</label>
+                <div class="detail-value">
+                    @if (!string.IsNullOrEmpty(Model.GAAStatus))
+                    {
+                        <span class="badge badge-@(Model.GAAStatus == "PAYMENT_COMPLETED" ? "success" : Model.GAAStatus == "GAA_SIGNED" ? "warning" : "secondary")">
+                            @Model.GAAStatus.Replace("_", " ")
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">Not Started</span>
+                    }
+                </div>
+            </div>
+            <div class="detail-item">
+                <label>Reporting Status</label>
+                <div class="detail-value">
+                    <span class="badge badge-@(Model.ReportingStatus == "APPROVED" ? "success" : Model.ReportingStatus == "SUBMITTED" ? "warning" : Model.ReportingStatus == "IN_PROGRESS" ? "info" : "secondary")">
+                        @Model.ReportingStatus.Replace("_", " ")
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-timeline-outline"></i> Timeline</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-icon">
+                    <i class="mdi mdi-calendar-plus"></i>
+                </div>
+                <div class="timeline-content">
+                    <div class="timeline-title">Created</div>
+                    <div class="timeline-date">@Model.CreatedAt.ToString("MMMM dd, yyyy 'at' h:mm tt")</div>
+                </div>
+            </div>
+
+            @if (Model.SubmittedAt.HasValue)
+            {
+                <div class="timeline-item">
+                    <div class="timeline-icon timeline-icon-success">
+                        <i class="mdi mdi-send"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Submitted</div>
+                        <div class="timeline-date">@Model.SubmittedAt.Value.ToString("MMMM dd, yyyy 'at' h:mm tt")</div>
+                    </div>
+                </div>
+            }
+
+            @if (Model.ApprovedAt.HasValue)
+            {
+                <div class="timeline-item">
+                    <div class="timeline-icon timeline-icon-success">
+                        <i class="mdi mdi-check-circle"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Approved</div>
+                        <div class="timeline-date">@Model.ApprovedAt.Value.ToString("MMMM dd, yyyy 'at' h:mm tt")</div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@if (Model.GrantProgramHours.HasValue || Model.CredentialProgramHours.HasValue || Model.CredentialEarned.HasValue || Model.EmployedInDistrict.HasValue)
+{
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-chart-line-variant"></i> Outcomes & Progress</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="dashboard-grid">
+                @if (Model.GrantProgramHours.HasValue)
+                {
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <i class="mdi mdi-clock-outline"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-value">@Model.GrantProgramHours</div>
+                            <div class="metric-label">Grant Program Hours</div>
+                            <div class="metric-description">Target: 500 hours</div>
+                        </div>
+                    </div>
+                }
+
+                @if (Model.CredentialProgramHours.HasValue)
+                {
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <i class="mdi mdi-clock-time-eight-outline"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-value">@Model.CredentialProgramHours</div>
+                            <div class="metric-label">Credential Program Hours</div>
+                            <div class="metric-description">Target: 600 hours</div>
+                        </div>
+                    </div>
+                }
+
+                @if (Model.CredentialEarned.HasValue)
+                {
+                    <div class="metric-card @(Model.CredentialEarned.Value ? "metric-success" : "")">
+                        <div class="metric-icon">
+                            <i class="mdi mdi-certificate"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-value">@(Model.CredentialEarned.Value ? "Yes" : "No")</div>
+                            <div class="metric-label">Credential Earned</div>
+                            @if (Model.CredentialEarnedDate.HasValue)
+                            {
+                                <div class="metric-description">@Model.CredentialEarnedDate.Value.ToString("MM/dd/yyyy")</div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (Model.SwitchedToIntern.HasValue && Model.SwitchedToIntern.Value)
+                {
+                    <div class="metric-card metric-info">
+                        <div class="metric-icon">
+                            <i class="mdi mdi-account-switch"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-value">Yes</div>
+                            <div class="metric-label">Switched to Intern</div>
+                        </div>
+                    </div>
+                }
+
+                @if (Model.EmployedInDistrict.HasValue)
+                {
+                    <div class="metric-card @(Model.EmployedInDistrict.Value ? "metric-success" : "")">
+                        <div class="metric-icon">
+                            <i class="mdi mdi-briefcase-account"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-value">@(Model.EmployedInDistrict.Value ? "Yes" : "No")</div>
+                            <div class="metric-label">Employed in District</div>
+                        </div>
+                    </div>
+                }
+
+                @if (Model.EmployedInState.HasValue)
+                {
+                    <div class="metric-card @(Model.EmployedInState.Value ? "metric-success" : "")">
+                        <div class="metric-icon">
+                            <i class="mdi mdi-briefcase"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-value">@(Model.EmployedInState.Value ? "Yes" : "No")</div>
+                            <div class="metric-label">Employed in California</div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@if (Model.LatestReport != null)
+{
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-file-document-outline"></i> Latest Report</h4>
+            <div class="card-actions">
+                <a href="@Url.Action("CandidateReport", "IHEPortal", new { studentId = Model.StudentId })" class="r4-button r4-button-sm">
+                    <i class="mdi mdi-eye-outline"></i> View Full Report
+                </a>
+            </div>
+        </div>
+        <div class="r4-card-body">
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <label>Report Status</label>
+                    <div class="detail-value">
+                        <span class="badge badge-@(Model.LatestReport.Status == "APPROVED" ? "success" : Model.LatestReport.Status == "SUBMITTED" ? "warning" : "secondary")">
+                            @Model.LatestReport.Status
+                        </span>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <label>Completion Status</label>
+                    <div class="detail-value">@Model.LatestReport.CompletionStatus.Replace("_", " ")</div>
+                </div>
+                @if (Model.LatestReport.SubmittedDate.HasValue)
+                {
+                    <div class="detail-item">
+                        <label>Submitted Date</label>
+                        <div class="detail-value">@Model.LatestReport.SubmittedDate.Value.ToString("MM/dd/yyyy")</div>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(Model.LatestReport.ConfirmationNumber))
+                {
+                    <div class="detail-item">
+                        <label>Confirmation Number</label>
+                        <div class="detail-value">@Model.LatestReport.ConfirmationNumber</div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+<div class="form-actions">
+    <a href="@Url.Action("Dashboard", "IHEPortal")" class="r4-button">
+        <i class="mdi mdi-arrow-left"></i> Back to Dashboard
+    </a>
+    @if (Model.Status == "APPROVED" && Model.GAAStatus == "PAYMENT_COMPLETED")
+    {
+        <a href="@Url.Action("CandidateReport", "IHEPortal", new { studentId = Model.StudentId })" class="r4-button r4-button-primary">
+            <i class="mdi mdi-file-document-edit-outline"></i> Submit Report
+        </a>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Student detail loaded for: @Model.FullName');
+        });
+    </script>
+}

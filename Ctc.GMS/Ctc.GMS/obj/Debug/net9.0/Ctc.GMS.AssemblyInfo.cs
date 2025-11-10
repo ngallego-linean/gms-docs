@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Ctc.GMS")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a8a96e36c0dbfcfab503214b61332f50d7b044f3")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+732092ef8882acd5089949fa9e9c75c258429e66")]
 [assembly: System.Reflection.AssemblyProductAttribute("Ctc.GMS")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Ctc.GMS")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

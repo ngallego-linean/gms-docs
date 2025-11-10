@@ -71,11 +71,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.AspNetCore/Ctc.GMS.AspNetCore.csproj",
+      "projectUniqueName": "/Users/noahgallego/Desktop/ctc-worktrees/wt-ihe-portal/Ctc.GMS/Ctc.GMS.AspNetCore/Ctc.GMS.AspNetCore.csproj",
       "projectName": "Ctc.GMS.AspNetCore",
-      "projectPath": "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.AspNetCore/Ctc.GMS.AspNetCore.csproj",
+      "projectPath": "/Users/noahgallego/Desktop/ctc-worktrees/wt-ihe-portal/Ctc.GMS/Ctc.GMS.AspNetCore/Ctc.GMS.AspNetCore.csproj",
       "packagesPath": "/Users/noahgallego/.nuget/packages/",
-      "outputPath": "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.AspNetCore/obj/",
+      "outputPath": "/Users/noahgallego/Desktop/ctc-worktrees/wt-ihe-portal/Ctc.GMS/Ctc.GMS.AspNetCore/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/noahgallego/.nuget/NuGet/NuGet.Config"
@@ -90,14 +90,14 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Business/Ctc.GMS.Business.csproj": {
-              "projectPath": "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Business/Ctc.GMS.Business.csproj"
+            "/Users/noahgallego/Desktop/ctc-worktrees/wt-ihe-portal/Ctc.GMS/Ctc.GMS.Business/Ctc.GMS.Business.csproj": {
+              "projectPath": "/Users/noahgallego/Desktop/ctc-worktrees/wt-ihe-portal/Ctc.GMS/Ctc.GMS.Business/Ctc.GMS.Business.csproj"
             },
-            "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Data/Ctc.GMS.Data.csproj": {
-              "projectPath": "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Data/Ctc.GMS.Data.csproj"
+            "/Users/noahgallego/Desktop/ctc-worktrees/wt-ihe-portal/Ctc.GMS/Ctc.GMS.Data/Ctc.GMS.Data.csproj": {
+              "projectPath": "/Users/noahgallego/Desktop/ctc-worktrees/wt-ihe-portal/Ctc.GMS/Ctc.GMS.Data/Ctc.GMS.Data.csproj"
             },
-            "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS/Ctc.GMS.csproj": {
-              "projectPath": "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS/Ctc.GMS.csproj"
+            "/Users/noahgallego/Desktop/ctc-worktrees/wt-ihe-portal/Ctc.GMS/Ctc.GMS/Ctc.GMS.csproj": {
+              "projectPath": "/Users/noahgallego/Desktop/ctc-worktrees/wt-ihe-portal/Ctc.GMS/Ctc.GMS/Ctc.GMS.csproj"
             }
           }
         }
@@ -129,6 +129,9 @@
         "assetTargetFallback": true,
         "warn": true,
         "frameworkReferences": {
+          "Microsoft.AspNetCore.App": {
+            "privateAssets": "none"
+          },
           "Microsoft.NETCore.App": {
             "privateAssets": "all"
           }

@@ -118,6 +118,53 @@
             </div>
         </div>
 
+        <div class="section-divider">
+            <i class="mdi mdi-account-details-outline"></i>
+            <h6>Demographic Information</h6>
+        </div>
+
+        <div class="form-row form-row-3">
+            <div class="form-group">
+                <label>Race</label>
+                <select class="form-control" name="Candidates[INDEX].Race">
+                    <option value="">Select...</option>
+                    <option value="American Indian or Alaska Native">American Indian or Alaska Native</option>
+                    <option value="Asian">Asian</option>
+                    <option value="Black or African American">Black or African American</option>
+                    <option value="Native Hawaiian or Pacific Islander">Native Hawaiian or Pacific Islander</option>
+                    <option value="White">White</option>
+                    <option value="Two or More Races">Two or More Races</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Ethnicity</label>
+                <select class="form-control" name="Candidates[INDEX].Ethnicity">
+                    <option value="">Select...</option>
+                    <option value="Hispanic or Latino">Hispanic or Latino</option>
+                    <option value="Not Hispanic or Latino">Not Hispanic or Latino</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Gender</label>
+                <select class="form-control" name="Candidates[INDEX].Gender">
+                    <option value="">Select...</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Non-binary">Non-binary</option>
+                    <option value="Prefer not to say">Prefer not to say</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="checkbox-group">
+                <label>
+                    <input type="checkbox" name="Candidates[INDEX].HasMultipleDemographics">
+                    Checks box for more than one demographic category
+                </label>
+            </div>
+        </div>
+
         <div class="form-group">
             <label>Credential Area <span class="text-danger">*</span></label>
             <select class="form-control" name="Candidates[INDEX].CredentialArea" required>

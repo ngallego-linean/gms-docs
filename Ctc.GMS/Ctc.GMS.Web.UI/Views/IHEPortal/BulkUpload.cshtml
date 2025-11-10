@@ -1,0 +1,299 @@
+@model BulkUploadViewModel
+
+@{
+    ViewData["Title"] = "Bulk Upload Reports";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "IHEPortal")">IHE Portal</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("FundedCandidates", "IHEPortal")">Funded Candidates</a></li>
+        <li class="breadcrumb-item active">Bulk Upload</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-file-upload-outline"></i> Bulk Upload Reports</h2>
+    <p class="subtitle">@Model.IHEName - Upload Multiple Reports at Once</p>
+</div>
+
+@if (Model.ReportingPeriod != null)
+{
+    <div class="alert alert-info">
+        <i class="mdi mdi-information-outline"></i>
+        <strong>Reporting Period:</strong> @Model.ReportingPeriod.PeriodName
+        <span class="ms-2">Due: @Model.ReportingPeriod.DueDate.ToString("MMMM dd, yyyy")</span>
+    </div>
+}
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-information-outline"></i> Instructions</h4>
+    </div>
+    <div class="r4-card-body">
+        <ol class="mb-0">
+            <li>Download the report template using the button below</li>
+            <li>Fill in the template with your candidate completion data</li>
+            <li>Save the file and upload it using the upload form</li>
+            <li>Review any validation errors and correct them in your file</li>
+            <li>Confirm the import to save all reports</li>
+        </ol>
+        <div class="mt-3">
+            <button type="button" class="r4-button r4-button-primary" onclick="downloadTemplate()">
+                <i class="mdi mdi-file-download-outline"></i> Download Report Template
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-upload"></i> Upload Completed Report File</h4>
+    </div>
+    <div class="r4-card-body">
+        <form method="post" action="@Url.Action("ProcessBulkUpload", "IHEPortal")" enctype="multipart/form-data" id="uploadForm">
+            <input type="hidden" name="IHEId" value="@Model.IHEId" />
+            <input type="hidden" name="GrantCycleId" value="@Model.GrantCycleId" />
+            <input type="hidden" name="ReportingPeriodId" value="@Model.ReportingPeriodId" />
+
+            <div class="form-group">
+                <label for="uploadedFile">Select File <span class="text-danger">*</span></label>
+                <div class="custom-file-upload" id="dropZone">
+                    <div class="upload-icon">
+                        <i class="mdi mdi-file-upload-outline"></i>
+                    </div>
+                    <p class="upload-text">Drag and drop your file here or click to browse</p>
+                    <p class="upload-hint">Accepted formats: Excel (.xlsx, .xls) or CSV (.csv)</p>
+                    <input type="file" class="form-control-file" id="uploadedFile" name="UploadedFile" accept=".xlsx,.xls,.csv" required style="display: none;" />
+                    <div id="fileInfo" class="file-info" style="display: none;"></div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="r4-button r4-button-primary" id="uploadButton" disabled>
+                    <i class="mdi mdi-upload"></i> Upload and Validate
+                </button>
+                <a href="@Url.Action("FundedCandidates", "IHEPortal")" class="r4-button">
+                    <i class="mdi mdi-arrow-left"></i> Back to Funded Candidates
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model.UploadResult != null)
+{
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4>
+                @if (Model.UploadResult.HasErrors)
+                {
+                    <i class="mdi mdi-alert-circle-outline text-danger"></i><span> Validation Results - Errors Found</span>
+                }
+                else
+                {
+                    <i class="mdi mdi-check-circle-outline text-success"></i><span> Validation Results - Ready to Import</span>
+                }
+            </h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <div class="metric-card">
+                        <div class="metric-content">
+                            <div class="metric-value">@Model.UploadResult.TotalRows</div>
+                            <div class="metric-label">Total Rows</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="metric-card metric-success">
+                        <div class="metric-content">
+                            <div class="metric-value">@Model.UploadResult.SuccessCount</div>
+                            <div class="metric-label">Valid</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="metric-card @(Model.UploadResult.ErrorCount > 0 ? "metric-danger" : "")">
+                        <div class="metric-content">
+                            <div class="metric-value">@Model.UploadResult.ErrorCount</div>
+                            <div class="metric-label">Errors</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.UploadResult.HasErrors)
+            {
+                <div class="alert alert-danger">
+                    <i class="mdi mdi-alert-circle-outline"></i>
+                    <strong>Please correct the following errors in your file and re-upload:</strong>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="r4-table">
+                        <thead>
+                            <tr>
+                                <th>Row</th>
+                                <th>Field</th>
+                                <th>Error</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var error in Model.UploadResult.Errors)
+                            {
+                                <tr>
+                                    <td><span class="badge badge-danger">Row @error.RowNumber</span></td>
+                                    <td>@error.Field</td>
+                                    <td>@error.ErrorMessage</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-success">
+                    <i class="mdi mdi-check-circle-outline"></i>
+                    <strong>All records validated successfully!</strong> You can now confirm the import to save all @Model.UploadResult.SuccessCount reports.
+                </div>
+
+                <form method="post" action="@Url.Action("ConfirmBulkUpload", "IHEPortal")">
+                    <input type="hidden" name="IHEId" value="@Model.IHEId" />
+                    <input type="hidden" name="GrantCycleId" value="@Model.GrantCycleId" />
+                    @* In production, would pass validated data *@
+                    <button type="submit" class="r4-button r4-button-success">
+                        <i class="mdi mdi-check-circle-outline"></i> Confirm Import (@Model.UploadResult.SuccessCount Reports)
+                    </button>
+                    <a href="@Url.Action("BulkUpload", "IHEPortal", new { iheId = Model.IHEId, grantCycleId = Model.GrantCycleId })" class="r4-button">
+                        <i class="mdi mdi-close"></i> Cancel
+                    </a>
+                </form>
+            }
+        </div>
+    </div>
+}
+
+@section Styles {
+    <style>
+        .custom-file-upload {
+            border: 2px dashed var(--gray-400);
+            border-radius: 8px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--gray-50);
+        }
+
+        .custom-file-upload:hover {
+            border-color: var(--primary);
+            background: var(--gray-100);
+        }
+
+        .custom-file-upload.drag-over {
+            border-color: var(--primary);
+            background: var(--primary-light, #e6f2ff);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--gray-500);
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-hint {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            margin-bottom: 0;
+        }
+
+        .file-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--gray-100);
+            border-radius: 4px;
+        }
+
+        .file-info i {
+            color: var(--success);
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('uploadedFile');
+        const fileInfo = document.getElementById('fileInfo');
+        const uploadButton = document.getElementById('uploadButton');
+
+        // Click to select file
+        dropZone.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        // Handle file selection
+        fileInput.addEventListener('change', function(e) {
+            handleFiles(e.target.files);
+        });
+
+        // Drag and drop handlers
+        dropZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            fileInput.files = files;
+            handleFiles(files);
+        });
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                fileInfo.innerHTML = `
+                    <i class="mdi mdi-file-check-outline"></i>
+                    <strong>${file.name}</strong>
+                    <span class="text-muted ms-2">(${(file.size / 1024).toFixed(2)} KB)</span>
+                `;
+                fileInfo.style.display = 'block';
+                uploadButton.disabled = false;
+            }
+        }
+
+        function downloadTemplate() {
+            // Mock template download
+            alert('Download Template - In production, this would download an Excel template with:\n\n- Pre-populated list of funded candidates\n- Required columns for all report fields\n- Data validation and examples\n\nFor now, this is simulated for prototype purposes.');
+            console.log('Downloading template for IHE:', @Model.IHEId, 'Grant Cycle:', @Model.GrantCycleId);
+        }
+
+        // Mock form submission for prototype
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Upload Processing - In production, this would:\n\n1. Parse the Excel/CSV file\n2. Validate each row\n3. Show validation results\n4. Allow confirmation to import\n\nFor now, showing mock validation results...');
+
+            // In production, would actually submit the form
+            // this.submit();
+        });
+    </script>
+}

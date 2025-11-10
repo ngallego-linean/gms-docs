@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using GMS.DomainModel;
 
 namespace Ctc.GMS.AspNetCore.ViewModels;
 
@@ -15,6 +16,44 @@ public class IHEDashboardViewModel
     public int ApprovedCount { get; set; }
     public List<ApplicationSummaryViewModel> Applications { get; set; } = new();
     public List<ActionItemViewModel> ActionItems { get; set; } = new();
+
+    // Reporting Section Metrics
+    public int FundedCandidatesCount { get; set; }
+    public int ReportsDue { get; set; }
+    public int ReportsOutstanding { get; set; }
+    public int ReportsSubmitted { get; set; }
+    public int ReportsApproved { get; set; }
+    public DateTime? NextReportDeadline { get; set; }
+    public string? NextReportPeriodName { get; set; }
+    public int? DaysUntilDeadline { get; set; }
+    public bool HasActiveReportingPeriod { get; set; }
+    public List<ReportingAlertViewModel> ReportingAlerts { get; set; } = new();
+
+    // Additional Dashboard Metrics (from Leslie Friend requirements)
+    public int TotalLEAs { get; set; }
+    public int TotalIHEs { get; set; }
+    public decimal AmountAppropriated { get; set; }
+    public decimal AmountEncumbered { get; set; }
+    public decimal AmountDistributed { get; set; }
+    public Dictionary<string, int> CredentialAreas { get; set; } = new();
+    public Dictionary<string, int> Demographics { get; set; } = new();
+    public int CredentialEarnedCount { get; set; }
+    public int CredentialNotEarnedCount { get; set; }
+    public int TotalFieldHours { get; set; }
+    public int AverageFieldHours { get; set; }
+    public int EmployedInDistrictCount { get; set; }
+    public int EmployedInStateCount { get; set; }
+}
+
+/// <summary>
+/// Alert notification for reporting actions needed
+/// </summary>
+public class ReportingAlertViewModel
+{
+    public string AlertType { get; set; } = string.Empty;  // INFO, WARNING, DANGER
+    public string Message { get; set; } = string.Empty;
+    public string ActionUrl { get; set; } = string.Empty;
+    public string ActionText { get; set; } = string.Empty;
 }
 
 public class SubmitCandidatesViewModel
@@ -64,6 +103,19 @@ public class CandidateViewModel
     [StringLength(4, MinimumLength = 4)]
     public string Last4SSN { get; set; } = string.Empty;
 
+    // Demographic Information
+    [Display(Name = "Race")]
+    public string Race { get; set; } = string.Empty;
+
+    [Display(Name = "Ethnicity")]
+    public string Ethnicity { get; set; } = string.Empty;
+
+    [Display(Name = "Gender")]
+    public string Gender { get; set; } = string.Empty;
+
+    [Display(Name = "Has Multiple Demographics")]
+    public bool HasMultipleDemographics { get; set; }
+
     [Required]
     [Display(Name = "Credential Area")]
     public string CredentialArea { get; set; } = string.Empty;
@@ -97,4 +149,59 @@ public class CandidateViewModel
     [Display(Name = "LEA POC Phone")]
     [Phone]
     public string LEAPOCPhone { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// Detailed view of a student with all their information
+/// </summary>
+public class StudentDetailViewModel
+{
+    // Student Information
+    public int StudentId { get; set; }
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
+    public string FullName => $"{FirstName} {LastName}";
+    public string SEID { get; set; } = string.Empty;
+    public DateTime? DateOfBirth { get; set; }
+    public string Last4SSN { get; set; } = string.Empty;
+
+    // Demographics
+    public string Race { get; set; } = string.Empty;
+    public string Ethnicity { get; set; } = string.Empty;
+    public string Gender { get; set; } = string.Empty;
+
+    // Credential Information
+    public string CredentialArea { get; set; } = string.Empty;
+    public string CountyCDSCode { get; set; } = string.Empty;
+    public string SchoolCDSCode { get; set; } = string.Empty;
+
+    // Application Context
+    public int ApplicationId { get; set; }
+    public string IHEName { get; set; } = string.Empty;
+    public string LEAName { get; set; } = string.Empty;
+    public string GrantCycleName { get; set; } = string.Empty;
+
+    // Status Information
+    public string Status { get; set; } = string.Empty;
+    public string GAAStatus { get; set; } = string.Empty;
+    public decimal AwardAmount { get; set; }
+
+    // Timeline
+    public DateTime CreatedAt { get; set; }
+    public DateTime? SubmittedAt { get; set; }
+    public DateTime? ApprovedAt { get; set; }
+
+    // Outcomes (if available)
+    public int? GrantProgramHours { get; set; }
+    public int? CredentialProgramHours { get; set; }
+    public bool? CredentialEarned { get; set; }
+    public DateTime? CredentialEarnedDate { get; set; }
+    public bool? SwitchedToIntern { get; set; }
+    public bool? EmployedInDistrict { get; set; }
+    public bool? EmployedInState { get; set; }
+    public string EmploymentStatus { get; set; } = string.Empty;
+
+    // Reporting
+    public string ReportingStatus { get; set; } = string.Empty;
+    public IHEReport? LatestReport { get; set; }
 }

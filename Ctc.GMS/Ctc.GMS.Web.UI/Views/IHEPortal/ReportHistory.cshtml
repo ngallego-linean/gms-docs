@@ -1,0 +1,206 @@
+@model ReportHistoryViewModel
+
+@{
+    ViewData["Title"] = "Report History";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "IHEPortal")">IHE Portal</a></li>
+        <li class="breadcrumb-item active">Report History</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-history"></i> Report History</h2>
+    <p class="subtitle">@Model.IHEName - Submitted Reports</p>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-filter-outline"></i> Filter Reports</h4>
+    </div>
+    <div class="r4-card-body">
+        <form method="get" action="@Url.Action("ReportHistory", "IHEPortal")">
+            <input type="hidden" name="iheId" value="@Model.IHEId" />
+            <input type="hidden" name="grantCycleId" value="@Model.GrantCycleId" />
+
+            <div class="form-row">
+                <div class="form-group col-md-3">
+                    <label for="reportingPeriodId">Reporting Period</label>
+                    <select class="form-control" id="reportingPeriodId" name="Filters.ReportingPeriodId">
+                        <option value="">All Periods</option>
+                        @foreach (var period in Model.AvailablePeriods)
+                        {
+                            <option value="@period.Id" selected="@(Model.Filters.ReportingPeriodId == period.Id)">@period.PeriodName</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group col-md-3">
+                    <label for="leaId">LEA Partner</label>
+                    <select class="form-control" id="leaId" name="Filters.LEAId">
+                        <option value="">All LEAs</option>
+                        @foreach (var lea in Model.AvailableLEAs)
+                        {
+                            <option value="@lea.Id" selected="@(Model.Filters.LEAId == lea.Id)">@lea.Name</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label for="startDate">Start Date</label>
+                    <input type="date" class="form-control" id="startDate" name="Filters.StartDate" value="@Model.Filters.StartDate?.ToString("yyyy-MM-dd")" />
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label for="endDate">End Date</label>
+                    <input type="date" class="form-control" id="endDate" name="Filters.EndDate" value="@Model.Filters.EndDate?.ToString("yyyy-MM-dd")" />
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label for="status">Status</label>
+                    <select class="form-control" id="status" name="Filters.Status">
+                        <option value="">All Statuses</option>
+                        <option value="SUBMITTED" selected="@(Model.Filters.Status == "SUBMITTED")">Submitted</option>
+                        <option value="APPROVED" selected="@(Model.Filters.Status == "APPROVED")">Approved</option>
+                        <option value="REJECTED" selected="@(Model.Filters.Status == "REJECTED")">Rejected</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="r4-button r4-button-primary">
+                    <i class="mdi mdi-filter"></i> Apply Filters
+                </button>
+                <a href="@Url.Action("ReportHistory", "IHEPortal", new { iheId = Model.IHEId, grantCycleId = Model.GrantCycleId })" class="r4-button">
+                    <i class="mdi mdi-filter-remove-outline"></i> Clear Filters
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model.SubmittedReports.Any())
+{
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-file-check-outline"></i> Submitted Reports (@Model.TotalCount)</h4>
+            <div class="card-actions">
+                <button type="button" class="r4-button" onclick="exportReports()">
+                    <i class="mdi mdi-file-download-outline"></i> Export to Excel
+                </button>
+            </div>
+        </div>
+        <div class="r4-card-body">
+            <div class="table-wrapper">
+                <table class="r4-table">
+                    <thead>
+                        <tr>
+                            <th>Confirmation #</th>
+                            <th>Student Name</th>
+                            <th>SEID</th>
+                            <th>LEA Partner</th>
+                            <th>Submitted Date</th>
+                            <th>Submitted By</th>
+                            <th>Status</th>
+                            <th>Completion</th>
+                            <th>Credential</th>
+                            <th>Employed</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var report in Model.SubmittedReports)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@report.ConfirmationNumber</strong>
+                                </td>
+                                <td>@report.StudentName</td>
+                                <td>@report.SEID</td>
+                                <td>@report.LEAName</td>
+                                <td>@report.SubmittedDate?.ToString("MM/dd/yyyy")</td>
+                                <td>@report.SubmittedBy</td>
+                                <td>
+                                    @if (report.Status == "APPROVED")
+                                    {
+                                        <span class="badge badge-success">Approved</span>
+                                    }
+                                    else if (report.Status == "SUBMITTED")
+                                    {
+                                        <span class="badge badge-primary">Under Review</span>
+                                    }
+                                    else if (report.Status == "REJECTED")
+                                    {
+                                        <span class="badge badge-danger">Revisions Requested</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-secondary">@report.Status</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (report.CompletionStatus == "COMPLETED")
+                                    {
+                                        <span class="badge badge-success">Completed</span>
+                                    }
+                                    else if (report.CompletionStatus == "IN_PROGRESS")
+                                    {
+                                        <span class="badge badge-warning">In Progress</span>
+                                    }
+                                    else if (report.CompletionStatus == "DENIED")
+                                    {
+                                        <span class="badge badge-danger">Denied</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (report.CredentialEarned)
+                                    {
+                                        <i class="mdi mdi-check-circle text-success"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="mdi mdi-close-circle text-muted"></i>
+                                    }
+                                </td>
+                                <td>
+                                    @if (report.EmployedInDistrict)
+                                    {
+                                        <i class="mdi mdi-check-circle text-success"></i> <small>In District</small>
+                                    }
+                                    else
+                                    {
+                                        <i class="mdi mdi-close-circle text-muted"></i>
+                                    }
+                                </td>
+                                <td>
+                                    <a href="@Url.Action("ViewReport", "IHEPortal", new { reportId = report.ReportId })" class="r4-button r4-button-sm">
+                                        <i class="mdi mdi-eye-outline"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        <i class="mdi mdi-information-outline"></i>
+        No submitted reports found matching your criteria. Adjust your filters or submit reports from the Funded Candidates page.
+    </div>
+}
+
+@section Scripts {
+    <script>
+        function exportReports() {
+            // Mock export functionality
+            alert('Export functionality - In production, this would generate an Excel file with all filtered reports.');
+            console.log('Exporting reports with filters:', @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Filters)));
+        }
+    </script>
+}
