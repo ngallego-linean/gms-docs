@@ -1,0 +1,301 @@
+@model LEAReportSubmissionViewModel
+
+@{
+    ViewData["Title"] = "Submit Report";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })">LEA Portal</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("Reports", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })">Reporting</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("FundedCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })">Funded Candidates</a></li>
+        <li class="breadcrumb-item active">Submit Report</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-clipboard-text-outline"></i> Submit Candidate Report</h2>
+    <p class="subtitle">Post-Payment Outcome Reporting</p>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        <i class="mdi mdi-check-circle-outline"></i> @TempData["Success"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        <i class="mdi mdi-alert-circle-outline"></i> @TempData["Error"]
+    </div>
+}
+
+@if (Model.IsLocked && Model.ReportStatus != "REVISION_REQUESTED")
+{
+    <div class="alert alert-warning">
+        <i class="mdi mdi-lock-outline"></i>
+        <strong>Report Locked:</strong> This report has been submitted and is locked. Contact CTC if you need to make changes.
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.CTCFeedback))
+{
+    <div class="alert alert-info">
+        <i class="mdi mdi-message-alert-outline"></i>
+        <strong>CTC Feedback:</strong> @Model.CTCFeedback
+    </div>
+}
+
+<form asp-action="SubmitReport" method="post">
+    <input type="hidden" asp-for="StudentId" />
+    <input type="hidden" asp-for="ApplicationId" />
+    <input type="hidden" asp-for="LEAId" />
+    <input type="hidden" asp-for="GrantCycleId" />
+    <input type="hidden" asp-for="ReportId" />
+
+    @* Candidate Information (Read-only) *@
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-account-outline"></i> Candidate Information</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Candidate Name</label>
+                    <input type="text" class="form-control" value="@Model.StudentName" readonly />
+                </div>
+                <div class="form-group">
+                    <label>SEID</label>
+                    <input type="text" class="form-control" value="@Model.SEID" readonly />
+                </div>
+                <div class="form-group">
+                    <label>Credential Area</label>
+                    <input type="text" class="form-control" value="@Model.CredentialArea" readonly />
+                </div>
+                <div class="form-group">
+                    <label>IHE Partner</label>
+                    <input type="text" class="form-control" value="@Model.IHEName" readonly />
+                </div>
+                <div class="form-group">
+                    <label>Award Amount</label>
+                    <input type="text" class="form-control" value="@Model.AwardAmount.ToString("C")" readonly />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Payment Information *@
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-currency-usd"></i> Payment Information</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="PaymentCategory" class="required"></label>
+                    <select asp-for="PaymentCategory" class="form-control" required>
+                        <option value="">Select...</option>
+                        <option value="STIPEND">Stipend</option>
+                        <option value="SALARY">Salary</option>
+                        <option value="TUITION">Tuition Reimbursement</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="PaymentSchedule" class="required"></label>
+                    <select asp-for="PaymentSchedule" class="form-control" required>
+                        <option value="">Select...</option>
+                        <option value="LUMP_SUM">Lump Sum</option>
+                        <option value="MONTHLY">Monthly</option>
+                        <option value="QUARTERLY">Quarterly</option>
+                        <option value="SEMESTER">Semester</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ActualPaymentAmount" class="required"></label>
+                    <input asp-for="ActualPaymentAmount" class="form-control" type="number" step="0.01" required />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="FirstPaymentDate"></label>
+                    <input asp-for="FirstPaymentDate" class="form-control" type="date" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="FinalPaymentDate"></label>
+                    <input asp-for="FinalPaymentDate" class="form-control" type="date" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Program Completion *@
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-school-outline"></i> Program Completion</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="ProgramCompletionStatus" class="required"></label>
+                    <select asp-for="ProgramCompletionStatus" class="form-control" required>
+                        <option value="">Select...</option>
+                        <option value="COMPLETED">Completed</option>
+                        <option value="IN_PROGRESS">In Progress</option>
+                        <option value="NOT_COMPLETED">Not Completed</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ProgramCompletionDate"></label>
+                    <input asp-for="ProgramCompletionDate" class="form-control" type="date" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Credential Information *@
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-certificate-outline"></i> Credential Information</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="CredentialEarnedStatus" class="required"></label>
+                    <select asp-for="CredentialEarnedStatus" class="form-control" required>
+                        <option value="">Select...</option>
+                        <option value="EARNED">Credential Earned</option>
+                        <option value="IN_PROGRESS">In Progress</option>
+                        <option value="NOT_EARNED">Not Earned</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="CredentialIssueDate"></label>
+                    <input asp-for="CredentialIssueDate" class="form-control" type="date" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Employment Information *@
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-briefcase-outline"></i> Employment Information</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="form-group">
+                <label asp-for="HiredInDistrict" class="required"></label>
+                <select asp-for="HiredInDistrict" class="form-control">
+                    <option value="">Select...</option>
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="EmploymentStatus"></label>
+                    <select asp-for="EmploymentStatus" class="form-control">
+                        <option value="">Select...</option>
+                        <option value="FULL_TIME">Full-Time Teacher</option>
+                        <option value="PART_TIME">Part-Time Teacher</option>
+                        <option value="SEEKING">Seeking Employment</option>
+                        <option value="NOT_HIRED">Not Hired as Teacher</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="EmploymentStartDate"></label>
+                    <input asp-for="EmploymentStartDate" class="form-control" type="date" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="EmployingLEA"></label>
+                    <input asp-for="EmployingLEA" class="form-control" placeholder="Which LEA/district hired this candidate?" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="SchoolSite"></label>
+                    <input asp-for="SchoolSite" class="form-control" placeholder="School name" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="GradeLevel"></label>
+                    <input asp-for="GradeLevel" class="form-control" placeholder="e.g., K-2, 3-5, 9-12" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="SubjectArea"></label>
+                    <input asp-for="SubjectArea" class="form-control" placeholder="e.g., Mathematics, English" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="JobTitle"></label>
+                    <input asp-for="JobTitle" class="form-control" placeholder="e.g., Elementary Teacher" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Quality Metrics *@
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-star-outline"></i> Quality Metrics (Optional)</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="form-group">
+                <label asp-for="PlacementQualityRating"></label>
+                <select asp-for="PlacementQualityRating" class="form-control">
+                    <option value="">Select...</option>
+                    <option value="5">5 - Excellent</option>
+                    <option value="4">4 - Very Good</option>
+                    <option value="3">3 - Good</option>
+                    <option value="2">2 - Fair</option>
+                    <option value="1">1 - Poor</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="PlacementQualityNotes"></label>
+                <textarea asp-for="PlacementQualityNotes" class="form-control" rows="3"></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="MentorTeacherName"></label>
+                    <input asp-for="MentorTeacherName" class="form-control" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="MentorTeacherFeedback"></label>
+                <textarea asp-for="MentorTeacherFeedback" class="form-control" rows="3"></textarea>
+            </div>
+        </div>
+    </div>
+
+    @* Additional Notes *@
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-note-text-outline"></i> Additional Notes</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="form-group">
+                <label asp-for="AdditionalNotes"></label>
+                <textarea asp-for="AdditionalNotes" class="form-control" rows="4" placeholder="Any additional information or notes..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    @* Form Actions *@
+    <div class="form-actions" style="display: flex; gap: 1rem; justify-content: flex-end; padding: 1.5rem 0;">
+        @if (!Model.IsLocked || Model.ReportStatus == "REVISION_REQUESTED")
+        {
+            <button type="submit" name="action" value="save" class="r4-button">
+                <i class="mdi mdi-content-save-outline"></i> Save Draft
+            </button>
+            <button type="submit" name="action" value="submit" class="r4-button r4-button-success" onclick="return confirm('Are you sure you want to submit this report? Once submitted, the report will be locked for CTC review.')">
+                <i class="mdi mdi-check-circle-outline"></i> Submit Report
+            </button>
+        }
+        <a href="@Url.Action("FundedCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-secondary">
+            <i class="mdi mdi-arrow-left"></i> Back to List
+        </a>
+    </div>
+</form>

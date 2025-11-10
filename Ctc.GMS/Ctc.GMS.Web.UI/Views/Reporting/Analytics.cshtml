@@ -1,0 +1,173 @@
+@model ReportAnalyticsViewModel
+
+@{
+    ViewData["Title"] = "Reporting Analytics";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam")">Grants Team</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "Reporting")">Reporting</a></li>
+        <li class="breadcrumb-item active">Analytics</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-chart-line"></i> Reporting Analytics</h2>
+    <p class="subtitle">Aggregate outcomes and program performance metrics</p>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-account-group"></i> Candidate Overview</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="dashboard-grid">
+            <div class="metric-card">
+                <div class="metric-icon"><i class="mdi mdi-account-multiple"></i></div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Summary.TotalCandidatesFunded</div>
+                    <div class="metric-label">Total Funded</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon"><i class="mdi mdi-file-check"></i></div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Summary.TotalCandidatesReported</div>
+                    <div class="metric-label">Total Reported</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon"><i class="mdi mdi-percent"></i></div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Summary.ReportingComplianceRate.ToString("F1")%</div>
+                    <div class="metric-label">Compliance Rate</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-school"></i> Program Outcomes</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="dashboard-grid">
+            <div class="metric-card metric-approved">
+                <div class="metric-icon"><i class="mdi mdi-certificate"></i></div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Summary.ProgramCompletions</div>
+                    <div class="metric-label">Completions</div>
+                    <div class="metric-description">@Model.Summary.ProgramCompletionRate.ToString("F1")% completion rate</div>
+                </div>
+            </div>
+            <div class="metric-card metric-approved">
+                <div class="metric-icon"><i class="mdi mdi-medal"></i></div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Summary.CredentialsEarned</div>
+                    <div class="metric-label">Credentials Earned</div>
+                    <div class="metric-description">@Model.Summary.CredentialEarnRate.ToString("F1")% earn rate</div>
+                </div>
+            </div>
+            <div class="metric-card metric-approved">
+                <div class="metric-icon"><i class="mdi mdi-briefcase"></i></div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Summary.CandidatesEmployed</div>
+                    <div class="metric-label">Employed</div>
+                    <div class="metric-description">@Model.Summary.EmploymentRate.ToString("F1")% employment rate</div>
+                </div>
+            </div>
+            <div class="metric-card metric-approved">
+                <div class="metric-icon"><i class="mdi mdi-home-city"></i></div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Summary.HiredInDistrict</div>
+                    <div class="metric-label">Hired in District</div>
+                    <div class="metric-description">@Model.Summary.HiredInDistrictRate.ToString("F1")% of employed</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-clock-outline"></i> Hours Tracking</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="dashboard-grid">
+            <div class="metric-card">
+                <div class="metric-icon"><i class="mdi mdi-clock"></i></div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Summary.AverageGrantProgramHours.ToString("F0")</div>
+                    <div class="metric-label">Avg Grant Hours</div>
+                    <div class="metric-description">@Model.Summary.Met500HoursCount met 500 hours</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon"><i class="mdi mdi-clock-check"></i></div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Summary.AverageCredentialProgramHours.ToString("F0")</div>
+                    <div class="metric-label">Avg Credential Hours</div>
+                    <div class="metric-description">@Model.Summary.Met600HoursCount met 600 hours</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-currency-usd"></i> Financial Summary</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="dashboard-grid">
+            <div class="metric-card metric-disbursed">
+                <div class="metric-icon"><i class="mdi mdi-cash"></i></div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Summary.TotalAmountDisbursed.ToString("C0")</div>
+                    <div class="metric-label">Total Disbursed</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon"><i class="mdi mdi-calculator"></i></div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Summary.AveragePaymentAmount.ToString("C0")</div>
+                    <div class="metric-label">Average Payment</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.Summary.EmploymentByStatus.Any())
+{
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-chart-pie"></i> Employment Status Breakdown</h4>
+        </div>
+        <div class="r4-card-body">
+            <table class="r4-table">
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Count</th>
+                        <th>Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var status in Model.Summary.EmploymentByStatus.OrderByDescending(s => s.Value))
+                    {
+                        var total = Model.Summary.EmploymentByStatus.Values.Sum();
+                        var percentage = total > 0 ? (decimal)status.Value / total * 100 : 0;
+                        <tr>
+                            <td><strong>@status.Key.Replace("_", " ")</strong></td>
+                            <td>@status.Value</td>
+                            <td>@percentage.ToString("F1")%</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

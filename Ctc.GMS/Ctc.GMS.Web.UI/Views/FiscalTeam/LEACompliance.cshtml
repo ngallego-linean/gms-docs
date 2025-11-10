@@ -1,0 +1,247 @@
+@model List<ReportingComplianceViewModel>
+
+@{
+    ViewData["Title"] = "LEA Compliance Tracking";
+    var grantCycleName = ViewBag.GrantCycleName as string;
+    var grantCycleId = ViewBag.GrantCycleId as int? ?? 1;
+    var reportingMetrics = ViewBag.ReportingMetrics as FiscalReportingDashboardViewModel;
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "FiscalTeam", new { grantCycleId })">Fiscal Team Dashboard</a></li>
+        <li class="breadcrumb-item active">LEA Compliance</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-chart-box-outline"></i> LEA Reporting Compliance</h2>
+    <p class="subtitle">@grantCycleName</p>
+</div>
+
+@if (reportingMetrics != null)
+{
+    var nonCompliantCount = Model.Count(l => l.ComplianceStatus == "NON_COMPLIANT");
+    var warningCount = Model.Count(l => l.ComplianceStatus == "WARNING");
+
+    @if (nonCompliantCount > 0 || warningCount > 0)
+    {
+        <div class="alert @(nonCompliantCount > 0 ? "alert-danger" : "alert-warning")">
+            <i class="mdi @(nonCompliantCount > 0 ? "mdi-alert-circle-outline" : "mdi-alert-outline")"></i>
+            <strong>Compliance Issues:</strong>
+            @if (nonCompliantCount > 0)
+            {
+                @:@nonCompliantCount LEA(s) are non-compliant with reporting requirements.
+            }
+            @if (warningCount > 0)
+            {
+                @:@warningCount LEA(s) need attention to maintain compliance.
+            }
+        </div>
+    }
+
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-chart-line"></i> Overall Compliance Summary</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="dashboard-grid">
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="mdi mdi-domain"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value">@Model.Count</div>
+                        <div class="metric-label">Total LEAs</div>
+                    </div>
+                </div>
+
+                <div class="metric-card metric-compliant">
+                    <div class="metric-icon">
+                        <i class="mdi mdi-check-circle"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value">@Model.Count(l => l.ComplianceStatus == "COMPLIANT")</div>
+                        <div class="metric-label">Compliant</div>
+                        <div class="metric-description">≥80% reporting rate</div>
+                    </div>
+                </div>
+
+                <div class="metric-card metric-warning">
+                    <div class="metric-icon">
+                        <i class="mdi mdi-alert"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value">@warningCount</div>
+                        <div class="metric-label">Warning</div>
+                        <div class="metric-description">50-79% reporting rate</div>
+                    </div>
+                </div>
+
+                <div class="metric-card metric-alert">
+                    <div class="metric-icon">
+                        <i class="mdi mdi-alert-circle"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value">@nonCompliantCount</div>
+                        <div class="metric-label">Non-Compliant</div>
+                        <div class="metric-description">&lt;50% reporting rate</div>
+                    </div>
+                </div>
+            </div>
+
+            @if (reportingMetrics.OutcomeMetrics != null)
+            {
+                <div style="margin-top: 2rem;">
+                    <h5>Program Outcomes Across All LEAs</h5>
+                    <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                        <div class="outcome-stat">
+                            <i class="mdi mdi-account-check"></i>
+                            <div>
+                                <div class="stat-value">@reportingMetrics.OutcomeMetrics.CompletionRate.ToString("P0")</div>
+                                <div class="stat-label">Program Completion</div>
+                            </div>
+                        </div>
+                        <div class="outcome-stat">
+                            <i class="mdi mdi-certificate"></i>
+                            <div>
+                                <div class="stat-value">@reportingMetrics.OutcomeMetrics.CredentialRate.ToString("P0")</div>
+                                <div class="stat-label">Credential Rate</div>
+                            </div>
+                        </div>
+                        <div class="outcome-stat">
+                            <i class="mdi mdi-briefcase-check"></i>
+                            <div>
+                                <div class="stat-value">@reportingMetrics.OutcomeMetrics.EmploymentRate.ToString("P0")</div>
+                                <div class="stat-label">Employment Rate</div>
+                            </div>
+                        </div>
+                        <div class="outcome-stat">
+                            <i class="mdi mdi-cash-multiple"></i>
+                            <div>
+                                <div class="stat-value">@reportingMetrics.OutcomeMetrics.CostPerSuccessfulTeacher.ToString("C0")</div>
+                                <div class="stat-label">Cost Per Teacher</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-table"></i> LEA-by-LEA Compliance Details</h4>
+        <div class="card-actions">
+            <a href="@Url.Action("Reports", "FiscalTeam", new { grantCycleId })" class="r4-button r4-button-sm">
+                <i class="mdi mdi-table-eye"></i> View All Reports
+            </a>
+        </div>
+    </div>
+    <div class="r4-card-body">
+        @if (Model.Any())
+        {
+            <div class="table-wrapper">
+                <table class="r4-table">
+                    <thead>
+                        <tr>
+                            <th>LEA District</th>
+                            <th>Total Payments</th>
+                            <th>Reports Submitted</th>
+                            <th>Reports Pending</th>
+                            <th>Compliance Rate</th>
+                            <th>Total Disbursed</th>
+                            <th>Status</th>
+                            <th>Warnings</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var lea in Model)
+                        {
+                            var rowClass = lea.ComplianceStatus == "NON_COMPLIANT" ? "row-danger" :
+                                          lea.ComplianceStatus == "WARNING" ? "row-warning" : "";
+
+                            <tr class="@rowClass">
+                                <td><strong>@lea.LEAName</strong></td>
+                                <td>@lea.TotalPayments</td>
+                                <td>
+                                    <span class="badge badge-success">@lea.ReportsSubmitted</span>
+                                </td>
+                                <td>
+                                    @if (lea.ReportsPending > 0)
+                                    {
+                                        <span class="badge badge-warning">@lea.ReportsPending</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <div class="compliance-bar-container" style="flex: 1;">
+                                            <div class="compliance-bar @(lea.ComplianceStatus == "COMPLIANT" ? "compliance-bar-green" : lea.ComplianceStatus == "WARNING" ? "compliance-bar-yellow" : "compliance-bar-red")"
+                                                 style="width: @((lea.ComplianceRate * 100).ToString("F0"))%"></div>
+                                        </div>
+                                        <span style="min-width: 50px; text-align: right;">@lea.ComplianceRate.ToString("P0")</span>
+                                    </div>
+                                </td>
+                                <td>@lea.TotalDisbursed.ToString("C0")</td>
+                                <td>
+                                    @if (lea.ComplianceStatus == "COMPLIANT")
+                                    {
+                                        <span class="badge badge-success"><i class="mdi mdi-check-circle"></i> Compliant</span>
+                                    }
+                                    else if (lea.ComplianceStatus == "WARNING")
+                                    {
+                                        <span class="badge badge-warning"><i class="mdi mdi-alert"></i> Warning</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-danger"><i class="mdi mdi-alert-circle"></i> Non-Compliant</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (lea.HasPaymentHoldWarning)
+                                    {
+                                        <span class="badge badge-danger">
+                                            <i class="mdi mdi-alert-octagon"></i> Payment Hold Risk
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="compliance-info">
+                <h6><i class="mdi mdi-information-outline"></i> Compliance Standards</h6>
+                <ul>
+                    <li><strong>Compliant (Green):</strong> 80% or more of payments have complete reports (both LEA and IHE)</li>
+                    <li><strong>Warning (Yellow):</strong> 50-79% of payments have complete reports - attention needed</li>
+                    <li><strong>Non-Compliant (Red):</strong> Less than 50% of payments have complete reports</li>
+                    <li><strong>Payment Hold Risk:</strong> LEAs with less than 50% compliance may be flagged for future payment holds (visual warning only - fiscal team can still process payments)</li>
+                </ul>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="mdi mdi-domain"></i>
+                <p>No LEA compliance data available for this grant cycle.</p>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // All styles are now in r4-styles.css
+    </script>
+}

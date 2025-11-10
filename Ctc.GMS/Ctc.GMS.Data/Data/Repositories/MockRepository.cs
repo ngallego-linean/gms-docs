@@ -11,12 +11,20 @@ public class MockRepository
     private readonly List<GrantCycle> _grantCycles;
     private readonly List<Organization> _organizations;
     private readonly List<Application> _applications;
+    private readonly List<Payment> _payments;
+    private readonly List<LEAReport> _leaReports;
+    private readonly List<IHEReport> _iheReports;
+    private readonly List<ReportingPeriod> _reportingPeriods;
 
     public MockRepository()
     {
         _grantCycles = InitializeGrantCycles();
         _organizations = InitializeOrganizations();
         _applications = InitializeApplications();
+        _payments = InitializePayments();
+        _leaReports = InitializeLEAReports();
+        _iheReports = InitializeIHEReports();
+        _reportingPeriods = InitializeReportingPeriods();
     }
 
     private List<GrantCycle> InitializeGrantCycles()
@@ -119,8 +127,10 @@ public class MockRepository
                 CredentialArea = "Single Subject - Mathematics",
                 Status = "APPROVED",
                 AwardAmount = 20000,
+                GAAStatus = "PAYMENT_COMPLETED",
                 CreatedAt = new DateTime(2025, 8, 17),
-                SubmittedAt = new DateTime(2025, 9, 2)
+                SubmittedAt = new DateTime(2025, 9, 2),
+                ApprovedAt = new DateTime(2025, 9, 15, 10, 30, 0)
             },
             new Student
             {
@@ -151,7 +161,8 @@ public class MockRepository
                 AwardAmount = 20000,
                 CreatedAt = new DateTime(2025, 8, 21),
                 SubmittedAt = new DateTime(2025, 9, 4),
-                GAAStatus = "GAA_SIGNED"
+                ApprovedAt = new DateTime(2025, 9, 20, 14, 15, 0),
+                GAAStatus = "PAYMENT_COMPLETED"
             },
             new Student
             {
@@ -186,6 +197,7 @@ public class MockRepository
                 AwardAmount = 20000,
                 CreatedAt = new DateTime(2025, 9, 1).AddDays(i % 30),
                 SubmittedAt = new DateTime(2025, 9, 15).AddDays(i % 30),
+                ApprovedAt = new DateTime(2025, 10, 1).AddDays(i % 30).AddHours(i % 24),
                 GAAStatus = i % 3 == 0 ? "PAYMENT_COMPLETED" : i % 3 == 1 ? "GAA_SIGNED" : null
             });
         }
@@ -204,6 +216,7 @@ public class MockRepository
                 AwardAmount = 20000,
                 CreatedAt = new DateTime(2025, 9, 1).AddDays(i % 30),
                 SubmittedAt = new DateTime(2025, 9, 15).AddDays(i % 30),
+                ApprovedAt = new DateTime(2025, 10, 1).AddDays(i % 30).AddHours((i + 8) % 24),
                 GAAStatus = i % 3 == 0 ? "PAYMENT_COMPLETED" : i % 3 == 1 ? "GAA_SIGNED" : null
             });
         }
@@ -222,11 +235,232 @@ public class MockRepository
                 AwardAmount = 20000,
                 CreatedAt = new DateTime(2025, 9, 1).AddDays(i % 30),
                 SubmittedAt = new DateTime(2025, 9, 15).AddDays(i % 30),
+                ApprovedAt = new DateTime(2025, 10, 1).AddDays(i % 30).AddHours((i + 16) % 24),
                 GAAStatus = i % 3 == 0 ? "PAYMENT_COMPLETED" : i % 3 == 1 ? "GAA_SIGNED" : null
             });
         }
 
         return applications;
+    }
+
+    private List<Payment> InitializePayments()
+    {
+        var payments = new List<Payment>();
+
+        // Create payments for approved students (showing various scenarios)
+        // Student 2 (Maria Garcia) - Has both reports (COMPLIANT)
+        payments.Add(new Payment
+        {
+            Id = 1,
+            StudentId = 2,
+            ApplicationId = 1,
+            PONumber = "PO-2025-001",
+            InvoiceNumber = "INV-001",
+            AuthorizedAmount = 20000,
+            AuthorizationDate = new DateTime(2025, 10, 1),
+            LEAName = "Los Angeles Unified School District",
+            LEAAddress = "333 S. Beaudry Ave, Los Angeles, CA 90017",
+            WarrantNumber = "W-2025-001",
+            WarrantDate = new DateTime(2025, 10, 15),
+            ActualPaymentAmount = 20000,
+            ActualPaymentDate = new DateTime(2025, 10, 15),
+            Status = "COMPLETED",
+            CreatedAt = new DateTime(2025, 10, 1),
+            CreatedBy = "fiscal@ctc.ca.gov",
+            LastModified = new DateTime(2025, 10, 15),
+            ModifiedBy = "fiscal@ctc.ca.gov"
+        });
+
+        // Student 4 (Sarah Johnson) - Has IHE report but missing LEA report (WARNING)
+        payments.Add(new Payment
+        {
+            Id = 2,
+            StudentId = 4,
+            ApplicationId = 2,
+            PONumber = "PO-2025-002",
+            InvoiceNumber = "INV-002",
+            AuthorizedAmount = 20000,
+            AuthorizationDate = new DateTime(2025, 9, 15),
+            LEAName = "San Diego Unified School District",
+            LEAAddress = "4100 Normal St, San Diego, CA 92103",
+            WarrantNumber = "W-2025-002",
+            WarrantDate = new DateTime(2025, 10, 1),
+            ActualPaymentAmount = 20000,
+            ActualPaymentDate = new DateTime(2025, 10, 1),
+            Status = "COMPLETED",
+            CreatedAt = new DateTime(2025, 9, 15),
+            CreatedBy = "fiscal@ctc.ca.gov",
+            LastModified = new DateTime(2025, 10, 1),
+            ModifiedBy = "fiscal@ctc.ca.gov"
+        });
+
+        // Add 20 more payments with varying report compliance
+        for (int i = 0; i < 20; i++)
+        {
+            payments.Add(new Payment
+            {
+                Id = 3 + i,
+                StudentId = 100 + i,
+                ApplicationId = (i % 3) + 1,
+                PONumber = $"PO-2025-{(003 + i):D3}",
+                InvoiceNumber = $"INV-{(003 + i):D3}",
+                AuthorizedAmount = 20000,
+                AuthorizationDate = new DateTime(2025, 9, 1).AddDays(i),
+                LEAName = i % 3 == 0 ? "Los Angeles Unified School District" :
+                         i % 3 == 1 ? "San Diego Unified School District" :
+                         "Fresno Unified School District",
+                LEAAddress = i % 3 == 0 ? "333 S. Beaudry Ave, Los Angeles, CA 90017" :
+                            i % 3 == 1 ? "4100 Normal St, San Diego, CA 92103" :
+                            "2309 Tulare St, Fresno, CA 93721",
+                WarrantNumber = $"W-2025-{(003 + i):D3}",
+                WarrantDate = new DateTime(2025, 9, 15).AddDays(i),
+                ActualPaymentAmount = 20000,
+                ActualPaymentDate = new DateTime(2025, 9, 15).AddDays(i),
+                Status = "COMPLETED",
+                CreatedAt = new DateTime(2025, 9, 1).AddDays(i),
+                CreatedBy = "fiscal@ctc.ca.gov",
+                LastModified = new DateTime(2025, 9, 15).AddDays(i),
+                ModifiedBy = "fiscal@ctc.ca.gov"
+            });
+        }
+
+        return payments;
+    }
+
+    private List<LEAReport> InitializeLEAReports()
+    {
+        var reports = new List<LEAReport>();
+
+        // Report for Student 2 (Maria Garcia) - Payment 1 - COMPLIANT
+        reports.Add(new LEAReport
+        {
+            Id = 1,
+            StudentId = 2,
+            ApplicationId = 1,
+            PaymentId = 1,
+            PaymentCategorization = "Categorized as student teacher stipend",
+            PaymentCategory = "STIPEND",
+            PaymentSchedule = "LUMP_SUM",
+            ActualPaymentAmount = 20000,
+            FirstPaymentDate = new DateTime(2025, 10, 15),
+            FinalPaymentDate = new DateTime(2025, 10, 15),
+            PaymentNotes = "Full payment disbursed as lump sum",
+            HiredInDistrict = true,
+            EmploymentStatus = "FULL_TIME",
+            HireDate = new DateTime(2025, 8, 1),
+            JobTitle = "Elementary School Teacher",
+            SchoolSite = "Washington Elementary School",
+            SubmittedDate = new DateTime(2025, 11, 1),
+            SubmittedBy = "Jane Smith",
+            SubmittedByEmail = "jsmith@lausd.net",
+            CreatedAt = new DateTime(2025, 11, 1),
+            LastModified = new DateTime(2025, 11, 1)
+        });
+
+        // Add reports for ~60% of other payments (showing partial compliance)
+        for (int i = 0; i < 12; i++)
+        {
+            reports.Add(new LEAReport
+            {
+                Id = 2 + i,
+                StudentId = 100 + i,
+                ApplicationId = (i % 3) + 1,
+                PaymentId = 3 + i,
+                PaymentCategorization = "Categorized as student teacher stipend",
+                PaymentCategory = "STIPEND",
+                PaymentSchedule = i % 2 == 0 ? "LUMP_SUM" : "MONTHLY",
+                ActualPaymentAmount = 20000,
+                FirstPaymentDate = new DateTime(2025, 9, 15).AddDays(i),
+                FinalPaymentDate = new DateTime(2025, 10, 15).AddDays(i),
+                HiredInDistrict = i % 3 != 0,
+                EmploymentStatus = i % 3 == 0 ? "NOT_HIRED" : i % 3 == 1 ? "FULL_TIME" : "PART_TIME",
+                HireDate = i % 3 != 0 ? new DateTime(2025, 8, 1).AddDays(i) : null,
+                JobTitle = i % 3 == 1 ? "Middle School Teacher" : i % 3 == 2 ? "High School Teacher" : "",
+                SchoolSite = i % 3 != 0 ? $"School Site {i}" : "",
+                SubmittedDate = new DateTime(2025, 10, 20).AddDays(i),
+                SubmittedBy = "LEA Coordinator",
+                SubmittedByEmail = $"coordinator{i}@district.edu",
+                CreatedAt = new DateTime(2025, 10, 20).AddDays(i),
+                LastModified = new DateTime(2025, 10, 20).AddDays(i)
+            });
+        }
+
+        return reports;
+    }
+
+    private List<IHEReport> InitializeIHEReports()
+    {
+        var reports = new List<IHEReport>();
+
+        // Report for Student 2 (Maria Garcia) - Payment 1 - COMPLIANT
+        reports.Add(new IHEReport
+        {
+            Id = 1,
+            StudentId = 2,
+            ApplicationId = 1,
+            PaymentId = 1,
+            CompletionStatus = "COMPLETED",
+            CompletionDate = new DateTime(2025, 6, 15),
+            SwitchedToIntern = false,
+            GrantProgramHours = 550,
+            Met500Hours = true,
+            CredentialProgramHours = 650,
+            Met600Hours = true,
+            SubmittedDate = new DateTime(2025, 10, 25),
+            SubmittedBy = "Dr. John Davis",
+            SubmittedByEmail = "jdavis@fullerton.edu",
+            CreatedAt = new DateTime(2025, 10, 25),
+            LastModified = new DateTime(2025, 10, 25)
+        });
+
+        // Report for Student 4 (Sarah Johnson) - Payment 2 - PARTIAL COMPLIANCE
+        reports.Add(new IHEReport
+        {
+            Id = 2,
+            StudentId = 4,
+            ApplicationId = 2,
+            PaymentId = 2,
+            CompletionStatus = "COMPLETED",
+            CompletionDate = new DateTime(2025, 6, 20),
+            SwitchedToIntern = false,
+            GrantProgramHours = 520,
+            Met500Hours = true,
+            CredentialProgramHours = 630,
+            Met600Hours = true,
+            SubmittedDate = new DateTime(2025, 10, 28),
+            SubmittedBy = "Dr. Sarah Williams",
+            SubmittedByEmail = "swilliams@ucla.edu",
+            CreatedAt = new DateTime(2025, 10, 28),
+            LastModified = new DateTime(2025, 10, 28)
+        });
+
+        // Add reports for ~70% of other payments (showing higher IHE compliance than LEA)
+        for (int i = 0; i < 15; i++)
+        {
+            reports.Add(new IHEReport
+            {
+                Id = 3 + i,
+                StudentId = 100 + i,
+                ApplicationId = (i % 3) + 1,
+                PaymentId = 3 + i,
+                CompletionStatus = i % 5 == 0 ? "IN_PROGRESS" : i % 7 == 0 ? "DENIED" : "COMPLETED",
+                CompletionDate = i % 5 != 0 ? new DateTime(2025, 6, 15).AddDays(i) : null,
+                DenialReason = i % 7 == 0 ? "Did not complete program requirements" : "",
+                SwitchedToIntern = i % 4 == 0,
+                InternSwitchDate = i % 4 == 0 ? new DateTime(2025, 3, 1).AddDays(i) : null,
+                GrantProgramHours = 480 + (i * 10),
+                Met500Hours = (480 + (i * 10)) >= 500,
+                CredentialProgramHours = 580 + (i * 10),
+                Met600Hours = (580 + (i * 10)) >= 600,
+                SubmittedDate = new DateTime(2025, 10, 15).AddDays(i),
+                SubmittedBy = "IHE Coordinator",
+                SubmittedByEmail = $"coordinator{i}@university.edu",
+                CreatedAt = new DateTime(2025, 10, 15).AddDays(i),
+                LastModified = new DateTime(2025, 10, 15).AddDays(i)
+            });
+        }
+
+        return reports;
     }
 
     // Public methods to access mock data
@@ -256,5 +490,129 @@ public class MockRepository
             return _organizations;
 
         return _organizations.Where(o => o.Type == type).ToList();
+    }
+
+    public List<Payment> GetPayments()
+    {
+        return _payments;
+    }
+
+    public Payment? GetPayment(int id)
+    {
+        return _payments.FirstOrDefault(p => p.Id == id);
+    }
+
+    public List<LEAReport> GetLEAReports()
+    {
+        return _leaReports;
+    }
+
+    public LEAReport? GetLEAReport(int id)
+    {
+        return _leaReports.FirstOrDefault(r => r.Id == id);
+    }
+
+    public List<LEAReport> GetLEAReportsByStatus(string status)
+    {
+        return _leaReports.Where(r => r.Status == status).ToList();
+    }
+
+    public List<LEAReport> GetLEAReportsByStudent(int studentId)
+    {
+        return _leaReports.Where(r => r.StudentId == studentId).ToList();
+    }
+
+    public List<LEAReport> GetLEAReportsByApplication(int applicationId)
+    {
+        return _leaReports.Where(r => r.ApplicationId == applicationId).ToList();
+    }
+
+    public LEAReport? GetLEAReportByPaymentId(int paymentId)
+    {
+        return _leaReports.FirstOrDefault(r => r.PaymentId == paymentId);
+    }
+
+    public List<IHEReport> GetIHEReports()
+    {
+        return _iheReports;
+    }
+
+    public IHEReport? GetIHEReport(int id)
+    {
+        return _iheReports.FirstOrDefault(r => r.Id == id);
+    }
+
+    public List<IHEReport> GetIHEReportsByStatus(string status)
+    {
+        return _iheReports.Where(r => r.Status == status).ToList();
+    }
+
+    public List<IHEReport> GetIHEReportsByStudent(int studentId)
+    {
+        return _iheReports.Where(r => r.StudentId == studentId).ToList();
+    }
+
+    public List<IHEReport> GetIHEReportsByApplication(int applicationId)
+    {
+        return _iheReports.Where(r => r.ApplicationId == applicationId).ToList();
+    }
+
+    public IHEReport? GetIHEReportByPaymentId(int paymentId)
+    {
+        return _iheReports.FirstOrDefault(r => r.PaymentId == paymentId);
+    }
+
+    // Reporting Periods
+    private List<ReportingPeriod> InitializeReportingPeriods()
+    {
+        return new List<ReportingPeriod>
+        {
+            new ReportingPeriod
+            {
+                Id = 1,
+                GrantCycleId = 1,
+                PeriodName = "Mid-Year Progress Report",
+                StartDate = new DateTime(2025, 12, 1),
+                DueDate = new DateTime(2026, 1, 31),
+                IsActive = true,
+                Description = "Report on candidates who have completed at least 500 hours by mid-year",
+                ReportType = "Progress"
+            },
+            new ReportingPeriod
+            {
+                Id = 2,
+                GrantCycleId = 1,
+                PeriodName = "Final Completion Report",
+                StartDate = new DateTime(2026, 6, 1),
+                DueDate = new DateTime(2026, 7, 31),
+                IsActive = false,
+                Description = "Final report on program completion, credential earned, and employment outcomes",
+                ReportType = "Completion"
+            },
+            new ReportingPeriod
+            {
+                Id = 3,
+                GrantCycleId = 1,
+                PeriodName = "End-of-Year Employment Report",
+                StartDate = new DateTime(2026, 8, 1),
+                DueDate = new DateTime(2026, 9, 15),
+                IsActive = false,
+                Description = "Report on employment status one year after program completion",
+                ReportType = "Final"
+            }
+        };
+    }
+
+    public List<ReportingPeriod> GetReportingPeriods(int? grantCycleId = null)
+    {
+        if (grantCycleId.HasValue)
+            return _reportingPeriods.Where(rp => rp.GrantCycleId == grantCycleId.Value).ToList();
+
+        return _reportingPeriods;
+    }
+
+    public ReportingPeriod? GetReportingPeriod(int id)
+    {
+        return _reportingPeriods.FirstOrDefault(rp => rp.Id == id);
     }
 }

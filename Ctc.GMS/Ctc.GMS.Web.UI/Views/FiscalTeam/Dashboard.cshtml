@@ -15,12 +15,58 @@
     <p class="subtitle">@Model.GrantCycleName</p>
 </div>
 
-@if (Model.PendingReviewCount > 0)
+@* ACTION ITEMS - Always at the top for immediate visibility *@
+@if (Model.ActionItems.Any())
 {
-    <div class="alert alert-warning">
-        <i class="mdi mdi-alert-outline"></i>
-        <strong>Action Required:</strong> @Model.PendingReviewCount approved student(s) need Grant Award Agreement (GAA) generation.
-        <a href="@Url.Action("GAA", "FiscalTeam", new { grantCycleId = Model.GrantCycleId })" class="alert-link">Generate GAAs</a>
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-bell-outline"></i> Action Items</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="table-wrapper">
+                <table class="r4-table">
+                <thead>
+                    <tr>
+                        <th>Priority</th>
+                        <th>Task</th>
+                        <th>Description</th>
+                        <th>Due Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.ActionItems)
+                    {
+                        <tr>
+                            <td>
+                                @if (item.Priority == "high")
+                                {
+                                    <span class="badge badge-danger">High</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-secondary">Normal</span>
+                                }
+                            </td>
+                            <td>@item.Title</td>
+                            <td>@item.Description</td>
+                            <td>
+                                @if (item.DueDate.HasValue)
+                                {
+                                    @item.DueDate.Value.ToString("MM/dd/yyyy")
+                                }
+                            </td>
+                            <td>
+                                <a href="@Url.Action("GAA", "FiscalTeam", new { grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-sm">
+                                    <i class="mdi mdi-file-document-outline"></i> Process
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            </div>
+        </div>
     </div>
 }
 
@@ -202,56 +248,129 @@
     </div>
 </div>
 
-@if (Model.ActionItems.Any())
+@{
+    var reportingMetrics = ViewBag.ReportingMetrics as FiscalReportingDashboardViewModel;
+}
+
+@if (reportingMetrics != null)
 {
     <div class="r4-card">
         <div class="r4-card-header">
-            <h4><i class="mdi mdi-bell-outline"></i> Action Items</h4>
+            <h4><i class="mdi mdi-file-document-check-outline"></i> Reporting Compliance</h4>
+            <div class="card-actions">
+                <a href="@Url.Action("Reports", "FiscalTeam", new { grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-sm">
+                    <i class="mdi mdi-table-eye"></i> View All Reports
+                </a>
+                <a href="@Url.Action("LEACompliance", "FiscalTeam", new { grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-sm">
+                    <i class="mdi mdi-chart-box-outline"></i> LEA Compliance
+                </a>
+            </div>
         </div>
         <div class="r4-card-body">
-            <div class="table-wrapper">
-                <table class="r4-table">
-                <thead>
-                    <tr>
-                        <th>Priority</th>
-                        <th>Task</th>
-                        <th>Description</th>
-                        <th>Due Date</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model.ActionItems)
-                    {
-                        <tr>
-                            <td>
-                                @if (item.Priority == "high")
-                                {
-                                    <span class="badge badge-danger">High</span>
-                                }
-                                else
-                                {
-                                    <span class="badge badge-secondary">Normal</span>
-                                }
-                            </td>
-                            <td>@item.Title</td>
-                            <td>@item.Description</td>
-                            <td>
-                                @if (item.DueDate.HasValue)
-                                {
-                                    @item.DueDate.Value.ToString("MM/dd/yyyy")
-                                }
-                            </td>
-                            <td>
-                                <a href="@Url.Action("GAA", "FiscalTeam", new { grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-sm">
-                                    <i class="mdi mdi-file-document-outline"></i> Process
-                                </a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+            <div class="dashboard-grid">
+                <div class="metric-card @(reportingMetrics.ComplianceHealth == "GREEN" ? "metric-compliant" : reportingMetrics.ComplianceHealth == "YELLOW" ? "metric-warning" : "metric-alert")">
+                    <div class="metric-icon">
+                        <i class="mdi @(reportingMetrics.ComplianceHealth == "GREEN" ? "mdi-check-circle" : reportingMetrics.ComplianceHealth == "YELLOW" ? "mdi-alert" : "mdi-alert-circle")"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value">@reportingMetrics.ReportingComplianceRate.ToString("P0")</div>
+                        <div class="metric-label">Reporting Compliance</div>
+                        <div class="metric-description">
+                            @if (reportingMetrics.ComplianceHealth == "GREEN")
+                            {
+                                <span class="text-success">Excellent compliance</span>
+                            }
+                            else if (reportingMetrics.ComplianceHealth == "YELLOW")
+                            {
+                                <span class="text-warning">Needs attention</span>
+                            }
+                            else
+                            {
+                                <span class="text-danger">Immediate action required</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card metric-submitted">
+                    <div class="metric-icon">
+                        <i class="mdi mdi-check-all"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value">@reportingMetrics.PaymentsWithReports</div>
+                        <div class="metric-label">Reports Completed</div>
+                        <div class="metric-description">of @reportingMetrics.TotalPayments total payments</div>
+                    </div>
+                </div>
+
+                <div class="metric-card @(reportingMetrics.OutstandingReports > 0 ? "metric-outstanding" : "")">
+                    <div class="metric-icon">
+                        <i class="mdi mdi-file-alert-outline"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value">@reportingMetrics.OutstandingReports</div>
+                        <div class="metric-label">Outstanding Reports</div>
+                        <div class="metric-description">
+                            @if (reportingMetrics.OutstandingReports > 0)
+                            {
+                                <span>Require submission</span>
+                            }
+                            else
+                            {
+                                <span class="text-success">All reports current</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="mdi mdi-target"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value">@reportingMetrics.OutcomeMetrics.EmploymentRate.ToString("P0")</div>
+                        <div class="metric-label">Employment Rate</div>
+                        <div class="metric-description">@reportingMetrics.OutcomeMetrics.TeachersEmployed teachers hired</div>
+                    </div>
+                </div>
             </div>
+
+            @if (reportingMetrics.OutcomeMetrics != null)
+            {
+                <div style="margin-top: 2rem;">
+                    <h5>Program Outcomes</h5>
+                    <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                        <div class="outcome-stat">
+                            <i class="mdi mdi-account-check"></i>
+                            <div>
+                                <div class="stat-value">@reportingMetrics.OutcomeMetrics.ProgramCompletions</div>
+                                <div class="stat-label">Program Completions</div>
+                            </div>
+                        </div>
+                        <div class="outcome-stat">
+                            <i class="mdi mdi-certificate"></i>
+                            <div>
+                                <div class="stat-value">@reportingMetrics.OutcomeMetrics.CredentialsEarned</div>
+                                <div class="stat-label">Credentials Earned</div>
+                            </div>
+                        </div>
+                        <div class="outcome-stat">
+                            <i class="mdi mdi-cash-multiple"></i>
+                            <div>
+                                <div class="stat-value">@reportingMetrics.OutcomeMetrics.CostPerSuccessfulTeacher.ToString("C0")</div>
+                                <div class="stat-label">Cost Per Teacher</div>
+                            </div>
+                        </div>
+                        <div class="outcome-stat">
+                            <i class="mdi mdi-wallet"></i>
+                            <div>
+                                <div class="stat-value">@reportingMetrics.OutcomeMetrics.TotalInvestment.ToString("C0")</div>
+                                <div class="stat-label">Total Investment</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     </div>
 }
