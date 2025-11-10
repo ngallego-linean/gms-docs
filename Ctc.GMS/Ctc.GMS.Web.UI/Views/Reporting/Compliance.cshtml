@@ -1,0 +1,139 @@
+@model ComplianceDashboardViewModel
+
+@{
+    ViewData["Title"] = "Compliance Dashboard";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam")">Grants Team</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "Reporting")">Reporting</a></li>
+        <li class="breadcrumb-item active">Compliance</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-clipboard-check-outline"></i> Compliance Dashboard</h2>
+    <p class="subtitle">Track LEA reporting compliance</p>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-chart-donut"></i> Compliance Summary</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="dashboard-grid">
+            <div class="metric-card">
+                <div class="metric-icon"><i class="mdi mdi-domain"></i></div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Metrics.TotalLEAs</div>
+                    <div class="metric-label">Total LEAs</div>
+                </div>
+            </div>
+            <div class="metric-card metric-approved">
+                <div class="metric-icon"><i class="mdi mdi-check-circle"></i></div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Metrics.LEAsFullCompliance</div>
+                    <div class="metric-label">Full Compliance</div>
+                    <div class="metric-description">100% reported</div>
+                </div>
+            </div>
+            <div class="metric-card metric-revisions">
+                <div class="metric-icon"><i class="mdi mdi-clock-alert"></i></div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Metrics.LEAsPartialCompliance</div>
+                    <div class="metric-label">Partial Compliance</div>
+                    <div class="metric-description">Some reports submitted</div>
+                </div>
+            </div>
+            <div class="metric-card metric-outstanding">
+                <div class="metric-icon"><i class="mdi mdi-alert-circle"></i></div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Metrics.LEAsNoCompliance</div>
+                    <div class="metric-label">No Compliance</div>
+                    <div class="metric-description">Zero reports submitted</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-table"></i> LEA Compliance Details</h4>
+        <div class="card-actions">
+            <button class="r4-button r4-button-sm" onclick="exportCompliance()">
+                <i class="mdi mdi-download-outline"></i> Export
+            </button>
+        </div>
+    </div>
+    <div class="r4-card-body">
+        <div class="table-wrapper">
+            <table class="r4-table" id="compliance-table">
+                <thead>
+                    <tr>
+                        <th>LEA</th>
+                        <th>Required</th>
+                        <th>Submitted</th>
+                        <th>Compliance %</th>
+                        <th>Critically Overdue</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var lea in Model.LEACompliance.OrderByDescending(l => l.CompliancePercentage))
+                    {
+                        <tr>
+                            <td><strong>@lea.LEAName</strong></td>
+                            <td>@lea.ReportsRequired</td>
+                            <td>@lea.ReportsSubmitted</td>
+                            <td>
+                                <strong class="text-@lea.StatusClass">@lea.CompliancePercentage.ToString("F1")%</strong>
+                            </td>
+                            <td>
+                                @if (lea.CriticallyOverdue > 0)
+                                {
+                                    <span class="badge badge-danger">@lea.CriticallyOverdue</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge @(lea.CompliancePercentage >= 100 ? "badge-success" : lea.CompliancePercentage >= 50 ? "badge-warning" : "badge-danger")">
+                                    @lea.ComplianceStatus
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function exportCompliance() {
+            const table = document.getElementById('compliance-table');
+            const rows = Array.from(table.querySelectorAll('tr'));
+            let csv = [];
+            rows.forEach(row => {
+                const cells = Array.from(row.querySelectorAll('th, td'));
+                const rowData = cells.map(cell => {
+                    let text = cell.textContent.trim().replace(/\s+/g, ' ').replace(/"/g, '""');
+                    return `"${text}"`;
+                });
+                csv.push(rowData.join(','));
+            });
+            const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `lea_compliance_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+}

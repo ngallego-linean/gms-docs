@@ -1,0 +1,501 @@
+@model ReportReviewViewModel
+
+@{
+    ViewData["Title"] = $"{Model.ReportType} Report Review";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam")">Grants Team</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "Reporting")">Reporting</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("Submitted", "Reporting")">Submitted Reports</a></li>
+        <li class="breadcrumb-item active">Review @Model.ReportType Report</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2>
+        <i class="mdi @(Model.ReportType == "IHE" ? "mdi-school-outline" : "mdi-domain")"></i>
+        @Model.ReportType Report Review - @Model.StudentName
+    </h2>
+    <p class="subtitle">@Model.LEAName - @Model.IHEName</p>
+</div>
+
+@if (!string.IsNullOrEmpty(TempData["SuccessMessage"] as string))
+{
+    <div class="alert alert-success">
+        <i class="mdi mdi-check-circle"></i>
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(TempData["ErrorMessage"] as string))
+{
+    <div class="alert alert-danger">
+        <i class="mdi mdi-alert-circle"></i>
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@* ACTION ITEMS - Move to top *@
+@if (Model.Status != "APPROVED")
+{
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-gavel"></i> ACTION ITEMS - Review This Report</h4>
+        </div>
+        <div class="r4-card-body">
+            <form method="post">
+                <div class="form-actions">
+                    <button type="submit" class="r4-button r4-button-success"
+                            formaction="@Url.Action("Approve", "Reporting", new { reportType = Model.ReportType, id = Model.ReportId })"
+                            onclick="return confirm('Are you sure you want to approve this report?')">
+                        <i class="mdi mdi-check-circle"></i> Approve Report
+                    </button>
+
+                    <button type="button" class="r4-button r4-button-warning" onclick="showRevisionModal()">
+                        <i class="mdi mdi-pencil"></i> Request Revisions
+                    </button>
+
+                    <a href="@Url.Action("Submitted", "Reporting")" class="r4-button r4-button-secondary">
+                        <i class="mdi mdi-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+else
+{
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-check-circle"></i> Report Status</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="alert alert-success">
+                <i class="mdi mdi-check-circle-outline"></i>
+                This report was approved by <strong>@Model.ReviewedBy</strong> on @Model.ReviewedDate?.ToString("MMMM d, yyyy").
+            </div>
+            <a href="@Url.Action("Submitted", "Reporting")" class="r4-button r4-button-secondary">
+                <i class="mdi mdi-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+}
+
+@* Student Information *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-account-outline"></i> Student Information</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="detail-grid">
+            <div class="detail-item">
+                <label>Student Name:</label>
+                <span>@Model.StudentName</span>
+            </div>
+            <div class="detail-item">
+                <label>SEID:</label>
+                <span>@Model.SEID</span>
+            </div>
+            <div class="detail-item">
+                <label>Credential Area:</label>
+                <span>@Model.CredentialArea</span>
+            </div>
+            <div class="detail-item">
+                <label>Application ID:</label>
+                <span><a href="@Url.Action("Details", "Application", new { id = Model.ApplicationId })">@Model.ApplicationId</a></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Report Metadata *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-information-outline"></i> Report Information</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="detail-grid">
+            <div class="detail-item">
+                <label>Submitted Date:</label>
+                <span>@Model.SubmittedDate.ToString("MMMM d, yyyy")</span>
+            </div>
+            <div class="detail-item">
+                <label>Submitted By:</label>
+                <span>@Model.SubmittedBy (@Model.SubmittedByEmail)</span>
+            </div>
+            <div class="detail-item">
+                <label>Status:</label>
+                <span class="badge @(Model.Status switch {
+                    "SUBMITTED" => "badge-secondary",
+                    "UNDER_REVIEW" => "badge-primary",
+                    "APPROVED" => "badge-success",
+                    "REVISIONS_REQUESTED" => "badge-warning",
+                    _ => "badge-secondary"
+                })">
+                    @Model.Status.Replace("_", " ")
+                </span>
+            </div>
+            @if (!string.IsNullOrEmpty(Model.ReviewedBy))
+            {
+                <div class="detail-item">
+                    <label>Reviewed By:</label>
+                    <span>@Model.ReviewedBy on @Model.ReviewedDate?.ToString("MMM d, yyyy")</span>
+                </div>
+            }
+            @if (Model.RevisionCount > 0)
+            {
+                <div class="detail-item">
+                    <label>Revision Count:</label>
+                    <span class="badge badge-warning">@Model.RevisionCount</span>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@if (Model.IHEDetails != null)
+{
+    @* IHE Report Details *@
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-clipboard-text-outline"></i> Program Completion Details</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <label>Completion Status:</label>
+                    <span class="badge @(Model.IHEDetails.CompletionStatus == "COMPLETED" ? "badge-success" : Model.IHEDetails.CompletionStatus == "DENIED" ? "badge-danger" : "badge-secondary")">
+                        @Model.IHEDetails.CompletionStatus
+                    </span>
+                </div>
+                @if (Model.IHEDetails.CompletionDate.HasValue)
+                {
+                    <div class="detail-item">
+                        <label>Completion Date:</label>
+                        <span>@Model.IHEDetails.CompletionDate.Value.ToString("MMM d, yyyy")</span>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(Model.IHEDetails.DenialReason))
+                {
+                    <div class="detail-item full-width">
+                        <label>Denial Reason:</label>
+                        <span>@Model.IHEDetails.DenialReason</span>
+                    </div>
+                }
+                <div class="detail-item">
+                    <label>Switched to Intern:</label>
+                    <span>
+                        @(Model.IHEDetails.SwitchedToIntern ? "Yes" : "No")
+                        @if (Model.IHEDetails.SwitchedToIntern && Model.IHEDetails.InternSwitchDate.HasValue)
+                        {
+                            <text> on @Model.IHEDetails.InternSwitchDate.Value.ToString("MMM d, yyyy")</text>
+                        }
+                    </span>
+                </div>
+            </div>
+
+            <h5 class="mt-3">Grant Program Hours (500 Required)</h5>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <label>Total Hours:</label>
+                    <span><strong>@Model.IHEDetails.GrantProgramHours</strong></span>
+                </div>
+                <div class="detail-item">
+                    <label>Met 500 Hours:</label>
+                    <span class="badge @(Model.IHEDetails.Met500Hours ? "badge-success" : "badge-danger")">
+                        @(Model.IHEDetails.Met500Hours ? "Yes" : "No")
+                    </span>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.IHEDetails.GrantProgramHoursNotes))
+                {
+                    <div class="detail-item full-width">
+                        <label>Notes:</label>
+                        <span>@Model.IHEDetails.GrantProgramHoursNotes</span>
+                    </div>
+                }
+            </div>
+
+            <h5 class="mt-3">Credential Program Hours (600 Required)</h5>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <label>Total Hours:</label>
+                    <span><strong>@Model.IHEDetails.CredentialProgramHours</strong></span>
+                </div>
+                <div class="detail-item">
+                    <label>Met 600 Hours:</label>
+                    <span class="badge @(Model.IHEDetails.Met600Hours ? "badge-success" : "badge-danger")">
+                        @(Model.IHEDetails.Met600Hours ? "Yes" : "No")
+                    </span>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.IHEDetails.CredentialProgramHoursNotes))
+                {
+                    <div class="detail-item full-width">
+                        <label>Notes:</label>
+                        <span>@Model.IHEDetails.CredentialProgramHoursNotes</span>
+                    </div>
+                }
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.IHEDetails.AdditionalNotes))
+            {
+                <h5 class="mt-3">Additional Notes</h5>
+                <p>@Model.IHEDetails.AdditionalNotes</p>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.IHEDetails.DocumentationUrl))
+            {
+                <div class="mt-3">
+                    <a href="@Model.IHEDetails.DocumentationUrl" target="_blank" class="r4-button r4-button-secondary">
+                        <i class="mdi mdi-file-document-outline"></i> View Documentation
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@if (Model.LEADetails != null)
+{
+    @* LEA Report Details *@
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-currency-usd"></i> Payment Details</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <label>Payment Category:</label>
+                    <span><strong>@Model.LEADetails.PaymentCategory</strong></span>
+                </div>
+                <div class="detail-item">
+                    <label>Payment Schedule:</label>
+                    <span>@Model.LEADetails.PaymentSchedule</span>
+                </div>
+                <div class="detail-item">
+                    <label>Actual Amount:</label>
+                    <span><strong>@Model.LEADetails.ActualPaymentAmount.ToString("C0")</strong></span>
+                </div>
+                @if (Model.LEADetails.FirstPaymentDate.HasValue)
+                {
+                    <div class="detail-item">
+                        <label>First Payment:</label>
+                        <span>@Model.LEADetails.FirstPaymentDate.Value.ToString("MMM d, yyyy")</span>
+                    </div>
+                }
+                @if (Model.LEADetails.FinalPaymentDate.HasValue)
+                {
+                    <div class="detail-item">
+                        <label>Final Payment:</label>
+                        <span>@Model.LEADetails.FinalPaymentDate.Value.ToString("MMM d, yyyy")</span>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(Model.LEADetails.PaymentScheduleDetails))
+                {
+                    <div class="detail-item full-width">
+                        <label>Schedule Details:</label>
+                        <span>@Model.LEADetails.PaymentScheduleDetails</span>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(Model.LEADetails.PaymentNotes))
+                {
+                    <div class="detail-item full-width">
+                        <label>Payment Notes:</label>
+                        <span>@Model.LEADetails.PaymentNotes</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-briefcase-outline"></i> Employment Information</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <label>Hired in District:</label>
+                    <span class="badge @(Model.LEADetails.HiredInDistrict ? "badge-success" : "badge-secondary")">
+                        @(Model.LEADetails.HiredInDistrict ? "Yes" : "No")
+                    </span>
+                </div>
+                <div class="detail-item">
+                    <label>Employment Status:</label>
+                    <span><strong>@Model.LEADetails.EmploymentStatus.Replace("_", " ")</strong></span>
+                </div>
+                @if (Model.LEADetails.HireDate.HasValue)
+                {
+                    <div class="detail-item">
+                        <label>Hire Date:</label>
+                        <span>@Model.LEADetails.HireDate.Value.ToString("MMM d, yyyy")</span>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(Model.LEADetails.JobTitle))
+                {
+                    <div class="detail-item">
+                        <label>Job Title:</label>
+                        <span>@Model.LEADetails.JobTitle</span>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(Model.LEADetails.SchoolSite))
+                {
+                    <div class="detail-item">
+                        <label>School Site:</label>
+                        <span>@Model.LEADetails.SchoolSite</span>
+                    </div>
+                }
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.LEADetails.AdditionalNotes))
+            {
+                <h5 class="mt-3">Additional Notes</h5>
+                <p>@Model.LEADetails.AdditionalNotes</p>
+            }
+        </div>
+    </div>
+}
+
+@* Revision History *@
+@if (!string.IsNullOrEmpty(Model.RevisionNotes))
+{
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-history"></i> Revision History</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="alert alert-warning">
+                <strong>Revisions Requested (@Model.RevisionCount time@(Model.RevisionCount != 1 ? "s" : ""))</strong>
+                <p class="mt-2">@Model.RevisionNotes</p>
+            </div>
+        </div>
+    </div>
+}
+
+@* Revision Modal *@
+<div id="revisionModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Request Revisions</h3>
+            <button type="button" class="close" onclick="hideRevisionModal()">&times;</button>
+        </div>
+        <form method="post" action="@Url.Action("RequestRevisions", "Reporting", new { reportType = Model.ReportType, id = Model.ReportId })">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="revisionNotes">Revision Notes <span class="text-danger">*</span></label>
+                    <textarea id="revisionNotes" name="revisionNotes" class="form-control" rows="5"
+                              placeholder="Please specify what needs to be corrected or clarified..." required></textarea>
+                    <small class="form-text">Be specific about what needs to be fixed.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="r4-button r4-button-secondary" onclick="hideRevisionModal()">Cancel</button>
+                <button type="submit" class="r4-button r4-button-warning">
+                    <i class="mdi mdi-send"></i> Send Revision Request
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function showRevisionModal() {
+            document.getElementById('revisionModal').style.display = 'flex';
+        }
+
+        function hideRevisionModal() {
+            document.getElementById('revisionModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('revisionModal');
+            if (event.target == modal) {
+                hideRevisionModal();
+            }
+        }
+    </script>
+
+    <style>
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .detail-item label {
+            font-weight: 600;
+            color: #6c757d;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+            display: block;
+        }
+
+        .detail-item span {
+            font-size: 1rem;
+        }
+
+        .detail-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 4px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+        }
+
+        .modal-header .close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 2rem;
+            height: 2rem;
+        }
+
+        .modal-body {
+            padding: 1rem;
+        }
+
+        .modal-footer {
+            padding: 1rem;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+    </style>
+}

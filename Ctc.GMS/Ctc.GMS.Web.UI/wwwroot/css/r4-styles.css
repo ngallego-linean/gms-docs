@@ -1354,6 +1354,25 @@ body {
     background-color: var(--ctc-blue);
 }
 
+.r4-progress-bar-success {
+    background-color: #28a745;
+}
+
+.r4-progress-bar-primary {
+    background-color: #0066cc;
+}
+
+.r4-progress-bar-secondary {
+    background-color: var(--gray-500);
+}
+
+/* Badge consistent width for status */
+.badge-fixed-width {
+    display: inline-block;
+    min-width: 140px;
+    text-align: center;
+}
+
 /* ============================================
    CANDIDATE FORM STYLING
    ============================================ */

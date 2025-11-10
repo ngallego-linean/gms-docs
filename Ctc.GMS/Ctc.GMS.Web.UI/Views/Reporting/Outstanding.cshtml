@@ -1,0 +1,256 @@
+@model OutstandingReportsViewModel
+
+@{
+    ViewData["Title"] = "Outstanding Reports";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam")">Grants Team</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "Reporting")">Reporting</a></li>
+        <li class="breadcrumb-item active">Outstanding Reports</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-alert-circle-outline"></i> Outstanding Reports</h2>
+    <p class="subtitle">Track LEAs/IHEs who have not submitted required reports</p>
+</div>
+
+@* Summary Metrics *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-chart-bar"></i> Summary</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+            <div class="metric-card metric-outstanding">
+                <div class="metric-icon">
+                    <i class="mdi mdi-file-alert-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.TotalOutstanding</div>
+                    <div class="metric-label">Total Outstanding</div>
+                    <div class="metric-description">Candidates pending reports</div>
+                </div>
+            </div>
+
+            <div class="metric-card metric-critical">
+                <div class="metric-icon">
+                    <i class="mdi mdi-alert-octagon-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.CriticallyOverdue</div>
+                    <div class="metric-label">Critically Overdue</div>
+                    <div class="metric-description">More than 30 days late</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Outstanding Reports Table *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-table"></i> Outstanding Reports by Partnership</h4>
+        <div class="card-actions">
+            <button class="r4-button r4-button-sm" onclick="exportOutstanding()">
+                <i class="mdi mdi-download-outline"></i> Export
+            </button>
+        </div>
+    </div>
+    <div class="r4-card-body">
+        @if (Model.OutstandingReports.Any())
+        {
+            <div class="table-wrapper">
+                <table class="r4-table" id="outstanding-table">
+                    <thead>
+                        <tr>
+                            <th>LEA</th>
+                            <th>IHE</th>
+                            <th>Candidates Pending</th>
+                            <th>Payment Date</th>
+                            <th>Deadline</th>
+                            <th>Days Overdue</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.OutstandingReports)
+                        {
+                            <tr @(item.CriticallyOverdue ? "class=\"table-row-critical\"" : "")>
+                                <td><strong>@item.LEAName</strong></td>
+                                <td>@item.IHEName</td>
+                                <td>
+                                    <span class="badge badge-warning">@item.CandidatesPendingReport</span>
+                                </td>
+                                <td>
+                                    @if (item.PaymentDate.HasValue)
+                                    {
+                                        @item.PaymentDate.Value.ToString("MMM d, yyyy")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.ReportingDeadline.HasValue)
+                                    {
+                                        @item.ReportingDeadline.Value.ToString("MMM d, yyyy")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.DaysOverdue > 0)
+                                    {
+                                        <span class="badge @(item.CriticallyOverdue ? "badge-danger" : "badge-warning")">
+                                            @item.DaysOverdue days
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Not overdue</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.CriticallyOverdue)
+                                    {
+                                        <span class="badge badge-danger">
+                                            <i class="mdi mdi-alert-octagon"></i> Critical
+                                        </span>
+                                    }
+                                    else if (item.DaysOverdue > 0)
+                                    {
+                                        <span class="badge badge-warning">
+                                            <i class="mdi mdi-alert"></i> Overdue
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-secondary">Upcoming</span>
+                                    }
+                                </td>
+                                <td>
+                                    <button class="r4-button r4-button-sm" onclick="sendReminder(@item.ApplicationId, '@item.LEAName')">
+                                        <i class="mdi mdi-email-outline"></i> Send Reminder
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-success">
+                <i class="mdi mdi-check-circle-outline"></i>
+                All caught up! No outstanding reports at this time.
+            </div>
+        }
+    </div>
+</div>
+
+@if (Model.OutstandingReports.Any(r => r.CriticallyOverdue))
+{
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-alert-octagon-outline"></i> Critically Overdue</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="alert alert-danger">
+                <i class="mdi mdi-alert-outline"></i>
+                <strong>@Model.CriticallyOverdue</strong> partnership(s) have reports more than 30 days overdue. Immediate follow-up is recommended.
+            </div>
+
+            <div class="table-wrapper">
+                <table class="r4-table">
+                    <thead>
+                        <tr>
+                            <th>LEA</th>
+                            <th>IHE</th>
+                            <th>Days Overdue</th>
+                            <th>Candidates</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.OutstandingReports.Where(r => r.CriticallyOverdue))
+                        {
+                            <tr>
+                                <td><strong>@item.LEAName</strong></td>
+                                <td>@item.IHEName</td>
+                                <td>
+                                    <span class="badge badge-danger">@item.DaysOverdue days</span>
+                                </td>
+                                <td>@item.CandidatesPendingReport</td>
+                                <td>
+                                    <button class="r4-button r4-button-sm r4-button-danger" onclick="escalateIssue(@item.ApplicationId, '@item.LEAName')">
+                                        <i class="mdi mdi-alert"></i> Escalate
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        function exportOutstanding() {
+            const table = document.getElementById('outstanding-table');
+            const rows = Array.from(table.querySelectorAll('tr'));
+
+            let csv = [];
+            rows.forEach(row => {
+                const cells = Array.from(row.querySelectorAll('th, td:not(:last-child)'));
+                const rowData = cells.map(cell => {
+                    let text = cell.textContent.trim();
+                    text = text.replace(/\s+/g, ' ');
+                    text = text.replace(/"/g, '""');
+                    return `"${text}"`;
+                });
+                csv.push(rowData.join(','));
+            });
+
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `outstanding_reports_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function sendReminder(applicationId, leaName) {
+            if (confirm(`Send reminder email to ${leaName}?`)) {
+                alert(`Reminder email functionality would be implemented here for Application ${applicationId}.`);
+            }
+        }
+
+        function escalateIssue(applicationId, leaName) {
+            if (confirm(`Escalate overdue reports for ${leaName}?`)) {
+                alert(`Escalation functionality would be implemented here for Application ${applicationId}.`);
+            }
+        }
+    </script>
+
+    <style>
+        .table-row-critical {
+            background-color: #fff3f3 !important;
+        }
+
+        .metric-critical {
+            border-left: 4px solid #dc3545;
+        }
+    </style>
+}

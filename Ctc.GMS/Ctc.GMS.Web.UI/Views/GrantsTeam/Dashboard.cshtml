@@ -177,6 +177,35 @@
     </div>
 </div>
 
+@* REPORTING - Action Items *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-chart-line"></i> REPORTING - Action Items</h4>
+        <div class="card-actions">
+            <a href="@Url.Action("Dashboard", "Reporting")" class="r4-button r4-button-primary">
+                <i class="mdi mdi-eye-outline"></i> Reporting Dashboard
+            </a>
+        </div>
+    </div>
+    <div class="r4-card-body">
+        <div class="alert alert-info">
+            <i class="mdi mdi-information-outline"></i>
+            <strong>Reporting features are now available.</strong> Track LEA/IHE reports, monitor compliance, and view analytics.
+        </div>
+        <div class="mt-2">
+            <a href="@Url.Action("Submitted", "Reporting", new { status = "SUBMITTED" })" class="r4-button r4-button-sm">
+                <i class="mdi mdi-file-document-outline"></i> Review Submitted Reports
+            </a>
+            <a href="@Url.Action("Outstanding", "Reporting")" class="r4-button r4-button-sm">
+                <i class="mdi mdi-alert-circle-outline"></i> Outstanding Reports
+            </a>
+            <a href="@Url.Action("Analytics", "Reporting")" class="r4-button r4-button-sm">
+                <i class="mdi mdi-chart-box-outline"></i> View Analytics
+            </a>
+        </div>
+    </div>
+</div>
+
 @* Budget Overview *@
 <div class="r4-card">
     <div class="r4-card-header">

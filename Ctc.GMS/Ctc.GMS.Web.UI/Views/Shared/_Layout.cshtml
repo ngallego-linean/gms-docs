@@ -31,7 +31,7 @@
             </div>
         </div>
         <div class="r4-header-right">
-            <a href="#" class="header-link" title="Reports">
+            <a asp-controller="Reporting" asp-action="Dashboard" class="header-link" title="Reports">
                 <i class="mdi mdi-file-chart-outline"></i> Reports
             </a>
             <a href="#" class="header-link" title="Help & Documentation">
@@ -69,6 +69,11 @@
                     <li>
                         <a asp-controller="Application" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Application" ? "active" : "")">
                             <i class="mdi mdi-file-document-multiple"></i> All Applications
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-controller="Reporting" asp-action="Dashboard" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Reporting" ? "active" : "")">
+                            <i class="mdi mdi-chart-line"></i> Reporting
                         </a>
                     </li>
                 </ul>
