@@ -7,3 +7,12 @@ node_modules/
 CLAUDE.local.md
 *.pdf
 r4/
+transcript.txt
+
+# Build artifacts
+bin/
+obj/
+*.dll
+*.pdb
+*.cache
+*.gz
