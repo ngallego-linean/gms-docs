@@ -15,6 +15,28 @@
     <p class="subtitle">@Model.LEAName - @Model.GrantCycleName</p>
 </div>
 
+@* Action Items - Always at the top *@
+@if (Model.HasReportsDue && (Model.TotalFundedStudents > 0 || Model.ReportsSubmitted > 0))
+{
+    <div class="alert alert-info">
+        <i class="mdi mdi-clipboard-text-clock-outline"></i>
+        <strong>Reports Due:</strong> You have @Model.ReportsPending pending report(s) to submit.
+        @if (Model.ReportingDeadline.HasValue)
+        {
+            var daysRemaining = (Model.ReportingDeadline.Value - DateTime.UtcNow).Days;
+            if (daysRemaining >= 0)
+            {
+                <text>Deadline: @Model.ReportingDeadline.Value.ToString("MMMM dd, yyyy") (@daysRemaining days remaining)</text>
+            }
+            else
+            {
+                <span class="badge badge-danger">OVERDUE</span>
+            }
+        }
+        <a href="@Url.Action("FundedCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="alert-link">Submit Reports Now</a>
+    </div>
+}
+
 @if (Model.ActionItems.Any())
 {
     @foreach (var item in Model.ActionItems)
@@ -183,6 +205,83 @@ else
     <div class="alert alert-info">
         <i class="mdi mdi-information-outline"></i>
         You do not have any applications for this grant cycle yet. Your IHE partner will submit candidate lists that you will need to complete.
+    </div>
+}
+
+@* Reporting Section *@
+@if (Model.TotalFundedStudents > 0 || Model.ReportsSubmitted > 0)
+{
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-file-chart-outline"></i> Reporting</h4>
+            <div class="card-actions">
+                <a href="@Url.Action("Reports", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button">
+                    View All Reports
+                </a>
+            </div>
+        </div>
+        <div class="r4-card-body">
+            <div class="dashboard-grid">
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="mdi mdi-account-check-outline"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value">@Model.TotalFundedStudents</div>
+                        <div class="metric-label">Funded Candidates</div>
+                        <div class="metric-description">Total students who received payment</div>
+                    </div>
+                </div>
+
+                <div class="metric-card metric-approved">
+                    <div class="metric-icon">
+                        <i class="mdi mdi-check-circle-outline"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value">@Model.ReportsSubmitted</div>
+                        <div class="metric-label">Reports Submitted</div>
+                        <div class="metric-description">Completed reports</div>
+                    </div>
+                </div>
+
+                <div class="metric-card metric-pending">
+                    <div class="metric-icon">
+                        <i class="mdi mdi-file-document-edit-outline"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value">@Model.ReportsPending</div>
+                        <div class="metric-label">Reports Outstanding</div>
+                        <div class="metric-description">Need to be submitted</div>
+                    </div>
+                </div>
+
+                @if (Model.ReportsOverdue > 0)
+                {
+                    <div class="metric-card metric-overdue">
+                        <div class="metric-icon">
+                            <i class="mdi mdi-alert-circle-outline"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-value">@Model.ReportsOverdue</div>
+                            <div class="metric-label">Overdue</div>
+                            <div class="metric-description">Past reporting deadline</div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div style="margin-top: 1.5rem;">
+                <a href="@Url.Action("FundedCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-primary">
+                    <i class="mdi mdi-clipboard-text-outline"></i> Submit Reports
+                </a>
+                <a href="@Url.Action("BulkUpload", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button">
+                    <i class="mdi mdi-file-upload-outline"></i> Bulk Upload
+                </a>
+                <a href="@Url.Action("ReportHistory", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button">
+                    <i class="mdi mdi-history"></i> View History
+                </a>
+            </div>
+        </div>
     </div>
 }
 

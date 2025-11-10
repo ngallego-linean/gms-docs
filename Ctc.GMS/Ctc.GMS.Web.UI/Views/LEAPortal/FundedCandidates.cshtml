@@ -1,0 +1,149 @@
+@model FundedCandidatesViewModel
+
+@{
+    ViewData["Title"] = "Funded Candidates";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })">LEA Portal</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("Reports", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })">Reporting</a></li>
+        <li class="breadcrumb-item active">Funded Candidates</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-account-check-outline"></i> Funded Candidates</h2>
+    <p class="subtitle">@Model.LEAName - @Model.GrantCycleName</p>
+</div>
+
+@* Filters Card *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-filter-outline"></i> Filter Candidates</h4>
+    </div>
+    <div class="r4-card-body">
+        <form method="get" asp-action="FundedCandidates">
+            <input type="hidden" name="leaId" value="@Model.LEAId" />
+            <input type="hidden" name="grantCycleId" value="@Model.GrantCycleId" />
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="ihePartner">IHE Partner</label>
+                    <select id="ihePartner" name="ihePartner" class="form-control">
+                        <option value="">All IHE Partners</option>
+                        @foreach (var ihe in Model.IHEPartners)
+                        {
+                            <option value="@ihe" selected="@(Model.SearchCriteria.IHEPartner == ihe)">@ihe</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="credentialType">Credential Type</label>
+                    <select id="credentialType" name="credentialType" class="form-control">
+                        <option value="">All Credentials</option>
+                        @foreach (var cred in Model.CredentialTypes)
+                        {
+                            <option value="@cred" selected="@(Model.SearchCriteria.CredentialType == cred)">@cred</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="cohort">Cohort/Batch</label>
+                    <select id="cohort" name="cohort" class="form-control">
+                        <option value="">All Cohorts</option>
+                        @foreach (var cohort in Model.Cohorts)
+                        {
+                            <option value="@cohort" selected="@(Model.SearchCriteria.Cohort == cohort)">@cohort</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="reportStatus">Report Status</label>
+                    <select id="reportStatus" name="reportStatus" class="form-control">
+                        <option value="">All Statuses</option>
+                        <option value="PENDING" selected="@(Model.SearchCriteria.ReportStatus == "PENDING")">Pending</option>
+                        <option value="DRAFT" selected="@(Model.SearchCriteria.ReportStatus == "DRAFT")">Draft</option>
+                        <option value="SUBMITTED" selected="@(Model.SearchCriteria.ReportStatus == "SUBMITTED")">Submitted</option>
+                        <option value="APPROVED" selected="@(Model.SearchCriteria.ReportStatus == "APPROVED")">Approved</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="r4-button r4-button-primary">
+                    <i class="mdi mdi-filter"></i> Apply Filters
+                </button>
+                <a href="@Url.Action("FundedCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button">
+                    <i class="mdi mdi-filter-remove"></i> Clear Filters
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@* Results *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-table"></i> Candidates (@Model.FilteredCount of @Model.TotalCount)</h4>
+    </div>
+    <div class="r4-card-body">
+        @if (Model.Students.Any())
+        {
+            <table class="r4-table">
+                <thead>
+                    <tr>
+                        <th>LEA</th>
+                        <th>IHE Partner</th>
+                        <th>Candidate Name</th>
+                        <th>SEID</th>
+                        <th>Credential Area</th>
+                        <th>Award Amount</th>
+                        <th>Cohort</th>
+                        <th>Report Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var student in Model.Students)
+                    {
+                        <tr>
+                            <td>@Model.LEAName</td>
+                            <td>@student.IHEName</td>
+                            <td>@student.StudentName</td>
+                            <td>@student.SEID</td>
+                            <td>@student.CredentialArea</td>
+                            <td>@student.AwardAmount.ToString("C")</td>
+                            <td>@student.Cohort</td>
+                            <td><span class="badge @student.ReportStatusBadgeClass">@student.ReportStatus</span></td>
+                            <td>
+                                @if (student.ReportStatus == "PENDING" || student.ReportStatus == "DRAFT" || student.ReportStatus == "REVISION_REQUESTED")
+                                {
+                                    <a href="@Url.Action("SubmitReport", "LEAPortal", new { studentId = student.StudentId })" class="r4-button r4-button-primary r4-button-sm">
+                                        <i class="mdi mdi-clipboard-text-outline"></i> Submit Report
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a href="@Url.Action("SubmitReport", "LEAPortal", new { studentId = student.StudentId })" class="r4-button r4-button-sm">
+                                        <i class="mdi mdi-eye-outline"></i> View Report
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="mdi mdi-information-outline"></i>
+                No funded candidates found matching your criteria.
+            </div>
+        }
+    </div>
+</div>
