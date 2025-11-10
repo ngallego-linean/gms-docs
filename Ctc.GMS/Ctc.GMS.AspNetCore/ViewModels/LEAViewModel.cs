@@ -122,30 +122,6 @@ public class LEAReportsViewModel
 }
 
 /// <summary>
-/// Funded candidates list view with filters
-/// </summary>
-public class FundedCandidatesViewModel
-{
-    public int LEAId { get; set; }
-    public string LEAName { get; set; } = string.Empty;
-    public int GrantCycleId { get; set; }
-    public string GrantCycleName { get; set; } = string.Empty;
-
-    // Filters
-    public ReportSearchCriteria SearchCriteria { get; set; } = new();
-
-    // Results
-    public List<StudentReportSummaryViewModel> Students { get; set; } = new();
-    public int TotalCount { get; set; }
-    public int FilteredCount => Students.Count;
-
-    // Filter options
-    public List<string> IHEPartners { get; set; } = new();
-    public List<string> CredentialTypes { get; set; } = new();
-    public List<string> Cohorts { get; set; } = new();
-}
-
-/// <summary>
 /// Individual candidate reporting form
 /// </summary>
 public class LEAReportSubmissionViewModel
@@ -286,9 +262,22 @@ public class StudentReportSummaryViewModel
 }
 
 /// <summary>
-/// Bulk upload interface
+/// Result of processing a single row in bulk upload
 /// </summary>
-public class BulkUploadViewModel
+public class BulkUploadResultViewModel
+{
+    public int RowNumber { get; set; }
+    public string SEID { get; set; } = string.Empty;
+    public string StudentName { get; set; } = string.Empty;
+    public bool Success { get; set; }
+    public List<string> Errors { get; set; } = new();
+    public string ErrorSummary => string.Join("; ", Errors);
+}
+
+/// <summary>
+/// Bulk upload interface for LEA portal
+/// </summary>
+public class LEABulkUploadViewModel
 {
     public int LEAId { get; set; }
     public string LEAName { get; set; } = string.Empty;
@@ -304,42 +293,6 @@ public class BulkUploadViewModel
     public int ErrorCount { get; set; }
     public bool HasErrors => ErrorCount > 0;
     public bool ProcessingComplete { get; set; }
-}
-
-/// <summary>
-/// Result of processing a single row in bulk upload
-/// </summary>
-public class BulkUploadResultViewModel
-{
-    public int RowNumber { get; set; }
-    public string SEID { get; set; } = string.Empty;
-    public string StudentName { get; set; } = string.Empty;
-    public bool Success { get; set; }
-    public List<string> Errors { get; set; } = new();
-    public string ErrorSummary => string.Join("; ", Errors);
-}
-
-/// <summary>
-/// Historical reports view
-/// </summary>
-public class ReportHistoryViewModel
-{
-    public int LEAId { get; set; }
-    public string LEAName { get; set; } = string.Empty;
-    public int GrantCycleId { get; set; }
-    public string GrantCycleName { get; set; } = string.Empty;
-
-    // Filters
-    public ReportHistorySearchCriteria SearchCriteria { get; set; } = new();
-
-    // Results
-    public List<StudentReportSummaryViewModel> Reports { get; set; } = new();
-    public int TotalCount { get; set; }
-
-    // Filter options
-    public List<string> IHEPartners { get; set; } = new();
-    public List<string> StatusOptions { get; set; } = new() { "SUBMITTED", "APPROVED", "REVISION_REQUESTED" };
-    public List<int> SubmissionYears { get; set; } = new();
 }
 
 /// <summary>
@@ -364,29 +317,4 @@ public class ReportHistorySearchCriteria
     public int? SubmissionYear { get; set; }
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
-}
-
-/// <summary>
-/// Upcoming deadline information
-/// </summary>
-public class ReportDeadlineViewModel
-{
-    public string Description { get; set; } = string.Empty;
-    public DateTime DeadlineDate { get; set; }
-    public int DaysRemaining { get; set; }
-    public int StudentsAffected { get; set; }
-    public string UrgencyLevel => DaysRemaining switch
-    {
-        <= 0 => "overdue",
-        <= 3 => "critical",
-        <= 7 => "warning",
-        _ => "normal"
-    };
-    public string BadgeClass => UrgencyLevel switch
-    {
-        "overdue" => "badge-danger",
-        "critical" => "badge-danger",
-        "warning" => "badge-warning",
-        _ => "badge-info"
-    };
 }

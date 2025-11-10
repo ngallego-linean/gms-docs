@@ -14,6 +14,7 @@ public class MockRepository
     private readonly List<Payment> _payments;
     private readonly List<LEAReport> _leaReports;
     private readonly List<IHEReport> _iheReports;
+    private readonly List<ReportingPeriod> _reportingPeriods;
 
     public MockRepository()
     {
@@ -23,6 +24,7 @@ public class MockRepository
         _payments = InitializePayments();
         _leaReports = InitializeLEAReports();
         _iheReports = InitializeIHEReports();
+        _reportingPeriods = InitializeReportingPeriods();
     }
 
     private List<GrantCycle> InitializeGrantCycles()
@@ -558,5 +560,59 @@ public class MockRepository
     public IHEReport? GetIHEReportByPaymentId(int paymentId)
     {
         return _iheReports.FirstOrDefault(r => r.PaymentId == paymentId);
+    }
+
+    // Reporting Periods
+    private List<ReportingPeriod> InitializeReportingPeriods()
+    {
+        return new List<ReportingPeriod>
+        {
+            new ReportingPeriod
+            {
+                Id = 1,
+                GrantCycleId = 1,
+                PeriodName = "Mid-Year Progress Report",
+                StartDate = new DateTime(2025, 12, 1),
+                DueDate = new DateTime(2026, 1, 31),
+                IsActive = true,
+                Description = "Report on candidates who have completed at least 500 hours by mid-year",
+                ReportType = "Progress"
+            },
+            new ReportingPeriod
+            {
+                Id = 2,
+                GrantCycleId = 1,
+                PeriodName = "Final Completion Report",
+                StartDate = new DateTime(2026, 6, 1),
+                DueDate = new DateTime(2026, 7, 31),
+                IsActive = false,
+                Description = "Final report on program completion, credential earned, and employment outcomes",
+                ReportType = "Completion"
+            },
+            new ReportingPeriod
+            {
+                Id = 3,
+                GrantCycleId = 1,
+                PeriodName = "End-of-Year Employment Report",
+                StartDate = new DateTime(2026, 8, 1),
+                DueDate = new DateTime(2026, 9, 15),
+                IsActive = false,
+                Description = "Report on employment status one year after program completion",
+                ReportType = "Final"
+            }
+        };
+    }
+
+    public List<ReportingPeriod> GetReportingPeriods(int? grantCycleId = null)
+    {
+        if (grantCycleId.HasValue)
+            return _reportingPeriods.Where(rp => rp.GrantCycleId == grantCycleId.Value).ToList();
+
+        return _reportingPeriods;
+    }
+
+    public ReportingPeriod? GetReportingPeriod(int id)
+    {
+        return _reportingPeriods.FirstOrDefault(rp => rp.Id == id);
     }
 }

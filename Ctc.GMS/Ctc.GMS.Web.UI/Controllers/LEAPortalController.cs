@@ -474,7 +474,7 @@ public class LEAPortalController : Controller
             if (grantCycle == null)
                 return NotFound("Grant cycle not found");
 
-            var model = new BulkUploadViewModel
+            var model = new LEABulkUploadViewModel
             {
                 LEAId = leaId,
                 LEAName = "Sample LEA",  // Would get from auth context
@@ -493,7 +493,7 @@ public class LEAPortalController : Controller
 
     [HttpPost]
     [Route("BulkUpload")]
-    public IActionResult BulkUpload(BulkUploadViewModel model)
+    public IActionResult BulkUpload(LEABulkUploadViewModel model)
     {
         try
         {

@@ -10,16 +10,24 @@ public class FundedCandidatesViewModel
 {
     public int IHEId { get; set; }
     public string IHEName { get; set; } = string.Empty;
+    public int LEAId { get; set; }
+    public string LEAName { get; set; } = string.Empty;
     public int GrantCycleId { get; set; }
     public string GrantCycleName { get; set; } = string.Empty;
 
     public CandidateFilterCriteria Filters { get; set; } = new();
+    public ReportSearchCriteria SearchCriteria { get; set; } = new();
     public List<FundedCandidateSummaryViewModel> Candidates { get; set; } = new();
+    public List<StudentReportSummaryViewModel> Students { get; set; } = new();
     public int TotalCount { get; set; }
+    public int FilteredCount => Students.Count;
 
     // Filter options for dropdowns
     public List<string> AvailableCohorts { get; set; } = new();
+    public List<string> Cohorts { get; set; } = new();
     public List<OrganizationOption> AvailableLEAs { get; set; } = new();
+    public List<string> IHEPartners { get; set; } = new();
+    public List<string> CredentialTypes { get; set; } = new();
     public List<string> AvailableCredentialAreas { get; set; } = new();
 }
 
@@ -195,13 +203,13 @@ public class BulkUploadViewModel
     public IFormFile? UploadedFile { get; set; }
 
     // Results after validation
-    public BulkUploadResultViewModel? UploadResult { get; set; }
+    public IHEBulkUploadResultViewModel? UploadResult { get; set; }
 }
 
 /// <summary>
-/// Results from bulk upload validation
+/// Results from bulk upload validation (IHE)
 /// </summary>
-public class BulkUploadResultViewModel
+public class IHEBulkUploadResultViewModel
 {
     public int TotalRows { get; set; }
     public int SuccessCount { get; set; }
@@ -282,15 +290,23 @@ public class ReportHistoryViewModel
 {
     public int IHEId { get; set; }
     public string IHEName { get; set; } = string.Empty;
+    public int LEAId { get; set; }
+    public string LEAName { get; set; } = string.Empty;
     public int GrantCycleId { get; set; }
+    public string GrantCycleName { get; set; } = string.Empty;
 
     public ReportHistoryFilterCriteria Filters { get; set; } = new();
+    public ReportHistorySearchCriteria SearchCriteria { get; set; } = new();
     public List<SubmittedReportViewModel> SubmittedReports { get; set; } = new();
+    public List<StudentReportSummaryViewModel> Reports { get; set; } = new();
     public int TotalCount { get; set; }
 
     // Filter options
     public List<ReportingPeriodViewModel> AvailablePeriods { get; set; } = new();
     public List<OrganizationOption> AvailableLEAs { get; set; } = new();
+    public List<string> IHEPartners { get; set; } = new();
+    public List<string> StatusOptions { get; set; } = new();
+    public List<int> SubmissionYears { get; set; } = new();
 }
 
 /// <summary>

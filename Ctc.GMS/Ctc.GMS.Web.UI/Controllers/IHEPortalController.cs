@@ -291,7 +291,7 @@ public class IHEPortalController : Controller
                 Candidates = fundedStudents.Select(s =>
                 {
                     var app = allApplications.First(a => a.Id == s.ApplicationId);
-                    var report = _repository.GetIHEReports(studentId: s.Id).FirstOrDefault();
+                    var report = _repository.GetIHEReportsByStudent(s.Id).FirstOrDefault();
 
                     return new FundedCandidateSummaryViewModel
                     {
@@ -340,7 +340,7 @@ public class IHEPortalController : Controller
                 return NotFound("Student not found");
 
             var application = allApplications.First(a => a.Id == student.ApplicationId);
-            var existingReport = _repository.GetIHEReports(studentId: studentId).FirstOrDefault();
+            var existingReport = _repository.GetIHEReportsByStudent(studentId).FirstOrDefault();
             var activeReportingPeriod = _repository.GetReportingPeriods(application.GrantCycleId).FirstOrDefault(rp => rp.IsActive);
 
             var model = new CandidateReportingViewModel
@@ -599,7 +599,7 @@ public class IHEPortalController : Controller
 
             var application = allApplications.First(a => a.Id == student.ApplicationId);
             var grantCycle = _repository.GetGrantCycle(application.GrantCycleId);
-            var latestReport = _repository.GetIHEReports(studentId: studentId).FirstOrDefault();
+            var latestReport = _repository.GetIHEReportsByStudent(studentId).FirstOrDefault();
 
             var model = new StudentDetailViewModel
             {

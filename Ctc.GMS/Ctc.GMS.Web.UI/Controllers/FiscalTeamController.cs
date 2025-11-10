@@ -289,9 +289,9 @@ public class FiscalTeamController : Controller
         };
     }
 
-    private ReportingDashboardViewModel MapToReportingDashboardViewModel(ReportingDashboardDTO dto)
+    private FiscalReportingDashboardViewModel MapToReportingDashboardViewModel(ReportingDashboardDTO dto)
     {
-        return new ReportingDashboardViewModel
+        return new FiscalReportingDashboardViewModel
         {
             TotalPayments = dto.TotalPayments,
             PaymentsWithReports = dto.PaymentsWithReports,

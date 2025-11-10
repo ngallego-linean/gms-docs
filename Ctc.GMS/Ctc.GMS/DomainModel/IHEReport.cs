@@ -64,11 +64,9 @@ public class IHEReport
     public string RejectionReason { get; set; } = string.Empty;
     public string ConfirmationNumber { get; set; } = string.Empty;
 
-    // Review and Approval Tracking
-    public string Status { get; set; } = "SUBMITTED";  // SUBMITTED, UNDER_REVIEW, APPROVED, REVISIONS_REQUESTED
+    // Review and Approval Tracking (additional fields)
     public string ReviewedBy { get; set; } = string.Empty;
     public DateTime? ReviewedDate { get; set; }
-    public DateTime? ApprovedDate { get; set; }
     public string RevisionNotes { get; set; } = string.Empty;
     public int RevisionCount { get; set; } = 0;
     public string InternalNotes { get; set; } = string.Empty;  // CTC staff notes

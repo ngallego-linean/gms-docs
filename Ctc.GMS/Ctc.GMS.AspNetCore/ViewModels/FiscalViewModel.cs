@@ -182,7 +182,7 @@ public class OutcomeMetricsViewModel
     public decimal CostPerSuccessfulTeacher { get; set; }
 }
 
-public class ReportingDashboardViewModel
+public class FiscalReportingDashboardViewModel
 {
     [Display(Name = "Total Payments")]
     public int TotalPayments { get; set; }
