@@ -39,6 +39,15 @@ public class IHEReport
     public string SubmittedBy { get; set; } = string.Empty;
     public string SubmittedByEmail { get; set; } = string.Empty;
 
+    // Review and Approval Tracking
+    public string Status { get; set; } = "SUBMITTED";  // SUBMITTED, UNDER_REVIEW, APPROVED, REVISIONS_REQUESTED
+    public string ReviewedBy { get; set; } = string.Empty;
+    public DateTime? ReviewedDate { get; set; }
+    public DateTime? ApprovedDate { get; set; }
+    public string RevisionNotes { get; set; } = string.Empty;
+    public int RevisionCount { get; set; } = 0;
+    public string InternalNotes { get; set; } = string.Empty;  // CTC staff notes
+
     // Audit
     public DateTime CreatedAt { get; set; }
     public DateTime? LastModified { get; set; }

@@ -9,6 +9,7 @@ builder.Services.AddControllersWithViews();
 // Register R4 application services
 builder.Services.AddSingleton<MockRepository>();
 builder.Services.AddScoped<IGrantService, GrantService>();
+builder.Services.AddScoped<IReportService, ReportService>();
 
 // Add session support
 builder.Services.AddDistributedMemoryCache();

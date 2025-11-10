@@ -11,12 +11,16 @@ public class MockRepository
     private readonly List<GrantCycle> _grantCycles;
     private readonly List<Organization> _organizations;
     private readonly List<Application> _applications;
+    private readonly List<IHEReport> _iheReports;
+    private readonly List<LEAReport> _leaReports;
 
     public MockRepository()
     {
         _grantCycles = InitializeGrantCycles();
         _organizations = InitializeOrganizations();
         _applications = InitializeApplications();
+        _iheReports = InitializeIHEReports();
+        _leaReports = InitializeLEAReports();
     }
 
     private List<GrantCycle> InitializeGrantCycles()
@@ -229,6 +233,344 @@ public class MockRepository
         return applications;
     }
 
+    private List<IHEReport> InitializeIHEReports()
+    {
+        // Create sample IHE reports for students who have completed their programs
+        // Mix of different statuses: Submitted, Under Review, Approved, Revisions Requested
+        var reports = new List<IHEReport>
+        {
+            // Submitted reports awaiting review
+            new IHEReport
+            {
+                Id = 1,
+                StudentId = 1,
+                ApplicationId = 1,
+                CompletionStatus = "COMPLETED",
+                CompletionDate = new DateTime(2025, 10, 15),
+                GrantProgramHours = 520,
+                Met500Hours = true,
+                CredentialProgramHours = 650,
+                Met600Hours = true,
+                SwitchedToIntern = false,
+                SubmittedDate = new DateTime(2025, 11, 5),
+                SubmittedBy = "Jane Coordinator",
+                SubmittedByEmail = "coordinator@fullerton.edu",
+                CreatedAt = new DateTime(2025, 11, 5),
+                Status = "SUBMITTED"
+            },
+            new IHEReport
+            {
+                Id = 2,
+                StudentId = 2,
+                ApplicationId = 1,
+                CompletionStatus = "COMPLETED",
+                CompletionDate = new DateTime(2025, 10, 20),
+                GrantProgramHours = 500,
+                Met500Hours = true,
+                CredentialProgramHours = 600,
+                Met600Hours = true,
+                SwitchedToIntern = false,
+                SubmittedDate = new DateTime(2025, 11, 6),
+                SubmittedBy = "Jane Coordinator",
+                SubmittedByEmail = "coordinator@fullerton.edu",
+                CreatedAt = new DateTime(2025, 11, 6),
+                Status = "SUBMITTED"
+            },
+            // Under review
+            new IHEReport
+            {
+                Id = 3,
+                StudentId = 4,
+                ApplicationId = 2,
+                CompletionStatus = "COMPLETED",
+                CompletionDate = new DateTime(2025, 10, 10),
+                GrantProgramHours = 550,
+                Met500Hours = true,
+                CredentialProgramHours = 620,
+                Met600Hours = true,
+                SwitchedToIntern = false,
+                SubmittedDate = new DateTime(2025, 11, 1),
+                SubmittedBy = "Bob Grant",
+                SubmittedByEmail = "grants@ucla.edu",
+                CreatedAt = new DateTime(2025, 11, 1),
+                Status = "UNDER_REVIEW",
+                ReviewedBy = "Sarah CTC",
+                ReviewedDate = new DateTime(2025, 11, 3)
+            },
+            // Approved reports
+            new IHEReport
+            {
+                Id = 4,
+                StudentId = 6,
+                ApplicationId = 1,
+                CompletionStatus = "COMPLETED",
+                CompletionDate = new DateTime(2025, 9, 30),
+                GrantProgramHours = 510,
+                Met500Hours = true,
+                CredentialProgramHours = 605,
+                Met600Hours = true,
+                SwitchedToIntern = false,
+                SubmittedDate = new DateTime(2025, 10, 15),
+                SubmittedBy = "Jane Coordinator",
+                SubmittedByEmail = "coordinator@fullerton.edu",
+                CreatedAt = new DateTime(2025, 10, 15),
+                Status = "APPROVED",
+                ReviewedBy = "Sarah CTC",
+                ReviewedDate = new DateTime(2025, 10, 20),
+                ApprovedDate = new DateTime(2025, 10, 20)
+            },
+            new IHEReport
+            {
+                Id = 5,
+                StudentId = 7,
+                ApplicationId = 1,
+                CompletionStatus = "COMPLETED",
+                CompletionDate = new DateTime(2025, 9, 28),
+                GrantProgramHours = 530,
+                Met500Hours = true,
+                CredentialProgramHours = 615,
+                Met600Hours = true,
+                SwitchedToIntern = false,
+                SubmittedDate = new DateTime(2025, 10, 16),
+                SubmittedBy = "Jane Coordinator",
+                SubmittedByEmail = "coordinator@fullerton.edu",
+                CreatedAt = new DateTime(2025, 10, 16),
+                Status = "APPROVED",
+                ReviewedBy = "Mike CTC",
+                ReviewedDate = new DateTime(2025, 10, 21),
+                ApprovedDate = new DateTime(2025, 10, 21)
+            },
+            // Revisions requested
+            new IHEReport
+            {
+                Id = 6,
+                StudentId = 3,
+                ApplicationId = 1,
+                CompletionStatus = "COMPLETED",
+                CompletionDate = new DateTime(2025, 10, 25),
+                GrantProgramHours = 480,
+                Met500Hours = false,
+                GrantProgramHoursNotes = "Please clarify the hours breakdown",
+                CredentialProgramHours = 600,
+                Met600Hours = true,
+                SwitchedToIntern = true,
+                InternSwitchDate = new DateTime(2025, 9, 1),
+                SubmittedDate = new DateTime(2025, 11, 2),
+                SubmittedBy = "Jane Coordinator",
+                SubmittedByEmail = "coordinator@fullerton.edu",
+                CreatedAt = new DateTime(2025, 11, 2),
+                Status = "REVISIONS_REQUESTED",
+                ReviewedBy = "Sarah CTC",
+                ReviewedDate = new DateTime(2025, 11, 4),
+                RevisionNotes = "Grant program hours appear to be under 500. Please verify the total hours and provide documentation.",
+                RevisionCount = 1
+            },
+            // Denied completion
+            new IHEReport
+            {
+                Id = 7,
+                StudentId = 5,
+                ApplicationId = 2,
+                CompletionStatus = "DENIED",
+                DenialReason = "Did not complete clinical practice requirements",
+                GrantProgramHours = 350,
+                Met500Hours = false,
+                CredentialProgramHours = 450,
+                Met600Hours = false,
+                SwitchedToIntern = false,
+                AdditionalNotes = "Student withdrew from program in October 2025",
+                SubmittedDate = new DateTime(2025, 10, 30),
+                SubmittedBy = "Bob Grant",
+                SubmittedByEmail = "grants@ucla.edu",
+                CreatedAt = new DateTime(2025, 10, 30),
+                Status = "APPROVED",
+                ReviewedBy = "Mike CTC",
+                ReviewedDate = new DateTime(2025, 11, 1),
+                ApprovedDate = new DateTime(2025, 11, 1)
+            }
+        };
+
+        return reports;
+    }
+
+    private List<LEAReport> InitializeLEAReports()
+    {
+        // Create sample LEA reports for students who have been paid
+        // Mix of different statuses: Submitted, Under Review, Approved, Revisions Requested
+        var reports = new List<LEAReport>
+        {
+            // Submitted reports awaiting review
+            new LEAReport
+            {
+                Id = 1,
+                StudentId = 1,
+                ApplicationId = 1,
+                PaymentCategory = "STIPEND",
+                PaymentSchedule = "LUMP_SUM",
+                ActualPaymentAmount = 20000,
+                FirstPaymentDate = new DateTime(2025, 11, 1),
+                FinalPaymentDate = new DateTime(2025, 11, 1),
+                HiredInDistrict = true,
+                EmploymentStatus = "FULL_TIME",
+                HireDate = new DateTime(2025, 11, 15),
+                JobTitle = "Elementary Teacher",
+                SchoolSite = "Washington Elementary School",
+                SubmittedDate = new DateTime(2025, 11, 7),
+                SubmittedBy = "Lisa LEA",
+                SubmittedByEmail = "fiscal@lausd.net",
+                CreatedAt = new DateTime(2025, 11, 7),
+                Status = "SUBMITTED"
+            },
+            new LEAReport
+            {
+                Id = 2,
+                StudentId = 2,
+                ApplicationId = 1,
+                PaymentCategory = "STIPEND",
+                PaymentSchedule = "MONTHLY",
+                PaymentScheduleDetails = "Paid over 10 months, September through June",
+                ActualPaymentAmount = 20000,
+                FirstPaymentDate = new DateTime(2025, 9, 30),
+                FinalPaymentDate = new DateTime(2026, 6, 30),
+                HiredInDistrict = true,
+                EmploymentStatus = "FULL_TIME",
+                HireDate = new DateTime(2025, 8, 15),
+                JobTitle = "Math Teacher",
+                SchoolSite = "Lincoln High School",
+                SubmittedDate = new DateTime(2025, 11, 7),
+                SubmittedBy = "Lisa LEA",
+                SubmittedByEmail = "fiscal@lausd.net",
+                CreatedAt = new DateTime(2025, 11, 7),
+                Status = "SUBMITTED"
+            },
+            // Under review
+            new LEAReport
+            {
+                Id = 3,
+                StudentId = 4,
+                ApplicationId = 2,
+                PaymentCategory = "STIPEND",
+                PaymentSchedule = "LUMP_SUM",
+                ActualPaymentAmount = 20000,
+                FirstPaymentDate = new DateTime(2025, 10, 15),
+                FinalPaymentDate = new DateTime(2025, 10, 15),
+                HiredInDistrict = true,
+                EmploymentStatus = "FULL_TIME",
+                HireDate = new DateTime(2025, 11, 1),
+                JobTitle = "English Teacher",
+                SchoolSite = "Roosevelt Middle School",
+                SubmittedDate = new DateTime(2025, 11, 2),
+                SubmittedBy = "Tom District",
+                SubmittedByEmail = "grants@sandi.net",
+                CreatedAt = new DateTime(2025, 11, 2),
+                Status = "UNDER_REVIEW",
+                ReviewedBy = "Sarah CTC",
+                ReviewedDate = new DateTime(2025, 11, 3)
+            },
+            // Approved reports
+            new LEAReport
+            {
+                Id = 4,
+                StudentId = 6,
+                ApplicationId = 1,
+                PaymentCategory = "STIPEND",
+                PaymentSchedule = "LUMP_SUM",
+                ActualPaymentAmount = 20000,
+                FirstPaymentDate = new DateTime(2025, 10, 1),
+                FinalPaymentDate = new DateTime(2025, 10, 1),
+                HiredInDistrict = true,
+                EmploymentStatus = "FULL_TIME",
+                HireDate = new DateTime(2025, 10, 15),
+                JobTitle = "Special Education Teacher",
+                SchoolSite = "Jefferson Elementary",
+                SubmittedDate = new DateTime(2025, 10, 20),
+                SubmittedBy = "Lisa LEA",
+                SubmittedByEmail = "fiscal@lausd.net",
+                CreatedAt = new DateTime(2025, 10, 20),
+                Status = "APPROVED",
+                ReviewedBy = "Sarah CTC",
+                ReviewedDate = new DateTime(2025, 10, 22),
+                ApprovedDate = new DateTime(2025, 10, 22)
+            },
+            new LEAReport
+            {
+                Id = 5,
+                StudentId = 7,
+                ApplicationId = 1,
+                PaymentCategory = "STIPEND",
+                PaymentSchedule = "LUMP_SUM",
+                ActualPaymentAmount = 20000,
+                FirstPaymentDate = new DateTime(2025, 10, 1),
+                FinalPaymentDate = new DateTime(2025, 10, 1),
+                HiredInDistrict = false,
+                EmploymentStatus = "FULL_TIME",
+                HireDate = new DateTime(2025, 10, 1),
+                JobTitle = "Science Teacher",
+                SchoolSite = "Central High School",
+                PaymentNotes = "Candidate hired by neighboring district but received stipend from partner LEA",
+                SubmittedDate = new DateTime(2025, 10, 21),
+                SubmittedBy = "Lisa LEA",
+                SubmittedByEmail = "fiscal@lausd.net",
+                CreatedAt = new DateTime(2025, 10, 21),
+                Status = "APPROVED",
+                ReviewedBy = "Mike CTC",
+                ReviewedDate = new DateTime(2025, 10, 23),
+                ApprovedDate = new DateTime(2025, 10, 23)
+            },
+            // Revisions requested
+            new LEAReport
+            {
+                Id = 6,
+                StudentId = 3,
+                ApplicationId = 1,
+                PaymentCategory = "STIPEND",
+                PaymentSchedule = "LUMP_SUM",
+                ActualPaymentAmount = 18000,
+                FirstPaymentDate = new DateTime(2025, 11, 1),
+                FinalPaymentDate = new DateTime(2025, 11, 1),
+                HiredInDistrict = true,
+                EmploymentStatus = "FULL_TIME",
+                HireDate = new DateTime(2025, 11, 10),
+                JobTitle = "Special Education Teacher",
+                SchoolSite = "Adams Elementary",
+                SubmittedDate = new DateTime(2025, 11, 5),
+                SubmittedBy = "Lisa LEA",
+                SubmittedByEmail = "fiscal@lausd.net",
+                CreatedAt = new DateTime(2025, 11, 5),
+                Status = "REVISIONS_REQUESTED",
+                ReviewedBy = "Sarah CTC",
+                ReviewedDate = new DateTime(2025, 11, 6),
+                RevisionNotes = "Payment amount ($18,000) does not match approved award amount ($20,000). Please clarify or provide explanation.",
+                RevisionCount = 1
+            },
+            // Not hired scenario
+            new LEAReport
+            {
+                Id = 7,
+                StudentId = 5,
+                ApplicationId = 2,
+                PaymentCategory = "STIPEND",
+                PaymentSchedule = "LUMP_SUM",
+                ActualPaymentAmount = 20000,
+                FirstPaymentDate = new DateTime(2025, 10, 20),
+                FinalPaymentDate = new DateTime(2025, 10, 20),
+                HiredInDistrict = false,
+                EmploymentStatus = "NOT_HIRED",
+                PaymentNotes = "Candidate completed program and received stipend but was not hired by district. Currently seeking employment.",
+                SubmittedDate = new DateTime(2025, 11, 1),
+                SubmittedBy = "Tom District",
+                SubmittedByEmail = "grants@sandi.net",
+                CreatedAt = new DateTime(2025, 11, 1),
+                Status = "APPROVED",
+                ReviewedBy = "Mike CTC",
+                ReviewedDate = new DateTime(2025, 11, 2),
+                ApprovedDate = new DateTime(2025, 11, 2)
+            }
+        };
+
+        return reports;
+    }
+
     // Public methods to access mock data
     public GrantCycle? GetGrantCycle(int id)
     {
@@ -256,5 +598,55 @@ public class MockRepository
             return _organizations;
 
         return _organizations.Where(o => o.Type == type).ToList();
+    }
+
+    public IHEReport? GetIHEReport(int id)
+    {
+        return _iheReports.FirstOrDefault(r => r.Id == id);
+    }
+
+    public List<IHEReport> GetIHEReports()
+    {
+        return _iheReports;
+    }
+
+    public List<IHEReport> GetIHEReportsByStatus(string status)
+    {
+        return _iheReports.Where(r => r.Status == status).ToList();
+    }
+
+    public List<IHEReport> GetIHEReportsByStudent(int studentId)
+    {
+        return _iheReports.Where(r => r.StudentId == studentId).ToList();
+    }
+
+    public List<IHEReport> GetIHEReportsByApplication(int applicationId)
+    {
+        return _iheReports.Where(r => r.ApplicationId == applicationId).ToList();
+    }
+
+    public LEAReport? GetLEAReport(int id)
+    {
+        return _leaReports.FirstOrDefault(r => r.Id == id);
+    }
+
+    public List<LEAReport> GetLEAReports()
+    {
+        return _leaReports;
+    }
+
+    public List<LEAReport> GetLEAReportsByStatus(string status)
+    {
+        return _leaReports.Where(r => r.Status == status).ToList();
+    }
+
+    public List<LEAReport> GetLEAReportsByStudent(int studentId)
+    {
+        return _leaReports.Where(r => r.StudentId == studentId).ToList();
+    }
+
+    public List<LEAReport> GetLEAReportsByApplication(int applicationId)
+    {
+        return _leaReports.Where(r => r.ApplicationId == applicationId).ToList();
     }
 }

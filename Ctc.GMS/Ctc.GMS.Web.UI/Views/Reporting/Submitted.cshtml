@@ -1,0 +1,254 @@
+@model SubmittedReportsViewModel
+
+@{
+    ViewData["Title"] = "Submitted Reports";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam")">Grants Team</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "Reporting")">Reporting</a></li>
+        <li class="breadcrumb-item active">Submitted Reports</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-file-document-multiple-outline"></i> Submitted Reports</h2>
+    <p class="subtitle">Review and manage all submitted reports</p>
+</div>
+
+@* Search and Filters *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-magnify"></i> Search & Filters</h4>
+        <div class="card-actions">
+            <button class="r4-button r4-button-sm r4-button-secondary" onclick="clearFilters()">
+                <i class="mdi mdi-close"></i> Clear All
+            </button>
+        </div>
+    </div>
+    <div class="r4-card-body">
+        <form method="get" action="@Url.Action("Submitted", "Reporting")" id="filterForm">
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="search">Search Student Name</label>
+                    <input type="text" name="search" id="search" class="form-control"
+                           placeholder="Enter student name..." value="">
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="status">Status</label>
+                    <select name="status" id="status" class="form-control">
+                        <option value="">All Statuses</option>
+                        <option value="SUBMITTED" selected="@(Model.SelectedStatus == "SUBMITTED")">Submitted</option>
+                        <option value="UNDER_REVIEW" selected="@(Model.SelectedStatus == "UNDER_REVIEW")">Under Review</option>
+                        <option value="APPROVED" selected="@(Model.SelectedStatus == "APPROVED")">Approved</option>
+                        <option value="REVISIONS_REQUESTED" selected="@(Model.SelectedStatus == "REVISIONS_REQUESTED")">Revisions Requested</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="sortBy">Sort By</label>
+                    <select name="sortBy" id="sortBy" class="form-control">
+                        <option value="SubmissionDate" selected="@(Model.SortBy == "SubmissionDate")">Submission Date</option>
+                        <option value="LEA" selected="@(Model.SortBy == "LEA")">LEA Name</option>
+                        <option value="IHE" selected="@(Model.SortBy == "IHE")">IHE Name</option>
+                        <option value="Student" selected="@(Model.SortBy == "Student")">Student Name</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="sortOrder">Order</label>
+                    <select name="sortOrder" id="sortOrder" class="form-control">
+                        <option value="desc" selected="@(Model.SortOrder == "desc")">Newest First</option>
+                        <option value="asc" selected="@(Model.SortOrder == "asc")">Oldest First</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-2">
+                    <label>&nbsp;</label>
+                    <button type="submit" class="r4-button r4-button-primary form-control">
+                        <i class="mdi mdi-magnify"></i> Search
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@* IHE Reports *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-school-outline"></i> IHE Reports (@Model.IHEReports.Count)</h4>
+        <div class="card-actions">
+            <button class="r4-button r4-button-sm" onclick="exportTable('ihe')">
+                <i class="mdi mdi-download-outline"></i> Export
+            </button>
+        </div>
+    </div>
+    <div class="r4-card-body">
+        @if (Model.IHEReports.Any())
+        {
+            <div class="table-wrapper">
+                <table class="r4-table" id="ihe-reports-table">
+                    <thead>
+                        <tr>
+                            <th>LEA</th>
+                            <th>IHE</th>
+                            <th>Student</th>
+                            <th>Submitted Date</th>
+                            <th>Status</th>
+                            <th>Reviewed By</th>
+                            <th>Revisions</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var report in Model.IHEReports)
+                        {
+                            <tr>
+                                <td><strong>@report.LEAName</strong></td>
+                                <td>@report.IHEName</td>
+                                <td>@report.StudentName</td>
+                                <td>@report.SubmittedDate.ToString("MMM d, yyyy")</td>
+                                <td>
+                                    <span class="badge badge-fixed-width @report.StatusBadgeClass">
+                                        @report.Status.Replace("_", " ")
+                                    </span>
+                                </td>
+                                <td>@(string.IsNullOrEmpty(report.ReviewedBy) ? "-" : report.ReviewedBy)</td>
+                                <td>
+                                    @if (report.RevisionCount > 0)
+                                    {
+                                        <span class="badge badge-warning">@report.RevisionCount</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a href="@Url.Action("Review", "Reporting", new { reportType = "IHE", id = report.Id })" class="r4-button r4-button-sm">
+                                        <i class="mdi mdi-eye-outline"></i> Review
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="mdi mdi-information-outline"></i>
+                No IHE reports found matching the selected filters.
+            </div>
+        }
+    </div>
+</div>
+
+@* LEA Reports *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-domain"></i> LEA Reports (@Model.LEAReports.Count)</h4>
+        <div class="card-actions">
+            <button class="r4-button r4-button-sm" onclick="exportTable('lea')">
+                <i class="mdi mdi-download-outline"></i> Export
+            </button>
+        </div>
+    </div>
+    <div class="r4-card-body">
+        @if (Model.LEAReports.Any())
+        {
+            <div class="table-wrapper">
+                <table class="r4-table" id="lea-reports-table">
+                    <thead>
+                        <tr>
+                            <th>LEA</th>
+                            <th>IHE</th>
+                            <th>Student</th>
+                            <th>Submitted Date</th>
+                            <th>Status</th>
+                            <th>Reviewed By</th>
+                            <th>Revisions</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var report in Model.LEAReports)
+                        {
+                            <tr>
+                                <td><strong>@report.LEAName</strong></td>
+                                <td>@report.IHEName</td>
+                                <td>@report.StudentName</td>
+                                <td>@report.SubmittedDate.ToString("MMM d, yyyy")</td>
+                                <td>
+                                    <span class="badge badge-fixed-width @report.StatusBadgeClass">
+                                        @report.Status.Replace("_", " ")
+                                    </span>
+                                </td>
+                                <td>@(string.IsNullOrEmpty(report.ReviewedBy) ? "-" : report.ReviewedBy)</td>
+                                <td>
+                                    @if (report.RevisionCount > 0)
+                                    {
+                                        <span class="badge badge-warning">@report.RevisionCount</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a href="@Url.Action("Review", "Reporting", new { reportType = "LEA", id = report.Id })" class="r4-button r4-button-sm">
+                                        <i class="mdi mdi-eye-outline"></i> Review
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="mdi mdi-information-outline"></i>
+                No LEA reports found matching the selected filters.
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function clearFilters() {
+            window.location.href = '@Url.Action("Submitted", "Reporting")';
+        }
+
+        function exportTable(type) {
+            const tableId = type === 'ihe' ? 'ihe-reports-table' : 'lea-reports-table';
+            const table = document.getElementById(tableId);
+            const rows = Array.from(table.querySelectorAll('tr'));
+
+            let csv = [];
+            rows.forEach(row => {
+                const cells = Array.from(row.querySelectorAll('th, td'));
+                const rowData = cells.map(cell => {
+                    let text = cell.textContent.trim();
+                    // Remove excess whitespace and newlines
+                    text = text.replace(/\s+/g, ' ');
+                    // Escape quotes
+                    text = text.replace(/"/g, '""');
+                    return `"${text}"`;
+                });
+                csv.push(rowData.join(','));
+            });
+
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${type}_reports_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+}
