@@ -119,8 +119,10 @@ public class MockRepository
                 CredentialArea = "Single Subject - Mathematics",
                 Status = "APPROVED",
                 AwardAmount = 20000,
+                GAAStatus = "PAYMENT_COMPLETED",
                 CreatedAt = new DateTime(2025, 8, 17),
-                SubmittedAt = new DateTime(2025, 9, 2)
+                SubmittedAt = new DateTime(2025, 9, 2),
+                ApprovedAt = new DateTime(2025, 9, 15, 10, 30, 0)
             },
             new Student
             {
@@ -151,7 +153,8 @@ public class MockRepository
                 AwardAmount = 20000,
                 CreatedAt = new DateTime(2025, 8, 21),
                 SubmittedAt = new DateTime(2025, 9, 4),
-                GAAStatus = "GAA_SIGNED"
+                ApprovedAt = new DateTime(2025, 9, 20, 14, 15, 0),
+                GAAStatus = "PAYMENT_COMPLETED"
             },
             new Student
             {
@@ -186,6 +189,7 @@ public class MockRepository
                 AwardAmount = 20000,
                 CreatedAt = new DateTime(2025, 9, 1).AddDays(i % 30),
                 SubmittedAt = new DateTime(2025, 9, 15).AddDays(i % 30),
+                ApprovedAt = new DateTime(2025, 10, 1).AddDays(i % 30).AddHours(i % 24),
                 GAAStatus = i % 3 == 0 ? "PAYMENT_COMPLETED" : i % 3 == 1 ? "GAA_SIGNED" : null
             });
         }
@@ -204,6 +208,7 @@ public class MockRepository
                 AwardAmount = 20000,
                 CreatedAt = new DateTime(2025, 9, 1).AddDays(i % 30),
                 SubmittedAt = new DateTime(2025, 9, 15).AddDays(i % 30),
+                ApprovedAt = new DateTime(2025, 10, 1).AddDays(i % 30).AddHours((i + 8) % 24),
                 GAAStatus = i % 3 == 0 ? "PAYMENT_COMPLETED" : i % 3 == 1 ? "GAA_SIGNED" : null
             });
         }
@@ -222,6 +227,7 @@ public class MockRepository
                 AwardAmount = 20000,
                 CreatedAt = new DateTime(2025, 9, 1).AddDays(i % 30),
                 SubmittedAt = new DateTime(2025, 9, 15).AddDays(i % 30),
+                ApprovedAt = new DateTime(2025, 10, 1).AddDays(i % 30).AddHours((i + 16) % 24),
                 GAAStatus = i % 3 == 0 ? "PAYMENT_COMPLETED" : i % 3 == 1 ? "GAA_SIGNED" : null
             });
         }

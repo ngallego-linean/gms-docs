@@ -1,0 +1,156 @@
+@model LEAReportsViewModel
+
+@{
+    ViewData["Title"] = "Reporting Dashboard";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })">LEA Portal</a></li>
+        <li class="breadcrumb-item active">Reporting</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-file-chart-outline"></i> Reporting Dashboard</h2>
+    <p class="subtitle">@Model.LEAName - @Model.GrantCycleName</p>
+</div>
+
+@* Reporting Metrics *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-chart-bar"></i> Reporting Status</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="dashboard-grid">
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-account-check-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.TotalFundedStudents</div>
+                    <div class="metric-label">Funded Candidates</div>
+                    <div class="metric-description">Total students who received payment</div>
+                </div>
+            </div>
+
+            <div class="metric-card metric-approved">
+                <div class="metric-icon">
+                    <i class="mdi mdi-check-circle-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.ReportsSubmitted</div>
+                    <div class="metric-label">Reports Submitted</div>
+                    <div class="metric-description">Completed and under review</div>
+                </div>
+            </div>
+
+            <div class="metric-card metric-pending">
+                <div class="metric-icon">
+                    <i class="mdi mdi-file-document-edit-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.ReportsPending</div>
+                    <div class="metric-label">Reports Outstanding</div>
+                    <div class="metric-description">Need to be submitted</div>
+                </div>
+            </div>
+
+            @if (Model.ReportsOverdue > 0)
+            {
+                <div class="metric-card metric-overdue">
+                    <div class="metric-icon">
+                        <i class="mdi mdi-alert-circle-outline"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value">@Model.ReportsOverdue</div>
+                        <div class="metric-label">Overdue</div>
+                        <div class="metric-description">Past reporting deadline</div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (Model.ReportingDeadline.HasValue)
+        {
+            <div style="margin-top: 1.5rem; padding: 1rem; background-color: var(--gray-50); border-left: 4px solid var(--ctc-blue);">
+                <strong><i class="mdi mdi-calendar-clock"></i> Reporting Deadline:</strong>
+                @Model.ReportingDeadline.Value.ToString("MMMM dd, yyyy")
+                @{
+                    var daysRemaining = (Model.ReportingDeadline.Value - DateTime.UtcNow).Days;
+                    if (daysRemaining >= 0)
+                    {
+                        <span class="badge badge-info">@daysRemaining days remaining</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-danger">OVERDUE</span>
+                    }
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@* Quick Actions *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-lightning-bolt-outline"></i> Quick Actions</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="button-group">
+            <a href="@Url.Action("FundedCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-primary">
+                <i class="mdi mdi-clipboard-text-outline"></i> Submit Reports
+            </a>
+            <a href="@Url.Action("BulkUpload", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button">
+                <i class="mdi mdi-file-upload-outline"></i> Bulk Upload
+            </a>
+            <a href="@Url.Action("ReportHistory", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button">
+                <i class="mdi mdi-history"></i> View History
+            </a>
+        </div>
+    </div>
+</div>
+
+@* Recent Reports *@
+@if (Model.RecentReports.Any())
+{
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-file-document-multiple-outline"></i> Recent Reports</h4>
+        </div>
+        <div class="r4-card-body">
+            <table class="r4-table">
+                <thead>
+                    <tr>
+                        <th>Candidate Name</th>
+                        <th>SEID</th>
+                        <th>IHE Partner</th>
+                        <th>Credential Area</th>
+                        <th>Submitted Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var report in Model.RecentReports)
+                    {
+                        <tr>
+                            <td>@report.StudentName</td>
+                            <td>@report.SEID</td>
+                            <td>@report.IHEName</td>
+                            <td>@report.CredentialArea</td>
+                            <td>@(report.ReportSubmittedDate?.ToString("MM/dd/yyyy") ?? "N/A")</td>
+                            <td><span class="badge @report.ReportStatusBadgeClass">@report.ReportStatus</span></td>
+                            <td>
+                                <a href="@Url.Action("SubmitReport", "LEAPortal", new { studentId = report.StudentId })" class="r4-button r4-button-sm">
+                                    <i class="mdi mdi-eye-outline"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

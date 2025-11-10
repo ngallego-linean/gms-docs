@@ -1,0 +1,134 @@
+@model ReportHistoryViewModel
+
+@{
+    ViewData["Title"] = "Report History";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })">LEA Portal</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("Reports", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })">Reporting</a></li>
+        <li class="breadcrumb-item active">Report History</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-history"></i> Report History</h2>
+    <p class="subtitle">@Model.LEAName - @Model.GrantCycleName</p>
+</div>
+
+@* Filters *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-filter-outline"></i> Filter Reports</h4>
+    </div>
+    <div class="r4-card-body">
+        <form method="get" asp-action="ReportHistory">
+            <input type="hidden" name="leaId" value="@Model.LEAId" />
+            <input type="hidden" name="grantCycleId" value="@Model.GrantCycleId" />
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="status">Report Status</label>
+                    <select id="status" name="status" class="form-control">
+                        <option value="">All Statuses</option>
+                        @foreach (var status in Model.StatusOptions)
+                        {
+                            <option value="@status" selected="@(Model.SearchCriteria.Status == status)">@status</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="ihePartner">IHE Partner</label>
+                    <select id="ihePartner" name="ihePartner" class="form-control">
+                        <option value="">All IHE Partners</option>
+                        @foreach (var ihe in Model.IHEPartners)
+                        {
+                            <option value="@ihe" selected="@(Model.SearchCriteria.IHEPartner == ihe)">@ihe</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="year">Submission Year</label>
+                    <select id="year" name="year" class="form-control">
+                        <option value="">All Years</option>
+                        @foreach (var year in Model.SubmissionYears)
+                        {
+                            <option value="@year" selected="@(Model.SearchCriteria.SubmissionYear == year)">@year</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="r4-button r4-button-primary">
+                    <i class="mdi mdi-filter"></i> Apply Filters
+                </button>
+                <a href="@Url.Action("ReportHistory", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button">
+                    <i class="mdi mdi-filter-remove"></i> Clear Filters
+                </a>
+                <button type="button" class="r4-button" onclick="alert('Export functionality will be implemented.')">
+                    <i class="mdi mdi-file-excel-outline"></i> Export to Excel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@* Results *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-table"></i> Submitted Reports (@Model.Reports.Count)</h4>
+    </div>
+    <div class="r4-card-body">
+        @if (Model.Reports.Any())
+        {
+            <table class="r4-table">
+                <thead>
+                    <tr>
+                        <th>Submission Date</th>
+                        <th>Candidate Name</th>
+                        <th>SEID</th>
+                        <th>IHE Partner</th>
+                        <th>Credential Area</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var report in Model.Reports)
+                    {
+                        <tr>
+                            <td>@(report.ReportSubmittedDate?.ToString("MM/dd/yyyy") ?? "N/A")</td>
+                            <td>@report.StudentName</td>
+                            <td>@report.SEID</td>
+                            <td>@report.IHEName</td>
+                            <td>@report.CredentialArea</td>
+                            <td><span class="badge @report.ReportStatusBadgeClass">@report.ReportStatus</span></td>
+                            <td>
+                                <a href="@Url.Action("SubmitReport", "LEAPortal", new { studentId = report.StudentId })" class="r4-button r4-button-sm">
+                                    <i class="mdi mdi-eye-outline"></i> View
+                                </a>
+                                @if (report.ReportStatus == "REVISION_REQUESTED")
+                                {
+                                    <a href="@Url.Action("SubmitReport", "LEAPortal", new { studentId = report.StudentId })" class="r4-button r4-button-warning r4-button-sm">
+                                        <i class="mdi mdi-pencil-outline"></i> Revise
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="mdi mdi-information-outline"></i>
+                No submitted reports found matching your criteria.
+            </div>
+        }
+    </div>
+</div>
