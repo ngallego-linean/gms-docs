@@ -29,6 +29,11 @@ public class Student
     public decimal AwardAmount { get; set; }
     public string GAAStatus { get; set; } = string.Empty;
 
+    // Reporting Status
+    public string ReportingStatus { get; set; } = "NOT_STARTED";  // NOT_STARTED, IN_PROGRESS, SUBMITTED, APPROVED
+    public int? CurrentReportingPeriodId { get; set; }
+    public ReportingPeriod? CurrentReportingPeriod { get; set; }
+
     // Hours Tracking (from IHE Report requirements)
     public int? GrantProgramHours { get; set; }  // 500 required
     public int? CredentialProgramHours { get; set; }  // 600 required

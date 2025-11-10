@@ -1,0 +1,214 @@
+@model FundedCandidatesViewModel
+
+@{
+    ViewData["Title"] = "Funded Candidates - Reporting";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "IHEPortal", new { iheId = Model.IHEId, grantCycleId = Model.GrantCycleId })">IHE Portal</a></li>
+        <li class="breadcrumb-item active">Funded Candidates</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-account-cash-outline"></i> Funded Candidates - Reporting</h2>
+    <p class="subtitle">@Model.IHEName - @Model.GrantCycleName</p>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-filter-outline"></i> Filter Candidates</h4>
+    </div>
+    <div class="r4-card-body">
+        <form method="get" action="@Url.Action("FundedCandidates", "IHEPortal")">
+            <input type="hidden" name="iheId" value="@Model.IHEId" />
+            <input type="hidden" name="grantCycleId" value="@Model.GrantCycleId" />
+
+            <div class="form-row">
+                <div class="form-group col-md-3">
+                    <label for="cohortYear">Cohort Year</label>
+                    <select class="form-control" id="cohortYear" name="Filters.CohortYear">
+                        <option value="">All Cohorts</option>
+                        @foreach (var cohort in Model.AvailableCohorts)
+                        {
+                            <option value="@cohort" selected="@(Model.Filters.CohortYear == cohort)">@cohort</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group col-md-3">
+                    <label for="leaId">LEA Partner</label>
+                    <select class="form-control" id="leaId" name="Filters.LEAId">
+                        <option value="">All LEAs</option>
+                        @foreach (var lea in Model.AvailableLEAs)
+                        {
+                            <option value="@lea.Id" selected="@(Model.Filters.LEAId == lea.Id)">@lea.Name</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group col-md-3">
+                    <label for="credentialArea">Credential Area</label>
+                    <select class="form-control" id="credentialArea" name="Filters.CredentialArea">
+                        <option value="">All Credential Areas</option>
+                        @foreach (var area in Model.AvailableCredentialAreas)
+                        {
+                            <option value="@area" selected="@(Model.Filters.CredentialArea == area)">@area</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group col-md-3">
+                    <label for="reportingStatus">Reporting Status</label>
+                    <select class="form-control" id="reportingStatus" name="Filters.ReportingStatus">
+                        <option value="">All Statuses</option>
+                        <option value="NOT_STARTED" selected="@(Model.Filters.ReportingStatus == "NOT_STARTED")">Not Started</option>
+                        <option value="IN_PROGRESS" selected="@(Model.Filters.ReportingStatus == "IN_PROGRESS")">In Progress</option>
+                        <option value="SUBMITTED" selected="@(Model.Filters.ReportingStatus == "SUBMITTED")">Submitted</option>
+                        <option value="APPROVED" selected="@(Model.Filters.ReportingStatus == "APPROVED")">Approved</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="r4-button r4-button-primary">
+                    <i class="mdi mdi-filter"></i> Apply Filters
+                </button>
+                <a href="@Url.Action("FundedCandidates", "IHEPortal", new { iheId = Model.IHEId, grantCycleId = Model.GrantCycleId })" class="r4-button">
+                    <i class="mdi mdi-filter-remove-outline"></i> Clear Filters
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model.Candidates.Any())
+{
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-account-group-outline"></i> Funded Candidates (@Model.TotalCount)</h4>
+            <div class="card-actions">
+                <a href="@Url.Action("BulkUpload", "IHEPortal", new { iheId = Model.IHEId, grantCycleId = Model.GrantCycleId })" class="r4-button">
+                    <i class="mdi mdi-file-upload-outline"></i> Bulk Upload
+                </a>
+                <a href="@Url.Action("ReportHistory", "IHEPortal", new { iheId = Model.IHEId, grantCycleId = Model.GrantCycleId })" class="r4-button">
+                    <i class="mdi mdi-history"></i> View History
+                </a>
+            </div>
+        </div>
+        <div class="r4-card-body">
+            <div class="table-wrapper">
+                <table class="r4-table">
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>SEID</th>
+                            <th>LEA Partner</th>
+                            <th>Credential Area</th>
+                            <th>Award Amount</th>
+                            <th>Payment Status</th>
+                            <th>Reporting Status</th>
+                            <th>Last Report Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var candidate in Model.Candidates)
+                        {
+                            <tr>
+                                <td>@candidate.FullName</td>
+                                <td>@candidate.SEID</td>
+                                <td>@candidate.LEAName</td>
+                                <td>@candidate.CredentialArea</td>
+                                <td>$@candidate.AwardAmount.ToString("N0")</td>
+                                <td>
+                                    @if (candidate.PaymentStatus == "PAYMENT_COMPLETED")
+                                    {
+                                        <span class="badge badge-success">Paid</span>
+                                    }
+                                    else if (candidate.PaymentStatus == "GAA_SIGNED")
+                                    {
+                                        <span class="badge badge-warning">GAA Signed</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-secondary">Pending</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (candidate.ReportingStatus == "APPROVED")
+                                    {
+                                        <span class="badge badge-success">Approved</span>
+                                    }
+                                    else if (candidate.ReportingStatus == "SUBMITTED")
+                                    {
+                                        <span class="badge badge-primary">Submitted</span>
+                                    }
+                                    else if (candidate.ReportingStatus == "IN_PROGRESS")
+                                    {
+                                        <span class="badge badge-warning">In Progress</span>
+                                    }
+                                    else
+                                    {
+                                        @if (candidate.IsReportOverdue)
+                                        {
+                                            <span class="badge badge-danger">Overdue</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-secondary">Not Started</span>
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    @if (candidate.LastReportDate.HasValue)
+                                    {
+                                        @candidate.LastReportDate.Value.ToString("MM/dd/yyyy")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (candidate.CanReport)
+                                    {
+                                        <a href="@Url.Action("CandidateReport", "IHEPortal", new { studentId = candidate.StudentId })" class="r4-button r4-button-sm r4-button-primary">
+                                            <i class="mdi mdi-file-document-edit-outline"></i> Report
+                                        </a>
+                                    }
+                                    else if (candidate.ReportingStatus == "SUBMITTED" || candidate.ReportingStatus == "APPROVED")
+                                    {
+                                        <a href="@Url.Action("CandidateReport", "IHEPortal", new { studentId = candidate.StudentId })" class="r4-button r4-button-sm">
+                                            <i class="mdi mdi-eye-outline"></i> View
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        <i class="mdi mdi-information-outline"></i>
+        No funded candidates match your filter criteria. Try adjusting your filters or check back after payments have been processed.
+    </div>
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Funded Candidates view loaded');
+        });
+    </script>
+}

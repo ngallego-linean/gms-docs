@@ -1,0 +1,353 @@
+@model CandidateReportingViewModel
+
+@{
+    ViewData["Title"] = "Candidate Report";
+    var isReadOnly = !Model.CanEdit;
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "IHEPortal")">IHE Portal</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("FundedCandidates", "IHEPortal")">Funded Candidates</a></li>
+        <li class="breadcrumb-item active">Candidate Report</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-file-document-edit-outline"></i> Candidate Completion Report</h2>
+    <p class="subtitle">@Model.Student.FullName - SEID: @Model.Student.SEID</p>
+</div>
+
+@if (isReadOnly)
+{
+    <div class="alert alert-info">
+        <i class="mdi mdi-information-outline"></i>
+        This report has been submitted and is locked for editing. If you need to make changes, please contact CTC staff.
+    </div>
+}
+
+@if (Model.CurrentPeriod != null)
+{
+    <div class="alert alert-@(Model.CurrentPeriod.DaysUntilDue <= 7 ? "warning" : "info")">
+        <i class="mdi mdi-calendar-clock-outline"></i>
+        <strong>@Model.CurrentPeriod.PeriodName:</strong> Due @Model.CurrentPeriod.DueDate.ToString("MMMM dd, yyyy")
+        @if (Model.CurrentPeriod.DaysUntilDue > 0)
+        {
+            <span>(@Model.CurrentPeriod.DaysUntilDue days remaining)</span>
+        }
+        else if (Model.CurrentPeriod.DaysUntilDue == 0)
+        {
+            <span>(Due today)</span>
+        }
+        else
+        {
+            <span class="badge badge-danger">Overdue</span>
+        }
+    </div>
+}
+
+@* Student Summary Card *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-account-outline"></i> Student Information</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label>Student Name</label>
+                <p class="form-control-plaintext">@Model.Student.FullName</p>
+            </div>
+            <div class="form-group col-md-4">
+                <label>SEID</label>
+                <p class="form-control-plaintext">@Model.Student.SEID</p>
+            </div>
+            <div class="form-group col-md-4">
+                <label>Credential Area</label>
+                <p class="form-control-plaintext">@Model.Student.CredentialArea</p>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label>IHE</label>
+                <p class="form-control-plaintext">@Model.Application.IHEName</p>
+            </div>
+            <div class="form-group col-md-4">
+                <label>LEA Partner</label>
+                <p class="form-control-plaintext">@Model.Application.LEAName</p>
+            </div>
+            <div class="form-group col-md-4">
+                <label>Award Amount</label>
+                <p class="form-control-plaintext">$@Model.Student.AwardAmount.ToString("N0")</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form method="post" action="@Url.Action(isReadOnly ? "" : "SaveReportDraft", "IHEPortal")" enctype="multipart/form-data" id="reportForm">
+    <input type="hidden" name="StudentId" value="@Model.StudentId" />
+    <input type="hidden" name="ApplicationId" value="@Model.ReportForm.ApplicationId" />
+    <input type="hidden" name="ReportingPeriodId" value="@Model.ReportForm.ReportingPeriodId" />
+
+    @* Program Completion Section *@
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-school-outline"></i> Program Completion Status</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="completionStatus">Completion Status <span class="text-danger">*</span></label>
+                    <select class="form-control" id="completionStatus" name="ReportForm.CompletionStatus" required disabled="@isReadOnly">
+                        <option value="IN_PROGRESS" selected="@(Model.ReportForm.CompletionStatus == "IN_PROGRESS")">In Progress</option>
+                        <option value="COMPLETED" selected="@(Model.ReportForm.CompletionStatus == "COMPLETED")">Completed</option>
+                        <option value="DENIED" selected="@(Model.ReportForm.CompletionStatus == "DENIED")">Denied/Withdrawn</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="completionDate">Completion Date</label>
+                    <input type="date" class="form-control" id="completionDate" name="ReportForm.CompletionDate" value="@Model.ReportForm.CompletionDate?.ToString("yyyy-MM-dd")" readonly="@isReadOnly" />
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="switchedToIntern">Switched to Intern Credential?</label>
+                    <select class="form-control" id="switchedToIntern" name="ReportForm.SwitchedToIntern" disabled="@isReadOnly">
+                        <option value="false" selected="@(!Model.ReportForm.SwitchedToIntern)">No</option>
+                        <option value="true" selected="@Model.ReportForm.SwitchedToIntern">Yes</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row" id="denialReasonRow" style="display: @(Model.ReportForm.CompletionStatus == "DENIED" ? "flex" : "none")">
+                <div class="form-group col-md-12">
+                    <label for="denialReason">Reason for Denial/Withdrawal</label>
+                    <textarea class="form-control" id="denialReason" name="ReportForm.DenialReason" rows="2" readonly="@isReadOnly">@Model.ReportForm.DenialReason</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Hours Tracking Section *@
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-clock-outline"></i> Hours Tracking</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="form-row">
+                <div class="form-group col-md-3">
+                    <label for="grantProgramHours">Grant Program Hours <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="grantProgramHours" name="ReportForm.GrantProgramHours" value="@Model.ReportForm.GrantProgramHours" min="0" max="1000" required readonly="@isReadOnly" />
+                    <small class="form-text text-muted">500 hours required</small>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="met500Hours">Met 500 Hours?</label>
+                    <select class="form-control" id="met500Hours" name="ReportForm.Met500Hours" disabled="@isReadOnly">
+                        <option value="false" selected="@(!Model.ReportForm.Met500Hours)">No</option>
+                        <option value="true" selected="@Model.ReportForm.Met500Hours">Yes</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="credentialProgramHours">Credential Program Hours <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="credentialProgramHours" name="ReportForm.CredentialProgramHours" value="@Model.ReportForm.CredentialProgramHours" min="0" max="1000" required readonly="@isReadOnly" />
+                    <small class="form-text text-muted">600 hours required</small>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="met600Hours">Met 600 Hours?</label>
+                    <select class="form-control" id="met600Hours" name="ReportForm.Met600Hours" disabled="@isReadOnly">
+                        <option value="false" selected="@(!Model.ReportForm.Met600Hours)">No</option>
+                        <option value="true" selected="@Model.ReportForm.Met600Hours">Yes</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-12">
+                    <label for="hoursNotes">Hours Tracking Notes</label>
+                    <textarea class="form-control" id="hoursNotes" name="ReportForm.GrantProgramHoursNotes" rows="2" readonly="@isReadOnly">@Model.ReportForm.GrantProgramHoursNotes</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Credential Earned Section *@
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-certificate-outline"></i> Credential Earned</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="credentialEarned">Credential Earned?</label>
+                    <select class="form-control" id="credentialEarned" name="ReportForm.CredentialEarned" disabled="@isReadOnly">
+                        <option value="false" selected="@(!Model.ReportForm.CredentialEarned)">No</option>
+                        <option value="true" selected="@Model.ReportForm.CredentialEarned">Yes</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="credentialEarnedDate">Credential Issue Date</label>
+                    <input type="date" class="form-control" id="credentialEarnedDate" name="ReportForm.CredentialEarnedDate" value="@Model.ReportForm.CredentialEarnedDate?.ToString("yyyy-MM-dd")" readonly="@isReadOnly" />
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="credentialType">Credential Type</label>
+                    <input type="text" class="form-control" id="credentialType" name="ReportForm.CredentialType" value="@Model.ReportForm.CredentialType" readonly="@isReadOnly" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Employment Section *@
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-briefcase-outline"></i> Employment Status</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="employmentStatus">Employment Status <span class="text-danger">*</span></label>
+                    <select class="form-control" id="employmentStatus" name="ReportForm.EmploymentStatus" required disabled="@isReadOnly">
+                        <option value="NOT_EMPLOYED" selected="@(Model.ReportForm.EmploymentStatus == "NOT_EMPLOYED")">Not Employed</option>
+                        <option value="SEEKING" selected="@(Model.ReportForm.EmploymentStatus == "SEEKING")">Seeking Employment</option>
+                        <option value="EMPLOYED" selected="@(Model.ReportForm.EmploymentStatus == "EMPLOYED")">Employed</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="employedInDistrict">Employed in Partner District?</label>
+                    <select class="form-control" id="employedInDistrict" name="ReportForm.EmployedInDistrict" disabled="@isReadOnly">
+                        <option value="false" selected="@(!Model.ReportForm.EmployedInDistrict)">No</option>
+                        <option value="true" selected="@Model.ReportForm.EmployedInDistrict">Yes</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="employedInState">Employed in California?</label>
+                    <select class="form-control" id="employedInState" name="ReportForm.EmployedInState" disabled="@isReadOnly">
+                        <option value="false" selected="@(!Model.ReportForm.EmployedInState)">No</option>
+                        <option value="true" selected="@Model.ReportForm.EmployedInState">Yes</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row" id="employmentDetailsRow" style="display: @(Model.ReportForm.EmploymentStatus == "EMPLOYED" ? "flex" : "none")">
+                <div class="form-group col-md-6">
+                    <label for="employerName">Employer Name</label>
+                    <input type="text" class="form-control" id="employerName" name="ReportForm.EmployerName" value="@Model.ReportForm.EmployerName" readonly="@isReadOnly" />
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="employmentStartDate">Employment Start Date</label>
+                    <input type="date" class="form-control" id="employmentStartDate" name="ReportForm.EmploymentStartDate" value="@Model.ReportForm.EmploymentStartDate?.ToString("yyyy-MM-dd")" readonly="@isReadOnly" />
+                </div>
+            </div>
+            <div class="form-row" id="employmentDetailsRow2" style="display: @(Model.ReportForm.EmploymentStatus == "EMPLOYED" ? "flex" : "none")">
+                <div class="form-group col-md-4">
+                    <label for="schoolSite">School Site</label>
+                    <input type="text" class="form-control" id="schoolSite" name="ReportForm.SchoolSite" value="@Model.ReportForm.SchoolSite" readonly="@isReadOnly" />
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="gradeLevel">Grade Level</label>
+                    <input type="text" class="form-control" id="gradeLevel" name="ReportForm.GradeLevel" value="@Model.ReportForm.GradeLevel" placeholder="e.g., K-2, 3-5, 9-12" readonly="@isReadOnly" />
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="subjectArea">Subject Area</label>
+                    <input type="text" class="form-control" id="subjectArea" name="ReportForm.SubjectArea" value="@Model.ReportForm.SubjectArea" readonly="@isReadOnly" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Additional Information Section *@
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-text-box-outline"></i> Additional Information</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="form-group">
+                <label for="additionalNotes">Additional Notes</label>
+                <textarea class="form-control" id="additionalNotes" name="ReportForm.AdditionalNotes" rows="4" readonly="@isReadOnly">@Model.ReportForm.AdditionalNotes</textarea>
+                <small class="form-text text-muted">Any relevant information about the candidate's progress or outcomes</small>
+            </div>
+            @if (!isReadOnly)
+            {
+                <div class="form-group">
+                    <label for="documentUpload">Upload Supporting Documentation (Optional)</label>
+                    <input type="file" class="form-control-file" id="documentUpload" name="ReportForm.DocumentUpload" />
+                    <small class="form-text text-muted">PDF, Word, or image files accepted</small>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(Model.ReportForm.DocumentationUrl))
+            {
+                <div class="form-group">
+                    <label>Uploaded Documentation</label>
+                    <p><a href="@Model.ReportForm.DocumentationUrl" target="_blank"><i class="mdi mdi-file-document-outline"></i> View Document</a></p>
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (!isReadOnly)
+    {
+        <div class="form-actions">
+            <button type="submit" class="r4-button r4-button-primary" formaction="@Url.Action("SaveReportDraft", "IHEPortal")">
+                <i class="mdi mdi-content-save-outline"></i> Save Draft
+            </button>
+            <button type="button" class="r4-button r4-button-success" onclick="submitReport()">
+                <i class="mdi mdi-check-circle-outline"></i> Submit Report
+            </button>
+            <a href="@Url.Action("FundedCandidates", "IHEPortal")" class="r4-button">
+                <i class="mdi mdi-arrow-left"></i> Back to Funded Candidates
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="form-actions">
+            <a href="@Url.Action("FundedCandidates", "IHEPortal")" class="r4-button r4-button-primary">
+                <i class="mdi mdi-arrow-left"></i> Back to Funded Candidates
+            </a>
+        </div>
+    }
+</form>
+
+@section Scripts {
+    <script>
+        // Show/hide denial reason based on completion status
+        document.getElementById('completionStatus').addEventListener('change', function() {
+            const denialRow = document.getElementById('denialReasonRow');
+            denialRow.style.display = this.value === 'DENIED' ? 'flex' : 'none';
+        });
+
+        // Show/hide employment details based on employment status
+        document.getElementById('employmentStatus').addEventListener('change', function() {
+            const detailsRow = document.getElementById('employmentDetailsRow');
+            const detailsRow2 = document.getElementById('employmentDetailsRow2');
+            const isEmployed = this.value === 'EMPLOYED';
+            detailsRow.style.display = isEmployed ? 'flex' : 'none';
+            detailsRow2.style.display = isEmployed ? 'flex' : 'none';
+        });
+
+        // Auto-update Met500Hours checkbox based on hours entered
+        document.getElementById('grantProgramHours').addEventListener('input', function() {
+            const hours = parseInt(this.value) || 0;
+            document.getElementById('met500Hours').value = hours >= 500 ? 'true' : 'false';
+        });
+
+        // Auto-update Met600Hours checkbox based on hours entered
+        document.getElementById('credentialProgramHours').addEventListener('input', function() {
+            const hours = parseInt(this.value) || 0;
+            document.getElementById('met600Hours').value = hours >= 600 ? 'true' : 'false';
+        });
+
+        // Submit report confirmation
+        function submitReport() {
+            if (confirm('Are you sure you want to submit this report? Once submitted, you will not be able to edit it.')) {
+                const form = document.getElementById('reportForm');
+                form.action = '@Url.Action("SubmitReport", "IHEPortal")';
+                form.submit();
+            }
+        }
+
+        // Mock auto-save (every 30 seconds)
+        @if (!isReadOnly)
+        {
+            <text>
+            let autoSaveInterval = setInterval(function() {
+                console.log('Auto-save triggered (mock)');
+                // In production, this would actually save the form data
+            }, 30000);
+            </text>
+        }
+    </script>
+}

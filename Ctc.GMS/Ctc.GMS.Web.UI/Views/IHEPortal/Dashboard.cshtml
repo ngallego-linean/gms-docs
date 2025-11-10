@@ -96,6 +96,292 @@
     </div>
 </div>
 
+@* Program Statistics Section *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-chart-line"></i> Program Statistics & Outcomes</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="dashboard-grid">
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-school"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.TotalIHEs</div>
+                    <div class="metric-label">IHEs</div>
+                    <div class="metric-description">Higher education institutions</div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-domain"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.TotalLEAs</div>
+                    <div class="metric-label">LEAs</div>
+                    <div class="metric-description">Local education agencies</div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-cash"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">$@Model.AmountAppropriated.ToString("N0")</div>
+                    <div class="metric-label">Appropriated</div>
+                    <div class="metric-description">Total budget for cycle</div>
+                </div>
+            </div>
+
+            <div class="metric-card metric-warning">
+                <div class="metric-icon">
+                    <i class="mdi mdi-cash-lock"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">$@Model.AmountEncumbered.ToString("N0")</div>
+                    <div class="metric-label">Encumbered</div>
+                    <div class="metric-description">Reserved for approved candidates</div>
+                </div>
+            </div>
+
+            <div class="metric-card metric-success">
+                <div class="metric-icon">
+                    <i class="mdi mdi-cash-check"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">$@Model.AmountDistributed.ToString("N0")</div>
+                    <div class="metric-label">Distributed</div>
+                    <div class="metric-description">Payments completed</div>
+                </div>
+            </div>
+
+            <div class="metric-card metric-success">
+                <div class="metric-icon">
+                    <i class="mdi mdi-certificate"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.CredentialEarnedCount</div>
+                    <div class="metric-label">Credential Earned</div>
+                    <div class="metric-description">Successfully credentialed</div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-certificate-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.CredentialNotEarnedCount</div>
+                    <div class="metric-label">Not Credentialed</div>
+                    <div class="metric-description">Did not earn credential</div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-clock-time-eight-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.TotalFieldHours.ToString("N0")</div>
+                    <div class="metric-label">Total Field Hours</div>
+                    <div class="metric-description">Combined program hours</div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-clock-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.AverageFieldHours</div>
+                    <div class="metric-label">Avg Field Hours</div>
+                    <div class="metric-description">Per candidate</div>
+                </div>
+            </div>
+
+            <div class="metric-card metric-success">
+                <div class="metric-icon">
+                    <i class="mdi mdi-briefcase-account"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.EmployedInDistrictCount</div>
+                    <div class="metric-label">Employed in District</div>
+                    <div class="metric-description">Working in partner LEA</div>
+                </div>
+            </div>
+
+            <div class="metric-card metric-success">
+                <div class="metric-icon">
+                    <i class="mdi mdi-briefcase"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.EmployedInStateCount</div>
+                    <div class="metric-label">Employed in California</div>
+                    <div class="metric-description">Working in state</div>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.CredentialAreas.Any())
+        {
+            <div class="mt-4">
+                <h5><i class="mdi mdi-book-education"></i> Credential Areas Distribution</h5>
+                <div class="row">
+                    @foreach (var area in Model.CredentialAreas)
+                    {
+                        <div class="col-md-3 mb-2">
+                            <div class="credential-stat">
+                                <span class="credential-name">@area.Key</span>
+                                <span class="badge badge-primary">@area.Value</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        @if (Model.Demographics.Any())
+        {
+            <div class="mt-4">
+                <h5><i class="mdi mdi-account-group"></i> Demographics</h5>
+                <div class="row">
+                    @foreach (var demo in Model.Demographics)
+                    {
+                        <div class="col-md-3 mb-2">
+                            <div class="credential-stat">
+                                <span class="credential-name">@demo.Key</span>
+                                <span class="badge badge-secondary">@demo.Value</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@* Reporting Section *@
+@if (Model.HasActiveReportingPeriod || Model.ReportsSubmitted > 0)
+{
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-clipboard-text-outline"></i> Post-Payment Reporting</h4>
+            <div class="card-actions">
+                <a href="@Url.Action("FundedCandidates", "IHEPortal", new { iheId = Model.IHEId, grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-primary">
+                    <i class="mdi mdi-file-document-outline"></i> View Funded Candidates
+                </a>
+            </div>
+        </div>
+        <div class="r4-card-body">
+            @if (Model.ReportingAlerts.Any())
+            {
+                foreach (var alert in Model.ReportingAlerts)
+                {
+                    <div class="alert alert-@(alert.AlertType.ToLower())">
+                        <i class="mdi @(alert.AlertType == "DANGER" ? "mdi-alert-circle-outline" : alert.AlertType == "WARNING" ? "mdi-alert-outline" : "mdi-information-outline")"></i>
+                        <strong>@alert.Message</strong>
+                        @if (!string.IsNullOrEmpty(alert.ActionUrl))
+                        {
+                            <a href="@alert.ActionUrl" class="alert-link">@alert.ActionText</a>
+                        }
+                    </div>
+                }
+            }
+
+            <div class="dashboard-grid">
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="mdi mdi-account-cash-outline"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value">@Model.FundedCandidatesCount</div>
+                        <div class="metric-label">Funded Candidates</div>
+                        <div class="metric-description">Candidates who received payment</div>
+                    </div>
+                </div>
+
+                @if (Model.HasActiveReportingPeriod)
+                {
+                    <div class="metric-card metric-outstanding">
+                        <div class="metric-icon">
+                            <i class="mdi mdi-file-alert-outline"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-value">@Model.ReportsOutstanding</div>
+                            <div class="metric-label">Reports Due</div>
+                            <div class="metric-description">
+                                @if (Model.NextReportDeadline.HasValue)
+                                {
+                                    <span>Due @Model.NextReportDeadline.Value.ToString("MMM dd, yyyy")</span>
+                                    @if (Model.DaysUntilDeadline.HasValue && Model.DaysUntilDeadline.Value <= 7)
+                                    {
+                                        <span class="badge badge-danger ms-1">@Model.DaysUntilDeadline days left</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span>@Model.NextReportPeriodName</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <div class="metric-card metric-pending">
+                    <div class="metric-icon">
+                        <i class="mdi mdi-file-edit-outline"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value">@Model.ReportsDue</div>
+                        <div class="metric-label">In Progress</div>
+                        <div class="metric-description">Draft reports not yet submitted</div>
+                    </div>
+                </div>
+
+                <div class="metric-card metric-success">
+                    <div class="metric-icon">
+                        <i class="mdi mdi-file-check-outline"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value">@Model.ReportsSubmitted</div>
+                        <div class="metric-label">Submitted</div>
+                        <div class="metric-description">Reports submitted to CTC</div>
+                    </div>
+                </div>
+
+                <div class="metric-card metric-approved">
+                    <div class="metric-icon">
+                        <i class="mdi mdi-check-decagram-outline"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value">@Model.ReportsApproved</div>
+                        <div class="metric-label">Approved</div>
+                        <div class="metric-description">Reports approved by CTC</div>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.HasActiveReportingPeriod)
+            {
+                <div class="mt-3">
+                    <a href="@Url.Action("FundedCandidates", "IHEPortal", new { iheId = Model.IHEId, grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-primary">
+                        <i class="mdi mdi-file-document-edit-outline"></i> Complete Reports
+                    </a>
+                    <a href="@Url.Action("BulkUpload", "IHEPortal", new { iheId = Model.IHEId, grantCycleId = Model.GrantCycleId })" class="r4-button">
+                        <i class="mdi mdi-file-upload-outline"></i> Upload Bulk Reports
+                    </a>
+                    <a href="@Url.Action("ReportHistory", "IHEPortal", new { iheId = Model.IHEId, grantCycleId = Model.GrantCycleId })" class="r4-button">
+                        <i class="mdi mdi-history"></i> View History
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+}
+
 @if (Model.Applications.Any())
 {
     <div class="r4-card">
@@ -108,23 +394,28 @@
             </div>
         </div>
         <div class="r4-card-body">
+            <div class="alert alert-info">
+                <i class="mdi mdi-information-outline"></i>
+                <strong>Tip:</strong> Click on any application row to view the students in that application.
+            </div>
             <div class="table-wrapper">
-                <table class="r4-table">
+                <table class="r4-table applications-table">
                 <thead>
                     <tr>
+                        <th style="width: 40px;"></th>
                         <th>LEA Partner</th>
                         <th>Total Students</th>
                         <th>Draft</th>
                         <th>Submitted</th>
                         <th>Approved</th>
                         <th>Last Modified</th>
-                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var app in Model.Applications)
                     {
-                        <tr>
+                        <tr class="application-row" data-application-id="@app.Id" style="cursor: pointer;">
+                            <td><i class="mdi mdi-chevron-right expand-icon"></i></td>
                             <td>@app.LEAName</td>
                             <td>@app.TotalStudents</td>
                             <td>
@@ -158,10 +449,15 @@
                                 }
                             </td>
                             <td>@app.LastModified.ToString("MM/dd/yyyy")</td>
-                            <td>
-                                <a href="@Url.Action("Details", "Application", new { id = app.Id })" class="r4-button r4-button-sm">
-                                    <i class="mdi mdi-eye-outline"></i> View
-                                </a>
+                        </tr>
+                        <tr class="students-row" data-application-id="@app.Id" style="display: none;">
+                            <td colspan="7">
+                                <div class="students-container">
+                                    <h6><i class="mdi mdi-account-group-outline"></i> Students in this Application</h6>
+                                    <div class="students-list">
+                                        <em>Loading students...</em>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     }
@@ -181,8 +477,147 @@ else
 
 @section Scripts {
     <script>
+        // Mock student data for applications (in production, this would come from an API call)
+        const applicationStudents = @Html.Raw(Json.Serialize(Model.Applications.Select(app => new {
+            ApplicationId = app.Id,
+            Students = Enumerable.Empty<object>() // Placeholder, will be fetched via AJAX in real implementation
+        })));
+
         document.addEventListener('DOMContentLoaded', function() {
             console.log('IHE Portal loaded for: @Model.IHEName');
+
+            // Handle application row clicks to expand/collapse student list
+            document.querySelectorAll('.application-row').forEach(row => {
+                row.addEventListener('click', function() {
+                    const appId = this.getAttribute('data-application-id');
+                    const studentsRow = document.querySelector(`.students-row[data-application-id="${appId}"]`);
+                    const expandIcon = this.querySelector('.expand-icon');
+
+                    if (studentsRow.style.display === 'none') {
+                        // Expand
+                        studentsRow.style.display = 'table-row';
+                        expandIcon.classList.remove('mdi-chevron-right');
+                        expandIcon.classList.add('mdi-chevron-down');
+
+                        // Load students (mock AJAX call)
+                        loadStudentsForApplication(appId, studentsRow);
+                    } else {
+                        // Collapse
+                        studentsRow.style.display = 'none';
+                        expandIcon.classList.remove('mdi-chevron-down');
+                        expandIcon.classList.add('mdi-chevron-right');
+                    }
+                });
+            });
         });
+
+        function loadStudentsForApplication(appId, studentsRow) {
+            const container = studentsRow.querySelector('.students-list');
+
+            // Mock AJAX call - in production this would be: fetch(`/api/applications/${appId}/students`)
+            // For now, we'll use a mock implementation
+            container.innerHTML = '<em>Loading students...</em>';
+
+            // Simulate API delay
+            setTimeout(() => {
+                // In production, this would fetch real student data
+                // For now, show a message with a link to view application details
+                container.innerHTML = `
+                    <div class="mock-students-message">
+                        <p><i class="mdi mdi-information-outline"></i> Student list for Application #${appId}</p>
+                        <p>In production, this would show a clickable list of all students in this application.</p>
+                        <p>For demonstration, here's how it would work:</p>
+                        <ul class="mock-student-list">
+                            <li>
+                                <a href="@Url.Action("StudentDetail", "IHEPortal")?studentId=1" class="student-link">
+                                    <i class="mdi mdi-account-outline"></i>
+                                    John Doe (SEID: ST2024-001) - Multiple Subject
+                                    <span class="badge badge-success">APPROVED</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="@Url.Action("StudentDetail", "IHEPortal")?studentId=2" class="student-link">
+                                    <i class="mdi mdi-account-outline"></i>
+                                    Jane Smith (SEID: ST2024-002) - Single Subject
+                                    <span class="badge badge-warning">SUBMITTED</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="@Url.Action("StudentDetail", "IHEPortal")?studentId=3" class="student-link">
+                                    <i class="mdi mdi-account-outline"></i>
+                                    Robert Johnson (SEID: ST2024-003) - Education Specialist
+                                    <span class="badge badge-secondary">DRAFT</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <p><strong>Click on any student name above to view their complete profile with all mock data.</strong></p>
+                    </div>
+                `;
+            }, 300);
+        }
     </script>
+
+    <style>
+        .expand-icon {
+            transition: transform 0.2s;
+        }
+
+        .application-row:hover {
+            background-color: #f8f9fa;
+        }
+
+        .students-container {
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            margin: 0.5rem 0;
+        }
+
+        .students-container h6 {
+            margin-bottom: 1rem;
+            color: #1E3A5F;
+        }
+
+        .mock-students-message {
+            padding: 1rem;
+        }
+
+        .mock-student-list {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+        }
+
+        .mock-student-list li {
+            margin-bottom: 0.75rem;
+        }
+
+        .student-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #212529;
+            transition: all 0.2s;
+        }
+
+        .student-link:hover {
+            background: #e9ecef;
+            border-color: #1E3A5F;
+            transform: translateX(4px);
+        }
+
+        .student-link i {
+            font-size: 1.2rem;
+            color: #1E3A5F;
+        }
+
+        .student-link .badge {
+            margin-left: auto;
+        }
+    </style>
 }
