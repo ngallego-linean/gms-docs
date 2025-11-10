@@ -92,11 +92,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Web.UI/Ctc.GMS.Web.UI.csproj",
+      "projectUniqueName": "/Users/noahgallego/Desktop/ctc-worktrees/wt-fiscal-portal/Ctc.GMS/Ctc.GMS.Web.UI/Ctc.GMS.Web.UI.csproj",
       "projectName": "Ctc.GMS.Web.UI",
-      "projectPath": "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Web.UI/Ctc.GMS.Web.UI.csproj",
+      "projectPath": "/Users/noahgallego/Desktop/ctc-worktrees/wt-fiscal-portal/Ctc.GMS/Ctc.GMS.Web.UI/Ctc.GMS.Web.UI.csproj",
       "packagesPath": "/Users/noahgallego/.nuget/packages/",
-      "outputPath": "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Web.UI/obj/",
+      "outputPath": "/Users/noahgallego/Desktop/ctc-worktrees/wt-fiscal-portal/Ctc.GMS/Ctc.GMS.Web.UI/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/noahgallego/.nuget/NuGet/NuGet.Config"
@@ -111,17 +111,17 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.AspNetCore/Ctc.GMS.AspNetCore.csproj": {
-              "projectPath": "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.AspNetCore/Ctc.GMS.AspNetCore.csproj"
+            "/Users/noahgallego/Desktop/ctc-worktrees/wt-fiscal-portal/Ctc.GMS/Ctc.GMS.AspNetCore/Ctc.GMS.AspNetCore.csproj": {
+              "projectPath": "/Users/noahgallego/Desktop/ctc-worktrees/wt-fiscal-portal/Ctc.GMS/Ctc.GMS.AspNetCore/Ctc.GMS.AspNetCore.csproj"
             },
-            "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Business/Ctc.GMS.Business.csproj": {
-              "projectPath": "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Business/Ctc.GMS.Business.csproj"
+            "/Users/noahgallego/Desktop/ctc-worktrees/wt-fiscal-portal/Ctc.GMS/Ctc.GMS.Business/Ctc.GMS.Business.csproj": {
+              "projectPath": "/Users/noahgallego/Desktop/ctc-worktrees/wt-fiscal-portal/Ctc.GMS/Ctc.GMS.Business/Ctc.GMS.Business.csproj"
             },
-            "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Data/Ctc.GMS.Data.csproj": {
-              "projectPath": "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS.Data/Ctc.GMS.Data.csproj"
+            "/Users/noahgallego/Desktop/ctc-worktrees/wt-fiscal-portal/Ctc.GMS/Ctc.GMS.Data/Ctc.GMS.Data.csproj": {
+              "projectPath": "/Users/noahgallego/Desktop/ctc-worktrees/wt-fiscal-portal/Ctc.GMS/Ctc.GMS.Data/Ctc.GMS.Data.csproj"
             },
-            "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS/Ctc.GMS.csproj": {
-              "projectPath": "/Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS/Ctc.GMS.csproj"
+            "/Users/noahgallego/Desktop/ctc-worktrees/wt-fiscal-portal/Ctc.GMS/Ctc.GMS/Ctc.GMS.csproj": {
+              "projectPath": "/Users/noahgallego/Desktop/ctc-worktrees/wt-fiscal-portal/Ctc.GMS/Ctc.GMS/Ctc.GMS.csproj"
             }
           }
         }

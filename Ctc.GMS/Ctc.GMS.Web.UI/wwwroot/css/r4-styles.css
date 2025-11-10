@@ -1740,3 +1740,155 @@ body {
         text-align: center;
     }
 }
+
+/* ============================================
+   REPORTING COMPLIANCE STYLES
+   ============================================ */
+
+/* Compliance metric cards with left border */
+.metric-compliant {
+    border-left: 4px solid var(--success) !important;
+}
+
+.metric-warning {
+    border-left: 4px solid var(--warning) !important;
+}
+
+.metric-alert {
+    border-left: 4px solid var(--danger) !important;
+}
+
+.metric-submitted {
+    border-left: 4px solid #17A2B8 !important;
+}
+
+/* Outcome stat boxes */
+.outcome-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 4px;
+    transition: box-shadow 0.2s ease;
+}
+
+.outcome-stat:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.outcome-stat i {
+    font-size: 2rem;
+    color: var(--primary);
+    min-width: 2rem;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    margin-top: 0.25rem;
+}
+
+/* Compliance bar visualization */
+.compliance-bar-container {
+    height: 24px;
+    background: var(--gray-200);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+}
+
+.compliance-bar {
+    height: 100%;
+    transition: width 0.3s ease;
+    border-radius: 12px;
+}
+
+.compliance-bar-green {
+    background: linear-gradient(90deg, #28a745, #20c997);
+}
+
+.compliance-bar-yellow {
+    background: linear-gradient(90deg, #ffc107, #fd7e14);
+}
+
+.compliance-bar-red {
+    background: linear-gradient(90deg, #dc3545, #c82333);
+}
+
+/* Row highlighting */
+.row-warning {
+    background-color: #fff9e6 !important;
+}
+
+.row-warning:hover {
+    background-color: #fff4d6 !important;
+}
+
+.row-danger {
+    background-color: #ffe6e6 !important;
+}
+
+.row-danger:hover {
+    background-color: #ffd6d6 !important;
+}
+
+/* Compliance standards info box */
+.compliance-info {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: var(--gray-50);
+    border-radius: 4px;
+    border-left: 4px solid var(--primary);
+}
+
+.compliance-info h6 {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--gray-800);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.compliance-info ul {
+    margin: 0;
+    padding-left: 1.5rem;
+    font-size: 0.875rem;
+    color: var(--gray-700);
+}
+
+.compliance-info li {
+    margin-bottom: 0.5rem;
+}
+
+.compliance-info li:last-child {
+    margin-bottom: 0;
+}
+
+/* Empty state styling */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--gray-600);
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: var(--gray-400);
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    margin: 0;
+    font-size: 1rem;
+}

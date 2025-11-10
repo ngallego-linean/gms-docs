@@ -9,3 +9,14 @@
 /Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS/obj/Debug/net9.0/refint/Ctc.GMS.dll
 /Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS/obj/Debug/net9.0/Ctc.GMS.pdb
 /Users/noahgallego/Desktop/gms-docs/Ctc.GMS/Ctc.GMS/obj/Debug/net9.0/ref/Ctc.GMS.dll
+/Users/noahgallego/Desktop/ctc-worktrees/wt-fiscal-portal/Ctc.GMS/Ctc.GMS/bin/Debug/net9.0/Ctc.GMS.deps.json
+/Users/noahgallego/Desktop/ctc-worktrees/wt-fiscal-portal/Ctc.GMS/Ctc.GMS/bin/Debug/net9.0/Ctc.GMS.dll
+/Users/noahgallego/Desktop/ctc-worktrees/wt-fiscal-portal/Ctc.GMS/Ctc.GMS/bin/Debug/net9.0/Ctc.GMS.pdb
+/Users/noahgallego/Desktop/ctc-worktrees/wt-fiscal-portal/Ctc.GMS/Ctc.GMS/obj/Debug/net9.0/Ctc.GMS.GeneratedMSBuildEditorConfig.editorconfig
+/Users/noahgallego/Desktop/ctc-worktrees/wt-fiscal-portal/Ctc.GMS/Ctc.GMS/obj/Debug/net9.0/Ctc.GMS.AssemblyInfoInputs.cache
+/Users/noahgallego/Desktop/ctc-worktrees/wt-fiscal-portal/Ctc.GMS/Ctc.GMS/obj/Debug/net9.0/Ctc.GMS.AssemblyInfo.cs
+/Users/noahgallego/Desktop/ctc-worktrees/wt-fiscal-portal/Ctc.GMS/Ctc.GMS/obj/Debug/net9.0/Ctc.GMS.csproj.CoreCompileInputs.cache
+/Users/noahgallego/Desktop/ctc-worktrees/wt-fiscal-portal/Ctc.GMS/Ctc.GMS/obj/Debug/net9.0/Ctc.GMS.dll
+/Users/noahgallego/Desktop/ctc-worktrees/wt-fiscal-portal/Ctc.GMS/Ctc.GMS/obj/Debug/net9.0/refint/Ctc.GMS.dll
+/Users/noahgallego/Desktop/ctc-worktrees/wt-fiscal-portal/Ctc.GMS/Ctc.GMS/obj/Debug/net9.0/Ctc.GMS.pdb
+/Users/noahgallego/Desktop/ctc-worktrees/wt-fiscal-portal/Ctc.GMS/Ctc.GMS/obj/Debug/net9.0/ref/Ctc.GMS.dll
