@@ -1,0 +1,481 @@
+Commission on Teacher Credentialing
+R4 Database Standards: Database Tables
+
+R4 Database Standards
+
+Database Tables
+
+Revision Date: September 10, 2025
+Database tables meet business needs for the data that you are collecting. The main goal
+of adopting table naming and design standards is so that you and others can easily
+identify the purpose of the tables contained in the database.
+If you have any questions or doubts, please consult with your supervisor, the Systems
+Architect, or the DBA.
+
+SCHEMA NAMING
+When naming database schemas, consideration should be given to the
+other steps in the development process. Use schemas to organize tables
+into related groups of information, e.g., Human Resources, Asset
+Management, etc.
+DB-100
+Schema names must meet the following criteria:
+
+
+
+
+
+
+
+
+Use abbreviations.
+Singular
+Use lowercase only.
+Use alpha characters only.
+Less than 40 characters
+Avoid SQL reserved words (there may be some exceptions)
+Do not use prefixes such as “sch” or “s”.
+
+Good Schema Name Examples
+hr
+am
+ec
+
+Poor Schema Name Examples
+HumanResources
+assetMgmt
+EC
+
+TABLE NAMING
+When naming database tables, consideration should be given to the
+other steps in the development process. Keep in mind that you will most
+Page 1 of 7
+
+Commission on Teacher Credentialing
+R4 Database Standards: Database Tables
+
+likely have to use the names you give to your tables several times as part
+of other objects, such as procedures, triggers, or views, which may all
+contain references to the table name. You want to keep the name simple
+and straightforward, but as short as possible.
+DB-101
+Table names must meet the following criteria:
+
+
+
+
+
+
+
+
+
+Descriptive
+Avoid abbreviations.
+Singular
+Use Pascal Case (first letter in the first word and the first letter of each subsequent
+concatenated word are capitalized)
+Use alphanumeric characters only
+Less than 128 characters
+Avoid SQL reserved words (there may be some exceptions)
+Do not use prefixes such as “tb” or “tbl”
+
+Good Table Name Examples
+Customer
+Employee
+Institution
+ProgramApprovalStatus
+
+Poor Table Name Examples
+CCType
+Emp
+Inst
+PAStatus
+
+DB-102
+For tables that handle many-to-many relationships, the same naming standards apply.
+The table should be named by concatenating the names of the tables that have a one-tomany relationship with the join table.
+For example, you might have "Doctor" and "Patient" tables. Since doctors can have
+many patients and patients can have many doctors (specialists) you need a table to
+hold the data for those relationships in a junction table. This table should be
+named “DoctorPatient".
+
+COLUMN NAMING
+When naming columns, keep in mind that they are members of the table
+and do not need any mention of the table name in the column name.
+When writing a query against more than one table, you should prefix
+the field name with the table name (or table alias, if required) anyway.
+Page 2 of 7
+
+Commission on Teacher Credentialing
+R4 Database Standards: Database Tables
+
+DB-103
+Field names must meet the following criteria:
+
+
+Descriptive and unambiguous.
+
+
+
+Avoid abbreviations.
+
+
+
+Singular.
+
+
+
+Use Pascal Case (first letter in the first word and the first letter of each subsequent
+concatenated word are capitalized).
+
+
+
+Only use alphanumeric characters.
+
+
+
+Less than 128 characters.
+
+
+
+Avoid SQL reserved words.
+
+
+
+Avoid prefixes such as “fld” or “col” or data types (intCustomerID).
+
+
+
+Avoid using the table name in field names. (For a table named Department,
+instead of using a field name of DepartmentName, use Name).
+
+
+
+Avoid the use of acronyms in field names unless the acronyms are well known.
+
+Good Field Name Examples
+FirstName
+TonsPerDay
+StatusChangedOn
+FormNumber
+
+Poor Field Name Examples
+FName
+tonsDay
+StatusChangedDateTime
+FormNum
+
+CONSTRAINTS
+DB-104
+Primary keys must always be named “Id”.
+DB-105
+Foreign keys are named “Id” prefixed with the name of the foreign key’s parent table.
+PK: Id (in table named Company)
+FK Parent Table Name: Contact
+FK: ContactId
+
+DB-106
+Use an additional meaningful prefix if the foreign key is used more than once in a table.
+PK: Id (in table named Company)
+FK Parent Table Name: Contact
+FK1: BillingContactId
+FK2: ShippingContactId
+
+Page 3 of 7
+
+Commission on Teacher Credentialing
+R4 Database Standards: Database Tables
+
+DB-107
+When a foreign key’s parent table name includes the primary table’s name, the foreign
+key name can be shortened to avoid redundancy, assuming it does not create ambiguity
+about the foreign key’s parent table.
+PK: Id (in table named Application)
+FK Parent Table Name: ApplicationStatusSVT
+FK1: StatusId (instead of ApplicationStatusId)
+
+BIT FIELDS
+
+DB-108
+Prefix with “Is” (if this prefix is awkward, use some other prefix that clearly indicates
+what a true value means, e.g., Can, Has, etc.).
+DB-109
+Avoid negative boolean names such as “IsNotValid”. Double negatives are hard to read
+and understand when checking values in T-SQL (“not IsNotValid”).
+
+DATETIME FIELDS
+DB-110
+Suffix field names with “On” (e.g., StatusChangedOn instead of StatusChangedDate)
+DB-111
+Always use the datetime data type. Consult with the Systems Architect or the DBA if you
+feel there is a compelling reason to use a different date/time datatype.
+
+COMMON DATA FIELDS
+DB-112
+View the Common Data Fields Guidelines document.
+
+TABLE DESIGN
+DB-113
+Page 4 of 7
+
+Commission on Teacher Credentialing
+R4 Database Standards: Database Tables
+
+Archiving records means the record is not visible in systems unless searched for by the
+user. The record is never deleted from the database table. Archived records by default
+do not show up in searches, reports, or file counts. They can be searched and restored if
+needed. Any table that requires the archived fields must include the following four
+fields:
+Field
+
+Data Type
+
+Default
+Value
+
+Required
+?
+
+IsArchived
+
+bit
+
+0
+
+Yes
+
+ArchivedOn
+
+datetime
+
+-
+
+No
+
+ArchivedByAccoun
+tId
+
+int
+
+-
+
+No
+
+ArchivedComment
+s
+
+varchar(max)
+
+-
+
+No
+
+DB-114
+All tables must include five (5) metadata fields to keep track of who created and
+updated the record and when it was created and updated. The fields must be required
+and must be the last fields in the table in the order shown below. The datetime fields
+must have default values.
+Field
+
+Data Type
+
+Default
+Value
+
+Required
+?
+
+CreatedOn
+
+datetime
+
+GETDATE()
+
+Yes
+
+CreatedByAccountId
+
+int
+
+-1
+
+Yes
+
+LastUpdatedOn
+
+datetime
+
+GETDATE()
+
+Yes
+
+LastUpdatedByAccou
+ntId
+
+int
+
+-1
+
+Yes
+
+CanBeDeleted
+
+bit
+
+0
+
+Yes
+
+DB-115
+If a table has a list of lookup values that are foreign keys in other tables and the table is
+not a Static Value Table (SVT), then the table must have the following fields in the order
+listed below. These tables can have a UI in the system, allowing users to make changes
+Page 5 of 7
+
+Commission on Teacher Credentialing
+R4 Database Standards: Database Tables
+
+to the data since there is no business logic coded in the system that uses the values in
+these tables. Include archived fields only if needed (see DB-112).
+Field
+
+Data Type
+
+Default
+Value
+
+Required
+?
+
+Id
+
+int
+
+-
+
+Yes
+
+Name
+
+varchar(50)
+
+-
+
+Yes
+
+Description
+
+varchar(500)
+
+-
+
+No
+
+DisplayOrder
+
+int
+
+-
+
+Yes
+
+CreatedOn
+
+datetime
+
+GETDATE()
+
+Yes
+
+CreatedByAccountId
+
+int
+
+-1
+
+Yes
+
+LastUpdatedOn
+
+datetime
+
+GETDATE()
+
+Yes
+
+LastUpdatedByAccoun
+tId
+
+int
+
+-1
+
+Yes
+
+CanBeDeleted
+
+bit
+
+0
+
+Yes
+
+DB-116
+See the Data Types page for a list of all SQL Server data types that can be used for
+columns.
+DB-117
+All tables must have a primary key (PK), even if it is not actively used.
+DB-118
+Primary keys should generally use the database's auto-incrementing feature and be of
+type “int”.
+DB-119
+Character-based primary keys should be avoided.
+DB-120
+If you have a choice, do not store binary or image files (Binary Large Objects or BLOBs)
+inside the database. Retrieving and manipulating these large binary files is better
+performed outside the database.
+DB-121
+Page 6 of 7
+
+Commission on Teacher Credentialing
+R4 Database Standards: Database Tables
+
+Do not use TEXT or NTEXT datatypes for storing extensive textual data. Use the
+maximum allowed characters of varchar(max) instead. NTEXT, TEXT, and IMAGE
+data types will be deprecated in future SQL Server versions.
+DB-122
+Use the CHAR data type only if the column is fixed length and is not nullable (required).
+If a char(200) field is nullable (not required), 200 bytes will be wasted if that field is
+NULL. If the field can be nullable, use varchar instead.
+DB-123
+Always store years as four digits instead of two digits.
+
+INDEXES
+Like an index in a book, an index in a database lets you quickly find
+specific information in a table or indexed view. An index contains keys
+built from one or more columns in the table, or view, and pointers that
+map to the storage location of the specified data. You can significantly
+improve the performance of database queries and systems by creating
+well-designed indexes to support your queries. Indexes can reduce the
+amount of data that must be read to return the query result set. Indexes
+can also enforce uniqueness on the rows in a table, ensuring the data
+integrity of the table data (Microsoft Docs).
+DB-124
+It is good practice to index columns that are frequently used in a query's selection
+criteria. Build an index for:
+
+
+
+
+
+
+
+Glossary
+Surrogate Key
+Business Key
+Single Key
+Compound Key
+Strong Entity
+
+Page 7 of 7
+
+

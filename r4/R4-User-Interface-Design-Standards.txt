@@ -1,0 +1,574 @@
+Commission on Teacher Credentialing
+R4 User Interface Standards: User Interface Design Standards
+
+R4 User Interface Standards
+
+User Interface Design Standards
+Revision Date: September 12, 2025
+
+Main Layout for Applications
+The main layout of software projects is established within the R4 framework and is not
+included in each Visual Studio project. The main layout is referenced either in
+_AppLayout view (~/Views/Shared/_AppLayout.cshtml).
+Layout = Html.R4().MvcConfiguration.UserInterface.Layout.View;
+
+App Layout
+Each software project utilizes a project-specific layout (typically
+~/Views/Shared/_AppLayout.cshtml) that provides content for regions defined in the
+Main Layout as described above. These sections are defined as:
+
+
+
+
+Header
+Scripts
+PageContentHeader
+
+Discuss with the Systems Architect before making significant changes to the App Layout.
+
+UI Guidelines
+Several R4 UI extensions have been created to simplify the HTML markup of views.
+(UI-200) For Create, Edit, and Details views, use “col-md-10 col-lg-8” to set the width of the
+
+page. Other views can use “col-xs-12”.
+
+Checkboxes
+
+
+
+R4 Extension: Html.R4().Kendo().LabelSwitchFor
+(UI-201) Use checkboxes to allow users to select one or more options.
+
+CRUD Forms
+
+
+
+
+
+
+(UI-202) Organize logically.
+(UI-203) If any form elements are required, be sure to indicate them by setting the
+
+[Required] attribute on the property in the Domain Model. The required mark (*)
+will only be visible on Create and Edit views.
+(UI-204) Group similar data using fieldsets. There should be a minimum of two
+fieldsets on a page; otherwise, a fieldset is not needed.
+(UI-205) Action buttons must be in the card footer below the form.
+Page 1 of 15
+
+Commission on Teacher Credentialing
+R4 User Interface Standards: User Interface Design Standards
+
+
+
+
+
+
+
+
+(UI-206) If the form is long enough to warrant at least half a page’s worth of
+
+scrolling, then the buttons should also be placed within the card header as well as
+the card footer.
+(UI-207) In general, forms should be short and simple with concise text in limited
+quantities. Users will rarely read extensive text.
+(UI-208) Use RadioButtons and CheckBoxes correctly. A collection of radio boxes
+indicates to select only one option from many, while checkboxes indicate to check
+one or more options.
+(UI-209) Forms should never return a server error when submitted with empty
+fields.
+
+Drop Down Lists
+
+
+(UI-210) On Search pages, the default/first value in the dropdown list should say
+
+“—Unspecified--” (plural). On Create and Edit pages, the default/first value in the
+dropdown list should say “Select [Entity]…” (singular).
+For example, a dropdown list displaying a status on a Search page will have the
+default/first value of “--Unspecified--”. The same status dropdown on a Create or
+Edit page will have the default/first value of “Select Status…”.
+
+Export to Excel
+The Export to Excel feature is a standard utility used in conjunction with data displays in
+grids. When exported, data in the spreadsheet should resemble its display in the grid.
+There are commonly more columns of data in the GridViewModel than are displayed in a
+grid. The export should include all data in the GridViewModel. Use the mdi-file-excel
+icon on the button, followed by the words Export to Excel.
+
+
+Column order
+o Column 1: RowId
+o Column 2-n: columns from the grid
+o Columns n+1-m: any additional columns from the grid view model
+Note: The framework will ensure RowId is always first, and that IsArchived is
+always last
+
+
+
+Column names
+o Column names should always be proper-case, and full words, not
+abbreviations.
+ Use [Display( Name = “…”)] in the ViewModel to create proper-case
+column names
+Page 2 of 15
+
+Commission on Teacher Credentialing
+R4 User Interface Standards: User Interface Design Standards
+
+Fieldsets
+Fieldsets allow you to group related controls within a form. Grouping controls makes it
+easier for users to understand the purpose of the controls while simultaneously
+facilitating tabbing navigation for visual user agents and speech navigation for speechoriented user agents (accessibility)—group similar data using fieldsets. There should be a
+minimum of two fieldsets on a page; otherwise, a fieldset is not needed.
+
+Grids
+
+
+(UI-211) Generally, grids should allow sorting, paging, and export to Excel unless
+
+
+
+there is a valid reason not to have these grid features enabled.
+(UI-212) Hyperlink all email addresses to the actual email address
+Avoid
+amunguia@ctc.ca.gov
+
+
+
+Correct
+amunguia@ctc.ca.gov
+
+(UI-213) If there are no records to display in the grid, use the
+
+[GridName]NoGridRecordsTemplate script to display a message saying, “There are
+no [entities] to display.”. For example, a document's grid with no records to
+display would say “There are no documents to display.”. Make sure to use the
+correct grammar and spelling.
+
+Images
+
+
+
+
+
+
+
+
+(UI-214) Always include an “alt” attribute in an image tag.
+(UI-215) Keep the “alt” text short but descriptive.
+(UI-216) Include longer descriptions in the context of the document.
+(UI-217) Alternate text should communicate the purpose of the image.
+(UI-218) Provide empty or null “alt” text for images that do not convey content.
+(UI-219) Do not repeat the “alt” text of an image in the adjacent text.
+(UI-220) Leaving the “alt” attribute out of the image tag is not the same as setting
+
+the “alt” attribute to an empty string (alt=””). If the “alt” attribute is left out of the
+image tag, some screen readers will read the file name of the image. For images
+that do not convey content (decorative images such as rounded corners) set the
+“alt” attribute to an empty string (alt=””).
+
+Labels
+Using the R4 Extension, the label will render with the “for” attribute, allowing screen
+readers to associate the appropriate label with the proper form element (textbox,
+textarea, checkbox, etc.). Using the “for” attribute of a label also allows the user to click
+on the label itself to set focus to the form element.
+Page 3 of 15
+
+Commission on Teacher Credentialing
+R4 User Interface Standards: User Interface Design Standards
+
+
+
+
+R4 Extension: LabelFor
+(UI-221) If the R4 Extension is not used, then the “for” attribute must be added to
+the label manually.
+<label for=”FirstName”>First Name</label>
+
+Links
+
+
+
+
+
+(UI-222) Avoid long links. Links should be long enough to convey the purpose of
+
+the link.
+(UI-223) Avoid non-informative link phrases such as
+o click here
+o here
+o more
+o read more
+o info
+(UI-224) Links are helpful when the text makes sense out of context.
+Avoid
+click here to access today’s weather
+
+Correct
+today’s weather
+
+Lists
+
+
+(UI-225) Unordered lists (<ul>) should be used when there is no order of sequence
+
+
+
+or importance.
+(UI-226) Order lists (<ol>) should be used when there is a sequence.
+
+Page Title
+
+
+
+
+
+
+R4 Extension: R4().PageInfoTitle
+(UI-227) Set the title of the page in the controller, above the action method name,
+using the [PageInfo] attribute.
+(UI-228) Use the first argument of the PageInfoTitle method (subTitle) to display
+the entity name. The subTitle is used primarily on pages with tabs to display the
+name of the entity.
+(UI-229) Any page that is displaying sub/child entity information should have the
+parent entity type in the page title. For example, Address, Contacts, Documents,
+Notes, and Communications in most cases are sub/child entities of a parent entity.
+These pages should have the parent entity type in the page title, followed by the
+page name.
+Company Addresses
+Company Address Details
+Page 4 of 15
+
+Commission on Teacher Credentialing
+R4 User Interface Standards: User Interface Design Standards
+
+Company Edit Address
+Company Add Address
+Company Documents
+In this example, Company is the parent entity type.
+
+Radio Buttons
+
+
+
+(UI-230) Use radio buttons to allow users to select one option from many.
+(UI-231) If you are using an HTML radio button (input type=”radio”), then use an
+
+HTML label (<label>) and set the “for” attribute of the label to the “id” attribute of
+the radio button.
+
+Search Filters
+
+
+
+
+
+
+
+(UI-232) Use a Filter button to display the off-canvas sidebar with search filters.
+
+The filter should be an extra small button (btn-xs) with the “mdi-filter-outline”
+icon to the left of the word “Filter”. The filter button should be right-aligned in the
+grid’s ToolBar header parallel to the “Create [Entity]” and “Export To Excel”
+buttons.
+(UI-233) Organize logically.
+(UI-234) The “search” button should be right-aligned in the off-canvas sidebar. The
+text on the button should say “Search” and use the “mdi-magnify” icon. The search
+button should use the “primary” background color.
+(UI-235) A reset button should be added to the right of the search button with the
+text “Reset”. This button should reset the controls to their original setting. This
+button should use the “mdi-refresh” icon. The reset button should use the
+“secondary” background color.
+
+Switches (Yes/No)
+There are a couple of different use cases for capturing Yes/No or True/False data values
+in user interfaces. Depending on the requirements and needs, several approaches can be
+used to design the user interface.
+
+
+
+
+(UI-236) If True/False OR NULL are used on a data entry screen (Edit/Create page,
+
+etc.), then use radio buttons or drop-downs (depends on what looks better)
+(UI-237) If True/False are the only options on any screen (Search, Edit, Create page,
+etc.), then use the Telerik Switch control.
+(UI-238) If True/False OR NULL and used on a Search page (null option generally
+used for "No Filter Value"), then use a dropdown (see Archived dropdown in
+existing R4 apps).
+
+Page 5 of 15
+
+Commission on Teacher Credentialing
+R4 User Interface Standards: User Interface Design Standards
+
+Tables
+
+
+
+
+
+
+
+
+
+
+
+(UI-239) Do not use tables for page layouts.
+(UI-240) For tables displaying data, the table should be wrapped inside a div and
+
+the div should use the “table-responsive” class.
+(UI-241) Use the “summary” attribute of the table to include a description of a data
+table.
+(UI-242) Provide a name/title for data tables using the “<caption>” tag,
+immediately after the opening “<table>” tag.
+(UI-243) The header row should be inside a <thead> tag.
+(UI-244) Use “<th>” for the column headings.
+(UI-245) Use the “scope” attribute (scope=”col”) of the “<th>” tag to tell the browser
+and screen reader that everything under the column is related to the column
+header.
+(UI-246) All other rows should be inside a <tbody> tag.
+(UI-247) The “scope” attribute (scope=”row”) can also be used on a row to tell the
+browser and screen reader that everything in the row is related to the row
+header.
+<div class="table-responsive">
+<table class="table table-hover table-condensed" summary="……">
+<caption>Publications by Status</caption>
+<thead>
+<tr>
+<th scope="col">Status</th>
+<th scope="col" class="text-right">Count</th>
+<th scope="col" class="text-right">Percentage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td scope="row">Draft Publications</td>
+<td class="text-right">430</td>
+<td class="text-right">33.9%</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+Textboxes
+
+
+R3 Extension: LabelTextBoxFor
+
+Text
+
+
+(UI-248) Avoid underlining text. Convention on the web is that underlined text is a
+
+hyperlink.
+Page 6 of 15
+
+Commission on Teacher Credentialing
+R4 User Interface Standards: User Interface Design Standards
+
+
+
+
+
+(UI-249) Avoid ALL CAPS.
+(UI-250) Italics should only be used for titles of literary works.
+(UI-251) Do not use blinking or marquee text.
+
+Page 7 of 15
+
+Commission on Teacher Credentialing
+R4 User Interface Standards: User Interface Design Standards
+
+Page Layouts
+The following sections describe the typical page type patterns commonly used in
+Commission systems.
+
+Search Page
+(UI-252) A typical search page should have the following layout:
+
+
+
+
+
+
+
+Breadcrumbs
+R4 Page Title
+Telerik UI for ASP.NET Core Grid (aka Kendo Grid – Html.Kendo().Grid extension)
+o Create [Entity] button using the “mdi-plus-box-outline” icon (left aligned in
+Grid’s ToolBar)
+o Export to Excel button using the “mdi-file-excel” icon
+o Filter button using the “mdi-filter-outline” icon (right-aligned in the Grid’s
+Toolbar)
+First grid column should contain “Select” button designated as the primary button
+that links to the entity’s Details page.
+
+Figure 1 Search Page
+
+Search Filters
+A typical search filter off-canvas sidebar should have the following layout:
+
+
+The “search” button should be right-aligned at the bottom of the off-canvas
+sidebar. The text on the button should say “Search” and use the “mdi-magnify”
+icon. The search button should use the “primary” background color.
+Page 8 of 15
+
+Commission on Teacher Credentialing
+R4 User Interface Standards: User Interface Design Standards
+
+
+
+A reset button should be added to the right of the search button with the text
+“Reset”. This button should reset the controls to their original setting. This button
+should use the “mdi-refresh” icon. The reset button should use the “secondary”
+background color.
+
+Figure 2 Search Filters Off-Canvas Sidebar
+
+Page 9 of 15
+
+Commission on Teacher Credentialing
+R4 User Interface Standards: User Interface Design Standards
+
+Summary Page
+(UI-253) A Summary Page is only used within an Entity module that uses a Tab Menu. A
+
+typical Summary page should have the following layout:
+
+
+
+
+
+Breadcrumbs
+R4 Page Title, including sub-title
+A Partial View containing Tabs (typically named _[MainEntity]Tabs.cshtml)
+Summarized data about the entity. Use “cards” to group related data.
+
+Figure 3 Summary Page
+
+Page 10 of 15
+
+Commission on Teacher Credentialing
+R4 User Interface Standards: User Interface Design Standards
+
+Listing Page
+(UI-254) A typical Listing page should have the following layout:
+
+
+
+
+
+
+
+
+Breadcrumbs
+R4 Page Title, including sub-title
+A partial view containing Tabs (typically named _[MainEntity]Tabs.cshtml). Tabs
+are options depending on the complexity of the module/application.
+Telerik UI for ASP.NET Core Grid (aka Kendo Grid – Html.Kendo().Grid extension)
+o Add [Entity] button using the “mdi-plus-box-outline” icon (left aligned in
+Grid’s ToolBar).
+ An Add [Entity] button should be used in this case instead of Create
+[Entity] because this entity is being added to a parent entity. Create
+[Entity] is only used for parent entities.
+o Export to Excel button using the “mdi-file-excel” icon
+o Filter button using the “mdi-filter-outline” icon (right-aligned in the Grid’s
+Toolbar)
+First column in the grid should contain a “Select” button that links to the entity’s
+Details page.
+
+Figure 4 Listing Page
+
+Page 11 of 15
+
+Commission on Teacher Credentialing
+R4 User Interface Standards: User Interface Design Standards
+
+Details Page
+(UI-255) A typical Details page should have the following layout:
+
+
+
+
+
+
+Breadcrumbs
+R4 Page Title, including sub-title
+A partial view containing Tabs (typically named _[MainEntity]Tabs.cshtml). Tabs
+are options depending on the complexity of the module/application.
+Heading-less card
+o Action buttons (in card footer – add to card header if form is long,
+requiring scrolling).
+ Edit button (mdi-pencil) – primary background color
+ Back button (mdi-arrow-left) – secondary background color
+ Archive button (mdi-archive-arrow-down) – secondary background
+color
+ Delete button (mdi-delete-forever) – secondary background color
+ Other buttons as required for functionality – use appropriate
+background color
+o Use a Display Template to display the information
+o Use “cards” to group similar information
+o Use the ArchivedEntityIndicatorBar R4 extension (if the entity can be
+archived) to display archived information.
+o Use ModelMetadataDisplay R4 extension to display Created By/Updated By
+information.
+
+Page 12 of 15
+
+Commission on Teacher Credentialing
+R4 User Interface Standards: User Interface Design Standards
+
+Figure 5 Details Page
+
+Page 13 of 15
+
+Commission on Teacher Credentialing
+R4 User Interface Standards: User Interface Design Standards
+
+Create/Edit Pages
+(UI-256) Typically, Create/Edit pages should have the following layout:
+
+
+
+
+
+
+
+
+
+Breadcrumbs
+R4 Page Title, including sub-title
+If creating/editing a sub-entity of a parent entity and a Tab Menu is needed, a
+Partial View containing the Tabs (typically named _[MainEntity]Tabs.cshtml) is
+required. Tabs are optional depending on the complexity of the
+module/application.
+Validation Summary (@Html.R4().ValidationSummary())
+o The Validation Summary should always be displayed above the form and
+list all data validation issues.
+Form (usually heading-less card)
+o Action buttons (in the form footer – add to form header if form is long and
+requires scrolling)
+ Save button (mdi-content-save) - primary background color
+ On Create pages, Save should typically direct users to the
+Details page of the newly created entity.
+ On Edit pages, Save should direct users to the Details page.
+ Cancel buttons (mdi-arrow-left) – secondary background color
+ On Create pages, Cancel should direct users back to the
+Listing page.
+ On Edit pages, Cancel should direct users to the Details page.
+o Use an Editor Template to display the information
+o Use “cards” to group similar information
+
+Page 14 of 15
+
+Commission on Teacher Credentialing
+R4 User Interface Standards: User Interface Design Standards
+
+Figure 6 Create/Edit Page
+
+Page 15 of 15
+
+

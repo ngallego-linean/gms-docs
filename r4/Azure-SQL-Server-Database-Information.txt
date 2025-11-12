@@ -1,0 +1,117 @@
+Commission on Teacher Credentialing
+Database Standards: Azure SQL Server Database Information
+
+Azure SQL Server Database
+Information
+Revision Date: September 10, 2025
+
+Summary
+The Commission’s .NET project databases are hosted in Azure SQL Managed Instances.
+This document provides information on how developers connect to databases using SQL
+Server Management Studio (SSMS) and Visual Studio during development, as well as how
+systems hosted in Azure App Services securely access databases. Additionally, it includes
+the SQL Server instance information for each environment.
+
+SQL Servers
+The table below lists the SQL Server instances for each environment.
+Environment
+Development
+Test
+QA
+Production
+
+SQL Server Name
+sql-calctc-dev.d3fcf7daf484.database.windows.net
+sql-calctc-test.d3fcf7daf484.database.windows.net
+sql-calctc-qa.85bf8c0cdbc7.database.windows.net
+sql-calctc-prod.85bf8c0cdbc7.database.windows.net
+
+Connection Strings for .NET Systems
+The table below contains template connection strings for use in .NET web projects being
+hosted in Azure App Services.
+Environmen
+t
+Developmen
+t
+Test
+
+QA
+Production
+
+Template Connection String
+Server=tcp:sql-calctcdev.d3fcf7daf484.database.windows.net;Authentication=Active Directory
+Interactive; Database=[DatabaseName];Application Name=[ApplicationName];
+Server=tcp:sql-calctctest.d3fcf7daf484.database.windows.net;Authentication=Active Directory
+Managed Identity; Database=[DatabaseName];Application
+Name=[ApplicationName];
+Server=tcp:sql-calctcqa.85bf8c0cdbc7.database.windows.net;Authentication=Active Directory Managed
+Identity; Database=[DatabaseName];Application Name=[ApplicationName];
+Server=tcp:sql-calctcprod.85bf8c0cdbc7.database.windows.net;Authentication=Active Directory
+
+Page 1 of 4
+
+Commission on Teacher Credentialing
+Database Standards: Azure SQL Server Database Information
+Managed Identity; Database=[DatabaseName];Application
+Name=[ApplicationName];
+
+Authentication Information
+This information explains the following authentication scenarios typically used to access
+the Commission’s Azure SQL databases.
+
+
+
+
+How to access Azure SQL Server databases using SQL Server Management Studio
+How database connections are established in systems in the Development
+environment (Visual Studio/IIS Express)
+How systems running in Azure App Services authenticate/connect to databases
+
+SQL Server Management Studio
+To access databases using SQL Server Management Studio, developers must specify the
+Microsoft Entra MFA as the authentication type and enter their UPN (User Principal
+Name, e.g., mike.reagan@ctc.ca.gov) for the User name field. Leave all other options as
+defaults.
+
+Page 2 of 4
+
+Commission on Teacher Credentialing
+Database Standards: Azure SQL Server Database Information
+As a rule, all developer accounts are added to the Azure Security Group “sgApplicationDevelopers” which has full db_owner permissions on all databases. Some
+databases, such as the Personnel Information Management System (PIMS) database,
+contain confidential HR information, which has a dedicated “sgApplicationDevelopersPIMS” security group that developers must be members of to
+access it. Please contact the IT Help Desk to manage the developer accounts in these
+Azure Security Groups.
+
+Development Environment with Visual Studio
+Each of the project's appSettings.Development.json files' connection strings has been
+configured to use Azure Active Directory Interactive authentication. While
+running/debugging systems in Visual Studio/IIS Express, a browser window will launch
+two tabs: the first for rendering the system, the second to display the Azure Active
+Directory authentication dialog. If developers are already authenticated to Azure Active
+Directory (typically), they can then choose the account they want to authenticate from a
+list. This step is required for the system to obtain the necessary security context
+needed to connect to the Azure SQL database.
+
+Once the account is selected above, and authentication is successful, you will be
+informed that you can safely close the tab.
+
+Page 3 of 4
+
+Commission on Teacher Credentialing
+Database Standards: Azure SQL Server Database Information
+
+Azure App Services Applications (Test, QA, and Production)
+The Commission’s .NET web projects are hosted in Azure App Services and connect to
+their respective databases using a feature of Azure called Managed Identities. Each App
+Service has its own Azure Active Directory account, which is managed automatically by
+Azure. These accounts are named the same as the App Service name, following the
+standard naming convention (all lowercase characters): app-[AppAcronym][Environment] (e.g., app-pims-test). If a system has multiple web portals, then an App
+Service is created for each portal, and the App Service names follow the convention app[AppAcronym]—[PortalName]-[Environment] (e.g., app-ecs-public-test, app-ecs-staff-test,
+etc.). These accounts are added to their respective databases with the db_datareader and
+db_datawriter roles, and are granted execute permissions on any stored procedures,
+user-defined functions, and other database objects.
+
+Page 4 of 4
+
+

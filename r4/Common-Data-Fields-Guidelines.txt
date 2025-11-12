@@ -1,0 +1,254 @@
+Commission on Teacher Credentialing
+R4 Database Standards: Common Data Fields Guidance
+
+R4 Database Standards
+
+Common Data Fields Guidance
+Revision Date: September 10, 2025
+These guidelines should be applied to new Commission software development efforts using the R4 software development
+framework.
+Field
+
+Data Type
+
+FirstName
+
+nvarchar(50
+)
+
+LastName
+
+nvarchar(50
+)
+nvarchar(80
+)
+
+Yes
+
+Last Name
+
+Yes
+
+Address
+
+nvarchar(40
+)
+nvarchar(40
+
+Yes
+
+City (Domestic Only)
+City/Town (International)
+State (Domestic Only)
+
+StreetAddress
+
+City
+StateProvince
+
+Require
+d
+
+Yes
+
+Field Caption
+
+Validation and UI Implementation
+Notes
+
+First Name
+
+For people with a single name, first
+name is not required. Field help should
+direct such users to the LastName field.
+Required field unless business practices
+indicate otherwise.
+This field contains either the Street
+address or Post Office Box. Normally
+the company name and/or company
+subunit name should be captured as
+one or two separate fields to ensure the
+StreetAddress field is a separate and
+last line of the mailing address before
+City, State and PostalCode. Only
+StreetAddress, City, State and
+PostalCode are used for address
+washing.
+
+Implement as an autocomplete textbox,
+Page 1 of 4
+
+Commission on Teacher Credentialing
+R4 Database Standards: Common Data Fields Guidance
+
+)
+
+State/Province/Region
+(International)
+
+PostalCode
+
+nvarchar(40
+)
+
+Yes
+
+ZIP (Domestic – Only for US)
+ZIP/Postal Code
+(International including
+Canada)
+
+CountryID
+
+int
+
+Yes
+
+Country
+
+IsAddressStandardized
+
+bit
+
+Yes
+
+PreStandardizedAddress
+
+nvarchar(20
+0)
+
+Address Standardized
+
+pass State Abbreviations for states (i.e.,
+CA-California), or otherwise allow user
+input. Always a required field if
+Country is US or Canada. Use the US
+State abbreviations in a common
+shared table used by all databases.
+Must be alphanumeric for international
+address support. Not required for
+international addresses. Always
+required if Country is US or Canada.
+Implement as autocomplete textbox, or
+hidden field if all addresses will be
+domestic. Use ISO 3166 Country ID (3
+digits) from a common shared table
+used by all databases. Always include
+this field in all address-related tables
+but can default to 226 (United States)
+where addresses will always be
+domestic.
+Optional--only applicable if address
+washing is implemented. Set to true if
+the accepted address represents a
+washed/standardized address.
+Concatenation of originally submitted
+address field values where some or all
+values were modified by address
+standardization. Put StreetAddress on
+one line, the Street, City, a common
+Page 2 of 4
+
+Commission on Teacher Credentialing
+R4 Database Standards: Common Data Fields Guidance
+
+PhoneNumber
+
+varchar(25)
+
+Phone Number
+
+FaxNumber
+
+varchar(25)
+
+Fax Number
+
+EmailAddress
+
+varchar(320
+)
+
+Email Address
+
+State, and Postal Code on the second
+line, and if an international address,
+the full Country name in the third line.
+Optional--only applicable if address
+washing is implemented and it is
+essential to retain the originally
+submitted address (generally not
+needed when the most knowledgeable
+user of the address manually agrees to
+the standardized address). Typically
+used only in machine-to-machine
+transactions.
+Accept any punctuation provided by
+users. A generic shared utility should
+format the phone number for display
+purposes.
+Accept any punctuation provided by
+users. A generic shared utility should
+format the fax number for display
+purposes.
+Although email addresses are rarely
+this long, 320 characters (64 before the
+@ and 255 after) is the specification
+outlined in RFC 3696.
+
+Data Field Guidelines for Document Tables
+Field
+
+Data Type
+
+Require
+
+Field Caption
+
+Validation and UI Implementation
+Page 3 of 4
+
+Commission on Teacher Credentialing
+R4 Database Standards: Common Data Fields Guidance
+
+d
+DocumentDate
+
+datetime
+
+Title
+StorageKey
+FileName
+FileSizeInKilobytes
+
+varchar(300)
+uniqueidentifi
+er
+varchar(255)
+int
+
+FormatDescription
+
+varchar(100)
+
+Notes
+
+Title
+
+File Size (KB)
+
+A date for the document, which could be
+the date the document was written,
+published, or generated.
+The title of the document.
+The field containing the unique GUID
+provided by the Document Repository.
+The name of the file (includes extension).
+An integer value representing the size of
+the file in Kilobytes
+The description of the document format,
+e.g., Microsoft Word, Adobe PDF, etc.
+
+Page 4 of 4
+
+

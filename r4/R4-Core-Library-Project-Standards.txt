@@ -1,0 +1,51 @@
+Commission on Teacher Credentialing
+R4 Solution Architecture: Core Library Project
+
+R4 Solution Architecture
+
+Core Library Project
+Revision Date: October 16, 2025
+
+Every R4 application’s Visual Studio solution is composed of at least five projects as explained in the R4
+Visual Studio Solution Architecture document. The Core Library project provides access to domain
+models, enumerations, constants, and resources that can be consumed by other projects in a R4
+application’s solution.
+The Core Library project has resources that are available to all projects in a R4 solution. Some of the
+resources in this project include domain models, email templates, enumerations, and project
+configurations.
+
+Project Contents
+A R4 Core Library project will be established for you during the initial solution creation process initiated
+by the System Architect and will be ready for you before you begin development efforts. The project you
+will receive will provide the following composition:
+Folder/Node Name
+
+Description
+
+Dependencies
+
+Contains project-level resources and references such as R4 framework
+assemblies and references to other projects in the solution.
+
+DomainModels
+
+This folder contains domain models that are not entity specific, or custom
+domain models that are used to facilitate a batch operation, e.g. creating
+multiple entities during the same transaction. For example, creating an
+“Organization” and a “Contact” from a single page.
+
+DomainModels\Entity
+
+This folder contains the entity-specific domain models that map to the database
+entities (database entities are typically scaffolded by EF).
+
+Enumerations.cs
+
+This document has a list of all enumerations typically one for each static value
+table (SVT) in the database.
+
+See also Domain Model Standards.
+
+Page 1 of 1
+
+

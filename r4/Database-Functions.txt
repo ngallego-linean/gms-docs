@@ -1,0 +1,107 @@
+Commission on Teacher Credentialing
+R4 Database Standards: Database Functions
+
+R4 Database Standards
+
+Database Functions
+Revision Date: September 10, 2025
+
+Functions are routines that accept parameters, perform an action, such as a complex
+calculation, and return the result of that action as a value. The return value can either be
+a single scalar value or a result set.
+In most cases, database functions will not be necessary when developing R4 projects. If
+you believe your project needs to use a database function, please consult with your
+supervisor or the System Architect.
+
+FUNCTION NAMING
+DB-500
+Function names must meet the following criteria:
+
+
+
+
+
+
+
+
+Descriptive
+Avoid abbreviations
+Singular
+Use Pascal Case (first letter in the first word and the first letter of each subsequent
+concatenated word are capitalized)
+Only use alphanumeric characters
+Less than 40 characters
+Avoid SQL reserved words
+
+Good Function Name Examples
+CalculateReviewDate
+GetInstitutionCount
+GetTotalEmployeeCount
+CheckApplicationSubmission
+
+Poor Function Name Examples
+fnCalcReviewDate
+GetInstitutionCnt
+TotalEmpCount
+ChkAppSubmission
+
+FUNCTION DESIGN
+DB-501
+Use uppercase for all SQL keywords (SELECT, WHERE, AND, OR, LIKE).
+DB-502
+Indent code to improve readability.
+Page 1 of 3
+
+Commission on Teacher Credentialing
+R4 Database Standards: Database Functions
+
+DB-503
+Use parentheses to increase readability.
+WHERE (ApplicationStatusID = 1 AND (AddressTypeID = 1 OR AddressTypeID = 2))
+DB-504
+Use spaces so that expressions read like sentences.
+ApplicationStatusID = 1, not ApplicationStatusID=1
+DB-505
+Do not use SELECT *. Using column names instead of “*” results in reduced disk I/O and
+better performance.
+DB-506
+Only use table aliases when required by SQL.
+DB-507
+Only use field aliases when required by SQL.
+DB-508
+Fully qualify table names in JOINs (dbo.TableName).
+
+PERMISSIONS
+DB-509
+Grant “execute” permissions to the it_application role for all functions.
+
+SCHEMABINDING
+DB-510
+When creating a function, use SCHEMABINDING to bind the function to the schema of
+the underlying table or tables. When SCHEMABINDING is specified, a warning will
+display when changing the design of the tables used in the function. For example, if a
+table has three columns and all the columns are being used in the function, deleting
+one of the columns in the table will result in a warning listing all the functions that are
+bound to the schema.
+Also, when SCHEMABINDING is specified, the underlying tables cannot be deleted
+before the function is updated or deleted.
+
+Page 2 of 3
+
+Commission on Teacher Credentialing
+R4 Database Standards: Database Functions
+
+To create a function using SCHEMABINIDING, add WITH SCHEMABINDING after the
+parameters and before the “AS”.
+CREATE FUNCTION dbo.[fnFunctionName]
+(
+@ParameterName int
+)
+RETURNS [datatype]
+WITH SCHEMABINDING
+AS
+…
+
+Page 3 of 3
+
+

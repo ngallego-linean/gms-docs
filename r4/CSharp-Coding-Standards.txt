@@ -1,0 +1,724 @@
+Commission on Teacher Credentialing
+R4 Coding Standards: C# Coding Standards and Best Practices
+
+R4 Coding Standards
+
+C# Coding Standards and Best Practices
+Revision Date: September 10, 2025
+
+R4 software development coding standards, guidelines, and best practices are based on
+Microsoft C# Coding Standards and Code Complete, Second Edition.
+Pascal Case: First character of all words is upper case, and other characters are
+lower case.
+Example: ClassName
+Camel Case: First character of all words, except the first word, is upper case and
+other characters are lower case.
+Example: className
+
+If you have any questions or doubts, please consult with the Systems Architect.
+
+BASIC NAMING CONVENTIONS AND STYLES
+When naming classes, methods, variables, and parameters, consideration
+should be given to the other steps in the development process. You want to
+keep the name simple and clear, but as short as possible.
+
+CD-001
+Use descriptive variable names.
+
+
+Variable names should fully and accurately describe what the variable represents.
+
+
+
+Use Camel case for variable names.
+
+
+
+Do not use Hungarian notation (use age instead of intAge).
+
+
+
+Variable names should focus on the problem rather than the solution, expressing
+the “what“, more than the “how”.
+
+
+
+Variable names should generally avoid abbreviations (e.g., use count instead of
+Num).
+
+
+
+Do not use single-character variable names, such as i or t. Use index or temp
+instead. The only exceptions to this rule are when used for iterations in loops (i.e.,
+for loops) and in LINQ queries.
+
+
+
+For LINQ queries, single letter variables should be lower case and be the first
+letter of the name of the object being selected from. For example: var users = from
+u in Users select u;
+
+Examples of good and poor variable names (from Code Complete, Second Edition, p. 261)
+Page 1 of 17
+
+Commission on Teacher Credentialing
+R4 Coding Standards: C# Coding Standards and Best Practices
+
+Purpose of Variable
+
+Good Variable Names
+
+Poor Variable
+Names
+
+Running total of checks
+written to date
+
+runningTotal, checkTotal
+
+written, ct, checks,
+CHKTTL, x, x1
+
+Velocity of a bullet train
+
+velocity, trainVelocity,
+velocityInMPH
+
+velt, v, tv, x1, train
+
+Lines per page
+
+linesPerPage
+
+lpp, lineCount, lines
+
+CD-002
+Class Naming Guidelines
+
+
+Use a noun or noun phrase to name a class, e.g., Facility or FacilityContact.
+
+
+
+For names of custom attribute classes, use the suffix Attribute, e.g.,
+AddUserAttribute.
+
+
+
+For names of custom exception classes, use the suffix Exception, e.g.,
+
+
+
+InventoryException.
+For Interfaces, prefix the class name with ‘I’.
+
+CD-003
+Method Naming Guidelines
+
+
+Name methods using a verb-object pair, such as ShowDialog().
+
+
+
+Methods that return values should have a name describing the value returned,
+such as GetObjectState().
+
+
+
+Name methods using complete identifier names. Do not use
+abbreviations/acronyms for identifier names.
+Avoid: OnBtnClick or OnBtnClck
+Correct: OnButtonClick
+
+CD-004
+Use “Pascal case” for type, method names, and constants.
+public class ClassName
+{
+private const int DefaultSize = 100;
+public SomeMethod()
+{
+}
+Page 2 of 17
+
+Commission on Teacher Credentialing
+R4 Coding Standards: C# Coding Standards and Best Practices
+
+}
+CD-005
+Use “Camel case” for local variable names and method arguments.
+public void DoSomething (string someNumber)
+{
+int age;
+float maxHeight;
+float minWidth;
+}
+CD-006
+Private member variables should use Pascal case and be prefixed with an underscore _.
+public class ClassName
+{
+private string _FirstName;
+private string _LastName;
+private string _Address;
+}
+CD-007
+Always use C# predefined types rather than the aliases in the System namespace.
+object NOT Object
+string NOT String
+int
+NOT Int32
+double
+NOT Double
+bool NOT Boolean
+
+Page 3 of 17
+
+Commission on Teacher Credentialing
+R4 Coding Standards: C# Coding Standards and Best Practices
+
+Code Style
+CD-100
+The curly brace for a code block must always start on a new line after the construct
+calling the code block.
+public class ClassName
+{
+public SomeMethod()
+{
+}
+}
+CD-101
+Always use a curly brace scope in an “if” statement, even if it contains only a single
+statement.
+//Avoid
+if (isFound)
+Process();
+
+//Correct
+if (isFound)
+{
+Process();
+}
+
+CD-102
+Maintain uniform indentation throughout all code using Visual Studio’s default settings
+(4-space indents, Allow Smart Indenting). Do not use nonstandard indentation, such as
+one space.
+CD-103
+Code comments
+
+
+Generally, well-structured and named code can be self-documenting; however,
+always add comments to code that may have less obvious assumptions, special
+algorithms, etc.
+
+
+
+Always add XML comments to document the purpose of public reusable methods.
+
+
+
+All methods in base classes must include XML comments for the purpose of the
+method and for each method parameter.
+
+
+
+Indent comments to the same level of indentation as the code you are
+documenting.
+
+
+
+All comments should pass spell checking. Misspelled comments indicate sloppy
+development.
+
+
+
+Avoid comments that explain the obvious. Code should be self-explanatory. Good
+code with readable variable and method names should not require comments.
+Page 4 of 17
+
+Commission on Teacher Credentialing
+R4 Coding Standards: C# Coding Standards and Best Practices
+
+/// <summary>
+/// [Comments about your public class].
+/// </summary>
+public class ClassName
+{
+…
+}
+CD-104
+Avoid fully qualified type names. Use the using statement instead. Group all framework
+namespaces together and put custom or third-party namespaces underneath.
+using System;
+using System.IO;
+using System.Text;
+using System.Data;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using R4;
+using R4.Data;
+using R4.Utilities;
+using R4.AspNetCore.Mvc;
+CD-105
+Avoid putting a using statement inside a namespace.
+CD-106
+All member variables should be declared at the top of the class, with one line
+separating them from the properties or methods.
+public class ClassName
+{
+private int number;
+private string name;
+public void MethodName1()
+{
+…
+}
+public void MethodName2()
+{
+Page 5 of 17
+
+Commission on Teacher Credentialing
+R4 Coding Standards: C# Coding Standards and Best Practices
+
+}
+
+}
+
+…
+
+CD-107
+Declare a local variable as close as possible to its first use (not all at the top of the
+method).
+CD-108
+Use a single space before and after each operator.
+//Avoid
+string name=String.Empty;
+
+//Correct
+string name = String.Empty;
+
+CD-109
+Avoid using regions to hide the main code methods. Regions may be used to hide
+constants or “helper” methods.
+CD-110
+Use a single space after keywords in control flow statements.
+//Avoid
+int Method()
+{
+if(a > b)
+{
+return 0;
+}
+return 3;
+}
+
+//Correct
+int Method()
+{
+if (a > b)
+{
+return 0;
+}
+return 3;
+}
+
+CD-111
+Use a single space within parentheses of expressions.
+//Avoid
+int Function(int a, int b)
+{
+return a * (b - a);
+}
+
+//Correct
+int Function(int a, int b)
+{
+return a * ( b - a );
+}
+
+CD-112
+Use a single space within argument list parentheses.
+//Avoid
+int Method()
+{
+
+Console.WriteLine("In
+Method");
+return 3;
+Page 6 of 17
+
+Commission on Teacher Credentialing
+R4 Coding Standards: C# Coding Standards and Best Practices
+
+}
+//Correct
+int Method()
+{
+
+Console.WriteLine( "In Method"
+
+);
+}
+
+return 3;
+
+Page 7 of 17
+
+Commission on Teacher Credentialing
+R4 Coding Standards: C# Coding Standards and Best Practices
+
+CD-113
+Use single spaces inside parentheses for control flow statements.
+//Avoid
+int Method()
+{
+if (a > b)
+{
+return 0;
+}
+return 3;
+}
+
+//Correct
+int Method()
+{
+if ( a > b )
+{
+return 0;
+}
+return 3;
+}
+
+CD-114
+Use expression body for methods when on a single line.
+CD-115
+Use expression body for constructors when on a single line.
+CD-116
+Use expression body for properties when possible.
+CD-117
+Use expression body for indexers when possible.
+CD-118
+Use expression body for lambdas when possible.
+CD-119
+Use expression body for local functions when possible.
+CD-120
+Use expression body for indexers when possible.
+CD-121
+Use the var keyword to declare variables.
+CD-122
+Prefer auto properties (automatically generate get/set).
+CD-123
+Prefer pattern matching.
+CD-124
+Prefer pattern matching over ‘is’ with ‘cast’ check.
+CD-125
+Prefer pattern matching over ‘as’ with ‘null’ check.
+Page 8 of 17
+
+Commission on Teacher Credentialing
+R4 Coding Standards: C# Coding Standards and Best Practices
+
+CD-126
+Prefer pattern matching over mixed type check.
+CD-127
+Prefer a conditional delegate call.
+
+Page 9 of 17
+
+Commission on Teacher Credentialing
+R4 Coding Standards: C# Coding Standards and Best Practices
+
+CD-128
+Prefer coalesce expression.
+CD-129
+Prefer null propagation.
+CD-130
+Prefer ‘is null’ for reference equality checks.
+CD-131
+Prefer read-only fields.
+CD-132
+Prefer static local functions.
+CD-133
+Avoid unused parameters in all methods.
+CD-134
+Use object initializers.
+CD-135
+Use collection initializers.
+CD-136
+Prefer switch expressions over lengthy if blocks.
+CD-137
+Prefer simple ‘default’ expression.
+CD-138
+Prefer local function over an anonymous function.
+
+Page 10 of 17
+
+Commission on Teacher Credentialing
+R4 Coding Standards: C# Coding Standards and Best Practices
+
+Coding Best Practices
+CD-200
+Avoid methods with more than 500 lines. Break functionality up into multiple methods.
+Always seek to generalize code for multiple uses.
+CD-201
+Avoid files with more than 2,000 lines (excluding machine-generated code)
+CD-202
+Lines should not exceed 120 characters.
+CD-203
+Avoid methods with more than five required arguments. Use structures for passing
+multiple arguments.
+CD-204
+Methods containing more than three parameters should have their parameters broken
+out into a parameter per line to improve readability. For example:
+public IActionResult GetDataSourceResult(
+[DataSourceRequest] DataSourceRequest request,
+string name = null,
+StringSearchOption nameSearchOption = StringSearchOption.Contains,
+int? affiliationID = null,
+int? programContactUserID = null,
+int? developerContactUserID = null,
+bool? requireRolesToAuthenticate = null,
+AuthenticationScope? authenticationScope = null,
+bool showOnlyAppsThatUserHasRightsTo = false
+)
+{
+}
+
+CD-205
+Nameof should be used instead of string literals when throwing ArgumentException,
+ArgumentNullException, or ArgumentOutOfRangeException and when wanting to
+reference any variable and/or method name in a string.
+//Avoid
+public BaseContentWrapper(ViewContext viewContext)
+{
+if ( viewContext == null )
+{
+throw new ArgumentNullException( "viewContext" );
+Page 11 of 17
+
+Commission on Teacher Credentialing
+R4 Coding Standards: C# Coding Standards and Best Practices
+
+}
+
+}
+
+ViewContext = viewContext;
+Writer = viewContext.Writer;
+
+//Correct
+public BaseContentWrapper(ViewContext viewContext)
+{
+if ( viewContext == null )
+{
+throw new ArgumentNullException( nameof( viewContext ) );
+}
+
+}
+
+ViewContext = viewContext;
+Writer = viewContext.Writer;
+
+CD-206
+Except for zero and one, never hard-code a numeric value; always declare a constant
+instead. Constants should be placed near the top of the class declaration.
+CD-207
+Use the const directive only on natural constants such as the number of days in a week.
+Do not hardcode numbers.
+public const int DaysInWeek = 7;
+
+CD-208
+Do not manually edit any machine-generated code.
+CD-209
+Avoid putting multiple classes in a single file.
+CD-210
+A single file should contribute types to only a single namespace. Avoid having multiple
+namespaces in the same file.
+CD-211
+Catch only exceptions for which you have explicit handling.
+CD-212
+Do not catch an exception and throw the same exception without doing something
+(such as logging) with the caught exception first.
+CD-213
+Page 12 of 17
+
+Commission on Teacher Credentialing
+R4 Coding Standards: C# Coding Standards and Best Practices
+
+Avoid error codes as method return values.
+CD-214
+Apply the correct modifiers to classes/methods/properties/fields.
+CD-215
+Make only the most necessary types public, mark others as internal.
+CD-216
+Avoid function calls in Boolean conditional statements. Assign to local variables and
+check on them.
+//Method
+private bool IsEverythingOK()
+{
+…
+}
+//Avoid
+if ( IsEverythingOK() )
+{
+…
+}
+
+//Correct
+bool everythingIsOk = IsEverythingOK();
+if ( everythingIsOk )
+{
+…
+}
+
+CD-217
+Always use zero-based arrays.
+CD-218
+Always explicitly initialize an array of reference types using a for loop.
+CD-219
+Do not provide public or protected member variables. Use properties instead.
+CD-220
+Avoid using the new inheritance qualifier; use override instead.
+CD-221
+Never use unsafe code, except when using COM interop.
+CD-222
+Avoid explicit casting when possible. Use the as operator to cast to a type defensively.
+CD-223
+Always check a delegate for null before invoking it.
+CD-224
+Do not provide public event member variables. Use event accessors instead.
+Page 13 of 17
+
+Commission on Teacher Credentialing
+R4 Coding Standards: C# Coding Standards and Best Practices
+
+CD-225
+Use String.Empty to represent empty strings rather than “”.
+//Avoid
+string name = “”;
+
+//Correct
+string name = String.Empty;
+
+CD-226
+When building a long string, use StringBuilder, not string.
+CD-227
+Use string interpolation instead of catenation for short strings.
+CD-228
+Do not use the this keyword unless invoking another constructor from within a
+constructor, or explicitly invoking an extension method on the current type.
+CD-229
+Never hardcode strings/numbers that might change based on deployment. These values
+should be placed into a configuration file.
+CD-230
+Use Entity Framework for data access. This will help ensure consistency and
+maintainability among all systems.
+CD-231
+String variables can be null, so it is always a good idea to use the
+String.IsNullOrWhiteSpace() method when testing to determine if a string is empty or
+null.
+CD-232
+A method should only do “one job”. Do not combine more than one job in a single
+method, even if those jobs are very small.
+//Avoid
+//Save the address and send an email
+SaveAddress (address, emailAddress);
+void SaveAddress (string address, string emailAddress)
+{
+//job 1 – save the address
+…
+
+}
+
+//job 2 – send the email
+…
+
+//Correct
+Page 14 of 17
+
+Commission on Teacher Credentialing
+R4 Coding Standards: C# Coding Standards and Best Practices
+
+//Save the address
+SaveAddress (address);
+//Send the email
+SendEmail (address, emailAddress);
+
+void SaveAddress (string address)
+{
+//save the address
+…
+}
+void SendEmail (string address, string emailAddress)
+{
+//send the email
+…
+}
+
+Page 15 of 17
+
+Commission on Teacher Credentialing
+R4 Coding Standards: C# Coding Standards and Best Practices
+
+CD-232
+Use an enum instead of numbers or strings to indicate discrete values.
+//Avoid
+void SendEmail (string emailMessage, string emailType)
+{
+switch (emailType)
+{
+case “HTML”:
+//do something
+break;
+case “PlainText”:
+//do something
+break;
+default:
+//do something
+break;
+}
+}
+//Correct
+enum EmailType
+{
+Html,
+PlainText
+}
+void SendEmail (string emailMessage, EmailType emailType)
+{
+switch (emailType)
+{
+case EmailType.Html:
+//do something
+break;
+case EmailType.PlainText:
+//do something
+break;
+default:
+//do something
+break;
+}
+}
+
+Page 16 of 17
+
+Commission on Teacher Credentialing
+R4 Coding Standards: C# Coding Standards and Best Practices
+
+CD-233
+Avoid conditions with double negatives. Although the negative property does make
+sense, overriding it with a “not” can make the code unreadable.
+//Avoid
+bool hasNoExpenditures = true;
+if ( hasNoExpenditures )…
+
+//Correct
+bool hasExpenditures = false;
+if ( !hasExpenditures )…
+
+CD-234
+Do not leave commented-out code in files. Generally, use the source control commit
+history to review changes to a file.
+
+Page 17 of 17
+
+

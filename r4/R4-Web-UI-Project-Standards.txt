@@ -1,0 +1,319 @@
+Commission on Teacher Credentialing
+R4 Solution Architecture: Web UI Project
+
+R4 Solution Architecture
+
+Web UI Project
+Revision Date: October 20, 2025
+The Commission’s IT software development team is using Visual Studio web applications
+as the standard presentation layer for R4 applications.
+
+Project Contents
+An R4 web application project will be created for you when starting development of a
+new software project. The project that will be handed to you will include the following:
+
+
+Dependencies folder
+o
+
+Includes all major references to external packages such as the .NET
+runtime and framework packages, R4 framework packages, and references
+to other projects in the same solution (i.e., Business, MVC, Data, and
+Domain Model projects).
+
+o
+
+Additional references can be included in this folder as needed for your
+application.
+
+
+
+Properties folder
+o
+
+Includes publishing profiles, which hold the settings for the publishing
+locations of the Testing, QA, and Production environments.
+
+
+
+wwwroot folder
+o
+
+Includes style sheets and JavaScript files.
+
+o
+
+Includes Bootstrap, jQuery, and Telerik JavaScript files.
+
+o
+
+Any project-specific script files.
+
+o
+
+Includes a project-specific site.css style sheet that can be modified as
+desired/needed.
+
+o
+
+
+Contains various fonts and web fonts to support Glyphicons.
+
+Controllers folder
+o
+
+Controllers for each module in the application.
+
+o
+
+Provides the following default controllers
+
+
+HomeController
+
+
+
+ReportsController
+
+
+
+HelpController
+
+
+
+ControlPanelController – Controller that should contain all Control
+Panel management-related UI.
+
+Page 1 of 4
+
+Commission on Teacher Credentialing
+R4 Solution Architecture: Web UI Project
+
+
+
+AppController – Base controller class that all application/portal
+controllers should derive from.
+
+o
+
+All controllers inherit from AppController, which inherits from
+[AppAcronym]Controller located within the Ctc.
+[AppAcronym].AspNetCore.Mvc project. The [AppAcronym]Controller
+inherits from CoreController.
+
+
+
+ViewComponents folder
+o
+
+
+
+Allows for the reuse of user interface functionality.
+
+Views folder
+o
+
+Includes all the views for the project, organized in folders, which are
+named after each Controller in the Controllers folder.
+
+
+
+Views/Home folder
+o
+
+The Index view in this folder is what the user will see after they
+successfully sign into the system. This is the home page of the system.
+
+
+
+Views/Shared folder
+o
+
+Includes folders named “DisplayTemplates” that are used throughout the
+system.
+
+o
+
+Includes the “layout” views that are used as templates by all other views.
+
+
+_AppLayout.cshtml is the project-specific layout that may be
+modified as needed/necessary.
+
+o
+
+
+The _ViewStart.cshtml view specifies the default view to use as a template.
+
+appsettings.Development | .Production | .QA | .Test.json
+o
+
+Includes the connection strings to the different database environments and
+the physical path to the different “managed docs” locations for uploading
+documents.
+
+
+
+Startup.cs file
+o
+
+Includes project configuration setup (R4 integration, authorization, and
+authentication).
+
+o
+
+Includes the route tables that map incoming browser requests to a
+controller action method.
+
+Naming Standards
+Controller Naming
+
+
+(SA-400) A separate controller should be created for each module.
+
+
+
+(SA-401) Each controller must be suffixed with “Controller”.
+
+
+
+(SA-402) Avoid abbreviations.
+
+Page 2 of 4
+
+Commission on Teacher Credentialing
+R4 Solution Architecture: Web UI Project
+
+
+
+(SA-403) Use Pascal Case (first letter in the first word and the first letter of each
+
+subsequent concatenated word are capitalized).
+
+
+(SA-404) Use alphanumeric characters only.
+
+
+
+(SA-405) Use singular names.
+
+Good Controller Name Examples
+EmployeeController.cs
+MeetingController.cs
+ContactController.cs
+
+Poor Controller Name Examples
+Employee.cs
+MtgController.cs
+ContactsController.cs
+
+View Folder Naming
+
+
+(SA-406) A folder should be created for each controller.
+
+
+
+(SA-407) The name of the folder should match the controller name without the
+
+word “Controller”.
+
+
+(SA-408) Avoid abbreviations.
+
+
+
+(SA-409) Use Pascal Case (first letter in the first word and the first letter of each
+
+subsequent concatenated word are capitalized).
+
+
+(SA-410) Use alphanumeric characters only.
+
+
+
+(SA-411) Use singular names.
+
+Good View Folder Name
+Examples
+Employee
+Meeting
+Contact
+
+Poor View Folder Name Examples
+Empolyees
+Mtg
+ContactPages
+
+View Naming
+
+
+(SA-412) Avoid abbreviations.
+
+
+
+(SA-413) Use Pascal Case (first letter in the first word and the first letter of each
+
+subsequent concatenated word are capitalized).
+
+
+(SA-414) Do not use spaces
+
+
+
+(SA-415) Use alphanumeric characters only
+
+
+
+(SA-416) Do not repeat the name of the folder in the view name
+
+
+
+(SA-417) Each folder should have a view called Index.cshtml, which in most cases
+
+will be a search page with a grid.
+
+
+(SA-418) Partial views should begin with an underscore (_).
+
+Page 3 of 4
+
+Commission on Teacher Credentialing
+R4 Solution Architecture: Web UI Project
+
+
+
+(SA-419) The view that allows the user to create the entity record should be named
+
+Create.cshtml.
+
+
+(SA-420) The view that displays the entity’s details should be named
+
+Details.cshtml.
+
+
+(SA-421) The view that allows the user to edit the entity record should be named
+
+Edit.cshtml.
+
+
+(SA-422) Optional listing pages (usually showing a grid) should be named using
+
+plural form (e.g., Addresses.cshtml, Contacts.cshtml, Documents.cshtml,
+Notes.cshtml).
+Good View Name Examples
+AddressDetails.cshtml
+ContactDetails.cshtml
+CreateConatct.cshtml
+EditDocument.cshtml
+
+Poor View Name Examples
+CompanyAddressDetails.cshtml
+ContactDetail.cshtml
+ContactCreate.cshtml
+EditDoc.cshtml
+
+Page 4 of 4
+
+

@@ -1,0 +1,178 @@
+Commission on Teacher Credentialing
+R4 Database Standards: Database Views
+
+R4 Database Standards
+
+Database Views
+
+Revision Date: September 10, 2025
+A view is a virtual table whose contents are defined by a query. Like a real table, a view
+consists of a set of named columns and rows of data. Unless indexed, a view does not
+exist as a stored set of data values in a database. The rows and columns of data come
+from tables referenced in the query defining the view and are produced dynamically
+when the view is referenced.
+If you have any questions or doubts, please consult with your supervisor, the Systems
+Architect, or the DBA.
+
+VIEW NAMING
+When naming views, consideration should be given to the other steps in
+the development process. Keep in mind that you will most likely have to
+use the names you give to your tables several times as part of other
+objects, such as procedures, triggers, or views, which may all contain
+references to the table name. You want to keep the name
+straightforward, but as short as possible.
+DB-300
+View names must meet the following criteria:
+
+
+
+
+
+
+
+
+
+
+Descriptive
+Avoid abbreviations
+Singular
+Use Pascal Case (first letter in the first word and the first letter of each subsequent
+concatenated word are capitalized)
+Only use alphanumeric characters
+Less than 40 characters
+Avoid SQL reserved words
+For views that have the same name as a table (e.g., table name Exception), the
+view must be suffixed with “View” (e.g., ExceptionDetail)
+For simple views that join one or more tables with no selection criteria, combine
+the names of the tables joined. For example, joining the "Institution" and
+"Address" table to create a view of Institutions and their respective addresses
+should be given a name like "InstititutionAddress".
+
+Page 1 of 5
+
+Commission on Teacher Credentialing
+R4 Database Standards: Database Views
+
+Good View Name Examples
+ExceptionDetail
+InstitutionAddress
+InstitutionContact
+SchoolException
+
+Poor View Name Examples
+vExceptions
+InstitutionAddresses
+InstitutionContactView
+SchoolExcep
+
+VIEW DESIGN
+The primary purpose of views in R4 systems is to write a SQL statement
+only once, which has joins and values from Static Value Tables (SVTs).
+Incorporate your frequently required, complicated joins and
+calculations into a view so that you do not have to repeat those
+joins/calculations in all your queries. Instead, select from the view.
+DB-301
+You can create views only in the current database. However, the tables and views
+referenced by the new view can exist in other databases or even other servers if the
+view is defined using distributed queries.
+DB-302
+View names must follow the rules for identifiers and must be unique for each schema.
+Additionally, the name must not be the same as any tables contained by that schema.
+DB-303
+You cannot define full-text index definitions on views.
+DB-304
+You cannot create temporary views, and you cannot create views on temporary tables.
+DB-305
+Do not include the ORDER BY clause in the view.
+DB-306
+Design views to be flexible and be useful in multiple usage scenarios when possible.
+Return all the data and filter the data in the system.
+DB-307
+If a view is using an SVT table, include the value from the SVT table and the
+DisplayOrder column from the SVT table.
+DB-308
+Page 2 of 5
+
+Commission on Teacher Credentialing
+R4 Database Standards: Database Views
+
+Use uppercase for all SQL keywords (SELECT, WHERE, AND, OR, LIKE).
+DB-309
+Indent code to improve readability.
+DB-310
+Use parentheses to increase readability.
+WHERE (ApplicationStatusID = 1 AND (AddressTypeID = 1 OR AddressTypeID = 2))
+DB-311
+Use spaces so that expressions read like sentences.
+ApplicationStatusID = 1, not ApplicationStatusID=1
+DB-312
+Do not use SELECT *. Using column names instead of “*” results in reduced disk I/O and
+better performance.
+DB-313
+Use table and field aliases as needed (e.g., when using joins). For single whole word
+table names, the first letter of the table name is capitalized.
+A for Account, P for Position.
+
+For table names composed of multiple whole words, the alias is composed of the first
+letter of each word capitalized.
+PGR for PermissionGroupRole, APG for AccountPermissionGroup, PPL for
+PortalProfileLocation.
+
+DB-314
+Offload tasks, like string manipulations, concatenations, row numbering, case
+conversions, type conversions, etc., to the front-end systems (e.g., phone number
+formatting, date formatting).
+DB-315
+Fully qualify table names in JOINs (dbo.TableName).
+DB-316
+Include non-null values for ID, CreatedByAccountId, CreatedOn,
+LastUpdatedByAccountId, LastUpdatedOn, CanBeDeleted columns in the view mapped
+to the primary table that the view is returning data from. Depending on the data and
+the query, the T-SQL ISNULL function may be necessary to return non-null values for
+these columns. If the view is selecting from another view or table that does not support
+the R4 table standards, you may need to alias values and use ISNULL to return values
+for one or more of these columns.
+e.g., …
+ISNULL(dbo.Site.UpdatedOn, CAST('1/1/1900 00:00:00' AS datetime)) AS UpdatedOn,
+
+Page 3 of 5
+
+Commission on Teacher Credentialing
+R4 Database Standards: Database Views
+ISNULL(dbo.Site.LastUpdatedByAccountId, 1) AS LastUpdatedByAccountId,
+ISNULL(CAST(0 AS Bit), 0) AS CanBeDeleted
+…
+
+Note: This will allow a Repository in the R4 data layer to be generated for your view. If
+this is not possible, then a Repository will need to be manually written to allow access
+to data from this view, or a method will need to be added to an existing Repository
+exposing this view’s data to the system.
+
+SCHEMABINDING
+DB-317
+When creating a view, use SCHEMABINDING to bind the view to the schema of the
+underlying table or tables. When SCHEMABINDING is specified, a warning will display
+when changing the design of the tables used in the view. For example, if a table has
+three columns and all the columns are being used in the view, deleting one of the
+columns in the table will result in a warning listing all the views that are bound to the
+schema.
+Also, when SCHEMABINDING is specified, the underlying tables cannot be deleted
+before the view is updated or deleted.
+
+To create a view using SCHEMABINIDING, follow these steps:
+Page 4 of 5
+
+Commission on Teacher Credentialing
+R4 Database Standards: Database Views
+
+1. Create the view
+2. Right-click on the view
+3. Select Script view as
+4. Select ALTER To
+5. Select New Query Editor Window
+6. After ALTER VIEW [dbo].[vName] add WITH SCHEMABINDING
+7. “Execute” to save the view
+
+Page 5 of 5
+
+

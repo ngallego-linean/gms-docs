@@ -1,0 +1,413 @@
+Commission on Teacher Credentialing
+R4 Database Standards: Database Stored Procedures
+
+R4 Database Standards
+
+Database Stored Procedures
+Revision Date: September 10, 2025
+
+Stored procedures are modules or routines that encapsulate code for reuse. A stored
+procedure can take input parameters, return tabular or scalar results and messages to
+the client, and return output parameters.
+A Transact-SQL stored procedure is a saved collection of Transact-SQL statements that
+can take and return user-supplied parameters. For example, a stored procedure might
+contain the statements needed to insert a new row into one or more tables based on
+information supplied by the client system, or the stored procedure might return data
+from the database to the client system.
+In most cases, database stored procedures will not be necessary when developing R4
+systems. If you believe your project needs to use a database stored procedure, please
+consult with your supervisor or the Systems Architect.
+
+BENEFITS
+Some of the benefits of using stored procedures are:
+
+
+Permissions: users can be granted permission to execute a stored procedure
+without having to have direct permissions on the objects referenced in the
+procedure.
+
+
+
+Enhance security: Parameterized stored procedures can help protect your system
+from SQL Injection attacks.
+
+
+
+Modular programming: You can create the procedure once and call it any number
+of times in your system. This can enhance the maintainability of your system and
+enable systems to access the database uniformly.
+
+
+
+Reduce network traffic: An operation requiring hundreds of lines of Transact-SQL
+code can be performed through a single statement that executes the code in a
+procedure, rather than by sending hundreds of lines of code over the network.
+
+STORED PROCEDURE NAMING
+Typically, stored procedures perform one or more common database
+activities (read, insert, update, and/or delete) on a table. Since stored
+Page 1 of 9
+
+Commission on Teacher Credentialing
+R4 Database Standards: Database Stored Procedures
+
+procedures typically perform some operation, it makes sense to use a
+name that describes the operation they perform.
+DB-400
+Stored procedure names must meet the following criteria:
+
+
+
+
+
+
+
+
+
+Do not use “sp_” as a prefix. SQL Server uses sp_ as a prefix to designate system stored
+procedures.
+Descriptive
+Avoid abbreviations
+Singular
+Use Pascal Case (first letter in the first word and the first letter of each subsequent
+concatenated word are capitalized)
+Only use alphanumeric characters
+Less than 40 characters
+Avoid SQL reserved words
+
+Good Stored Procedure Name
+Examples
+GenerateException
+TransferYearlyExceptionData
+GetStudentFacultyRatios
+GetAnnualReportData
+
+Poor Stored Procedure Name
+Examples
+sp_GenerateException
+TrnsfrYrlyExData
+spGetStudentFacultyRatios
+getAnnualReportData
+
+STORED PROCEDURE DESIGN
+DB-401
+Other database objects can be created within a stored procedure. You can reference an
+object created in the same stored procedure if it is created before it is referenced.
+DB-402
+You can reference temporary tables within a stored procedure. However, avoid using
+temporary tables unless absolutely required. If you create a local temporary table
+inside a stored procedure, the temporary table exists only for the stored procedure; it
+disappears when you exit the stored procedure. Please check with the DBA if you are
+unsure.
+DB-403
+Object names (tables and functions) in the stored procedure should be qualified with
+the name of the object schema (dbo. in most cases).
+
+Page 2 of 9
+
+Commission on Teacher Credentialing
+R4 Database Standards: Database Stored Procedures
+
+FORMATTING
+DB-404
+Use uppercase for all SQL keywords (SELECT, WHERE, AND, OR, LIKE).
+DB-405
+Use uppercase for all SQL functions (ISNULL, RTRIM, LTRIM, LEN, etc.).
+DB-406
+Indent code to improve readability.
+DB-407
+Comment code blocks that are not easily understandable
+
+
+Use single-line comment markers (--)
+
+
+
+Reserve multi-line comments (/*... …*/) for blocking out sections of code
+
+DB-408
+Use parentheses to increase readability.
+
+
+WHERE (ApplicationStatusID = 1 AND (AddressTypeID = 1 OR AddressTypeID = 2))
+
+DB-409
+Use BEGIN...END blocks only when multiple statements are present within a conditional
+code segment.
+DB-410
+Use one blank line to separate code sections.
+DB-411
+Use spaces so that expressions read like sentences.
+
+
+ApplicationStatusID = 1, not ApplicationStatusID=1
+
+DB-412
+Format JOIN operations using indents.
+DB-413
+Place SET statements before any executing code in the procedure.
+
+CODING
+DB-414
+Do not use SELECT *. Using column names instead of “*” results in reduced disk I/O and
+better performance.
+Page 3 of 9
+
+Commission on Teacher Credentialing
+R4 Database Standards: Database Stored Procedures
+
+DB-415
+Use table and field aliases as needed (e.g., when using joins). For single whole-word
+table names, the first letter of the table name is capitalized.
+A for Account, P for Position.
+
+For table names composed of multiple whole words, the alias is composed of the first
+letter of each word capitalized.
+PGR for PermissionGroupRole, APG for AccountPermissionGroup, PPL for
+PortalProfileLocation.
+
+DB-416
+Only return fields in the select that are necessary.
+DB-417
+Fully qualify table names in JOINs (dbo.TableName).
+DB-418
+It is recommended that stored procedure parameters should have default values where
+appropriate.
+DB-419
+Avoid unnecessary use of temporary tables. Temporary tables use more disk I/O.
+
+
+Use 'Derived tables' or Common Table Expressions (CTE) wherever possible
+
+DB-420
+Avoid using <> as a comparison operator. Use ID IN(1,3,4,5) instead of ID <> 2
+DB-421
+SET NOCOUNT is set to ON by default. This is the correct setting. When SET NOCOUNT is
+OFF, the count of the number of rows affected is returned as part of the result set.
+When SET NOCOUNT is set to ON, messages such as “(1 row(s) affected)” are
+suppressed. This improves the performance of stored procedures by reducing network
+traffic. Since SET NOCOUNT is set to ON by default, do not include it in the stored
+procedure.
+DB-422
+Do not use column numbers in the ORDER BY clause.
+CORRECT
+SELECT OrderID, OrderDate
+FROM Orders
+ORDER BY OrderDate
+
+INCORRECT
+SELECT OrderID, OrderDate
+FROM Orders
+ORDER BY 2
+
+DB-423
+Page 4 of 9
+
+Commission on Teacher Credentialing
+R4 Database Standards: Database Stored Procedures
+
+Check the global variable @@ERROR immediately after executing a data manipulation
+statement (like INSERT/UPDATE/DELETE), so that you can roll back the transaction if an
+error occurs.
+DB-424
+Do basic validations in the business logic code during data entry.
+DB-425
+Offload tasks, like string manipulations, concatenations, row numbering, case
+conversions, type conversions, etc., to the front-end system (e.g., phone number
+formatting, date formatting).
+DB-426
+Do not use cursors or loops to do inserts. Instead, use INSERT INTO.
+DB-427
+Always use a column list in your INSERT statements. This helps avoid problems when
+the table structure changes (like adding or dropping a column).
+DB-428
+When executing an UPDATE or DELETE statement, use the primary key in the WHERE
+condition, if possible. This reduces error possibilities.
+DB-429
+If possible, avoid wild-card characters at the beginning of a word while searching using
+the LIKE keyword, as this results in an index scan, which defeats the purpose of an
+index.
+DB-430
+The RETURN statement is meant for returning the execution status only, but not data.
+DB-431
+Do not call functions repeatedly within your stored procedures. For example, you might
+need the length of a string variable in many places of your procedure, but do not call
+the LEN function whenever it is required. Instead, call the LEN function once and store
+the result in a variable for later use.
+DB-432
+Do not let your front-end system query/manipulate the data directly using SELECT or
+INSERT/UPDATE/DELETE statements. Instead, create stored procedures and let your
+systems access these stored procedures. This ensures data access remains clean and
+consistent across all modules of your system.
+
+VARIABLE NAMING
+
+Page 5 of 9
+
+Commission on Teacher Credentialing
+R4 Database Standards: Database Stored Procedures
+
+DB-433
+Use descriptive variable names
+DB-434
+Variable names should fully and accurately describe what the variable represents.
+DB-435
+Variable names should generally avoid abbreviations (e.g., use @FacilityID instead of
+@FacID).
+DB-436
+Do not use single-character variable names, such as “I” or “t”.
+DB-437
+Use “Pascal case” for variable names. In the Pascal case, the first letter in the identifier
+and the first letter of each subsequent concatenated word are capitalized.
+Purpose of Variable
+
+Good Variable Names
+
+Poor Variable
+Names
+
+Running total of checks
+written to date
+
+@CheckTotal
+
+@checktotal
+
+Velocity of a bullet train
+
+@TrainVelocity
+
+@iTrainVelocity
+
+Lines per page
+
+@LinesPerPage
+
+@LINESPERPAGE
+
+PERMISSIONS
+
+DB-438
+Grant “execute” permissions to the it_application role for all stored procedures.
+
+STANDARD DEVELOPMENT STORED PROCEDURES
+Two development stored procedures assist you with your development
+efforts - one creates your database tables using R4 standards, and one
+will generate enumerations for SVTs.
+
+Page 6 of 9
+
+Commission on Teacher Credentialing
+R4 Database Standards: Database Stored Procedures
+
+Create Template Table (dev.CreateTemplateTable)
+The stored procedure dev.CreateTemplateTable will create a table using the R4 table
+standards and can be configured to include SVT table standard columns (Name and
+Description), as well as archive-related fields.
+Parameter
+
+DataType
+
+Description
+
+Default
+
+@TableName
+
+varchar(100)
+
+The name of the table to create.
+
+None
+
+(Required)
+
+@Type
+
+DO NOT include the schema.
+
+char(1)
+
+The type of table to create. D =
+Standard, S = SVT Table
+
+D
+
+Bit
+
+Instructs the stored procedure to
+support archival (adds supporting
+fields per standards) if 1 is
+specified for value.
+
+0
+
+varchar(10)
+
+Specifies the schema to create the
+table under.
+
+dbo
+
+(Optional)
+
+@Archivable
+(Optional)
+
+@SchemaName
+(Optional)
+
+Examples
+The script below would create a table called ‘MyTable’ in the dbo schema that includes
+archive support.
+EXEC [dev].[CreateTemplateTable]
+@TableName = 'MyTable',@Type =
+'D',@Archivable = 1, @SchemaName = 'dbo'
+The script below would create an SVT table called ‘MyTable’ in the dbo schema that
+includes archive support. Note the Type parameter is ‘S’ which means SVT.
+EXEC [dev].[CreateTemplateTable]
+'S',@Archivable = 1
+
+@TableName = 'MyTableSVT',@Type =
+
+The script below would create a table named ‘MyTable’ in the dbo schema that does not
+include archive support.
+EXEC [dev].[CreateTemplateTable]
+
+@TableName = 'MyTable'
+
+Page 7 of 9
+
+Commission on Teacher Credentialing
+R4 Database Standards: Database Stored Procedures
+
+Generate Enumerations for Table
+(dev.GenerateEnumFromTable)
+When making static value tables (SVTs), you should also have a C# enumeration defined
+in code that maps to the values of the SVT table. Enumerations are used to support
+writing business logic that SVTs are supporting. The dev.GenerateEnumFromTable
+stored procedure assists with generating the enumerations from the values of a table.
+This stored procedure should ONLY be used with SVT Tables.
+Note: After generating an enumeration with this stored procedure, you will likely need to
+refine the enumeration values further. Most common punctuation (parentheses,
+commas, periods, pound, percent, and spaces) characters are stripped out of the Name
+column that becomes the enumeration value; however, there may be punctuation that is
+not accounted for. If the Name column has values that begin with a number, you will
+need to modify the enumeration value because identifiers starting with a number are not
+allowed in C#.
+After executing the stored procedure, switch to the messages tab of the results in SQL
+Server Management Studio to harvest the generated enumeration and then paste it into
+Visual Studio’s code editor.
+
+Example
+The example below would generate an enumeration for the ProjectStatusSVT table.
+EXEC [dev].[GenerateEnumFromTable] @ObjectName = 'ProjectStatusSVT'
+
+Page 8 of 9
+
+Commission on Teacher Credentialing
+R4 Database Standards: Database Stored Procedures
+
+Page 9 of 9
+
+

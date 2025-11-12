@@ -1,0 +1,93 @@
+Commission on Teacher Credentialing
+R4 Framework Components: Domain Model Standards
+
+R4 Framework Components
+
+Domain Model Standards
+Revision Date: September 9, 2025
+In R4 projects, there are two different kinds of Domain Models. Essentially, Domain
+Models are containers of data that typically do not have any specific behaviors associated
+with them at all. A good analogy would be to think of a Domain Model as a briefcase. A
+briefcase typically contains documents, but it could also include other items; ultimately,
+its function is to contain items, just like Domain Models.
+Domain Model
+A Domain Model contains one or more properties that can be used to satisfy
+requirements to support a specific business operation. These kinds of Domain Models
+may have properties that reference one or more domain models to create a complex
+domain model. There may be instances when you need to make a Domain Model that
+has properties that will contain data that will be saved to the database, as well as
+“control” properties that affect the Save behavior (e.g., a Boolean property that indicates
+whether to create additional related business records automatically).
+Entity Domain Model
+An Entity Domain Model represents a class that contains properties that are typically
+mapped directly to properties of a corresponding data entity (data entities usually map
+to the physical data structure in a database, like an Entity Framework-generated entity
+model). Data annotation attributes can be added to the properties in a Domain Model.
+Some attributes include Required and Display.
+
+Guidelines
+
+
+(SA-100) Create a separate domain model class per table/entity.
+
+
+
+(SA-100) Use data annotation attributes for properties in the domain model.
+
+
+
+(SA-100) Create an enumeration in the Enumeration.cs file for every SVT table.
+
+Avoid hard-coding an integer value (ID of a record in an SVT table) in code;
+instead, use the enumerations in the Enumerations.cs file.
+
+Naming Standards
+Domain Models
+
+
+(SA-110) Each database entity/table should have its own domain model class
+
+including SVTs.
+
+Page 1 of 2
+
+Commission on Teacher Credentialing
+R4 Framework Components: Domain Model Standards
+
+
+
+(SA-111) The name of each domain model class should be the name of the
+
+entity/table suffixed with the word “Model”.
+
+
+(SA-113) Avoid abbreviations.
+
+
+
+(SA-114) Use Pascal Case (first letter in the first word and the first letter of each
+
+subsequent concatenated word are capitalized).
+
+
+(SA-115) Use alphanumeric characters only.
+
+
+
+(SA-116) Use singular names.
+
+Good Domain Model Class Name
+Examples
+ContactModel.cs
+DocumentModel.cs
+DocumentTypeSvtModel.cs
+
+Poor Domain Model Class Name
+Examples
+contactModel.cs
+DocModel.cs
+DocTypeSVTModel.cs
+
+Page 2 of 2
+
+

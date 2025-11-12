@@ -1,0 +1,331 @@
+Commission on Teacher Credentialing
+R4 Database Standards: Database Static Value Tables (SVTs)
+
+R4 Database Standards
+
+Database Static Value Tables (SVTs)
+Revision Date: September 10, 2025
+
+A static value table (SVT) is a table with primary keys that are referenced in business
+logic and code (i.e., if statements written in code that test for a static value such as 1, 2, or
+3). Changes (data and structure) to these tables will impact the system due to code being
+written against the values in these tables.
+DB-200 Important: These tables should not be modified by business users and need to be
+managed by software development staff carefully. Systems have business logic code that
+references the values in SVTs, so modifying the data in the tables can cause problems in
+the system.
+If you have any questions or doubts, please consult with your supervisor, the Systems
+Architect, or the DBA.
+
+SVT NAMING
+When naming SVTs, consideration should be given to the other steps in
+the development process. Keep in mind that you will most likely have to
+use the names you give to your tables several times as part of other
+objects, such as procedures, triggers, or views, which may all contain
+references to the table name. You want to keep the name
+straightforward, but as short as possible.
+DB-201
+Static value table (SVT) names must meet the following criteria:
+
+
+
+
+
+
+
+
+
+
+Suffix with “SVT” (e.g., SatusSVT)
+Descriptive
+Avoid abbreviations
+Singular
+Use Pascal Case (first letter in the first word and the first letter of each subsequent
+concatenated word are capitalized)
+Use alphanumeric characters only
+Less than 40 characters
+Avoid SQL reserved words (there may be some exceptions)
+Do not use prefixes such as “tb” or “tbl”
+
+Good SVT Name Examples
+StatusSVT
+
+Poor SVT Name Examples
+SVTStatus
+
+Page 1 of 4
+
+Commission on Teacher Credentialing
+R4 Database Standards: Database Static Value Tables (SVTs)
+
+Good SVT Name Examples
+EmployeeTypeSVT
+ApplicationTypeSVT
+ContactTypeSVT
+
+Poor SVT Name Examples
+EmployeeType
+AppTypeSVT
+contacttypeSVT
+
+SVT DESIGN
+DB-202
+All SVT tables must have the fields listed in the table below including the 5 metadata
+fields to keep track of who created and updated the record. The structure defined below
+is the standard structure for an SVT table. If your table does not meet the following
+design, the table is not an SVT table. Please consult the System Architect if you are
+unsure or have any questions.
+Field
+
+Data Type
+
+Default Value
+
+Required?
+
+Id
+
+int
+
+-
+
+Yes
+
+Name
+
+varchar(50)
+
+-
+
+Yes
+
+Description
+
+varchar(500)
+
+-
+
+Yes
+
+DisplayOrder
+
+int
+
+-
+
+Yes
+
+IsArchived
+
+bit
+
+0
+
+Yes
+
+ArchivedOn
+
+datetime
+
+-
+
+No
+
+ArchivedByID
+
+int
+
+-
+
+No
+
+ArchivedComments
+
+varchar(max)
+
+-
+
+No
+
+CreatedOn
+
+datetime
+
+GETDATE()
+
+Yes
+
+CreatedByAccountId
+
+int
+
+-
+
+Yes
+
+LastUpdatedOn
+
+datetime
+
+GETDATE()
+
+Yes
+
+LastUpdatedByAccoun
+tId
+
+int
+
+-
+
+Yes
+
+Page 2 of 4
+
+Commission on Teacher Credentialing
+R4 Database Standards: Database Static Value Tables (SVTs)
+
+Field
+
+Data Type
+
+Default Value
+
+Required?
+
+CanBeDeleted
+
+bit
+
+0
+
+Yes
+
+SVT EXAMPLE
+For a practical example of an SVT, consider the typical Status scenario.
+In most cases, any table with Status in the name is very likely to be an
+SVT table. Let us say our table has the following structure and values
+below.
+ID
+
+Name
+
+Description
+
+Display
+Order
+
+1
+
+Submitted
+
+<real
+description>
+
+1
+
+2
+
+Under
+Review
+
+<real
+description>
+
+2
+
+3
+
+Accepted
+
+<real
+description>
+
+3
+
+4
+
+Not
+Accepted
+
+<real
+description>
+
+4
+
+[Archive
+columns…]
+
+[Standard 5 metadata
+fields…]
+
+Let us also say that there are the following business rules around these meaningful
+values:
+
+
+When a record is created, it gets a StatusID value of 1 (Submitted)
+
+
+
+When a record is being reviewed, the StatusID is set to 2 (Under Review).
+
+
+
+Once the record enters a Status other than 1 (Submitted), it cannot be changed
+back to 1 (Submitted).
+
+
+
+When a record is accepted, the StatusID is changed to 3 (Accepted), and an email is
+sent to the submitter indicating their record was accepted.
+
+
+
+When a record is not accepted, the StatusID is changed to 4 (Not Accepted), and an
+email is sent to the submitter indicating their record was NOT accepted.
+
+
+
+When a record’s StatusID is 3 (Accepted) OR 4 (Not Accepted), the record is
+considered “final” and its status can no longer be changed.
+
+Page 3 of 4
+
+Commission on Teacher Credentialing
+R4 Database Standards: Database Static Value Tables (SVTs)
+
+With these business rules established, we will need some conditional logic to test for
+each value, so an enumeration should be created in your code (C# code). We never
+write if statements against hardcoded values (see coding standards).
+public enum Status
+{
+Submitted = 1,
+UnderReview = 2,
+Accepted = 3,
+NotAccepted = 4
+}
+Note that the enumeration values are equal to the primary keys in the table. Some of
+the business logic code may look like the following:
+public void SaveAsync(Exception exception)
+{
+Status exceptionStatus = (Status)exception.StatusID;
+
+}
+
+if (exceptionStatus == Status.Accepted)
+{
+//send an email indicating that the exception was accepted.
+}
+else if (exceptionStatus == Status.NotAccepted)
+{
+//send an email indicating that the inspection was NOT accepted.
+}
+
+As you can see from this example, changing the values in the StatusSVT table in the
+database can have serious consequences in the system. If PK 3 (Id = 3) in the StatusSVT
+was changed from “Accepted” to “On Hold”, the code in the system must change, or an
+incorrect email will be sent.
+
+Page 4 of 4
+
+

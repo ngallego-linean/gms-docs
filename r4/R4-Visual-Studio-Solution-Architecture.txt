@@ -1,0 +1,222 @@
+Commission on Teacher Credentialing
+R4 Solution Architecture: R4 Visual Studio Solution Architecture
+
+R4 Solution Architecture
+
+R4 Visual Studio Solution Architecture
+Revision Date: October 16, 2025
+
+Every R4 application is composed of five infrastructure projects and at least one presentation project in Visual Studio. All these projects work
+together and represent a typical three-layer architecture, Presentation, Business Logic, and Data Access. Essentially when developing an
+application using R4, each application becomes a framework that is builds upon the core R4 framework.
+The table below explains each of the projects and their purpose.
+Layer
+
+Project Naming Pattern
+
+Description
+
+Visual Studio
+Project Type
+
+N/A
+
+Ctc.[AppAcronym]
+
+Core Library [See Solution Architecture Standards]
+
+Class Library
+
+Common library provides types to be shared across all libraries and
+any utilities, constants or helpers that DO NOT require access to
+either business services, or Entity Framework entities
+(Enumerations, utility classes, etc.)
+
+Root Namespace: [AppAcronym]
+
+Business Logic
+
+Ctc.[AppAcronym].Business
+
+Business Services Library [See Solution Architecture Standards]
+
+Class Library
+
+Provides business logic services/classes that are responsible for
+getting and saving data and validating business rules.
+
+Root Namespace: [AppAcronym]
+Project References:
+
+
+
+Ctc.[AppAcronym].Data
+
+Page 1 of 4
+
+Commission on Teacher Credentialing
+R4 Solution Architecture: R4 Visual Studio Solution Architecture
+
+Layer
+
+Project Naming Pattern
+
+Description
+
+
+Data Access
+
+Ctc.[AppAcronym].Data
+
+Visual Studio
+Project Type
+
+Ctc.[AppAcronym]
+
+Data Access Library [See Solution Architecture Standards]
+
+Class Library
+
+Contains Entity Framework Entity Models as well as Repositories
+that facilitate database interaction with entity models.
+
+Root Namespace: [AppAcronym]
+Project References:
+
+
+Web
+Presentation
+Support
+
+[AppAcronym]
+
+Ctc.[AppAcronym].AspNetCore
+
+ASP.NET Core Shared Library [See Solution Architecture Standards]
+
+*Note: Projects/solutions prior to August 2022
+had project names with the following pattern.
+Ctc.[AppAcronym].AspNetCore.Mvc
+
+An ASP.NET Core support library that contains ViewModels, custom
+Html Helper extension methods (UI extension methods and/or
+Widgets), and any other functionality that is ASP.NET Core specific to
+the Application.
+
+Class Library
+
+Root Namespace: [AppAcronym]
+Project References:
+
+
+
+
+SSRS Specific
+
+Ctc.[AppAcronym].Reports
+
+Ctc.[AppAcronym].Business
+Ctc.[AppAcronym].Data
+Ctc.[AppAcronym]
+
+Reporting Services Projects (Optional)
+A project that contains SSRS reports and data sources.
+
+SQL Server
+Report
+Services
+Page 2 of 4
+
+Commission on Teacher Credentialing
+R4 Solution Architecture: R4 Visual Studio Solution Architecture
+
+Layer
+
+Project Naming Pattern
+
+Description
+
+Visual Studio
+Project Type
+Project
+
+Presentation
+
+Ctc.[AppAcronym].Database
+
+SQL Server Database Project
+The database project contains all the necessary DDL scripts needed
+to generate the physical database structure.
+
+SQL Server
+Database
+Project
+
+Ctc.[AppAcronym].Web.UI
+
+UI Front-end Project [See Solution Architecture Standards]
+
+Ctc.[AppAcronym].Web.UI.Public
+
+At least one Web Application is included in each project.
+
+Web
+Application
+
+Ctc.[AppAcronym].Web.UI.Resources
+Ctc.[AppAcronym].Web.UI.{Audience}
+
+If this application targets ONLY internal staff and will NEVER be
+exposed to external users, and requires authentication, use the
+naming pattern Ctc.[AppAcronym].Web.UI.
+
+OR
+
+If the application will cater to both internal staff and external users,
+create two web front end projects using the naming patterns Ctc.
+[AppAcronym].Web.UI and Ctc.[AppAcronym].Web.UI.{Audience}.
+
+The following additional projects may be needed depending on the
+project needs:
+
+
+
+If an internal staff only accessible unauthenticated site is needed,
+add a project using the naming pattern Ctc.
+Page 3 of 4
+
+Commission on Teacher Credentialing
+R4 Solution Architecture: R4 Visual Studio Solution Architecture
+
+Layer
+
+Project Naming Pattern
+
+Description
+
+
+
+Visual Studio
+Project Type
+
+[AppAcronym].Web.UI.Resources.
+If a publicly available site that does not need authentication is
+needed, add a project using the naming pattern Ctc.
+[AppAcronym].Web.UI.Public.
+
+Root Namespace: Same as project name
+Project References:
+
+
+
+
+
+
+Ctc.[AppAcronym].AspNetCore
+Ctc.[AppAcronym].Business
+Ctc.[AppAcronym].Data
+Ctc.[AppAcronym]
+
+Page 4 of 4
+
+

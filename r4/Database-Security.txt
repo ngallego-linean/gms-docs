@@ -1,0 +1,178 @@
+Commission on Teacher Credentialing
+R4 Database Standards: Database Security – User Accounts, Roles, Schemas
+
+R4 Database Standards
+
+Database Security – User Accounts, Roles,
+Schemas
+Revision Date: September 10, 2025
+
+SQL Server database security is controlled using a combination of the Commission
+network user accounts and groups, as well as SQL Server security roles. Network user
+accounts are used for database access and permissions validation. SQL Server database
+roles are used to manage permissions efficiently. Permissions are added to roles, and
+users are assigned to roles.
+Any database security needs that do not conform to these standards must be discussed
+with the DBA.
+
+USER ACCOUNTS
+DB-001
+Everyone who needs access to SQL Server should be granted rights using their CTC
+network user account. In non-production environments, the
+CCTC_CA_GOV\ApplicationDeveloper group is typically added to a SQL Server database
+as a user to provide all software developer staff access to that database.
+DB-002
+Individual Commission network user accounts should not be added to any nonproduction SQL Server database.
+DB-003
+Each user account or group assigned permissions to a SQL Server database (except for
+system accounts) is assigned to one or more SQL Server database roles, depending on
+the access that the individual/group is entitled to.
+DB-004
+The following user accounts are required in your database. The
+CCTC_CA_GOV\ApplicationDeveloper Active Directory group has development
+permissions on all non-production databases. This group typically is assigned only
+read-only access to production databases, although the project lead associated with a
+system/database is assigned development access in production.
+User Account
+
+Role (Development, Test,
+QA)
+
+Role
+(Production)
+
+dbo
+
+dbOwner
+
+dbOwner
+Page 1 of 4
+
+Commission on Teacher Credentialing
+R4 Database Standards: Database Security – User Accounts, Roles, Schemas
+
+User Account
+
+Role (Development, Test,
+QA)
+
+Role
+(Production)
+
+guest
+
+system account
+
+system account
+
+sys
+
+system account
+
+system account
+
+INFORMATION_SCHEMA
+
+system account
+
+system account
+
+CCTC_CA_GOV\ApplicationDevelop
+er
+
+it_developer
+
+it_developer*
+
+CCTC_CA_GOV\[Application Lead]
+
+-
+
+it_applead
+
+CCTC_CA_GOV\svc-WebApp
+
+it_application
+
+it_application
+
+*The it_developer role in production is limited to read-only.
+Connection Strings use SSPI/Integrated Security. The svc-WebApp credentials are entered on the
+application pool on the web server. Locally, developers can enter their network account
+credentials on the application pool since they have access to SQL Server through the
+ApplicationDeveloper Active Directory group.
+
+ROLES
+DB-005
+The following roles are required in your database. Fixed roles are automatically
+available in SQL Server and have the necessary permissions to accomplish common
+tasks. The DBA creates user-defined roles that can be customized with permissions.
+Please discuss with the DBA if there is a need to make any changes to role permissions.
+Role
+
+Description
+
+db_*
+
+Fixed roles starting with "db_" are created and predefined
+when the database is created. Do not delete.
+
+public
+
+Fixed database role that is created and predefined when the
+database is created. Do not delete.
+
+it_developer
+
+User-defined role used in non-production environments to
+manage database objects and for CRUD operations in tables.
+Page 2 of 4
+
+Commission on Teacher Credentialing
+R4 Database Standards: Database Security – User Accounts, Roles, Schemas
+
+Role
+
+Description
+User-defined role used in production for read-only access to
+database objects.
+
+it_applicatio
+n
+
+User-defined role used for execute permissions on stored
+procedures and functions.
+
+it_applead
+
+User-defined role used for the system lead in production to
+manage database objects and for CRUD operations in tables
+
+Page 3 of 4
+
+Commission on Teacher Credentialing
+R4 Database Standards: Database Security – User Accounts, Roles, Schemas
+
+SCHEMAS
+A SQL Server database schema is a logical way to group objects,
+including tables, views, stored procedures, and functions. It is also a way
+to implement permissions. The default schema for all database objects is
+dbo.
+DB-006
+The following schemas are required in your database and should not be changed or
+dropped. Please discuss with the DBA if there is a need to make changes to schemas.
+
+
+
+
+
+
+db_*
+dbo
+guest
+INFORMATION_SCHEMA
+sys
+
+Page 4 of 4
+
+

@@ -1,0 +1,125 @@
+Commission on Teacher Credentialing
+R4 Solution Architecture: MVC Project
+
+R4 Solution Architecture
+
+ASP.NET Core Shared Project
+Revision Date: October 16, 2025
+
+Every R4 application’s Visual Studio solution is composed of at least five projects as explained in the R4
+Visual Studio Solution Architecture document. The AspNetCore MVC project provides application
+specific base controllers (e.g. [AppAcronym]Controller), view models and extension methods that can be
+consumed by all user interface (UI) projects in a R4 application’s solution. The resources in this project
+are only available to UI projects in a R4 solution and are only relevant to the presentation layer.
+
+Project Contents
+A R4 AspNetCore MVC project will be established for you during the initial solution creation process
+initiated by the System Architect and will be ready for you before you begin development efforts. The
+project you will receive will provide the following composition:
+Folder/Node Name
+
+Description
+
+Dependencies
+
+Contains project-level resources and references such as R4 framework
+assemblies and references to other projects in the solution.
+
+AspNetCore/Mvc/
+ViewModels
+
+This folder includes all the view models that will be used on pages/views
+and grids in the Web UI projects.
+
+[AppAcronym]Controller.cs
+
+The controller that all other controllers inherit from.
+
+Business
+
+This folder includes extension classes that are used to add search code
+for search views and grids. The methods in these extension classes can be
+used all UI projects.
+
+Guidelines
+
+
+(SA-100) Create a folder under the ViewModels folder for each database table/entity that will
+
+
+
+have its own page/view in a UI project.
+(SA-100) Create a separate view model class per table/entity that will have its own page/view in
+a UI project and organize the view models in the correct folders.
+
+Naming Standards
+View Models
+
+
+(SA-110) Each database entity/table that will have its own page/view in a UI project should have
+
+
+
+its own view model class except for Static Value Tables (SVTs). SVTs should not have UI that
+allows users to update the values in these tables.
+(SA-111) The name of each view model class should be the name of the entity/table suffixed with
+the word “ViewModel”.
+(SA-113) Avoid abbreviations.
+
+
+
+Page 1 of 2
+
+Commission on Teacher Credentialing
+R4 Solution Architecture: MVC Project
+
+
+
+(SA-114) Use Pascal Case (first letter in the first word and the first letter of each subsequent
+
+
+
+
+concatenated word are capitalized).
+(SA-115) Use alphanumeric characters only.
+(SA-116) Use singular names.
+
+Good View Model Class Name Examples
+ContactViewModel.cs
+MeetingViewModel.cs
+EmployeeViewModel.cs
+
+Poor View Model Class Name Examples
+contactViewModel.cs
+MtgViewModel.cs
+EmployeeModel.cs
+
+Business Service Extension Classes
+
+
+
+
+
+
+(SA-111) The name of each extension class should be the name of the entity/table suffixed with
+
+the word “ServiceExtensions”.
+(SA-113) Avoid abbreviations.
+(SA-114) Use Pascal Case (first letter in the first word and the first letter of each subsequent
+concatenated word are capitalized).
+(SA-115) Use alphanumeric characters only.
+(SA-116) Use singular names.
+
+Good View Model Class Name Examples
+MeetingServiceExtensions.cs
+ContactSeviceExtensions.cs
+EmployeeServiceExtensions.cs
+
+Poor View Model Class Name Examples
+MtgServiceExtensions.cs
+contactServiceExtensions.cs
+EmployeeExtensions.cs
+
+Page 2 of 2
+
+
