@@ -15,117 +15,36 @@
     <p class="subtitle">@Model.GrantCycleName</p>
 </div>
 
-@* GRANTS TEAM - Action Items *@
-<div class="r4-card">
-    <div class="r4-card-header">
-        <h4><i class="mdi mdi-clipboard-check-outline"></i> GRANTS TEAM - Action Items</h4>
-        <div class="card-actions">
-            <a href="@Url.Action("Review", "GrantsTeam", new { grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-primary">
-                <i class="mdi mdi-eye-outline"></i> Review Queue
-            </a>
-        </div>
-    </div>
-    <div class="r4-card-body">
-        @if (Model.PendingReviewCount > 0)
-        {
-            <div class="alert alert-warning">
-                <i class="mdi mdi-alert-outline"></i>
-                <strong>@Model.PendingReviewCount student application@(Model.PendingReviewCount != 1 ? "s" : "") waiting for review</strong>
-            </div>
-        }
-        else
-        {
-            <div class="alert alert-success">
-                <i class="mdi mdi-check-circle-outline"></i>
-                All caught up! No applications currently need review.
-            </div>
-        }
-    </div>
-</div>
-
-@if (Model.ActionItems.Any())
-{
-    <div class="r4-card">
-        <div class="r4-card-header">
-            <h4><i class="mdi mdi-bell-outline"></i> Action Items</h4>
-        </div>
-        <div class="r4-card-body">
-            <div class="table-wrapper">
-                <table class="r4-table">
-                    <thead>
-                        <tr>
-                            <th>Priority</th>
-                            <th>Application</th>
-                            <th>Description</th>
-                            <th>Due Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model.ActionItems.Take(10))
-                        {
-                            <tr>
-                                <td>
-                                    @if (item.Priority == "high")
-                                    {
-                                        <span class="badge badge-danger">High</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge badge-secondary">Normal</span>
-                                    }
-                                </td>
-                                <td>@item.Title</td>
-                                <td>@item.Description</td>
-                                <td>
-                                    @if (item.DueDate.HasValue)
-                                    {
-                                        @item.DueDate.Value.ToString("MM/dd/yyyy")
-                                        @if (item.DueDate.Value < DateTime.Now)
-                                        {
-                                            <span class="badge badge-danger">Overdue</span>
-                                        }
-                                    }
-                                </td>
-                                <td>
-                                    <a href="@Url.Action("Details", "Application", new { id = item.Id })" class="r4-button r4-button-sm">
-                                        <i class="mdi mdi-eye-outline"></i> Review
-                                    </a>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-}
-
+@* GRANTS TEAM - Disbursement Groups Awaiting Review *@
 @if (Model.ApplicationsWithPendingStudents.Any())
 {
     <div class="r4-card">
         <div class="r4-card-header">
-            <h4><i class="mdi mdi-folder-open-outline"></i> Applications with Pending Students</h4>
+            <h4><i class="mdi mdi-folder-open-outline"></i> Disbursement Groups with Pending Students</h4>
+            <div class="card-actions">
+                <a href="@Url.Action("Review", "GrantsTeam", new { grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-sm r4-button-primary">
+                    <i class="mdi mdi-eye-outline"></i> Review Queue
+                </a>
+            </div>
         </div>
         <div class="r4-card-body">
             <div class="table-wrapper">
                 <table class="r4-table">
                     <thead>
                         <tr>
-                            <th>IHE Institution</th>
+                            <th>Submission Date</th>
                             <th>LEA District</th>
                             <th>Total Students</th>
                             <th>Pending</th>
                             <th>Approved</th>
-                            <th>Last Modified</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var app in Model.ApplicationsWithPendingStudents)
+                        @foreach (var app in Model.ApplicationsWithPendingStudents.Take(3))
                         {
                             <tr>
-                                <td>@app.IHEName</td>
+                                <td>@app.LastModified.ToString("MM/dd/yyyy")</td>
                                 <td>@app.LEAName</td>
                                 <td>@app.TotalStudents</td>
                                 <td>
@@ -134,10 +53,9 @@
                                 <td>
                                     <span class="badge badge-success">@app.ApprovedCount</span>
                                 </td>
-                                <td>@app.LastModified.ToString("MM/dd/yyyy")</td>
                                 <td>
                                     <a href="@Url.Action("Details", "Application", new { id = app.Id })" class="r4-button r4-button-sm">
-                                        <i class="mdi mdi-eye-outline"></i> View
+                                        <i class="mdi mdi-eye-outline"></i> View Detail
                                     </a>
                                 </td>
                             </tr>
@@ -149,186 +67,266 @@
     </div>
 }
 
-@* FISCAL TEAM - Action Items *@
+@* FISCAL TEAM - GAA Processing *@
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-currency-usd"></i> FISCAL TEAM - Action Items</h4>
-        <div class="card-actions">
-            <a href="@Url.Action("GAA", "FiscalTeam", new { grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-primary">
-                <i class="mdi mdi-file-plus-outline"></i> Generate GAAs
-            </a>
-        </div>
+        <h4><i class="mdi mdi-file-document-outline"></i> GAA Processing</h4>
     </div>
     <div class="r4-card-body">
-        @if (Model.Metrics.StatusCounts.Approved > 0)
+        @{
+            // MOCK DATA: Approved disbursement groups ready for GAA
+            var gaaReadyGroups = new List<dynamic>
+            {
+                new { SubmissionDate = DateTime.Now.AddDays(-5), LEA = "Fresno Unified School District", ApprovedDate = DateTime.Now.AddDays(-1), TotalStudents = 45, Amount = 67500m, Id = 1 },
+                new { SubmissionDate = DateTime.Now.AddDays(-7), LEA = "Sacramento City Unified School District", ApprovedDate = DateTime.Now.AddDays(-2), TotalStudents = 32, Amount = 48000m, Id = 2 },
+                new { SubmissionDate = DateTime.Now.AddDays(-10), LEA = "Oakland Unified School District", ApprovedDate = DateTime.Now.AddDays(-3), TotalStudents = 28, Amount = 42000m, Id = 3 }
+            };
+        }
+
+        @if (gaaReadyGroups.Any())
         {
-            <div class="alert alert-info">
-                <i class="mdi mdi-information-outline"></i>
-                <strong>@Model.Metrics.StatusCounts.Approved approved student@(Model.Metrics.StatusCounts.Approved != 1 ? "s" : "") ready for GAA processing</strong>
+            <p class="text-muted" style="margin-bottom: 0.75rem;"><i class="mdi mdi-information-outline"></i> @gaaReadyGroups.Count disbursement group@(gaaReadyGroups.Count != 1 ? "s" : "") ready for GAA processing</p>
+
+            <div class="table-wrapper">
+                <table class="r4-table">
+                    <thead>
+                        <tr>
+                            <th>Submission Date</th>
+                            <th>LEA District</th>
+                            <th>Approved Date</th>
+                            <th>Total Students</th>
+                            <th>Total Amount</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var group in gaaReadyGroups)
+                        {
+                            <tr>
+                                <td>@group.SubmissionDate.ToString("MM/dd/yyyy")</td>
+                                <td>@group.LEA</td>
+                                <td>@group.ApprovedDate.ToString("MM/dd/yyyy")</td>
+                                <td>@group.TotalStudents</td>
+                                <td>@group.Amount.ToString("C0")</td>
+                                <td>
+                                    <a href="@Url.Action("GenerateGAA", "FiscalTeam", new { id = group.Id })" class="r4-button r4-button-sm r4-button-primary">
+                                        <i class="mdi mdi-file-plus-outline"></i> Generate GAA
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
         }
         else
         {
-            <div class="alert alert-success">
-                <i class="mdi mdi-check-circle-outline"></i>
-                All caught up! No GAAs currently need processing.
-            </div>
+            <p class="text-muted"><i class="mdi mdi-check-circle-outline"></i> All caught up! No disbursement groups currently need GAA processing.</p>
         }
     </div>
 </div>
 
-@* REPORTING - Action Items *@
+@* INVOICE GENERATION - Disbursement Groups with Signed GAAs *@
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-chart-line"></i> REPORTING - Action Items</h4>
+        <h4><i class="mdi mdi-file-invoice-outline"></i> Invoice Generation</h4>
+    </div>
+    <div class="r4-card-body">
+        @{
+            // MOCK DATA: Signed GAAs ready for invoice generation
+            var signedGAAGroups = new List<dynamic>
+            {
+                new { SubmissionDate = DateTime.Now.AddDays(-15), LEA = "Los Angeles Unified School District", SignedDate = DateTime.Now.AddDays(-2), Amount = 125000m, Id = 1 },
+                new { SubmissionDate = DateTime.Now.AddDays(-20), LEA = "San Diego Unified School District", SignedDate = DateTime.Now.AddDays(-1), Amount = 87500m, Id = 2 }
+            };
+        }
+
+        @if (signedGAAGroups.Any())
+        {
+            <p class="text-muted" style="margin-bottom: 0.75rem;"><i class="mdi mdi-information-outline"></i> @signedGAAGroups.Count disbursement group@(signedGAAGroups.Count != 1 ? "s" : "") with completed DocuSign ready for invoicing</p>
+
+            <div class="table-wrapper">
+                <table class="r4-table">
+                    <thead>
+                        <tr>
+                            <th>Submission Date</th>
+                            <th>LEA District</th>
+                            <th>GAA Signed Date</th>
+                            <th>Total Amount</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var group in signedGAAGroups)
+                        {
+                            <tr>
+                                <td>@group.SubmissionDate.ToString("MM/dd/yyyy")</td>
+                                <td>@group.LEA</td>
+                                <td>
+                                    @group.SignedDate.ToString("MM/dd/yyyy")
+                                    <span class="badge badge-success">Signed</span>
+                                </td>
+                                <td>@group.Amount.ToString("C0")</td>
+                                <td>
+                                    <button type="button" class="r4-button r4-button-primary r4-button-sm" onclick="openInvoiceModal('@group.LEA', '@group.Amount.ToString("C0")')">
+                                        <i class="mdi mdi-file-plus-outline"></i> Generate Invoice
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="mdi mdi-information-outline"></i>
+                No signed GAAs currently awaiting invoice generation. Once LEAs complete DocuSign, they will appear here.
+            </div>
+        }
+
+    </div>
+</div>
+
+@* Budget Overview - Simplified *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-chart-bar"></i> Budget Overview</h4>
         <div class="card-actions">
-            <a href="@Url.Action("Dashboard", "Reporting")" class="r4-button r4-button-primary">
-                <i class="mdi mdi-eye-outline"></i> Reporting Dashboard
+            <a href="@Url.Action("Analytics", "GrantsTeam", new { grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-sm">
+                <i class="mdi mdi-chart-box-outline"></i> View Full Analytics
             </a>
         </div>
     </div>
     <div class="r4-card-body">
-        <div class="alert alert-info">
-            <i class="mdi mdi-information-outline"></i>
-            <strong>Reporting features are now available.</strong> Track LEA/IHE reports, monitor compliance, and view analytics.
-        </div>
-        <div class="mt-2">
-            <a href="@Url.Action("Submitted", "Reporting", new { status = "SUBMITTED" })" class="r4-button r4-button-sm">
-                <i class="mdi mdi-file-document-outline"></i> Review Submitted Reports
-            </a>
-            <a href="@Url.Action("Outstanding", "Reporting")" class="r4-button r4-button-sm">
-                <i class="mdi mdi-alert-circle-outline"></i> Outstanding Reports
-            </a>
-            <a href="@Url.Action("Analytics", "Reporting")" class="r4-button r4-button-sm">
-                <i class="mdi mdi-chart-box-outline"></i> View Analytics
-            </a>
+        @{
+            var encumberedM = Model.Metrics.EncumberedAmount / 1000000m;
+            var disbursedM = Model.Metrics.DisbursedAmount / 1000000m;
+            var remainingM = Model.Metrics.RemainingAmount / 1000000m;
+            var encumberedPercent = Model.Metrics.ApproprietedAmount > 0
+                ? (Model.Metrics.EncumberedAmount / Model.Metrics.ApproprietedAmount * 100)
+                : 0;
+            var disbursedPercent = Model.Metrics.ApproprietedAmount > 0
+                ? (Model.Metrics.DisbursedAmount / Model.Metrics.ApproprietedAmount * 100)
+                : 0;
+            var remainingPercent = 100 - encumberedPercent - disbursedPercent;
+        }
+
+        <h5>Budget Utilization</h5>
+        <div class="r4-progress" style="height: 40px; position: relative; display: flex;">
+            @if (encumberedPercent > 0.1m)
+            {
+                <div class="r4-progress-bar r4-progress-bar-encumbered"
+                     style="width: @encumberedPercent%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.875rem; font-weight: 600; padding: 0 0.5rem;"
+                     role="progressbar"
+                     aria-valuenow="@encumberedPercent"
+                     aria-valuemin="0"
+                     aria-valuemax="100"
+                     title="@encumberedPercent.ToString("F1")% of total budget">
+                    @if (encumberedPercent > 12)
+                    {
+                        <span>$@encumberedM.ToString("F1")M Encumbered</span>
+                    }
+                </div>
+            }
+            @if (disbursedPercent > 0.1m)
+            {
+                <div class="r4-progress-bar r4-progress-bar-disbursed"
+                     style="width: @disbursedPercent%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.875rem; font-weight: 600; padding: 0 0.5rem;"
+                     role="progressbar"
+                     aria-valuenow="@disbursedPercent"
+                     aria-valuemin="0"
+                     aria-valuemax="100"
+                     title="@disbursedPercent.ToString("F1")% of total budget">
+                    @if (disbursedPercent > 12)
+                    {
+                        <span>$@disbursedM.ToString("F1")M Disbursed</span>
+                    }
+                </div>
+            }
+            @if (remainingPercent > 0.1m)
+            {
+                <div style="flex: 1; background-color: var(--gray-200); display: flex; align-items: center; justify-content: center; color: var(--gray-700); font-size: 0.875rem; font-weight: 600; padding: 0 0.5rem;"
+                     title="@remainingPercent.ToString("F1")% of total budget">
+                    @if (remainingPercent > 12)
+                    {
+                        <span>$@remainingM.ToString("F1")M Remaining</span>
+                    }
+                </div>
+            }
         </div>
     </div>
 </div>
 
-@* Budget Overview *@
-<div class="r4-card">
-    <div class="r4-card-header">
-        <h4><i class="mdi mdi-chart-bar"></i> Budget Overview</h4>
-    </div>
-    <div class="r4-card-body">
-        <div class="dashboard-grid">
-            <div class="metric-card">
-                <div class="metric-icon">
-                    <i class="mdi mdi-currency-usd"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.Metrics.ApproprietedAmount.ToString("C0")</div>
-                    <div class="metric-label">Appropriated Amount</div>
-                    <div class="metric-description">Total budget for cycle</div>
-                </div>
-            </div>
-
-            <div class="metric-card metric-reserved">
-                <div class="metric-icon">
-                    <i class="mdi mdi-lock-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.Metrics.ReservedAmount.ToString("C0")</div>
-                    <div class="metric-label">Reserved</div>
-                    <div class="metric-description">Approved but not encumbered</div>
-                </div>
-            </div>
-
-            <div class="metric-card metric-encumbered">
-                <div class="metric-icon">
-                    <i class="mdi mdi-file-document-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.Metrics.EncumberedAmount.ToString("C0")</div>
-                    <div class="metric-label">Encumbered</div>
-                    <div class="metric-description">GAA generated and signed</div>
-                </div>
-            </div>
-
-            <div class="metric-card metric-disbursed">
-                <div class="metric-icon">
-                    <i class="mdi mdi-cash-check"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.Metrics.DisbursedAmount.ToString("C0")</div>
-                    <div class="metric-label">Disbursed</div>
-                    <div class="metric-description">Payments completed</div>
-                </div>
-            </div>
-
-            <div class="metric-card metric-remaining">
-                <div class="metric-icon">
-                    <i class="mdi mdi-wallet-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.Metrics.RemainingAmount.ToString("C0")</div>
-                    <div class="metric-label">Remaining</div>
-                    <div class="metric-description">@Model.Metrics.RemainingPercent.ToString("F1")% of budget</div>
-                </div>
-            </div>
-
-            <div class="metric-card metric-outstanding">
-                <div class="metric-icon">
-                    <i class="mdi mdi-alert-circle-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.Metrics.OutstandingBalance.ToString("C0")</div>
-                    <div class="metric-label">Outstanding Balance</div>
-                    <div class="metric-description">Encumbered minus disbursed</div>
-                </div>
-            </div>
+@* Invoice Generation Modal *@
+<div id="invoiceModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: white; padding: 2rem; border-radius: 8px; width: 90%; max-width: 600px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3><i class="mdi mdi-file-plus-outline"></i> Generate Invoice</h3>
+            <button type="button" onclick="closeInvoiceModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6c757d;">×</button>
         </div>
 
-        <div class="budget-progress">
-            <h5>Budget Utilization</h5>
-            <div class="r4-progress">
-                @{
-                    var reservedPercent = Model.Metrics.ApproprietedAmount > 0
-                        ? (Model.Metrics.ReservedAmount / Model.Metrics.ApproprietedAmount * 100)
-                        : 0;
-                    var encumberedPercent = Model.Metrics.ApproprietedAmount > 0
-                        ? (Model.Metrics.EncumberedAmount / Model.Metrics.ApproprietedAmount * 100)
-                        : 0;
-                    var disbursedPercent = Model.Metrics.ApproprietedAmount > 0
-                        ? (Model.Metrics.DisbursedAmount / Model.Metrics.ApproprietedAmount * 100)
-                        : 0;
-                }
-                @if (reservedPercent > 0.1m)
-                {
-                    <div class="r4-progress-bar r4-progress-bar-reserved"
-                         style="width: @reservedPercent%"
-                         role="progressbar"
-                         aria-valuenow="@reservedPercent" aria-valuemin="0" aria-valuemax="100">
-                        Reserved @reservedPercent.ToString("F1")%
-                    </div>
-                }
-                @if (encumberedPercent > 0.1m)
-                {
-                    <div class="r4-progress-bar r4-progress-bar-encumbered"
-                         style="width: @encumberedPercent%"
-                         role="progressbar"
-                         aria-valuenow="@encumberedPercent" aria-valuemin="0" aria-valuemax="100">
-                        Encumbered @encumberedPercent.ToString("F1")%
-                    </div>
-                }
-                @if (disbursedPercent > 0.1m)
-                {
-                    <div class="r4-progress-bar r4-progress-bar-disbursed"
-                         style="width: @disbursedPercent%"
-                         role="progressbar"
-                         aria-valuenow="@disbursedPercent" aria-valuemin="0" aria-valuemax="100">
-                        Disbursed @disbursedPercent.ToString("F1")%
-                    </div>
-                }
+        <form id="invoiceForm" style="display: flex; flex-direction: column; gap: 1rem;">
+            <div>
+                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">LEA Name & Address</label>
+                <input type="text" id="leaName" readonly style="width: 100%; padding: 0.5rem; border: 1px solid #dee2e6; border-radius: 4px; background-color: #e9ecef;" />
+                <textarea id="leaAddress" readonly rows="3" style="width: 100%; padding: 0.5rem; border: 1px solid #dee2e6; border-radius: 4px; background-color: #e9ecef; margin-top: 0.5rem;" placeholder="123 Main St, Los Angeles, CA 90001"></textarea>
             </div>
-            <small class="text-muted">Remaining: @Model.Metrics.RemainingPercent.ToString("F1")%</small>
-        </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Invoice Number <span style="color: #6c757d;">(Auto-generated)</span></label>
+                    <input type="text" id="invoiceNumber" readonly value="INV-2025-001234" style="width: 100%; padding: 0.5rem; border: 1px solid #dee2e6; border-radius: 4px; background-color: #e9ecef;" />
+                </div>
+
+                <div>
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">PO Number <span style="color: #dc3545;">*</span></label>
+                    <input type="text" id="poNumber" required placeholder="Enter PO #" style="width: 100%; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 4px;" />
+                </div>
+            </div>
+
+            <div>
+                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Total Amount</label>
+                <input type="text" id="invoiceAmount" readonly style="width: 100%; padding: 0.5rem; border: 1px solid #dee2e6; border-radius: 4px; background-color: #e9ecef; font-size: 1.25rem; font-weight: 600;" />
+            </div>
+
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1rem;">
+                <button type="button" onclick="closeInvoiceModal()" class="r4-button r4-button-secondary">
+                    <i class="mdi mdi-close"></i> Cancel
+                </button>
+                <button type="submit" class="r4-button r4-button-primary">
+                    <i class="mdi mdi-check"></i> Generate & Submit Invoice
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
 @section Scripts {
     <script>
+        function openInvoiceModal(leaName, amount) {
+            document.getElementById('leaName').value = leaName;
+            document.getElementById('invoiceAmount').value = amount;
+            document.getElementById('invoiceModal').style.display = 'flex';
+            document.getElementById('poNumber').value = ''; // Clear previous PO number
+        }
+
+        function closeInvoiceModal() {
+            document.getElementById('invoiceModal').style.display = 'none';
+        }
+
+        document.getElementById('invoiceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const poNumber = document.getElementById('poNumber').value;
+            if (!poNumber) {
+                alert('Please enter a PO Number');
+                return;
+            }
+            alert('Invoice generated successfully! Invoice will be submitted to payment process.\n\nInvoice #: INV-2025-001234\nPO #: ' + poNumber);
+            closeInvoiceModal();
+        });
+
         // Auto-refresh dashboard every 5 minutes
         setTimeout(function() {
             location.reload();

@@ -1,7 +1,7 @@
 @model ReportingDashboardViewModel
 
 @{
-    ViewData["Title"] = "Reporting Dashboard";
+    ViewData["Title"] = "CTC Internal Reporting";
 }
 
 @section Breadcrumbs {
@@ -12,297 +12,255 @@
 }
 
 <div class="page-header">
-    <h2><i class="mdi mdi-chart-line"></i> Reporting Dashboard</h2>
-    <p class="subtitle">Oversight and tracking for post-payment reporting</p>
+    <h2><i class="mdi mdi-file-chart-outline"></i> CTC Internal Reporting</h2>
+    <p class="subtitle">Generate custom reports for internal stakeholders</p>
 </div>
 
-@* ACTION ITEMS *@
+@* NATURAL LANGUAGE QUERY - FUTURE ENHANCEMENT *@
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-bell-outline"></i> ACTION ITEMS</h4>
+        <h4><i class="mdi mdi-robot-outline"></i> Natural Language Query <span class="badge">Coming Soon</span></h4>
     </div>
     <div class="r4-card-body">
-        @if (Model.Metrics.ReportsSubmitted > 0 || Model.Metrics.ReportsOutstanding > 0)
-        {
-            @if (Model.Metrics.ReportsSubmitted > 0)
-            {
-                <div class="alert alert-warning">
-                    <i class="mdi mdi-alert-outline"></i>
-                    <strong>@Model.Metrics.ReportsSubmitted report@(Model.Metrics.ReportsSubmitted != 1 ? "s" : "") waiting for review</strong>
-                    <div class="mt-2">
-                        <a href="@Url.Action("Submitted", "Reporting", new { status = "SUBMITTED" })" class="r4-button r4-button-sm r4-button-primary">
-                            <i class="mdi mdi-eye-outline"></i> Review Now
-                        </a>
-                    </div>
-                </div>
-            }
-            @if (Model.Metrics.ReportsOutstanding > 0)
-            {
-                <div class="alert alert-danger">
-                    <i class="mdi mdi-alert-circle-outline"></i>
-                    <strong>@Model.Metrics.ReportsOutstanding report@(Model.Metrics.ReportsOutstanding != 1 ? "s" : "") overdue</strong>
-                    <div class="mt-2">
-                        <a href="@Url.Action("Outstanding", "Reporting")" class="r4-button r4-button-sm r4-button-danger">
-                            <i class="mdi mdi-alert"></i> View Outstanding
-                        </a>
-                    </div>
-                </div>
-            }
-        }
-        else
-        {
-            <div class="alert alert-success">
-                <i class="mdi mdi-check-circle-outline"></i>
-                All caught up! No reports currently need immediate attention.
-            </div>
-        }
+        <p class="text-muted">Ask questions in plain English and get instant custom reports. This AI-powered feature will be available in version 2.0.</p>
+
+        <div class="form-group">
+            <label for="nlQuery">
+                <i class="mdi mdi-message-text-outline"></i> Enter your question
+            </label>
+            <textarea id="nlQuery"
+                      class="form-control"
+                      rows="3"
+                      disabled
+                      placeholder="Example: Show me all students from Los Angeles who received funding in the last quarter"></textarea>
+        </div>
+
+        <button type="button" class="r4-button r4-button-primary" disabled>
+            <i class="mdi mdi-sparkles"></i> Generate Report
+        </button>
     </div>
 </div>
 
-@* Report Metrics Overview *@
+@* REPORT BUILDER *@
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-chart-bar"></i> Reporting Metrics</h4>
-        <div class="card-actions">
-            <a href="@Url.Action("Submitted", "Reporting")" class="r4-button r4-button-primary">
-                <i class="mdi mdi-file-document-multiple-outline"></i> View All Reports
-            </a>
-        </div>
+        <h4><i class="mdi mdi-cog-outline"></i> Custom Report Builder</h4>
+        <p class="card-subtitle">Create customized reports based on your specific needs</p>
     </div>
     <div class="r4-card-body">
-        <div class="dashboard-grid">
-            <div class="metric-card metric-submitted">
-                <div class="metric-icon">
-                    <i class="mdi mdi-file-check-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.Metrics.ReportsSubmitted</div>
-                    <div class="metric-label">Reports Submitted</div>
-                    <div class="metric-description">Awaiting review</div>
-                </div>
-            </div>
-
-            <div class="metric-card metric-outstanding">
-                <div class="metric-icon">
-                    <i class="mdi mdi-alert-circle-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.Metrics.ReportsOutstanding</div>
-                    <div class="metric-label">Reports Outstanding</div>
-                    <div class="metric-description">Still due from grantees</div>
-                </div>
-            </div>
-
-            <div class="metric-card metric-pending">
-                <div class="metric-icon">
-                    <i class="mdi mdi-eye-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.Metrics.ReportsUnderReview</div>
-                    <div class="metric-label">Under Review</div>
-                    <div class="metric-description">Currently being reviewed</div>
-                </div>
-            </div>
-
-            <div class="metric-card metric-approved">
-                <div class="metric-icon">
-                    <i class="mdi mdi-check-circle-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.Metrics.ReportsApproved</div>
-                    <div class="metric-label">Reports Approved</div>
-                    <div class="metric-description">Accepted and complete</div>
-                </div>
-            </div>
-
-            <div class="metric-card metric-revisions">
-                <div class="metric-icon">
-                    <i class="mdi mdi-pencil-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.Metrics.RevisionsRequested</div>
-                    <div class="metric-label">Revisions Requested</div>
-                    <div class="metric-description">Requiring corrections</div>
-                </div>
-            </div>
-
-            <div class="metric-card">
-                <div class="metric-icon">
-                    <i class="mdi mdi-percent-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.Metrics.ComplianceRate.ToString("F1")%</div>
-                    <div class="metric-label">Compliance Rate</div>
-                    <div class="metric-description">Overall reporting compliance</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="budget-progress">
-            <h5>Reporting Progress</h5>
-            <div class="r4-progress">
-                @{
-                    var totalReports = Model.Metrics.ReportsApproved + Model.Metrics.ReportsUnderReview + Model.Metrics.ReportsSubmitted + Model.Metrics.RevisionsRequested;
-                    var approvedPercent = totalReports > 0 ? (decimal)Model.Metrics.ReportsApproved / totalReports * 100 : 0;
-                    var underReviewPercent = totalReports > 0 ? (decimal)Model.Metrics.ReportsUnderReview / totalReports * 100 : 0;
-                    var submittedPercent = totalReports > 0 ? (decimal)Model.Metrics.ReportsSubmitted / totalReports * 100 : 0;
-                }
-                @if (approvedPercent > 0.1m)
-                {
-                    <div class="r4-progress-bar r4-progress-bar-success"
-                         style="width: @approvedPercent%"
-                         role="progressbar"
-                         aria-valuenow="@approvedPercent" aria-valuemin="0" aria-valuemax="100">
-                        Approved @approvedPercent.ToString("F1")%
+        <form id="reportBuilderForm" method="post" action="@Url.Action("GenerateReport", "Reporting")">
+            <div class="form-section" style="margin-bottom: 1.5rem;">
+                <h5 style="margin-bottom: 1rem;"><i class="mdi mdi-format-list-bulleted"></i> Report Type</h5>
+                <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="reportType" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Select Report Category</label>
+                        <select id="reportType" name="reportType" class="form-control" style="width: 100%; padding: 0.5rem;">
+                            <option value="">-- Choose a report type --</option>
+                            <option value="demographic">Demographics Report</option>
+                            <option value="lea-summary">LEA Summary Report</option>
+                            <option value="ihe-summary">IHE Summary Report</option>
+                            <option value="financial">Financial Summary Report</option>
+                            <option value="program-outcomes">Program Outcomes Report</option>
+                            <option value="compliance">Compliance & Reporting Status</option>
+                            <option value="custom">Custom Query Report</option>
+                        </select>
                     </div>
-                }
-                @if (underReviewPercent > 0.1m)
-                {
-                    <div class="r4-progress-bar r4-progress-bar-primary"
-                         style="width: @underReviewPercent%"
-                         role="progressbar"
-                         aria-valuenow="@underReviewPercent" aria-valuemin="0" aria-valuemax="100">
-                        Under Review @underReviewPercent.ToString("F1")%
-                    </div>
-                }
-                @if (submittedPercent > 0.1m)
-                {
-                    <div class="r4-progress-bar r4-progress-bar-secondary"
-                         style="width: @submittedPercent%"
-                         role="progressbar"
-                         aria-valuenow="@submittedPercent" aria-valuemin="0" aria-valuemax="100">
-                        Submitted @submittedPercent.ToString("F1")%
-                    </div>
-                }
+                </div>
             </div>
-        </div>
+
+            <div class="form-section" style="margin-bottom: 1.5rem;">
+                <h5 style="margin-bottom: 1rem;"><i class="mdi mdi-filter-outline"></i> Filters & Parameters</h5>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                    <div class="form-group">
+                        <label for="grantCycle">Grant Cycle</label>
+                        <select id="grantCycle" name="grantCycle" class="form-control">
+                            <option value="current">Current Cycle (FY 2025-26)</option>
+                            <option value="previous">Previous Cycle (FY 2024-25)</option>
+                            <option value="all">All Cycles</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dateRange">Date Range</label>
+                        <select id="dateRange" name="dateRange" class="form-control">
+                            <option value="all">All Time</option>
+                            <option value="ytd">Year to Date</option>
+                            <option value="last30">Last 30 Days</option>
+                            <option value="last90">Last 90 Days</option>
+                            <option value="custom">Custom Range...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="organization">Organization Filter</label>
+                        <select id="organization" name="organization" class="form-control">
+                            <option value="all">All Organizations</option>
+                            <option value="lea">LEAs Only</option>
+                            <option value="ihe">IHEs Only</option>
+                            <option value="specific">Specific Organization...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="status">Status Filter</label>
+                        <select id="status" name="status" class="form-control">
+                            <option value="all">All Statuses</option>
+                            <option value="approved">Approved Only</option>
+                            <option value="pending">Pending Review</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section" style="margin-bottom: 1.5rem;">
+                <h5 style="margin-bottom: 1rem;"><i class="mdi mdi-table-column"></i> Data Fields to Include</h5>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem;">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="includeStudentInfo" name="includeStudentInfo" checked>
+                        <label class="form-check-label" for="includeStudentInfo">Student Information</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="includeDemographics" name="includeDemographics" checked>
+                        <label class="form-check-label" for="includeDemographics">Demographics</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="includeFinancial" name="includeFinancial" checked>
+                        <label class="form-check-label" for="includeFinancial">Financial Data</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="includeCredentials" name="includeCredentials" checked>
+                        <label class="form-check-label" for="includeCredentials">Credential Areas</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="includePartnership" name="includePartnership">
+                        <label class="form-check-label" for="includePartnership">Partnership Details</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="includeCompliance" name="includeCompliance">
+                        <label class="form-check-label" for="includeCompliance">Compliance Data</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section" style="margin-bottom: 1.5rem;">
+                <h5 style="margin-bottom: 1rem;"><i class="mdi mdi-file-download-outline"></i> Output Format</h5>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                    <div class="form-group">
+                        <label for="outputFormat">Export Format</label>
+                        <select id="outputFormat" name="outputFormat" class="form-control">
+                            <option value="pdf">PDF Document</option>
+                            <option value="excel">Excel Spreadsheet (.xlsx)</option>
+                            <option value="csv">CSV File</option>
+                            <option value="preview">Preview in Browser</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reportName">Report Name (Optional)</label>
+                        <input type="text" id="reportName" name="reportName" class="form-control" placeholder="e.g., Q1 Demographics Report">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="r4-button r4-button-primary">
+                    <i class="mdi mdi-file-chart"></i> Generate Report
+                </button>
+                <button type="button" class="r4-button r4-button-secondary" onclick="document.getElementById('reportBuilderForm').reset();">
+                    <i class="mdi mdi-refresh"></i> Reset Form
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
-@* Action Links *@
+@* QUICK ACCESS REPORTS *@
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-folder-open-outline"></i> Quick Actions</h4>
+        <h4><i class="mdi mdi-lightning-bolt-outline"></i> Quick Access Reports</h4>
+        <p class="card-subtitle">Frequently used report templates</p>
     </div>
     <div class="r4-card-body">
-        <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
-            <a href="@Url.Action("Submitted", "Reporting", new { status = "SUBMITTED" })" class="metric-card-link">
-                <div class="metric-card">
-                    <div class="metric-icon">
-                        <i class="mdi mdi-file-document-outline"></i>
-                    </div>
-                    <div class="metric-content">
-                        <div class="metric-label">Submitted Reports</div>
-                        <div class="metric-description">Review newly submitted reports</div>
-                    </div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+            <div style="display: flex; gap: 1rem; padding: 1.5rem; border: 1px solid #dee2e6; border-radius: 8px; background-color: white; transition: box-shadow 0.2s;">
+                <div style="font-size: 3rem; color: #1E3A5F;">
+                    <i class="mdi mdi-account-group"></i>
                 </div>
-            </a>
+                <div style="flex: 1;">
+                    <h5 style="margin: 0 0 0.5rem 0; color: #1E3A5F;">Current Demographics</h5>
+                    <p style="margin: 0 0 1rem 0; color: #6c757d; font-size: 0.875rem;">Student demographics for current grant cycle</p>
+                    <a href="@Url.Action("GenerateReport", "Reporting", new { type = "demographic", cycle = "current" })" class="r4-button r4-button-sm r4-button-primary">
+                        <i class="mdi mdi-download"></i> Generate
+                    </a>
+                </div>
+            </div>
 
-            <a href="@Url.Action("Outstanding", "Reporting")" class="metric-card-link">
-                <div class="metric-card">
-                    <div class="metric-icon">
-                        <i class="mdi mdi-alert-outline"></i>
-                    </div>
-                    <div class="metric-content">
-                        <div class="metric-label">Outstanding Reports</div>
-                        <div class="metric-description">Track overdue reports</div>
-                    </div>
+            <div style="display: flex; gap: 1rem; padding: 1.5rem; border: 1px solid #dee2e6; border-radius: 8px; background-color: white; transition: box-shadow 0.2s;">
+                <div style="font-size: 3rem; color: #1E3A5F;">
+                    <i class="mdi mdi-domain"></i>
                 </div>
-            </a>
+                <div style="flex: 1;">
+                    <h5 style="margin: 0 0 0.5rem 0; color: #1E3A5F;">LEA Performance</h5>
+                    <p style="margin: 0 0 1rem 0; color: #6c757d; font-size: 0.875rem;">Summary of all LEA participation and outcomes</p>
+                    <a href="@Url.Action("GenerateReport", "Reporting", new { type = "lea-summary", cycle = "current" })" class="r4-button r4-button-sm r4-button-primary">
+                        <i class="mdi mdi-download"></i> Generate
+                    </a>
+                </div>
+            </div>
 
-            <a href="@Url.Action("Analytics", "Reporting")" class="metric-card-link">
-                <div class="metric-card">
-                    <div class="metric-icon">
-                        <i class="mdi mdi-chart-line"></i>
-                    </div>
-                    <div class="metric-content">
-                        <div class="metric-label">Analytics</div>
-                        <div class="metric-description">View aggregate outcomes</div>
-                    </div>
+            <div style="display: flex; gap: 1rem; padding: 1.5rem; border: 1px solid #dee2e6; border-radius: 8px; background-color: white; transition: box-shadow 0.2s;">
+                <div style="font-size: 3rem; color: #1E3A5F;">
+                    <i class="mdi mdi-currency-usd"></i>
                 </div>
-            </a>
+                <div style="flex: 1;">
+                    <h5 style="margin: 0 0 0.5rem 0; color: #1E3A5F;">Financial Summary</h5>
+                    <p style="margin: 0 0 1rem 0; color: #6c757d; font-size: 0.875rem;">Budget utilization and disbursement tracking</p>
+                    <a href="@Url.Action("GenerateReport", "Reporting", new { type = "financial", cycle = "current" })" class="r4-button r4-button-sm r4-button-primary">
+                        <i class="mdi mdi-download"></i> Generate
+                    </a>
+                </div>
+            </div>
 
-            <a href="@Url.Action("Compliance", "Reporting")" class="metric-card-link">
-                <div class="metric-card">
-                    <div class="metric-icon">
-                        <i class="mdi mdi-clipboard-check-outline"></i>
-                    </div>
-                    <div class="metric-content">
-                        <div class="metric-label">Compliance</div>
-                        <div class="metric-description">LEA compliance tracking</div>
-                    </div>
+            <div style="display: flex; gap: 1rem; padding: 1.5rem; border: 1px solid #dee2e6; border-radius: 8px; background-color: white; transition: box-shadow 0.2s;">
+                <div style="font-size: 3rem; color: #1E3A5F;">
+                    <i class="mdi mdi-chart-line"></i>
                 </div>
-            </a>
+                <div style="flex: 1;">
+                    <h5 style="margin: 0 0 0.5rem 0; color: #1E3A5F;">Program Outcomes</h5>
+                    <p style="margin: 0 0 1rem 0; color: #6c757d; font-size: 0.875rem;">Credential areas, completion rates, and impact</p>
+                    <a href="@Url.Action("GenerateReport", "Reporting", new { type = "outcomes", cycle = "current" })" class="r4-button r4-button-sm r4-button-primary">
+                        <i class="mdi mdi-download"></i> Generate
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-@if (Model.Metrics.NextReportingDeadline.HasValue)
-{
-    <div class="r4-card">
-        <div class="r4-card-header">
-            <h4><i class="mdi mdi-calendar-clock"></i> Upcoming Deadline</h4>
-        </div>
-        <div class="r4-card-body">
-            <div class="alert alert-info">
-                <i class="mdi mdi-information-outline"></i>
-                <strong>Next Reporting Deadline:</strong> @Model.Metrics.NextReportingDeadline.Value.ToString("MMMM d, yyyy")
-                @{
-                    var daysUntil = (Model.Metrics.NextReportingDeadline.Value - DateTime.Now).Days;
-                }
-                @if (daysUntil < 0)
-                {
-                    <span class="badge badge-danger">@Math.Abs(daysUntil) days overdue</span>
-                }
-                else if (daysUntil < 30)
-                {
-                    <span class="badge badge-warning">@daysUntil days remaining</span>
-                }
-                else
-                {
-                    <span class="badge badge-secondary">@daysUntil days remaining</span>
-                }
-            </div>
-
-            @if (Model.UpcomingDeadlines.Any())
-            {
-                <div class="table-wrapper">
-                    <table class="r4-table">
-                        <thead>
-                            <tr>
-                                <th>LEA</th>
-                                <th>IHE</th>
-                                <th>Deadline</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var deadline in Model.UpcomingDeadlines.Take(10))
-                            {
-                                <tr>
-                                    <td>@deadline.LEAName</td>
-                                    <td>@deadline.IHEName</td>
-                                    <td>@deadline.ReportingDeadline.ToString("MMM d, yyyy")</td>
-                                    <td>
-                                        @if (deadline.IsOverdue)
-                                        {
-                                            <span class="badge badge-danger">@Math.Abs(deadline.DaysUntilDue) days overdue</span>
-                                        }
-                                        else if (deadline.DaysUntilDue < 14)
-                                        {
-                                            <span class="badge badge-warning">@deadline.DaysUntilDue days left</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge badge-secondary">@deadline.DaysUntilDue days left</span>
-                                        }
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
+@* RECENT REPORTS *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-history"></i> Recently Generated Reports</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="alert alert-info">
+            <i class="mdi mdi-information-outline"></i>
+            <strong>Report History:</strong> Your recently generated reports will appear here for quick access. (Coming soon in future release)
         </div>
     </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('reportBuilderForm').addEventListener('submit', function(e) {
+            // Form validation could go here
+            const reportType = document.getElementById('reportType').value;
+            if (!reportType) {
+                e.preventDefault();
+                alert('Please select a report type before generating.');
+                return false;
+            }
+        });
+    </script>
 }
