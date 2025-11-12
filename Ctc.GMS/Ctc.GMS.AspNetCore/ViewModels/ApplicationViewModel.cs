@@ -72,7 +72,23 @@ public class ApplicationSummaryViewModel
     public int ApprovedCount { get; set; }
     public int PendingCount { get; set; }
     public string Status { get; set; } = string.Empty;
+    public DateTime SubmissionDate { get; set; }
     public DateTime LastModified { get; set; }
+}
+
+public class ApplicationResultViewModel
+{
+    public int ApplicationId { get; set; }
+
+    [Display(Name = "Submission Date")]
+    [DataType(DataType.Date)]
+    public DateTime SubmissionDate { get; set; }
+
+    [Display(Name = "LEA District")]
+    public string LEAName { get; set; } = string.Empty;
+
+    [Display(Name = "IHE Institution")]
+    public string IHEName { get; set; } = string.Empty;
 }
 
 public class GrantCycleViewModel

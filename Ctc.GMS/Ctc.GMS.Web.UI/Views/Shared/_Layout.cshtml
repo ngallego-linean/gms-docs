@@ -63,8 +63,33 @@
                 <ul class="nav-menu">
                     <li>
                         <a asp-controller="GrantsTeam" asp-action="Dashboard" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "GrantsTeam" ? "active" : "")">
-                            <i class="mdi mdi-clipboard-check-outline"></i> Grants/Fiscal Team
+                            <i class="mdi mdi-clipboard-check-outline"></i> Grants Team
                         </a>
+                    </li>
+                    <li>
+                        <a asp-controller="FiscalTeam" asp-action="Dashboard" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "FiscalTeam" ? "active" : "")">
+                            <i class="mdi mdi-currency-usd"></i> Fiscal Team
+                        </a>
+                        @if (ViewContext.RouteData.Values["controller"]?.ToString() == "FiscalTeam")
+                        {
+                            <ul class="nav-submenu">
+                                <li>
+                                    <a asp-controller="FiscalTeam" asp-action="GAA" class="@(ViewContext.RouteData.Values["action"]?.ToString() == "GAA" ? "active" : "")">
+                                        <i class="mdi mdi-file-document-outline"></i> GAA Generation
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-controller="FiscalTeam" asp-action="Invoices" class="@(ViewContext.RouteData.Values["action"]?.ToString() == "Invoices" || ViewContext.RouteData.Values["action"]?.ToString() == "GenerateInvoice" ? "active" : "")">
+                                        <i class="mdi mdi-file-document-edit-outline"></i> Invoice Generation
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-controller="FiscalTeam" asp-action="Reports">
+                                        <i class="mdi mdi-chart-box-outline"></i> Reports
+                                    </a>
+                                </li>
+                            </ul>
+                        }
                     </li>
                     <li>
                         <a asp-controller="Application" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Application" ? "active" : "")">

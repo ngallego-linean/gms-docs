@@ -1,0 +1,136 @@
+@model InvoiceListViewModel
+
+@{
+    ViewData["Title"] = "Invoice Generation";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "FiscalTeam", new { grantCycleId = Model.GrantCycleId })">Fiscal Team Dashboard</a></li>
+        <li class="breadcrumb-item active">Invoice Generation</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-file-document-edit-outline"></i> Invoice Generation</h2>
+    <p class="subtitle">@Model.GrantCycleName - Disbursement Groups with Signed GAAs</p>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="mdi mdi-check-circle"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-format-list-bulleted"></i> Disbursement Groups Ready for Invoice</h4>
+        <div class="card-actions">
+            <span class="badge badge-info">@Model.DisbursementGroups.Count group(s) ready</span>
+        </div>
+    </div>
+    <div class="r4-card-body">
+        @if (Model.DisbursementGroups.Any())
+        {
+            <div class="table-wrapper">
+                <table class="r4-table">
+                    <thead>
+                        <tr>
+                            <th>LEA District</th>
+                            <th>LEA Address</th>
+                            <th>Students</th>
+                            <th>Total Amount</th>
+                            <th>GAA Signed</th>
+                            <th>Days Since Signed</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var group in Model.DisbursementGroups)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@group.LEAName</strong>
+                                </td>
+                                <td>@group.LEAAddress</td>
+                                <td>
+                                    <span class="badge badge-primary">@group.StudentCount</span>
+                                </td>
+                                <td>
+                                    <strong>@group.TotalAmount.ToString("C0")</strong>
+                                </td>
+                                <td>
+                                    @if (group.GAASignedDate.HasValue)
+                                    {
+                                        @group.GAASignedDate.Value.ToString("MM/dd/yyyy")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">N/A</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (group.DaysSinceSigned > 5)
+                                    {
+                                        <span class="badge badge-warning">@group.DaysSinceSigned days</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@group.DaysSinceSigned days</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (group.InvoiceGenerated)
+                                    {
+                                        <span class="badge badge-success">
+                                            <i class="mdi mdi-check-circle"></i> Generated
+                                        </span>
+                                        @if (!string.IsNullOrEmpty(group.InvoiceNumber))
+                                        {
+                                            <br /><small class="text-muted">@group.InvoiceNumber</small>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-warning">
+                                            <i class="mdi mdi-clock-outline"></i> Pending
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!group.InvoiceGenerated)
+                                    {
+                                        <a href="@Url.Action("GenerateInvoice", "FiscalTeam", new { disbursementGroupId = group.DisbursementGroupId, grantCycleId = Model.GrantCycleId })"
+                                           class="r4-button r4-button-primary r4-button-sm">
+                                            <i class="mdi mdi-file-document-plus-outline"></i> Generate Invoice
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="#" class="r4-button r4-button-sm">
+                                            <i class="mdi mdi-eye-outline"></i> View Invoice
+                                        </a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state" style="text-align: center; padding: 3rem;">
+                <i class="mdi mdi-file-document-outline" style="font-size: 4rem; color: var(--gray-400);"></i>
+                <h4>No Disbursement Groups Ready</h4>
+                <p class="text-muted">There are no disbursement groups with signed GAAs awaiting invoice generation.</p>
+                <a href="@Url.Action("Dashboard", "FiscalTeam", new { grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-secondary">
+                    <i class="mdi mdi-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        }
+    </div>
+</div>

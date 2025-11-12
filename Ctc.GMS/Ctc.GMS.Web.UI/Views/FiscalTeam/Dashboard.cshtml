@@ -27,7 +27,6 @@
                 <table class="r4-table">
                 <thead>
                     <tr>
-                        <th>Priority</th>
                         <th>Task</th>
                         <th>Description</th>
                         <th>Due Date</th>
@@ -38,16 +37,6 @@
                     @foreach (var item in Model.ActionItems)
                     {
                         <tr>
-                            <td>
-                                @if (item.Priority == "high")
-                                {
-                                    <span class="badge badge-danger">High</span>
-                                }
-                                else
-                                {
-                                    <span class="badge badge-secondary">Normal</span>
-                                }
-                            </td>
                             <td>@item.Title</td>
                             <td>@item.Description</td>
                             <td>
@@ -57,14 +46,113 @@
                                 }
                             </td>
                             <td>
-                                <a href="@Url.Action("GAA", "FiscalTeam", new { grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-sm">
-                                    <i class="mdi mdi-file-document-outline"></i> Process
-                                </a>
+                                @if (item.Type == "gaa_generation")
+                                {
+                                    <a href="@Url.Action("GAA", "FiscalTeam", new { grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-sm">
+                                        <i class="mdi mdi-file-document-outline"></i> Process
+                                    </a>
+                                }
+                                else if (item.Type == "invoice_generation")
+                                {
+                                    <a href="@Url.Action("Invoices", "FiscalTeam", new { grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-sm">
+                                        <i class="mdi mdi-file-document-edit-outline"></i> Process
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a href="#" class="r4-button r4-button-sm">
+                                        <i class="mdi mdi-arrow-right"></i> Process
+                                    </a>
+                                }
                             </td>
                         </tr>
                     }
                 </tbody>
             </table>
+            </div>
+        </div>
+    </div>
+}
+
+@* APPLICATION RESULTS *@
+@if (Model.ApplicationResults != null && Model.ApplicationResults.Any())
+{
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-file-document-outline"></i> Application Results</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="table-wrapper">
+                <table class="r4-table">
+                    <thead>
+                        <tr>
+                            <th>Submission Date</th>
+                            <th>LEA</th>
+                            <th>IHE</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var result in Model.ApplicationResults)
+                        {
+                            <tr>
+                                <td>@result.SubmissionDate.ToString("MM/dd/yyyy")</td>
+                                <td>@result.LEAName</td>
+                                <td>@result.IHEName</td>
+                                <td>
+                                    <a href="#" class="r4-button r4-button-sm">
+                                        <i class="mdi mdi-eye-outline"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@* APPLICATIONS WITH PENDING STUDENTS *@
+@if (Model.ApplicationsWithPendingStudents != null && Model.ApplicationsWithPendingStudents.Any())
+{
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-folder-open-outline"></i> Applications with Pending Students</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="table-wrapper">
+                <table class="r4-table">
+                    <thead>
+                        <tr>
+                            <th>Submission Date</th>
+                            <th>LEA</th>
+                            <th>Pending</th>
+                            <th>Approved</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var app in Model.ApplicationsWithPendingStudents)
+                        {
+                            <tr>
+                                <td>@app.SubmissionDate.ToString("MM/dd/yyyy")</td>
+                                <td>@app.LEAName</td>
+                                <td>
+                                    <span class="badge badge-warning">@app.PendingCount</span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-success">@app.ApprovedCount</span>
+                                </td>
+                                <td>
+                                    <a href="#" class="r4-button r4-button-sm">
+                                        <i class="mdi mdi-eye-outline"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -130,250 +218,115 @@
 
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-chart-bar"></i> Budget Overview</h4>
+        <h4><i class="mdi mdi-chart-bar"></i> Budget Utilization</h4>
     </div>
     <div class="r4-card-body">
-        <div class="dashboard-grid">
-            <div class="metric-card">
-                <div class="metric-icon">
-                    <i class="mdi mdi-currency-usd"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.Metrics.ApproprietedAmount.ToString("C0")</div>
-                    <div class="metric-label">Appropriated Amount</div>
-                    <div class="metric-description">Total budget for cycle</div>
-                </div>
-            </div>
-
-            <div class="metric-card metric-reserved">
-                <div class="metric-icon">
-                    <i class="mdi mdi-lock-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.Metrics.ReservedAmount.ToString("C0")</div>
-                    <div class="metric-label">Reserved</div>
-                    <div class="metric-description">Approved but not encumbered</div>
-                </div>
-            </div>
-
-            <div class="metric-card metric-encumbered">
-                <div class="metric-icon">
-                    <i class="mdi mdi-file-document-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.Metrics.EncumberedAmount.ToString("C0")</div>
-                    <div class="metric-label">Encumbered</div>
-                    <div class="metric-description">GAA generated and signed</div>
-                </div>
-            </div>
-
-            <div class="metric-card metric-disbursed">
-                <div class="metric-icon">
-                    <i class="mdi mdi-cash-check"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.Metrics.DisbursedAmount.ToString("C0")</div>
-                    <div class="metric-label">Disbursed</div>
-                    <div class="metric-description">Payments completed</div>
-                </div>
-            </div>
-
-            <div class="metric-card metric-remaining">
-                <div class="metric-icon">
-                    <i class="mdi mdi-wallet-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.Metrics.RemainingAmount.ToString("C0")</div>
-                    <div class="metric-label">Remaining</div>
-                    <div class="metric-description">@Model.Metrics.RemainingPercent.ToString("F1")% of budget</div>
-                </div>
-            </div>
-
-            <div class="metric-card metric-outstanding">
-                <div class="metric-icon">
-                    <i class="mdi mdi-alert-circle-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.Metrics.OutstandingBalance.ToString("C0")</div>
-                    <div class="metric-label">Outstanding Balance</div>
-                    <div class="metric-description">Encumbered minus disbursed</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="budget-progress">
-            <h5>Budget Utilization</h5>
-            <div class="r4-progress">
-                @{
-                    var reservedPercent = Model.Metrics.ApproprietedAmount > 0
-                        ? (Model.Metrics.ReservedAmount / Model.Metrics.ApproprietedAmount * 100)
-                        : 0;
-                    var encumberedPercent = Model.Metrics.ApproprietedAmount > 0
-                        ? (Model.Metrics.EncumberedAmount / Model.Metrics.ApproprietedAmount * 100)
-                        : 0;
-                    var disbursedPercent = Model.Metrics.ApproprietedAmount > 0
-                        ? (Model.Metrics.DisbursedAmount / Model.Metrics.ApproprietedAmount * 100)
-                        : 0;
+        <div class="budget-progress" style="border-top: none; padding-top: 0; margin-top: 0;">
+            @{
+                // Helper function to format large currency amounts
+                string FormatCurrency(decimal amount)
+                {
+                    if (amount >= 1_000_000_000)
+                        return $"${(amount / 1_000_000_000):F1}B";
+                    else if (amount >= 1_000_000)
+                        return $"${(amount / 1_000_000):F1}M";
+                    else if (amount >= 1_000)
+                        return $"${(amount / 1_000):F1}K";
+                    else
+                        return amount.ToString("C0");
                 }
+
+                // Calculate percentages for each budget category
+                var reservedPercent = Model.Metrics.ApproprietedAmount > 0
+                    ? (Model.Metrics.ReservedAmount / Model.Metrics.ApproprietedAmount * 100)
+                    : 0;
+
+                var encumberedPercent = Model.Metrics.ApproprietedAmount > 0
+                    ? (Model.Metrics.EncumberedAmount / Model.Metrics.ApproprietedAmount * 100)
+                    : 0;
+
+                var disbursedPercent = Model.Metrics.ApproprietedAmount > 0
+                    ? (Model.Metrics.DisbursedAmount / Model.Metrics.ApproprietedAmount * 100)
+                    : 0;
+
+                var remainingPercent = Model.Metrics.ApproprietedAmount > 0
+                    ? (Model.Metrics.RemainingAmount / Model.Metrics.ApproprietedAmount * 100)
+                    : 0;
+            }
+            <div class="r4-progress" title="Hover over each section to see percentages">
+                @* Reserved Amount *@
                 @if (reservedPercent > 0.1m)
                 {
-                    <div class="r4-progress-bar r4-progress-bar-reserved"
-                         style="width: @reservedPercent%"
+                    <div class="r4-progress-bar"
+                         style="width: @reservedPercent%; background-color: var(--warning); color: var(--gray-900); font-size: 0.85rem; font-weight: 600;"
                          role="progressbar"
-                         aria-valuenow="@reservedPercent" aria-valuemin="0" aria-valuemax="100">
-                        Reserved @reservedPercent.ToString("F1")%
+                         aria-valuenow="@reservedPercent"
+                         title="Reserved: @reservedPercent.ToString("F1")%">
+                        @if (reservedPercent > 8)
+                        {
+                            @FormatCurrency(Model.Metrics.ReservedAmount) <text>Reserved</text>
+                        }
                     </div>
                 }
+                @* Encumbered Amount *@
                 @if (encumberedPercent > 0.1m)
                 {
                     <div class="r4-progress-bar r4-progress-bar-encumbered"
-                         style="width: @encumberedPercent%"
+                         style="width: @encumberedPercent%; font-size: 0.85rem; font-weight: 600;"
                          role="progressbar"
-                         aria-valuenow="@encumberedPercent" aria-valuemin="0" aria-valuemax="100">
-                        Encumbered @encumberedPercent.ToString("F1")%
+                         aria-valuenow="@encumberedPercent"
+                         title="Encumbered: @encumberedPercent.ToString("F1")%">
+                        @if (encumberedPercent > 8)
+                        {
+                            @FormatCurrency(Model.Metrics.EncumberedAmount) <text>Encumbered</text>
+                        }
                     </div>
                 }
+                @* Disbursed Amount *@
                 @if (disbursedPercent > 0.1m)
                 {
                     <div class="r4-progress-bar r4-progress-bar-disbursed"
-                         style="width: @disbursedPercent%"
+                         style="width: @disbursedPercent%; font-size: 0.85rem; font-weight: 600;"
                          role="progressbar"
-                         aria-valuenow="@disbursedPercent" aria-valuemin="0" aria-valuemax="100">
-                        Disbursed @disbursedPercent.ToString("F1")%
+                         aria-valuenow="@disbursedPercent"
+                         title="Disbursed: @disbursedPercent.ToString("F1")%">
+                        @if (disbursedPercent > 8)
+                        {
+                            @FormatCurrency(Model.Metrics.DisbursedAmount) <text>Disbursed</text>
+                        }
+                    </div>
+                }
+                @* Remaining Amount *@
+                @if (remainingPercent > 0.1m)
+                {
+                    <div class="r4-progress-bar"
+                         style="width: @remainingPercent%; background-color: var(--gray-200); color: var(--gray-700); font-size: 0.85rem; font-weight: 600;"
+                         role="progressbar"
+                         aria-valuenow="@remainingPercent"
+                         title="Remaining: @remainingPercent.ToString("F1")%">
+                        @if (remainingPercent > 8)
+                        {
+                            @FormatCurrency(Model.Metrics.RemainingAmount) <text>Remaining</text>
+                        }
                     </div>
                 }
             </div>
-            <small class="text-muted">Remaining: @Model.Metrics.RemainingPercent.ToString("F1")%</small>
+            <div class="budget-legend" style="margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.9rem;">
+                <span><strong>Appropriated:</strong> @Model.Metrics.ApproprietedAmount.ToString("C0")</span>
+                @if (Model.Metrics.ReservedAmount > 0)
+                {
+                    <span style="color: var(--warning);"><strong>Reserved:</strong> @Model.Metrics.ReservedAmount.ToString("C0") (@reservedPercent.ToString("F1")%)</span>
+                }
+                <span style="color: var(--gray-600);"><strong>Encumbered:</strong> @Model.Metrics.EncumberedAmount.ToString("C0") (@encumberedPercent.ToString("F1")%)</span>
+                @if (Model.Metrics.DisbursedAmount > 0)
+                {
+                    <span style="color: var(--primary);"><strong>Disbursed:</strong> @Model.Metrics.DisbursedAmount.ToString("C0") (@disbursedPercent.ToString("F1")%)</span>
+                }
+                <span><strong>Remaining:</strong> @Model.Metrics.RemainingAmount.ToString("C0") (@remainingPercent.ToString("F1")%)</span>
+            </div>
         </div>
     </div>
 </div>
-
-@{
-    var reportingMetrics = ViewBag.ReportingMetrics as FiscalReportingDashboardViewModel;
-}
-
-@if (reportingMetrics != null)
-{
-    <div class="r4-card">
-        <div class="r4-card-header">
-            <h4><i class="mdi mdi-file-document-check-outline"></i> Reporting Compliance</h4>
-            <div class="card-actions">
-                <a href="@Url.Action("Reports", "FiscalTeam", new { grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-sm">
-                    <i class="mdi mdi-table-eye"></i> View All Reports
-                </a>
-                <a href="@Url.Action("LEACompliance", "FiscalTeam", new { grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-sm">
-                    <i class="mdi mdi-chart-box-outline"></i> LEA Compliance
-                </a>
-            </div>
-        </div>
-        <div class="r4-card-body">
-            <div class="dashboard-grid">
-                <div class="metric-card @(reportingMetrics.ComplianceHealth == "GREEN" ? "metric-compliant" : reportingMetrics.ComplianceHealth == "YELLOW" ? "metric-warning" : "metric-alert")">
-                    <div class="metric-icon">
-                        <i class="mdi @(reportingMetrics.ComplianceHealth == "GREEN" ? "mdi-check-circle" : reportingMetrics.ComplianceHealth == "YELLOW" ? "mdi-alert" : "mdi-alert-circle")"></i>
-                    </div>
-                    <div class="metric-content">
-                        <div class="metric-value">@reportingMetrics.ReportingComplianceRate.ToString("P0")</div>
-                        <div class="metric-label">Reporting Compliance</div>
-                        <div class="metric-description">
-                            @if (reportingMetrics.ComplianceHealth == "GREEN")
-                            {
-                                <span class="text-success">Excellent compliance</span>
-                            }
-                            else if (reportingMetrics.ComplianceHealth == "YELLOW")
-                            {
-                                <span class="text-warning">Needs attention</span>
-                            }
-                            else
-                            {
-                                <span class="text-danger">Immediate action required</span>
-                            }
-                        </div>
-                    </div>
-                </div>
-
-                <div class="metric-card metric-submitted">
-                    <div class="metric-icon">
-                        <i class="mdi mdi-check-all"></i>
-                    </div>
-                    <div class="metric-content">
-                        <div class="metric-value">@reportingMetrics.PaymentsWithReports</div>
-                        <div class="metric-label">Reports Completed</div>
-                        <div class="metric-description">of @reportingMetrics.TotalPayments total payments</div>
-                    </div>
-                </div>
-
-                <div class="metric-card @(reportingMetrics.OutstandingReports > 0 ? "metric-outstanding" : "")">
-                    <div class="metric-icon">
-                        <i class="mdi mdi-file-alert-outline"></i>
-                    </div>
-                    <div class="metric-content">
-                        <div class="metric-value">@reportingMetrics.OutstandingReports</div>
-                        <div class="metric-label">Outstanding Reports</div>
-                        <div class="metric-description">
-                            @if (reportingMetrics.OutstandingReports > 0)
-                            {
-                                <span>Require submission</span>
-                            }
-                            else
-                            {
-                                <span class="text-success">All reports current</span>
-                            }
-                        </div>
-                    </div>
-                </div>
-
-                <div class="metric-card">
-                    <div class="metric-icon">
-                        <i class="mdi mdi-target"></i>
-                    </div>
-                    <div class="metric-content">
-                        <div class="metric-value">@reportingMetrics.OutcomeMetrics.EmploymentRate.ToString("P0")</div>
-                        <div class="metric-label">Employment Rate</div>
-                        <div class="metric-description">@reportingMetrics.OutcomeMetrics.TeachersEmployed teachers hired</div>
-                    </div>
-                </div>
-            </div>
-
-            @if (reportingMetrics.OutcomeMetrics != null)
-            {
-                <div style="margin-top: 2rem;">
-                    <h5>Program Outcomes</h5>
-                    <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
-                        <div class="outcome-stat">
-                            <i class="mdi mdi-account-check"></i>
-                            <div>
-                                <div class="stat-value">@reportingMetrics.OutcomeMetrics.ProgramCompletions</div>
-                                <div class="stat-label">Program Completions</div>
-                            </div>
-                        </div>
-                        <div class="outcome-stat">
-                            <i class="mdi mdi-certificate"></i>
-                            <div>
-                                <div class="stat-value">@reportingMetrics.OutcomeMetrics.CredentialsEarned</div>
-                                <div class="stat-label">Credentials Earned</div>
-                            </div>
-                        </div>
-                        <div class="outcome-stat">
-                            <i class="mdi mdi-cash-multiple"></i>
-                            <div>
-                                <div class="stat-value">@reportingMetrics.OutcomeMetrics.CostPerSuccessfulTeacher.ToString("C0")</div>
-                                <div class="stat-label">Cost Per Teacher</div>
-                            </div>
-                        </div>
-                        <div class="outcome-stat">
-                            <i class="mdi mdi-wallet"></i>
-                            <div>
-                                <div class="stat-value">@reportingMetrics.OutcomeMetrics.TotalInvestment.ToString("C0")</div>
-                                <div class="stat-label">Total Investment</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-    </div>
-}
 
 @section Scripts {
     <script>

@@ -16,7 +16,7 @@
     <p class="subtitle">@Model.GrantCycleName</p>
 </div>
 
-@if (!Model.Students.Any())
+@if (!Model.DisbursementGroups.Any())
 {
     <div class="alert alert-info">
         <i class="mdi mdi-information-outline"></i>
@@ -25,110 +25,184 @@
 }
 else
 {
-    <div class="alert alert-warning">
-        <i class="mdi mdi-alert-outline"></i>
-        <strong>@Model.Students.Count approved student(s)</strong> are ready for Grant Award Agreement generation.
-    </div>
 
-    <div class="r4-card">
-        <div class="r4-card-header">
-            <h4><i class="mdi mdi-file-document-multiple-outline"></i> Approved Students Needing GAA</h4>
-            <div class="card-actions">
-                <button type="button" class="r4-button r4-button-primary" onclick="generateSelectedGAAs()">
-                    <i class="mdi mdi-file-plus-outline"></i> Generate Selected GAAs
-                </button>
-                <button type="button" class="r4-button r4-button-success" onclick="generateAllGAAs()">
-                    <i class="mdi mdi-file-document-check-outline"></i> Generate All GAAs
-                </button>
+    <!-- Search/Filter Section -->
+    <div class="r4-card" style="margin-bottom: 1.5rem;">
+        <div class="r4-card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="filterStudentName" class="form-label">Search by Student Name</label>
+                        <input type="text" id="filterStudentName" class="form-control" placeholder="Enter student name...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="filterLEA" class="form-label">Filter by LEA</label>
+                        <select id="filterLEA" class="form-control">
+                            <option value="">All LEAs</option>
+                            @foreach (var group in Model.DisbursementGroups.Select(g => g.LEAName).Distinct().OrderBy(l => l))
+                            {
+                                <option value="@group">@group</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="filterMonth" class="form-label">Filter by Submission Month</label>
+                        <select id="filterMonth" class="form-control">
+                            <option value="">All Months</option>
+                            @foreach (var month in Model.DisbursementGroups.Select(g => g.SubmissionMonth).Distinct().OrderBy(m => m))
+                            {
+                                <option value="@month">@month</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="button" class="r4-button r4-button-secondary" onclick="clearFilters()" style="width: 100%;">
+                            <i class="mdi mdi-filter-off"></i> Clear Filters
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="r4-card-body">
-            <div class="table-wrapper">
-                <table class="r4-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 40px;">
-                                <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)">
-                            </th>
-                            <th style="width: 150px;">Student Name</th>
-                            <th style="width: 100px;">SEID</th>
-                            <th style="width: 150px;">IHE Institution</th>
-                            <th style="width: 150px;">LEA District</th>
-                            <th style="width: 180px;">Credential Area</th>
-                            <th style="width: 100px;">Award Amount</th>
-                            <th style="width: 120px;">Approved Date</th>
-                            <th style="width: 120px;">GAA Status</th>
-                            <th style="width: 100px;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var student in Model.Students)
-                        {
-                            <tr>
-                                <td>
-                                    <input type="checkbox" class="student-checkbox" value="@student.StudentId">
-                                </td>
-                                <td>@student.StudentName</td>
-                                <td>@student.SEID</td>
-                                <td style="white-space: normal; word-wrap: break-word;">@student.IHEName</td>
-                                <td style="white-space: normal; word-wrap: break-word;">@student.LEAName</td>
-                                <td>
-                                    <span class="badge badge-primary" style="white-space: normal; display: block; line-height: 1.3;">@student.CredentialArea</span>
-                                </td>
-                                <td>$10,000</td>
-                                <td style="white-space: nowrap;">
-                                    @if (student.ApprovedDate.HasValue)
-                                    {
-                                        @student.ApprovedDate.Value.ToString("MM/dd/yyyy")
-                                        var daysSince = (DateTime.Now - student.ApprovedDate.Value).Days;
-                                        if (daysSince > 0)
-                                        {
-                                            <br /><small class="text-muted">(@daysSince day(s) ago)</small>
-                                        }
-                                    }
-                                </td>
-                                <td>
-                                    @if (string.IsNullOrEmpty(student.GAAStatus))
-                                    {
-                                        <span class="badge badge-warning">PENDING</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge badge-success">@student.GAAStatus</span>
-                                    }
-                                </td>
-                                <td>
-                                    <button type="button" class="r4-button r4-button-sm" onclick="generateSingleGAA(@student.StudentId)">
-                                        <i class="mdi mdi-file-document-outline"></i> Generate
-                                    </button>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+    </div>
+
+    <!-- Disbursement Groups -->
+    @foreach (var group in Model.DisbursementGroups)
+    {
+        var groupId = $"group-{group.Id}";
+        var collapseId = $"collapse-{group.Id}";
+
+        <div class="r4-card disbursement-group-card" data-lea="@group.LEAName" data-month="@group.SubmissionMonth" style="margin-bottom: 1.5rem;">
+            <div class="r4-card-header" style="background-color: var(--gray-50);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="flex: 1; cursor: pointer;" data-bs-toggle="collapse" data-bs-target="#@collapseId">
+                        <h4 style="margin-bottom: 0.25rem;">
+                            <i class="mdi mdi-chevron-down"></i>
+                            <strong>@group.LEAName</strong>
+                            <span class="badge badge-secondary" style="margin-left: 0.5rem;">@group.SubmissionMonth</span>
+                        </h4>
+                        <p style="margin: 0; font-size: 0.9rem; color: var(--gray-600);">
+                            @group.StudentCount student(s) &bull; @group.TotalAmount.ToString("C0") total
+                        </p>
+                    </div>
+                    <div class="card-actions" style="margin-right: 1rem;">
+                        <button type="button" class="r4-button r4-button-primary" onclick="generateGroupGAAs(@group.Id, @group.StudentCount)">
+                            <i class="mdi mdi-file-document-check-outline"></i> Generate All GAAs for Group
+                        </button>
+                    </div>
+                </div>
             </div>
+            <div id="@collapseId" class="collapse">
+                <div class="r4-card-body">
+                    <div class="table-wrapper">
+                        <table class="r4-table gaa-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-checkbox">
+                                        <input type="checkbox" class="group-select-all" data-group="@group.Id" onchange="toggleGroupSelectAll(this, @group.Id)">
+                                    </th>
+                                    <th>Student Name</th>
+                                    <th>SEID</th>
+                                    <th>IHE Institution</th>
+                                    <th>Credential Area</th>
+                                    <th>Award Amount</th>
+                                    <th>Approved Date</th>
+                                    <th>GAA Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var student in group.Students)
+                                {
+                                    <tr class="student-row" data-student-name="@student.StudentName.ToLower()">
+                                        <td>
+                                            <input type="checkbox" class="student-checkbox" data-group="@group.Id" value="@student.StudentId">
+                                        </td>
+                                        <td><strong>@student.StudentName</strong></td>
+                                        <td>@student.SEID</td>
+                                        <td class="col-wrap">@student.IHEName</td>
+                                        <td>
+                                            <span class="badge badge-primary">@student.CredentialArea</span>
+                                        </td>
+                                        <td><strong>@student.AwardAmount.ToString("C0")</strong></td>
+                                        <td class="col-nowrap">
+                                            @if (student.ApprovedDate.HasValue)
+                                            {
+                                                @student.ApprovedDate.Value.ToString("MM/dd/yyyy")
+                                                var daysSince = (DateTime.Now - student.ApprovedDate.Value).Days;
+                                                if (daysSince > 0)
+                                                {
+                                                    <br /><small class="text-muted">(@daysSince day(s) ago)</small>
+                                                }
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (string.IsNullOrEmpty(student.GAAStatus))
+                                            {
+                                                <span class="badge badge-warning">PENDING</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-success">@student.GAAStatus</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <button type="button" class="r4-button r4-button-sm" onclick="generateSingleGAA(@student.StudentId, '@student.StudentName')">
+                                                <i class="mdi mdi-file-document-outline"></i> Generate
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-300);">
+                        <button type="button" class="r4-button r4-button-primary" onclick="generateSelectedInGroup(@group.Id)">
+                            <i class="mdi mdi-file-plus-outline"></i> Generate Selected GAAs in Group
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Global Actions -->
+    <div class="r4-card">
+        <div class="r4-card-body">
+            <button type="button" class="r4-button r4-button-success" onclick="generateAllGAAs()">
+                <i class="mdi mdi-file-document-check-outline"></i> Generate All GAAs for All Groups
+            </button>
         </div>
     </div>
 }
 
 @section Scripts {
     <script>
-        function toggleSelectAll(checkbox) {
-            const checkboxes = document.querySelectorAll('.student-checkbox');
+        // Toggle select all for a specific group
+        function toggleGroupSelectAll(checkbox, groupId) {
+            const checkboxes = document.querySelectorAll(`.student-checkbox[data-group="${groupId}"]`);
             checkboxes.forEach(cb => {
                 cb.checked = checkbox.checked;
             });
         }
 
-        function generateSingleGAA(studentId) {
-            if (confirm('Generate GAA for this student?\n\nThis will create a Grant Award Agreement document and mark the student as ready for DocuSign.')) {
-                alert('GAA Generation for Student ' + studentId + '\n\nIn production, this would:\n1. Generate GAA PDF document\n2. Update student GAA status\n3. Mark funds as encumbered\n4. Prepare for DocuSign upload');
+        // Generate GAA for a single student
+        function generateSingleGAA(studentId, studentName) {
+            if (confirm(`Generate GAA for ${studentName}?\n\nThis will create a Grant Award Agreement document and mark the student as ready for DocuSign.`)) {
+                alert('GAA Generation for ' + studentName + '\n\nIn production, this would:\n1. Generate GAA PDF document\n2. Update student GAA status\n3. Mark funds as encumbered\n4. Prepare for DocuSign upload');
                 location.reload();
             }
         }
 
-        function generateSelectedGAAs() {
-            const checkboxes = document.querySelectorAll('.student-checkbox:checked');
+        // Generate GAAs for selected students in a group
+        function generateSelectedInGroup(groupId) {
+            const checkboxes = document.querySelectorAll(`.student-checkbox[data-group="${groupId}"]:checked`);
             const selectedCount = checkboxes.length;
 
             if (selectedCount === 0) {
@@ -136,23 +210,89 @@ else
                 return;
             }
 
-            if (confirm(`Generate GAAs for ${selectedCount} selected student(s)?\n\nThis will create Grant Award Agreement documents for all selected students.`)) {
+            if (confirm(`Generate GAAs for ${selectedCount} selected student(s) in this group?\n\nThis will create Grant Award Agreement documents for all selected students.`)) {
                 alert(`Generating ${selectedCount} GAA document(s)\n\nIn production, this would:\n1. Generate GAA PDF documents\n2. Update student GAA statuses\n3. Mark funds as encumbered\n4. Prepare for DocuSign upload`);
                 location.reload();
             }
         }
 
-        function generateAllGAAs() {
-            const totalCount = @Model.Students.Count;
-
-            if (confirm(`Generate GAAs for ALL ${totalCount} approved student(s)?\n\nThis will create Grant Award Agreement documents for all students in the list.`)) {
-                alert(`Generating ${totalCount} GAA document(s)\n\nIn production, this would:\n1. Generate all GAA PDF documents\n2. Update all student GAA statuses\n3. Mark all funds as encumbered\n4. Prepare batch for DocuSign upload`);
+        // Generate all GAAs for an entire disbursement group
+        function generateGroupGAAs(groupId, studentCount) {
+            if (confirm(`Generate GAAs for all ${studentCount} student(s) in this disbursement group?\n\nThis will create Grant Award Agreement documents for all students in this group.`)) {
+                alert(`Generating ${studentCount} GAA document(s) for disbursement group\n\nIn production, this would:\n1. Generate all GAA PDF documents for the group\n2. Update all student GAA statuses\n3. Mark all funds as encumbered\n4. Prepare batch for DocuSign upload`);
                 location.reload();
             }
         }
 
+        // Generate all GAAs for all groups
+        function generateAllGAAs() {
+            const totalCount = @Model.TotalStudents;
+            const groupCount = @Model.TotalGroups;
+
+            if (confirm(`Generate GAAs for ALL ${totalCount} approved student(s) across ${groupCount} disbursement group(s)?\n\nThis will create Grant Award Agreement documents for all students in all groups.`)) {
+                alert(`Generating ${totalCount} GAA document(s) across ${groupCount} group(s)\n\nIn production, this would:\n1. Generate all GAA PDF documents\n2. Update all student GAA statuses\n3. Mark all funds as encumbered\n4. Prepare all batches for DocuSign upload`);
+                location.reload();
+            }
+        }
+
+        // Filter functionality
+        function applyFilters() {
+            const studentNameFilter = document.getElementById('filterStudentName').value.toLowerCase();
+            const leaFilter = document.getElementById('filterLEA').value;
+            const monthFilter = document.getElementById('filterMonth').value;
+
+            // Filter groups
+            const groups = document.querySelectorAll('.disbursement-group-card');
+            groups.forEach(group => {
+                const lea = group.getAttribute('data-lea');
+                const month = group.getAttribute('data-month');
+
+                const leaMatch = !leaFilter || lea === leaFilter;
+                const monthMatch = !monthFilter || month === monthFilter;
+
+                if (leaMatch && monthMatch) {
+                    group.style.display = '';
+
+                    // Filter students within visible groups
+                    const studentRows = group.querySelectorAll('.student-row');
+                    let visibleStudents = 0;
+
+                    studentRows.forEach(row => {
+                        const studentName = row.getAttribute('data-student-name');
+                        const nameMatch = !studentNameFilter || studentName.includes(studentNameFilter);
+
+                        if (nameMatch) {
+                            row.style.display = '';
+                            visibleStudents++;
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+
+                    // Hide group if no students match the name filter
+                    if (studentNameFilter && visibleStudents === 0) {
+                        group.style.display = 'none';
+                    }
+                } else {
+                    group.style.display = 'none';
+                }
+            });
+        }
+
+        function clearFilters() {
+            document.getElementById('filterStudentName').value = '';
+            document.getElementById('filterLEA').value = '';
+            document.getElementById('filterMonth').value = '';
+            applyFilters();
+        }
+
+        // Apply filters on input change
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('GAA Generation page loaded with @Model.Students.Count student(s) ready for processing');
+            document.getElementById('filterStudentName').addEventListener('input', applyFilters);
+            document.getElementById('filterLEA').addEventListener('change', applyFilters);
+            document.getElementById('filterMonth').addEventListener('change', applyFilters);
+
+            console.log('GAA Generation page loaded with @Model.TotalGroups group(s) and @Model.TotalStudents student(s) ready for processing');
         });
     </script>
 }

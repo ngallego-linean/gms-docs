@@ -46,8 +46,8 @@
                     </div>
                 </div>
 
-                <div class="metric-card metric-submitted">
-                    <div class="metric-icon">
+                <div class="metric-card">
+                    <div class="metric-icon" style="color: var(--success);">
                         <i class="mdi mdi-check-all"></i>
                     </div>
                     <div class="metric-content">
@@ -56,8 +56,8 @@
                     </div>
                 </div>
 
-                <div class="metric-card @(reportingMetrics.OutstandingReports > 0 ? "metric-outstanding" : "")">
-                    <div class="metric-icon">
+                <div class="metric-card">
+                    <div class="metric-icon" style="color: @(reportingMetrics.OutstandingReports > 0 ? "var(--danger)" : "var(--gray-600)");">
                         <i class="mdi mdi-file-alert-outline"></i>
                     </div>
                     <div class="metric-content">
@@ -66,8 +66,8 @@
                     </div>
                 </div>
 
-                <div class="metric-card @(reportingMetrics.ComplianceHealth == "GREEN" ? "metric-compliant" : reportingMetrics.ComplianceHealth == "YELLOW" ? "metric-warning" : "metric-alert")">
-                    <div class="metric-icon">
+                <div class="metric-card">
+                    <div class="metric-icon" style="color: @(reportingMetrics.ComplianceHealth == "GREEN" ? "var(--success)" : reportingMetrics.ComplianceHealth == "YELLOW" ? "var(--warning)" : "var(--danger)");">
                         <i class="mdi @(reportingMetrics.ComplianceHealth == "GREEN" ? "mdi-check-circle" : reportingMetrics.ComplianceHealth == "YELLOW" ? "mdi-alert" : "mdi-alert-circle")"></i>
                     </div>
                     <div class="metric-content">
@@ -80,11 +80,66 @@
     </div>
 }
 
+<!-- Filters -->
+<div class="r4-card" style="margin-bottom: 1.5rem;">
+    <div class="r4-card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="filterStudent" class="form-label">Search Student</label>
+                    <input type="text" id="filterStudent" class="form-control" placeholder="Enter student name or SEID...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="filterLEA" class="form-label">Filter by LEA</label>
+                    <select id="filterLEA" class="form-control">
+                        <option value="">All LEAs</option>
+                        @foreach (var lea in Model.Select(p => p.LEAName).Distinct().OrderBy(l => l))
+                        {
+                            <option value="@lea">@lea</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label for="filterReportStatus" class="form-label">Report Status</label>
+                    <select id="filterReportStatus" class="form-control">
+                        <option value="">All Statuses</option>
+                        <option value="complete">Complete</option>
+                        <option value="outstanding">Outstanding</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label for="filterCompletion" class="form-label">Program Status</label>
+                    <select id="filterCompletion" class="form-control">
+                        <option value="">All</option>
+                        <option value="COMPLETED">Completed</option>
+                        <option value="IN_PROGRESS">In Progress</option>
+                        <option value="DENIED">Denied</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="button" class="r4-button r4-button-secondary" onclick="clearReportFilters()" style="width: 100%;">
+                        <i class="mdi mdi-filter-off"></i> Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="r4-card">
     <div class="r4-card-header">
         <h4><i class="mdi mdi-table"></i> Payments with Report Status</h4>
         <div class="card-actions">
-            <a href="@Url.Action("LEACompliance", "FiscalTeam", new { grantCycleId })" class="r4-button r4-button-sm">
+            <a href="@Url.Action("LEACompliance", "FiscalTeam", new { grantCycleId })" class="r4-button r4-button-sm r4-button-secondary">
                 <i class="mdi mdi-chart-box-outline"></i> LEA Compliance
             </a>
         </div>
@@ -96,38 +151,38 @@
                 <table class="r4-table">
                     <thead>
                         <tr>
+                            <th style="width: 40px;"></th>
                             <th>Student</th>
                             <th>LEA District</th>
                             <th>Amount Paid</th>
-                            <th>Payment Date</th>
                             <th>LEA Report</th>
                             <th>IHE Report</th>
-                            <th>Program Completion</th>
-                            <th>Credential</th>
-                            <th>Employment</th>
-                            <th>Status</th>
+                            <th>Overall Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var payment in Model)
                         {
-                            <tr class="@(payment.HasOutstandingReports ? "row-warning" : "")">
+                            var rowId = $"payment-{payment.PaymentId}";
+                            var collapseId = $"details-{payment.PaymentId}";
+
+                            <tr class="payment-row"
+                                data-student-name="@payment.StudentName.ToLower()"
+                                data-seid="@payment.SEID.ToLower()"
+                                data-lea="@payment.LEAName"
+                                data-status="@(payment.HasOutstandingReports ? "outstanding" : "complete")"
+                                data-completion="@payment.ProgramCompletion">
+                                <td>
+                                    <button type="button" class="r4-button r4-button-sm" onclick="toggleDetails('@collapseId', this)" style="padding: 0.25rem 0.5rem;">
+                                        <i class="mdi mdi-chevron-down"></i>
+                                    </button>
+                                </td>
                                 <td>
                                     <strong>@payment.StudentName</strong><br />
                                     <small class="text-muted">@payment.SEID</small>
                                 </td>
                                 <td>@payment.LEAName</td>
                                 <td>@payment.AmountPaid.ToString("C0")</td>
-                                <td>
-                                    @if (payment.PaymentDate.HasValue)
-                                    {
-                                        @payment.PaymentDate.Value.ToString("MM/dd/yyyy")
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">—</span>
-                                    }
-                                </td>
                                 <td>
                                     @if (payment.LEAReportStatus == "Submitted")
                                     {
@@ -149,65 +204,6 @@
                                     }
                                 </td>
                                 <td>
-                                    @if (!string.IsNullOrEmpty(payment.ProgramCompletion))
-                                    {
-                                        @if (payment.ProgramCompletion == "COMPLETED")
-                                        {
-                                            <span class="badge badge-success"><i class="mdi mdi-check-circle"></i> Completed</span>
-                                        }
-                                        else if (payment.ProgramCompletion == "IN_PROGRESS")
-                                        {
-                                            <span class="badge badge-info"><i class="mdi mdi-progress-clock"></i> In Progress</span>
-                                        }
-                                        else if (payment.ProgramCompletion == "DENIED")
-                                        {
-                                            <span class="badge badge-danger"><i class="mdi mdi-close-circle"></i> Denied</span>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">—</span>
-                                    }
-                                </td>
-                                <td>
-                                    @if (payment.IHEReportStatus == "Submitted")
-                                    {
-                                        @if (payment.CredentialEarned)
-                                        {
-                                            <span class="badge badge-success"><i class="mdi mdi-certificate"></i> Earned</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge badge-secondary"><i class="mdi mdi-certificate-outline"></i> Not Earned</span>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">—</span>
-                                    }
-                                </td>
-                                <td>
-                                    @if (!string.IsNullOrEmpty(payment.EmploymentStatus))
-                                    {
-                                        @if (payment.HiredInDistrict && payment.EmploymentStatus == "FULL_TIME")
-                                        {
-                                            <span class="badge badge-success"><i class="mdi mdi-briefcase-check"></i> Full-Time</span>
-                                        }
-                                        else if (payment.HiredInDistrict && payment.EmploymentStatus == "PART_TIME")
-                                        {
-                                            <span class="badge badge-info"><i class="mdi mdi-briefcase-clock"></i> Part-Time</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge badge-secondary"><i class="mdi mdi-briefcase-remove"></i> Not Hired</span>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">—</span>
-                                    }
-                                </td>
-                                <td>
                                     @if (payment.HasOutstandingReports)
                                     {
                                         <span class="badge badge-warning"><i class="mdi mdi-alert"></i> Outstanding</span>
@@ -216,6 +212,118 @@
                                     {
                                         <span class="badge badge-success"><i class="mdi mdi-check-all"></i> Complete</span>
                                     }
+                                </td>
+                            </tr>
+                            <tr id="@collapseId" class="detail-row" style="display: none;">
+                                <td colspan="7" style="background-color: var(--gray-50); padding: 1.5rem;">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h5 style="margin-bottom: 1rem; color: var(--gray-700);">
+                                                <i class="mdi mdi-school-outline"></i> Program & Credential Information
+                                            </h5>
+                                            <div style="display: grid; grid-template-columns: auto 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+                                                <strong>Payment Date:</strong>
+                                                <span>
+                                                    @if (payment.PaymentDate.HasValue)
+                                                    {
+                                                        @payment.PaymentDate.Value.ToString("MM/dd/yyyy")
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">—</span>
+                                                    }
+                                                </span>
+
+                                                <strong>Program Completion:</strong>
+                                                <span>
+                                                    @if (!string.IsNullOrEmpty(payment.ProgramCompletion))
+                                                    {
+                                                        @if (payment.ProgramCompletion == "COMPLETED")
+                                                        {
+                                                            <span class="badge badge-success"><i class="mdi mdi-check-circle"></i> Completed</span>
+                                                        }
+                                                        else if (payment.ProgramCompletion == "IN_PROGRESS")
+                                                        {
+                                                            <span class="badge badge-info"><i class="mdi mdi-progress-clock"></i> In Progress</span>
+                                                        }
+                                                        else if (payment.ProgramCompletion == "DENIED")
+                                                        {
+                                                            <span class="badge badge-danger"><i class="mdi mdi-close-circle"></i> Denied</span>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">Not reported</span>
+                                                    }
+                                                </span>
+
+                                                <strong>Credential Earned:</strong>
+                                                <span>
+                                                    @if (payment.IHEReportStatus == "Submitted")
+                                                    {
+                                                        @if (payment.CredentialEarned)
+                                                        {
+                                                            <span class="badge badge-success"><i class="mdi mdi-certificate"></i> Yes</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge badge-secondary"><i class="mdi mdi-certificate-outline"></i> No</span>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">Not reported</span>
+                                                    }
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <h5 style="margin-bottom: 1rem; color: var(--gray-700);">
+                                                <i class="mdi mdi-briefcase-outline"></i> Employment Information
+                                            </h5>
+                                            <div style="display: grid; grid-template-columns: auto 1fr; gap: 0.75rem;">
+                                                <strong>Employment Status:</strong>
+                                                <span>
+                                                    @if (!string.IsNullOrEmpty(payment.EmploymentStatus))
+                                                    {
+                                                        @if (payment.HiredInDistrict && payment.EmploymentStatus == "FULL_TIME")
+                                                        {
+                                                            <span class="badge badge-success"><i class="mdi mdi-briefcase-check"></i> Full-Time</span>
+                                                        }
+                                                        else if (payment.HiredInDistrict && payment.EmploymentStatus == "PART_TIME")
+                                                        {
+                                                            <span class="badge badge-info"><i class="mdi mdi-briefcase-clock"></i> Part-Time</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge badge-secondary"><i class="mdi mdi-briefcase-remove"></i> Not Hired</span>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">Not reported</span>
+                                                    }
+                                                </span>
+
+                                                <strong>Hired in District:</strong>
+                                                <span>
+                                                    @if (payment.HiredInDistrict)
+                                                    {
+                                                        <span class="badge badge-success"><i class="mdi mdi-check"></i> Yes</span>
+                                                    }
+                                                    else if (!string.IsNullOrEmpty(payment.EmploymentStatus))
+                                                    {
+                                                        <span class="badge badge-secondary"><i class="mdi mdi-close"></i> No</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">Not reported</span>
+                                                    }
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -235,6 +343,71 @@
 
 @section Scripts {
     <script>
-        // All styles are now in r4-styles.css
+        function toggleDetails(collapseId, button) {
+            const detailRow = document.getElementById(collapseId);
+            const icon = button.querySelector('i');
+
+            if (detailRow.style.display === 'none') {
+                detailRow.style.display = '';
+                icon.classList.remove('mdi-chevron-down');
+                icon.classList.add('mdi-chevron-up');
+            } else {
+                detailRow.style.display = 'none';
+                icon.classList.remove('mdi-chevron-up');
+                icon.classList.add('mdi-chevron-down');
+            }
+        }
+
+        function applyReportFilters() {
+            const studentFilter = document.getElementById('filterStudent').value.toLowerCase();
+            const leaFilter = document.getElementById('filterLEA').value;
+            const statusFilter = document.getElementById('filterReportStatus').value;
+            const completionFilter = document.getElementById('filterCompletion').value;
+
+            const rows = document.querySelectorAll('.payment-row');
+            rows.forEach(row => {
+                const studentName = row.getAttribute('data-student-name');
+                const seid = row.getAttribute('data-seid');
+                const lea = row.getAttribute('data-lea');
+                const status = row.getAttribute('data-status');
+                const completion = row.getAttribute('data-completion');
+
+                const studentMatch = !studentFilter || studentName.includes(studentFilter) || seid.includes(studentFilter);
+                const leaMatch = !leaFilter || lea === leaFilter;
+                const statusMatch = !statusFilter || status === statusFilter;
+                const completionMatch = !completionFilter || completion === completionFilter;
+
+                const detailRow = row.nextElementSibling;
+
+                if (studentMatch && leaMatch && statusMatch && completionMatch) {
+                    row.style.display = '';
+                    // Keep detail row's current state but make it available
+                    if (detailRow && detailRow.classList.contains('detail-row')) {
+                        // Don't change display state of detail row
+                    }
+                } else {
+                    row.style.display = 'none';
+                    // Hide detail row too
+                    if (detailRow && detailRow.classList.contains('detail-row')) {
+                        detailRow.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        function clearReportFilters() {
+            document.getElementById('filterStudent').value = '';
+            document.getElementById('filterLEA').value = '';
+            document.getElementById('filterReportStatus').value = '';
+            document.getElementById('filterCompletion').value = '';
+            applyReportFilters();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('filterStudent').addEventListener('input', applyReportFilters);
+            document.getElementById('filterLEA').addEventListener('change', applyReportFilters);
+            document.getElementById('filterReportStatus').addEventListener('change', applyReportFilters);
+            document.getElementById('filterCompletion').addEventListener('change', applyReportFilters);
+        });
     </script>
 }
