@@ -40,17 +40,91 @@ public class LEAPortalController : Controller
             var submittedStudents = leaApplications.SelectMany(a => a.Students).Count(s => s.Status == "SUBMITTED");
             var approvedStudents = leaApplications.SelectMany(a => a.Students).Count(s => s.Status == "APPROVED");
 
+            // Calculate batch context (month/day information)
+            var currentDate = DateTime.Now;
+            var daysInMonth = DateTime.DaysInMonth(currentDate.Year, currentDate.Month);
+            var daysRemaining = daysInMonth - currentDate.Day;
+            var currentBatchMonth = currentDate.ToString("MMMM yyyy");
+
+            // Calculate action item counts
+            var candidatesReadyForApplication = draftStudents;
+            var applicationsWithErrors = leaApplications.Count(a =>
+                a.Status == "VALIDATION_ERROR" || a.Status == "REJECTED");
+
+            // Get draft applications
+            var draftApplications = leaApplications
+                .Where(a => a.Status == "DRAFT")
+                .Select(a => new DraftApplicationSummaryViewModel
+                {
+                    ApplicationId = a.Id,
+                    IHEName = a.IHE.Name,
+                    CandidateCount = a.Students.Count,
+                    LastSaved = a.LastModified,
+                    DaysRemainingInMonth = daysRemaining
+                })
+                .ToList();
+
+            // Group IHE submissions by partner
+            var iheSubmissions = leaApplications
+                .GroupBy(a => a.IHE.Name)
+                .Select(g =>
+                {
+                    var app = g.First();
+                    var allStudents = g.SelectMany(a => a.Students).ToList();
+                    var hasErrors = g.Any(a => a.Status == "VALIDATION_ERROR" || a.Status == "REJECTED");
+
+                    return new IHESubmissionViewModel
+                    {
+                        ApplicationId = app.Id,
+                        IHEName = app.IHE.Name,
+                        SubmissionDate = app.CreatedAt,
+                        TotalCandidates = allStudents.Count,
+                        Status = app.Status,
+                        LastModified = app.LastModified,
+                        HasErrors = hasErrors,
+                        ValidationErrors = hasErrors ? new List<string> { "Application contains validation errors" } : new List<string>(),
+                        Candidates = allStudents.Select(s => new CandidateSummaryViewModel
+                        {
+                            StudentId = s.Id,
+                            FirstName = s.FirstName,
+                            LastName = s.LastName,
+                            CredentialArea = s.CredentialArea,
+                            AwardAmount = s.AwardAmount,
+                            Status = s.Status,
+                            NeedsCompletion = s.Status == "DRAFT" || s.Status == "PENDING_LEA",
+                            SEID = s.SEID
+                        }).ToList()
+                    };
+                })
+                .OrderBy(s => s.SubmissionDate)
+                .ToList();
+
             var actionItems = new List<ActionItemViewModel>();
 
-            if (draftStudents > 0)
+            // Priority order: Errors, Candidates Ready, Reports Due
+            if (applicationsWithErrors > 0)
             {
                 actionItems.Add(new ActionItemViewModel
                 {
                     Id = 1,
-                    Type = "complete_application",
-                    Title = "Complete Application",
-                    Description = $"{draftStudents} candidate(s) need application completion",
-                    DueDate = DateTime.Now.AddDays(14),
+                    Type = "application_errors",
+                    Title = "Application Errors",
+                    Description = $"You have {applicationsWithErrors} application(s) that require attention",
+                    DueDate = DateTime.Now.AddDays(7),
+                    Priority = "critical",
+                    AssignedTo = "LEA"
+                });
+            }
+
+            if (candidatesReadyForApplication > 0)
+            {
+                actionItems.Add(new ActionItemViewModel
+                {
+                    Id = 2,
+                    Type = "candidates_ready",
+                    Title = "Candidates Ready for Application",
+                    Description = $"You have {candidatesReadyForApplication} candidate(s) ready for application",
+                    DueDate = DateTime.Now.AddDays(daysRemaining),
                     Priority = "high",
                     AssignedTo = "LEA"
                 });
@@ -60,6 +134,20 @@ public class LEAPortalController : Controller
             var reportingDeadline = grantCycle.EndDate.AddMonths(3); // Example: 3 months after cycle end
             var (totalFunded, reportsSubmitted, reportsPending, reportsOverdue) =
                 _grantService.GetReportingMetrics(leaId, grantCycleId, reportingDeadline);
+
+            if (reportsPending > 0 || reportsOverdue > 0)
+            {
+                actionItems.Add(new ActionItemViewModel
+                {
+                    Id = 3,
+                    Type = "reports_due",
+                    Title = "Reports Due",
+                    Description = $"You have {reportsPending} report(s) due" + (reportsOverdue > 0 ? $" ({reportsOverdue} overdue)" : ""),
+                    DueDate = reportingDeadline,
+                    Priority = reportsOverdue > 0 ? "high" : "medium",
+                    AssignedTo = "LEA"
+                });
+            }
 
             var model = new LEADashboardViewModel
             {
@@ -72,6 +160,21 @@ public class LEAPortalController : Controller
                 PendingCompletionCount = draftStudents,
                 SubmittedCount = submittedStudents,
                 ApprovedCount = approvedStudents,
+
+                // Enhanced Action Items
+                CandidatesReadyForApplication = candidatesReadyForApplication,
+                ApplicationsWithErrors = applicationsWithErrors,
+                CurrentMonthDay = currentDate.Day,
+                DaysRemainingInMonth = daysRemaining,
+                CurrentBatchMonth = currentBatchMonth,
+
+                // Draft Applications
+                DraftApplicationCount = draftApplications.Count,
+                DraftApplications = draftApplications,
+
+                // IHE Submissions
+                IHESubmissions = iheSubmissions,
+
                 Applications = leaApplications.Select(a => new ApplicationSummaryViewModel
                 {
                     Id = a.Id,
@@ -84,6 +187,7 @@ public class LEAPortalController : Controller
                     LastModified = a.LastModified
                 }).ToList(),
                 ActionItems = actionItems,
+
                 // Reporting metrics
                 TotalFundedStudents = totalFunded,
                 ReportsSubmitted = reportsSubmitted,

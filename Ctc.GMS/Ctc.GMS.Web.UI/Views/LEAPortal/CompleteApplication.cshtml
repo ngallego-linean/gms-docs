@@ -7,18 +7,29 @@
 @section Breadcrumbs {
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "LEAPortal")">LEA Portal</a></li>
-        <li class="breadcrumb-item active">Complete Application</li>
+        <li class="breadcrumb-item active">Complete Candidate Application</li>
     </ol>
 }
 
 <div class="page-header">
-    <h2><i class="mdi mdi-file-document-edit-outline"></i> Complete Application</h2>
+    <h2><i class="mdi mdi-file-document-edit-outline"></i> Complete Candidate Application</h2>
     <p class="subtitle">Partnership with @Model.IHEName</p>
-</div>
-
-<div class="alert alert-info">
-    <i class="mdi mdi-information-outline"></i>
-    Your IHE partner has submitted a candidate list. Please review the candidates and provide the required LEA information to complete the application.
+    @{
+        var currentDate = DateTime.Now;
+        var daysInMonth = DateTime.DaysInMonth(currentDate.Year, currentDate.Month);
+        var daysRemaining = daysInMonth - currentDate.Day;
+        var currentBatchMonth = currentDate.ToString("MMMM yyyy");
+    }
+    <div style="display: flex; gap: 2rem; margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+        <div>
+            <i class="mdi mdi-calendar-clock-outline" style="color: #1E3A5F;"></i>
+            <strong>Batch Period:</strong> @currentBatchMonth (Day @currentDate.Day of @daysInMonth)
+        </div>
+        <div>
+            <i class="mdi mdi-clock-outline" style="color: #1E3A5F;"></i>
+            @daysRemaining days remaining
+        </div>
+    </div>
 </div>
 
 <form method="post" action="@Url.Action("ProcessApplication", "LEAPortal")" id="applicationForm">

@@ -15,267 +15,191 @@
     <p class="subtitle">@Model.LEAName - @Model.GrantCycleName</p>
 </div>
 
-@* Action Items - Always at the top *@
-@if (Model.HasReportsDue && (Model.TotalFundedStudents > 0 || Model.ReportsSubmitted > 0))
+@* Action Items *@
+@if (Model.ActionItems.Any())
 {
-    <div class="alert alert-info">
-        <i class="mdi mdi-clipboard-text-clock-outline"></i>
-        <strong>Reports Due:</strong> You have @Model.ReportsPending pending report(s) to submit.
-        @if (Model.ReportingDeadline.HasValue)
-        {
-            var daysRemaining = (Model.ReportingDeadline.Value - DateTime.UtcNow).Days;
-            if (daysRemaining >= 0)
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-bell-outline"></i> Action Items</h4>
+        </div>
+        <div class="r4-card-body">
+            @foreach (var item in Model.ActionItems.OrderBy(a => a.Priority == "critical" ? 0 : a.Priority == "high" ? 1 : 2))
             {
-                <text>Deadline: @Model.ReportingDeadline.Value.ToString("MMMM dd, yyyy") (@daysRemaining days remaining)</text>
+                <div style="border: 1px solid #e0e0e0; border-radius: 4px; padding: 1rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; background-color: white;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 48px; height: 48px; background-color: #1E3A5F; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="mdi mdi-clipboard-text-outline" style="font-size: 24px; color: white;"></i>
+                        </div>
+                        <div>
+                            <h5 style="margin: 0 0 0.25rem 0; color: #333; font-weight: 600;">@item.Title</h5>
+                            <p style="margin: 0; color: #666; font-size: 0.9rem;">@item.Description</p>
+                            @if (item.DueDate.HasValue)
+                            {
+                                <small style="color: #999;">Due: @item.DueDate.Value.ToString("MMM dd, yyyy")</small>
+                            }
+                        </div>
+                    </div>
+                    <div>
+                        @if (item.Type == "reports_due")
+                        {
+                            <a href="@Url.Action("FundedCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-primary">
+                                <i class="mdi mdi-send"></i> Start Reports
+                            </a>
+                        }
+                        else if (item.Type == "candidates_ready")
+                        {
+                            <a href="#submissions" class="r4-button r4-button-primary">
+                                View Candidates
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="@Url.Action("CompleteApplication", "LEAPortal", new { id = Model.Applications.FirstOrDefault()?.Id ?? 0 })" class="r4-button r4-button-primary">
+                                Review
+                            </a>
+                        }
+                    </div>
+                </div>
             }
-            else
-            {
-                <span class="badge badge-danger">OVERDUE</span>
-            }
-        }
-        <a href="@Url.Action("FundedCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="alert-link">Submit Reports Now</a>
+        </div>
     </div>
 }
 
-@if (Model.ActionItems.Any())
-{
-    @foreach (var item in Model.ActionItems)
-    {
-        <div class="alert alert-warning">
-            <i class="mdi mdi-alert-outline"></i>
-            <strong>Action Required:</strong> @item.Description
-            @if (Model.Applications.Any())
-            {
-                <a href="@Url.Action("CompleteApplication", "LEAPortal", new { id = Model.Applications.First().Id })" class="alert-link">Complete Now</a>
-            }
-        </div>
-    }
-}
-
+@* Candidate Status *@
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-chart-bar"></i> Application Status Overview</h4>
+        <h4><i class="mdi mdi-chart-bar"></i> Candidate Status</h4>
         <div class="card-actions">
-            <a href="@Url.Action("Applications", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button">
-                View All Applications
+            <a href="@Url.Action("BulkUpload", "LEAPortal")" class="r4-button">
+                <i class="mdi mdi-file-upload-outline"></i> Bulk Upload
+            </a>
+            <a href="@Url.Action("CompleteApplication", "LEAPortal", new { id = Model.Applications.FirstOrDefault()?.Id ?? 0 })" class="r4-button r4-button-primary">
+                <i class="mdi mdi-send"></i> Submit Candidates
             </a>
         </div>
     </div>
     <div class="r4-card-body">
-        <div class="dashboard-grid">
-            <div class="metric-card">
-                <div class="metric-icon">
-                    <i class="mdi mdi-folder-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.TotalApplications</div>
-                    <div class="metric-label">Total Applications</div>
-                    <div class="metric-description">Partnership applications this cycle</div>
-                </div>
-            </div>
-
-            <div class="metric-card">
-                <div class="metric-icon">
-                    <i class="mdi mdi-account-group-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.TotalStudents</div>
-                    <div class="metric-label">Total Student Teachers</div>
-                    <div class="metric-description">All candidates in applications</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+            <div style="border: 1px solid #e0e0e0; border-radius: 4px; padding: 1.5rem; background-color: white;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div style="width: 48px; height: 48px; background-color: #1E3A5F; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="mdi mdi-account-multiple" style="font-size: 24px; color: white;"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 2rem; font-weight: bold; color: #1E3A5F;">@Model.TotalStudents</div>
+                        <div style="color: #1E3A5F; font-size: 0.9rem; font-weight: 600;">Total Candidates</div>
+                        <small style="color: #999;">Candidates submitted</small>
+                    </div>
                 </div>
             </div>
 
-            <div class="metric-card metric-pending">
-                <div class="metric-icon">
-                    <i class="mdi mdi-file-document-edit-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.PendingCompletionCount</div>
-                    <div class="metric-label">Pending Completion</div>
-                    <div class="metric-description">Need your action</div>
-                </div>
-            </div>
-
-            <div class="metric-card metric-review">
-                <div class="metric-icon">
-                    <i class="mdi mdi-clock-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.SubmittedCount</div>
-                    <div class="metric-label">Under Review</div>
-                    <div class="metric-description">Awaiting CTC approval</div>
+            <div style="border: 1px solid #e0e0e0; border-radius: 4px; padding: 1.5rem; background-color: white;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div style="width: 48px; height: 48px; background-color: #F5F5F5; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="mdi mdi-clock-outline" style="font-size: 24px; color: #666;"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 2rem; font-weight: bold; color: #333;">@Model.PendingCompletionCount</div>
+                        <div style="color: #666; font-size: 0.9rem; font-weight: 600;">Under Review</div>
+                        <small style="color: #999;">Awaiting CTC approval</small>
+                    </div>
                 </div>
             </div>
 
-            <div class="metric-card metric-approved">
-                <div class="metric-icon">
-                    <i class="mdi mdi-check-circle-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.ApprovedCount</div>
-                    <div class="metric-label">Approved</div>
-                    <div class="metric-description">Ready for payment</div>
+            <div style="border: 1px solid #e0e0e0; border-radius: 4px; padding: 1.5rem; background-color: white;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div style="width: 48px; height: 48px; background-color: #F5F5F5; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="mdi mdi-check-circle" style="font-size: 24px; color: #666;"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 2rem; font-weight: bold; color: #333;">@Model.ApprovedCount</div>
+                        <div style="color: #666; font-size: 0.9rem; font-weight: 600;">Approved</div>
+                        <small style="color: #999;">Eligible for payment</small>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-@if (Model.Applications.Any())
-{
-    <div class="r4-card">
-        <div class="r4-card-header">
-            <h4><i class="mdi mdi-folder-open-outline"></i> Your Applications</h4>
-        </div>
-        <div class="r4-card-body">
-            <table class="r4-table">
-                <thead>
-                    <tr>
-                        <th>IHE Partner</th>
-                        <th>Total Students</th>
-                        <th>Pending Completion</th>
-                        <th>Submitted</th>
-                        <th>Approved</th>
-                        <th>Last Modified</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var app in Model.Applications)
-                    {
-                        var pendingCompletion = app.TotalStudents - app.PendingCount - app.ApprovedCount;
-
-                        <tr>
-                            <td>@app.IHEName</td>
-                            <td>@app.TotalStudents</td>
-                            <td>
-                                @if (pendingCompletion > 0)
-                                {
-                                    <span class="badge badge-warning">@pendingCompletion</span>
-                                }
-                                else
-                                {
-                                    <span class="text-muted">0</span>
-                                }
-                            </td>
-                            <td>
-                                @if (app.PendingCount > 0)
-                                {
-                                    <span class="badge badge-secondary">@app.PendingCount</span>
-                                }
-                                else
-                                {
-                                    <span class="text-muted">0</span>
-                                }
-                            </td>
-                            <td>
-                                @if (app.ApprovedCount > 0)
-                                {
-                                    <span class="badge badge-success">@app.ApprovedCount</span>
-                                }
-                                else
-                                {
-                                    <span class="text-muted">0</span>
-                                }
-                            </td>
-                            <td>@app.LastModified.ToString("MM/dd/yyyy")</td>
-                            <td>
-                                @if (pendingCompletion > 0)
-                                {
-                                    <a href="@Url.Action("CompleteApplication", "LEAPortal", new { id = app.Id })" class="r4-button r4-button-primary r4-button-sm">
-                                        <i class="mdi mdi-file-document-edit-outline"></i> Complete
-                                    </a>
-                                }
-                                else
-                                {
-                                    <a href="@Url.Action("Details", "Application", new { id = app.Id })" class="r4-button r4-button-sm">
-                                        <i class="mdi mdi-eye-outline"></i> View
-                                    </a>
-                                }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
-}
-else
-{
-    <div class="alert alert-info">
-        <i class="mdi mdi-information-outline"></i>
-        You do not have any applications for this grant cycle yet. Your IHE partner will submit candidate lists that you will need to complete.
-    </div>
-}
-
-@* Reporting Section *@
+@* Post-Payment Reporting *@
 @if (Model.TotalFundedStudents > 0 || Model.ReportsSubmitted > 0)
 {
     <div class="r4-card">
         <div class="r4-card-header">
-            <h4><i class="mdi mdi-file-chart-outline"></i> Reporting</h4>
+            <h4><i class="mdi mdi-file-chart-outline"></i> Post-Payment Reporting</h4>
             <div class="card-actions">
-                <a href="@Url.Action("Reports", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button">
-                    View All Reports
+                <a href="@Url.Action("FundedCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button">
+                    <i class="mdi mdi-eye-outline"></i> View Funded Candidates
                 </a>
             </div>
         </div>
         <div class="r4-card-body">
-            <div class="dashboard-grid">
-                <div class="metric-card">
-                    <div class="metric-icon">
-                        <i class="mdi mdi-account-check-outline"></i>
-                    </div>
-                    <div class="metric-content">
-                        <div class="metric-value">@Model.TotalFundedStudents</div>
-                        <div class="metric-label">Funded Candidates</div>
-                        <div class="metric-description">Total students who received payment</div>
-                    </div>
-                </div>
-
-                <div class="metric-card metric-approved">
-                    <div class="metric-icon">
-                        <i class="mdi mdi-check-circle-outline"></i>
-                    </div>
-                    <div class="metric-content">
-                        <div class="metric-value">@Model.ReportsSubmitted</div>
-                        <div class="metric-label">Reports Submitted</div>
-                        <div class="metric-description">Completed reports</div>
-                    </div>
-                </div>
-
-                <div class="metric-card metric-pending">
-                    <div class="metric-icon">
-                        <i class="mdi mdi-file-document-edit-outline"></i>
-                    </div>
-                    <div class="metric-content">
-                        <div class="metric-value">@Model.ReportsPending</div>
-                        <div class="metric-label">Reports Outstanding</div>
-                        <div class="metric-description">Need to be submitted</div>
-                    </div>
-                </div>
-
-                @if (Model.ReportsOverdue > 0)
-                {
-                    <div class="metric-card metric-overdue">
-                        <div class="metric-icon">
-                            <i class="mdi mdi-alert-circle-outline"></i>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                <div style="border: 1px solid #e0e0e0; border-radius: 4px; padding: 1.5rem; background-color: white;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 48px; height: 48px; background-color: #1E3A5F; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="mdi mdi-account-multiple-check" style="font-size: 24px; color: white;"></i>
                         </div>
-                        <div class="metric-content">
-                            <div class="metric-value">@Model.ReportsOverdue</div>
-                            <div class="metric-label">Overdue</div>
-                            <div class="metric-description">Past reporting deadline</div>
+                        <div>
+                            <div style="font-size: 2rem; font-weight: bold; color: #1E3A5F;">@Model.TotalFundedStudents</div>
+                            <div style="color: #1E3A5F; font-size: 0.9rem; font-weight: 600;">Funded Candidates</div>
+                            <small style="color: #999;">Candidates who received payment</small>
                         </div>
                     </div>
-                }
+                </div>
+
+                <div style="border: 1px solid #e0e0e0; border-radius: 4px; padding: 1.5rem; background-color: white;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 48px; height: 48px; background-color: #F5F5F5; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="mdi mdi-file-document-outline" style="font-size: 24px; color: #666;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 2rem; font-weight: bold; color: #333;">@Model.ReportsPending</div>
+                            <div style="color: #666; font-size: 0.9rem; font-weight: 600;">Reports Due</div>
+                            <small style="color: #999;">
+                                @if (Model.ReportingDeadline.HasValue)
+                                {
+                                    <text>Due @Model.ReportingDeadline.Value.ToString("MMM dd, yyyy")</text>
+                                }
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="border: 1px solid #e0e0e0; border-radius: 4px; padding: 1.5rem; background-color: white;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 48px; height: 48px; background-color: #F5F5F5; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="mdi mdi-progress-clock" style="font-size: 24px; color: #666;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 2rem; font-weight: bold; color: #333;">0</div>
+                            <div style="color: #666; font-size: 0.9rem; font-weight: 600;">In Progress</div>
+                            <small style="color: #999;">Draft reports not yet submitted</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="border: 1px solid #e0e0e0; border-radius: 4px; padding: 1.5rem; background-color: white;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 48px; height: 48px; background-color: #F5F5F5; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="mdi mdi-file-check-outline" style="font-size: 24px; color: #666;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 2rem; font-weight: bold; color: #333;">@Model.ReportsSubmitted</div>
+                            <div style="color: #666; font-size: 0.9rem; font-weight: 600;">Submitted</div>
+                            <small style="color: #999;">Reports submitted to CTC</small>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div style="margin-top: 1.5rem;">
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                 <a href="@Url.Action("FundedCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-primary">
-                    <i class="mdi mdi-clipboard-text-outline"></i> Submit Reports
+                    <i class="mdi mdi-clipboard-text-outline"></i> Complete Reports
                 </a>
                 <a href="@Url.Action("BulkUpload", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button">
-                    <i class="mdi mdi-file-upload-outline"></i> Bulk Upload
+                    <i class="mdi mdi-file-upload-outline"></i> Upload Bulk Reports
                 </a>
                 <a href="@Url.Action("ReportHistory", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button">
                     <i class="mdi mdi-history"></i> View History
@@ -284,6 +208,98 @@ else
         </div>
     </div>
 }
+
+@* Your Submissions *@
+<div class="r4-card" id="submissions">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-file-multiple-outline"></i> Your Submissions</h4>
+        @if (Model.IHESubmissions.Any())
+        {
+            <div class="card-actions">
+                <a href="@Url.Action("Applications", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button">
+                    View All
+                </a>
+            </div>
+        }
+    </div>
+    <div class="r4-card-body">
+        @if (Model.IHESubmissions.Any())
+        {
+            <table class="r4-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>IHE Partner</th>
+                        <th>Total Candidates</th>
+                        <th>Draft</th>
+                        <th>Submitted</th>
+                        <th>Approved</th>
+                        <th>Last Modified</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var submission in Model.IHESubmissions)
+                    {
+                        var draftCount = submission.Candidates.Count(c => c.Status == "DRAFT" || c.Status == "PENDING_LEA");
+                        var submittedCount = submission.Candidates.Count(c => c.Status == "SUBMITTED");
+                        var approvedCount = submission.Candidates.Count(c => c.Status == "APPROVED");
+
+                        <tr style="cursor: pointer;" onclick="window.location='@Url.Action("CompleteApplication", "LEAPortal", new { id = submission.ApplicationId })'">
+                            <td style="width: 20px;">
+                                <i class="mdi mdi-chevron-right" style="color: #999;"></i>
+                            </td>
+                            <td>
+                                <strong style="color: #1E3A5F;">@submission.IHEName</strong>
+                            </td>
+                            <td>
+                                <strong>@submission.TotalCandidates</strong>
+                            </td>
+                            <td>
+                                @if (draftCount > 0)
+                                {
+                                    <span class="badge badge-secondary">@draftCount</span>
+                                }
+                                else
+                                {
+                                    <span style="color: #ccc;">0</span>
+                                }
+                            </td>
+                            <td>
+                                @if (submittedCount > 0)
+                                {
+                                    <span class="badge badge-info">@submittedCount</span>
+                                }
+                                else
+                                {
+                                    <span style="color: #ccc;">0</span>
+                                }
+                            </td>
+                            <td>
+                                @if (approvedCount > 0)
+                                {
+                                    <span class="badge badge-success">@approvedCount</span>
+                                }
+                                else
+                                {
+                                    <span style="color: #ccc;">0</span>
+                                }
+                            </td>
+                            <td>@submission.LastModified.ToString("MM/dd/yyyy")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div style="text-align: center; padding: 3rem; color: #999;">
+                <i class="mdi mdi-file-document-outline" style="font-size: 4rem; display: block; margin-bottom: 1rem; opacity: 0.3;"></i>
+                <p style="font-size: 1.1rem; margin: 0; color: #666;">No submissions yet</p>
+                <small style="color: #999;">Your IHE partners will submit candidate lists that you will need to complete.</small>
+            </div>
+        }
+    </div>
+</div>
 
 @section Scripts {
     <script>
