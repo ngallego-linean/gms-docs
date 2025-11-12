@@ -25,37 +25,37 @@
         <div class="r4-card-body">
             @foreach (var item in Model.ActionItems.OrderBy(a => a.Priority == "critical" ? 0 : a.Priority == "high" ? 1 : 2))
             {
-                <div style="border: 1px solid #e0e0e0; border-radius: 4px; padding: 1rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; background-color: white;">
-                    <div style="display: flex; align-items: center; gap: 1rem;">
-                        <div style="width: 48px; height: 48px; background-color: #1E3A5F; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                            <i class="mdi mdi-clipboard-text-outline" style="font-size: 24px; color: white;"></i>
+                <div class="action-item @(item.Priority == "critical" || item.Priority == "high" ? "action-item-urgent" : "action-item-normal")">
+                    <div class="action-item-content">
+                        <div class="action-item-icon">
+                            <i class="mdi @(item.Type == "reports_due" ? "mdi-clipboard-text-outline" : item.Type == "candidates_ready" ? "mdi-account-multiple-plus-outline" : "mdi-alert-circle-outline")"></i>
                         </div>
-                        <div>
-                            <h5 style="margin: 0 0 0.25rem 0; color: #333; font-weight: 600;">@item.Title</h5>
-                            <p style="margin: 0; color: #666; font-size: 0.9rem;">@item.Description</p>
+                        <div class="action-item-details">
+                            <h5>@item.Title</h5>
+                            <p>@item.Description</p>
                             @if (item.DueDate.HasValue)
                             {
-                                <small style="color: #999;">Due: @item.DueDate.Value.ToString("MMM dd, yyyy")</small>
+                                <p class="action-item-due">Due: @item.DueDate.Value.ToString("MMM dd, yyyy")</p>
                             }
                         </div>
                     </div>
-                    <div>
+                    <div class="action-item-actions">
                         @if (item.Type == "reports_due")
                         {
                             <a href="@Url.Action("FundedCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-primary">
-                                <i class="mdi mdi-send"></i> Start Reports
+                                <i class="mdi mdi-arrow-right"></i> Start Reports
                             </a>
                         }
                         else if (item.Type == "candidates_ready")
                         {
                             <a href="#submissions" class="r4-button r4-button-primary">
-                                View Candidates
+                                <i class="mdi mdi-arrow-right"></i> View Candidates
                             </a>
                         }
                         else
                         {
                             <a href="@Url.Action("CompleteApplication", "LEAPortal", new { id = Model.Applications.FirstOrDefault()?.Id ?? 0 })" class="r4-button r4-button-primary">
-                                Review
+                                <i class="mdi mdi-arrow-right"></i> Review
                             </a>
                         }
                     </div>
