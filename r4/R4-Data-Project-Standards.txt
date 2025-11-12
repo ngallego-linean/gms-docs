@@ -1,0 +1,227 @@
+Commission on Teacher Credentialing
+R4 Solution Architecture: Data Project
+
+R4 Solution Architecture
+
+Data Project
+
+Revision Date: October 16, 2025
+Every R4 application’s Visual Studio solution is composed of at least five projects as explained in the R4
+Visual Studio Solution Architecture document. The Data project provides data access services that can
+be consumed by other projects in a R4 application’s solution.
+The Data project is essentially the “data layer” as described in most typical multi layered application
+architectures. In a R4 solution, data access is provided by an ORM (Object Relational Mapper)
+technology by Microsoft called Entity Framework Core.
+In R4 applications, data is accessed by invoking methods on business services classes, which access the
+data layer’s Data Model Repository class methods, which utilizes LINQ and Entity Framework Core to
+generate queries that are executed against the database (as illustrated in the diagram below).
+
+The Data project is composed of several components that comprise the Data Access Layer for an
+application.
+
+Database Entity Model
+The data entity model is typically created using the Entity Framework Core scaffolding (Database First
+Workflow) feature to generate data entity model classes based off an existing database design.
+
+Repositories
+There are two generic repository classes that the framework utilizes for all database input and output,
+e.g [Acronym]Repository<TEntityModel>, and [Acronym]Repository<TDomainModel, TEntityModel>.
+Page 1 of 5
+
+Commission on Teacher Credentialing
+R4 Solution Architecture: Data Project
+
+There are also two interfaces for each repository I[Acronym]Repository<TEntityModel> and
+I[Acronym]Repository<TDomainModel, TEntityModel>.
+
+AutoMapper Profiles (AutoMapperProfile.cs)
+AutoMapper is a component that provides functionality for mapping properties from one object type to
+another, by using a single line of code to initiate the mapping. This allows the data from one object to be
+“copied” to another. An AutoMapper “profile” is needed to specify mapping rules for all objects
+registered to be mapped. This is an essential component that the R4 framework needs to provide the
+automation features supported in Business Services and Data Services.
+
+AutoMapper Extensions (AutoMapperConfigurationExtensions.cs)
+The AutoMapper configuration extensions define extension methods that are needed for simple
+invocation during application startup (typically, from the Startup.cs in web applications) to add the
+mapping to the Dependency Injection container.
+
+Data Services Startup Extensions (DataServicesStartupExtensions.cs)
+The Data Services Startup Extensions define extension methods that are needed to register the data
+services during application startup (typically, from the Startup.cs in web applications) in the Dependency
+Injection container.
+
+Project Contents
+A R4 Data project will be established for you during the initial solution creation process initiated by the
+System Architect and will be ready for you before you begin development efforts. The project you will
+receive will provide the following composition:
+Folder/Node Name
+
+Description
+
+Dependencies
+
+Contains project-level resources and references such as R4
+framework assemblies and references to other projects in
+the solution.
+
+Data
+
+This folder contains an Entities folder described below, and
+any additional classes that need to exist in the Ctc.
+{Acronym}.Data namespace.
+
+Data\I[Acronym]Repository<TEntityModel>
+
+An interface that R4 Business Services and Data Services
+directly use to perform data access for database entity
+objects (TEntityModel).
+
+Data\[Acronym]Repository<TEntityModel>
+
+Repository class that provides data access features for the
+application on the database entity objects (TEntityModel).
+Implements the I[Acronym]Repository<TEntityModel>
+interface.
+
+Data\I[Acronym]Repository<TDomainModel,
+TEntityModel>
+
+An interface that R4 Business Services and Data Services
+directly use to perform data access for domain models
+(TDomainModel).
+
+Page 2 of 5
+
+Commission on Teacher Credentialing
+R4 Solution Architecture: Data Project
+
+Folder/Node Name
+
+Description
+
+Data\[Acronym]Repository<TDomainModel,
+TEntityModel>
+
+Repository class that provides data access features for the
+application on the domain models (TDomainModel).
+Implements the I[Acronym]Repository<TDomainModel,
+TEntityModel> interface. This repository uses AutoMapper
+to automatically map between domain models and
+database entity models.
+
+Data\Entities
+
+This folder contains the data entities that map to the
+physical database structure. These entities are created
+with the Entity Framework scaffolding. Do not make any
+changes to these files.
+
+Data\Entities\PartialEntities.cs
+
+When a new database table is added, a partial class needs
+to be added to this file with the same name as the
+database table name. The partial class must implement
+either of the following interfaces as appropriate –
+IIntegerKeyArchivableEntityModel (regular table) or
+IIntegerKeyStaticValueEntityModel (SVT).
+
+The EntityDomainModelMapping attribute helps the R4
+framework map the Entity Framework data entity (physical
+database structure) to its Entity Domain Model
+counterpart.
+AutoMapperProfile.cs
+
+A map needs to be created in this file for each table for
+navigation properties to work correctly.
+
+AutoMapperConfigurationExtensions.cs
+DataServicesStartupExtensions.cs
+
+Developer Tasks
+There are typically only two things that developers need to focus on in the Data Project post initial setup
+by the System Architect.
+
+Configure PartialEntities.cs
+When a new table (entity) is added to the model, a new partial class definition must be added to the
+PartialEntities.cs file. This new partial class must implement one of the following interfaces for R4
+automation features to work correctly.
+IIntegerKeyArchivableEntityModel: This interface defines standard properties (or fields from a database
+perspective) that all tables should have. If the database table is following the database table standards
+then there should not be any build errors.
+Page 3 of 5
+
+Commission on Teacher Credentialing
+R4 Solution Architecture: Data Project
+
+IIntegerKeyStaticValueEntityModel: This interface defines standard properties (or fields from a
+database perspective) that all SVT tables should have. If the database table is following the database
+table standards then there should not be any build errors.
+
+Examples
+/// <summary>
+/// Class Category.
+/// Implements the <see cref="Ctc.R4.Model.Entity.IIntegerKeyArchivableEntityModel" />
+/// </summary>
+/// <seealso cref="Ctc.R4.Model.Entity.IIntegerKeyArchivableEntityModel" />
+[EntityDomainModelMapping( typeof( CategoryModel ) )]
+public partial class Category : IIntegerKeyArchivableEntityModel
+{
+}
+/// <summary>
+/// Class CategoryTypeSvt.
+/// Implements the <see cref="Ctc.R4.Model.Entity.IIntegerKeyStaticValueEntityModel" />
+/// </summary>
+/// <seealso cref="Ctc.R4.Model.Entity.IIntegerKeyStaticValueEntityModel" />
+[EntityDomainModelMapping( typeof( CategoryTypeSvtModel ) )]
+public partial class CategoryTypeSvt : IIntegerKeyStaticValueEntityModel
+{
+}
+
+Configuring AutoMapper Profile
+In addition to configuring PartialEntities.cs, when adding new tables (entities) to the model, the
+AutoMapper Profile must be updated to provide mapping rules that AutoMapper will use with the
+DomainModel and EntityModel.
+When defining AutoMapper mapping rules for Database Entity to Domain Model mappings, use these
+guidelines:
+
+
+
+
+Always specify the Database Entity first, followed by the Domain Model
+Always include the ReverseMap for non-SVT entities (only entities implementing the
+IIntegerKeyArchivableEntityModel interface)
+Reverse Maps should be configured to Ignore navigation properties.
+(Note: Failure to do so will cause new entities to be created in the database or a foreign key error when
+committing changes to the database)
+
+A Reverse Map essentially creates a mapping the reverse of the initial mapping. Using the guidelines
+above, if Database Entity is first, followed by Domain Model, then the ReverseMap would be
+DomainModel first, followed by Database Entity. This is necessary for bidirectional mapping support (in
+other words, allowing a Domain Model to be persisted to the database).
+Below is an example of how to map a Database Entity to a DomainModel. Notice on the ReverseMap
+method call, there is a chained ForMember method call that specifies the Type property should be
+Ignored. This essentially is telling AutoMapper that when mapping CategoryModel to Category, ignore
+setting the Type property on the Category object.
+
+Page 4 of 5
+
+Commission on Teacher Credentialing
+R4 Solution Architecture: Data Project
+CreateMap<Category, CategoryModel>()
+.ReverseMap()
+.ForMember( m => m.Type, o => o.Ignore() );
+
+Note: Some changes to the database model may require additional changes to the AutoMapper Profile,
+such as adding a foreign key to an existing table. In this case, adding a ForMember method call to the
+ReverseMap to ignore the navigation property is necessary.
+The following example creates a mapping for an SVT table. Since SVT tables are read-only and not
+editable within an application, omit specification of the ReverseMap method.
+CreateMap<CategoryTypeSvt, CategoryTypeSvtModel>();
+
+For a more complete example on AutoMapper Profile’s and additional mapping configuration details,
+see the PTS application’s AutoMapperProfile.cs file.
+
+Page 5 of 5
+
+

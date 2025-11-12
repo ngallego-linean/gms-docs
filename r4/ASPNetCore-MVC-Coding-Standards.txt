@@ -1,0 +1,51 @@
+Commission on Teacher Credentialing
+R4 Coding Standards: ASP.NET Core MVC Coding Standards & Best Practices
+
+R4 Coding Standards
+
+ASP.NET Core MVC Coding
+Standards & Best Practices
+Revision Date: October 16, 2025
+R4 software development ASP.NET Core MVC coding standards, guidelines, and best
+practices. These standards extend the C# Coding Standards.
+Pascal Case: First character of all words are upper case and other characters are
+lower case.
+Example: ClassName
+Camel Case: First character of all words, except the first word, is upper case and
+other characters are lower case.
+Example: className
+
+If you have any questions or doubts, please consult with the Systems Architect.
+CD-400
+If a View has a type specified for the model, the type (@model [Type]) should always be
+a ViewModel (POCO classes that are not Entity Framework model classes, but may
+contain them), except if it is a Partial View, EditorTemplate, or DisplayTemplate.
+CD-401
+Every Controller should at least have an Action Method and View named Index.
+CD-402
+Avoid using HTML element IDs that contain the element type.
+
+//Avoid
+<div id=”divLeftNav”></div>
+
+//Correct
+<div id=”LeftNavPanel”></div>
+
+CD-403
+When designing HTML Helper extension methods that generate and return HTML,
+methods should return the IHtmlContent type.
+public static IHtmlContent StandardAddress(this IHtmlHelper helper) { }
+
+CD-404
+When designing HTML Helper extension methods that generate and write HTML,
+methods should return void and be prefixed with “Render”. For example:
+public static void RenderStandardAddress(this IHtmlHelper helper) { }
+
+Page 1 of 2
+
+Commission on Teacher Credentialing
+R4 Coding Standards: ASP.NET Core MVC Coding Standards & Best Practices
+
+Page 2 of 2
+
+

@@ -1,0 +1,253 @@
+Commission on Teacher Credentialing
+R4 User Interface Standards: Required Page Elements
+
+R4 User Interface Standards
+
+Required Page Elements
+Revision Date: September 5, 2025
+Software project standards encompass layout, meta tags, and design guidelines that
+improve usability for our customers. For example, these standards include the use of alt
+attributes for images that convey meaning, labeling of file download sizes, and the
+inclusion of unique and accurate titles and descriptions.
+
+Authenticated R4 Systems (https://[systemacronym].ctc.ca.gov)
+All pages in an authenticated R4 system should have a header, left navigation, footer,
+breadcrumbs, and a browser page title that follow the standards outlined below, unless
+otherwise discussed with the Systems Architect and Software Development Manager.
+An authenticated R4 system can include several different portals. The standards listed
+below apply to all authenticated R4 portals, unless otherwise indicated.
+
+Header
+
+
+(UI-100) The Commission on Teacher Credentialing logo should be to the far left in
+
+the header above the left navigation.
+
+
+(UI-101) The system acronym should be displayed left-aligned in the header (this is
+
+the R4 “Acronym” field for a Portal). See the Application Profile Portal Naming
+Standards for more information.
+
+
+(UI-102) A link to Reports, Help, and the user profile (in this order) should be
+
+right-aligned.
+
+Left Navigation
+
+
+(UI-103) The first link should be titled Home and should be linked to the system’s
+
+home page.
+
+
+(UI-104) All other links should be after the Home link in order of most use.
+
+Commission on Teacher Credentialing
+R4 User Interface Standards: Required Page Elements
+
+Footer
+
+
+(UI-105) The first line in the footer should be the full name of the system (with no
+
+system acronym).
+
+
+(UI-106) Immediately following the system’s full name on the first line is the URL
+
+of the system (https://[systemacronym].ctc.ca.gov/). The URL should not be
+hyperlinked.
+
+
+(UI-107) The second line in the footer should have the word “Support:” followed by
+
+CRISP (hyperlinked to https://crisp.ctc.ca.gov/) (only for Staff Portals). For
+audience-specific authenticated Portals, discuss with the Systems Architect and
+Software Development Manager.
+
+
+(UI-108) The third and last line in the footer is “Authorized Use Only” followed by
+
+“Privacy Policy”, which is linked to the Commission’s Privacy Policy
+(https://www.ctc.ca.gov/site-information/privacy-policy).
+
+
+(UI-109) The build number is listed in the footer to the far right. Use the word
+
+“Build:” followed by the build/version number of the system.
+
+Commission on Teacher Credentialing
+R4 User Interface Standards: Required Page Elements
+
+Breadcrumbs
+
+
+(UI-110) Breadcrumbs should be on every page except the Sign-In page and Home
+
+page.
+
+
+(UI-111) Breadcrumbs should be displayed on the same line as the Page Title, but
+
+right-aligned.
+
+
+All nodes in the breadcrumb are hyperlinked to a page except for the last node,
+which is never hyperlinked.
+
+
+
+(UI-112) The entity Search page should have a breadcrumb with the plural entity
+
+name. For example, on a Meeting Search page, the breadcrumbs should “Home >
+Meetings”.
+
+
+(UI-113) The Summary page should have “This [EntityName]” (i.e., “This Meeting”)
+
+o
+
+
+(UI-114) The Details page should have “Details”
+
+o
+
+
+Home > Meetings > This Meeting > Details
+
+(UI-115) The main entity Edit page should have “Edit”
+
+o
+
+
+Home > Meetings > This Meeting
+
+Home > Meetings > This Meeting > Edit
+
+(UI-116) Breadcrumbs on all other pages (which will probably display grids)
+
+should have the plural name of the tab (i.e., Contacts, Addresses, Documents,
+Notes, Communications).
+o
+
+
+Home > Meetings > This Meeting > Contacts
+
+(UI-117) Breadcrumbs on the details page for each tab (sub-entities), should
+
+display the sub-entity name and “Details”
+o
+
+
+(UI-118) The edit page for sub-entities should display “Edit”.
+
+o
+
+
+Home > Meetings > This Meeting > Contacts > Contact Details
+Home > Meetings > This Meeting > Contacts > Edit
+
+(UI-119) The create page for sub-entities should display “Create”.
+
+o
+
+Home > Meetings > This Meeting > Contacts > Create
+
+Browser Page Title
+
+
+(UI-120) The browser page title should match the title of the page, followed by a
+
+space, a pipe character/vertical bar (|), another space, and then the system
+
+Commission on Teacher Credentialing
+R4 User Interface Standards: Required Page Elements
+
+acronym.
+e.g., “Meeting Summary | METS”.
+
+Non-Authenticated R4 Systems (Open to Public)
+(http://xxxx.ctc.ca.gov/)
+All non-authenticated R4 systems and pages should have a header, left navigation, footer,
+and a browser page title that follow these standards:
+
+Header
+
+
+(UI-121) The Commission on Teacher Credentialing logo should to the far left in the
+
+header.
+
+
+(UI-122) A link to CTC Home should be right-aligned.
+
+Navigation
+
+
+(UI-123) The navigation will be immediately below the header, with the menu
+
+items being horizontal.
+
+Footer
+
+
+(UI-124) The first line in the footer should be the full name of the system (with no
+
+system acronym).
+
+
+(UI-125) Immediately following the system’s full name on the first line is the URL
+
+of the system (https://xxxx.ctc.ca.gov/). The URL should not be hyperlinked.
+
+
+(UI-126) The second line in the footer should have the word “Contact: ” followed by
+
+the name of a business program or the email address of a shared mailbox that is
+related to the Portal. The business program name or the email address should be
+displayed without being hyperlinked, followed by a comma. After the comma, the
+email address of the business program is displayed and hyperlinked. Contact the
+Systems Architect and Software Development Manager if there is any uncertainty.
+
+
+(UI-127) The third and last line in the footer is “Authorized Use Only” followed by
+
+“Privacy Policy”, which is linked to the Commission’s Privacy Policy
+(https://www.ctc.ca.gov/site-information/privacy-policy).
+
+Commission on Teacher Credentialing
+R4 User Interface Standards: Required Page Elements
+
+
+
+(UI-128) The build number is listed in the footer to the far right. Use the word
+
+“Build:” followed by the build/version number of the system.
+
+Meta Tags
+Meta tags provide metadata about the webpage. This information is not displayed on the
+page but is used by search engines or other web services.
+The following meta tags must be included in every web page that is published to the
+public Commission website (https://xxxx.ctc.ca.gov):
+
+
+(UI-129) Description (<meta name=”keywords” content=””)–description of the
+
+content being displayed on the page.
+
+
+(UI-130) DC.date.created (<meta name=”DC.date.created” scheme=”ISO08601”
+
+content=””>)–the date the page was created. The date should be in the following
+format: year-month-day (i.e., 2021-05-06).
+
+
+(UI-131) DC.date.modified (<meta name=”DC.date.modified” scheme=”ISO08601”
+
+content=””>)–the date the page was modified. The date should be in the following
+format: year-month-day (i.e., 2021-05-06).
+
+

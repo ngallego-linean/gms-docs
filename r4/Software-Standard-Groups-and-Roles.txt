@@ -1,0 +1,177 @@
+Commission on Teacher Credentialing
+R4 Framework: Standard Permission Groups and Roles
+
+Standard Permission Groups and
+Roles
+Revision Date: October 16, 2025
+The following permission groups and roles are included in all Commission applications
+and should be used as specified below. These permissions groups and roles cannot be
+changed and are included and implemented in the R4 framework. Additional custom
+roles and groups may need to be created to handle situations such as entity-level data
+and/or to control access to restricted/confidential data. For assistance, contact your
+supervisor or the Systems Architect.
+
+Standard Permission Roles
+
+
+AppAdmin. Users with this role are typically the Business Leads for the
+applications and have full read/write access to all parts of the application except
+for 1) user access (configure using the UserAccessAdmin role), 2) IT-related
+configuration and management functions (configure using the ITAdmin role) and
+3) confidential/sensitive information (secured with a separate role). Typically, the
+AppAdmin role would have read/write access to all entity-level user interfaces.
+
+
+
+ControlPanelAdmin. Users with this role have access to the applications control
+panel.
+
+
+
+GlobalViewer. Users with this role (typically internal Commission staff) can
+perform read-only viewing of ALL portions of an application except those parts
+involving confidential/sensitive data, where a separate explicit specific role(s) will
+need to be created. This role should not be added to entity-level user interfaces
+where the entity-level data/records are considered sensitive.
+
+
+
+ITAdmin. This role is intended for portions of the application that should only
+have read/write access by IT Project Managers and developers. In general, all IT
+Admin user interfaces should include GlobalViewer rights to enable those in the
+ITGlobalViewers group to view these
+
+
+
+UserAccessAdmin. Users with this role have read/write access to all user
+interfaces involving establishing and managing user access. This role should be
+used very narrowly, only for pages related to user access administration.
+
+Page 1 of 4
+
+Commission on Teacher Credentialing
+R4 Framework: Standard Permission Groups and Roles
+
+Standard Permission Groups
+
+
+
+
+
+
+GlobalViewers
+ITGlobalViewers
+AppAdmins
+UserAccessAdmins
+ITAdmins
+
+AppAdmins
+Display Name: Application Administrators
+Users in this group have read/write access to all portions of the application except 1) user
+access administration (assigned via the UserAccessAdmins group) and 2) restricted
+functions involving confidential/sensitive information, which should be assigned by
+custom role(s) and group(s). Users in this group usually have read/write access to
+entity/set-level data as well.
+Roles
+
+
+
+
+AppAdmin
+ControlPanelAdmin
+GlobalViewer
+
+Intended Users
+
+
+Project Lead
+
+GlobalViewers
+Display Name: Global Viewers
+Users in this group (typically business staff) have read-only viewing rights to all portions
+of the application (except sensitive/confidential data, which is set up through separate
+security groups).
+Roles
+
+
+GlobalViewer
+
+Intended Users
+
+
+
+
+Business Staff Specialists
+Project Sponsor
+Executive-level staff
+Page 2 of 4
+
+Commission on Teacher Credentialing
+R4 Framework: Standard Permission Groups and Roles
+
+ITAdmins
+Display Name: IT Administrators
+Administrative group that should only be assigned to IT Services staff for System
+Administration purposes.
+Roles
+
+
+
+
+ControlPanelAdmin
+GlobalViewer
+ITAdmin
+
+Intended Users
+
+
+
+IT Project Manager
+IT Developers
+
+ITGlobalViewers
+Display Name: IT Global Viewers
+Users in this group should only be IT staff who are not direct users of the application but
+need read-only access for support and demonstration purposes.
+Roles
+
+
+GlobalViewer
+
+Intended Users
+
+
+
+
+
+IT Help Desk Staff
+IT Web Services Staff
+IT Managers
+Other IT Staff
+
+UserAccessAdmins
+Display Name: User Access Administrators
+Users in this group can add, edit, and remove users and user access rights to this
+application.
+Roles
+
+
+UserAccessAdmin
+
+Intended Users
+
+
+
+Project Lead
+IT Project Manager
+Page 3 of 4
+
+Commission on Teacher Credentialing
+R4 Framework: Standard Permission Groups and Roles
+
+
+Other IT Staff
+
+Page 4 of 4
+
+
