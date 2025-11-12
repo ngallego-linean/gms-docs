@@ -6,7 +6,6 @@ node_modules/
 .claude
 CLAUDE.local.md
 *.pdf
-r4/
 transcript.txt
 
 # Build artifacts
