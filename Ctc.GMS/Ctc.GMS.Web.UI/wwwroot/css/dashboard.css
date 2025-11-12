@@ -455,3 +455,91 @@
     flex-shrink: 0;
     margin-left: 1rem;
 }
+
+/* Budget Progress Bars */
+.budget-progress-inline {
+    border-top: none !important;
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+.r4-progress-bar-reserved {
+    background-color: var(--warning);
+    color: var(--gray-900);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.r4-progress-bar-encumbered {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.r4-progress-bar-disbursed {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.r4-progress-bar-remaining {
+    background-color: var(--gray-200);
+    color: var(--gray-700);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.budget-legend {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.9rem;
+}
+
+/* Filter Card */
+.filter-card {
+    margin-bottom: 1.5rem;
+}
+
+.filter-clear-btn {
+    width: 100%;
+}
+
+/* Disbursement Group Cards */
+.disbursement-group-card {
+    margin-bottom: 1.5rem;
+}
+
+.disbursement-group-header {
+    background-color: var(--gray-50);
+}
+
+.group-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.group-header-info {
+    flex: 1;
+    cursor: pointer;
+}
+
+.group-header-title {
+    margin-bottom: 0.25rem;
+}
+
+.group-header-subtitle {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--gray-600);
+}
+
+.badge-spacing {
+    margin-left: 0.5rem;
+}
+
+.card-footer-actions {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--gray-300);
+}

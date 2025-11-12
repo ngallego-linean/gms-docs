@@ -23,53 +23,44 @@
             <h4><i class="mdi mdi-bell-outline"></i> Action Items</h4>
         </div>
         <div class="r4-card-body">
-            <div class="table-wrapper">
-                <table class="r4-table">
-                <thead>
-                    <tr>
-                        <th>Task</th>
-                        <th>Description</th>
-                        <th>Due Date</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model.ActionItems)
-                    {
-                        <tr>
-                            <td>@item.Title</td>
-                            <td>@item.Description</td>
-                            <td>
-                                @if (item.DueDate.HasValue)
-                                {
-                                    @item.DueDate.Value.ToString("MM/dd/yyyy")
-                                }
-                            </td>
-                            <td>
-                                @if (item.Type == "gaa_generation")
-                                {
-                                    <a href="@Url.Action("GAA", "FiscalTeam", new { grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-sm">
-                                        <i class="mdi mdi-file-document-outline"></i> Process
-                                    </a>
-                                }
-                                else if (item.Type == "invoice_generation")
-                                {
-                                    <a href="@Url.Action("Invoices", "FiscalTeam", new { grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-sm">
-                                        <i class="mdi mdi-file-document-edit-outline"></i> Process
-                                    </a>
-                                }
-                                else
-                                {
-                                    <a href="#" class="r4-button r4-button-sm">
-                                        <i class="mdi mdi-arrow-right"></i> Process
-                                    </a>
-                                }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-            </div>
+            @foreach (var item in Model.ActionItems)
+            {
+                <div class="action-item @(item.Priority == "urgent" || item.Priority == "high" ? "action-item-urgent" : "action-item-normal")">
+                    <div class="action-item-content">
+                        <div class="action-item-icon">
+                            <i class="mdi @(item.Type == "gaa_generation" ? "mdi-file-document-outline" : item.Type == "invoice_generation" ? "mdi-file-document-edit-outline" : "mdi-clipboard-check-outline")"></i>
+                        </div>
+                        <div class="action-item-details">
+                            <h5>@item.Title</h5>
+                            <p>@item.Description</p>
+                            @if (item.DueDate.HasValue)
+                            {
+                                <p class="action-item-due">Due: @item.DueDate.Value.ToString("MMM dd, yyyy")</p>
+                            }
+                        </div>
+                    </div>
+                    <div class="action-item-actions">
+                        @if (item.Type == "gaa_generation")
+                        {
+                            <a href="@Url.Action("GAA", "FiscalTeam", new { grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-primary">
+                                <i class="mdi mdi-arrow-right"></i> Process GAA
+                            </a>
+                        }
+                        else if (item.Type == "invoice_generation")
+                        {
+                            <a href="@Url.Action("Invoices", "FiscalTeam", new { grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-primary">
+                                <i class="mdi mdi-arrow-right"></i> Process Invoices
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="#" class="r4-button r4-button-primary">
+                                <i class="mdi mdi-arrow-right"></i> Process
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
         </div>
     </div>
 }
@@ -221,7 +212,7 @@
         <h4><i class="mdi mdi-chart-bar"></i> Budget Utilization</h4>
     </div>
     <div class="r4-card-body">
-        <div class="budget-progress" style="border-top: none; padding-top: 0; margin-top: 0;">
+        <div class="budget-progress budget-progress-inline">
             @{
                 // Helper function to format large currency amounts
                 string FormatCurrency(decimal amount)
@@ -257,8 +248,8 @@
                 @* Reserved Amount *@
                 @if (reservedPercent > 0.1m)
                 {
-                    <div class="r4-progress-bar"
-                         style="width: @reservedPercent%; background-color: var(--warning); color: var(--gray-900); font-size: 0.85rem; font-weight: 600;"
+                    <div class="r4-progress-bar r4-progress-bar-reserved"
+                         style="width: @reservedPercent%;"
                          role="progressbar"
                          aria-valuenow="@reservedPercent"
                          title="Reserved: @reservedPercent.ToString("F1")%">
@@ -272,7 +263,7 @@
                 @if (encumberedPercent > 0.1m)
                 {
                     <div class="r4-progress-bar r4-progress-bar-encumbered"
-                         style="width: @encumberedPercent%; font-size: 0.85rem; font-weight: 600;"
+                         style="width: @encumberedPercent%;"
                          role="progressbar"
                          aria-valuenow="@encumberedPercent"
                          title="Encumbered: @encumberedPercent.ToString("F1")%">
@@ -286,7 +277,7 @@
                 @if (disbursedPercent > 0.1m)
                 {
                     <div class="r4-progress-bar r4-progress-bar-disbursed"
-                         style="width: @disbursedPercent%; font-size: 0.85rem; font-weight: 600;"
+                         style="width: @disbursedPercent%;"
                          role="progressbar"
                          aria-valuenow="@disbursedPercent"
                          title="Disbursed: @disbursedPercent.ToString("F1")%">
@@ -299,8 +290,8 @@
                 @* Remaining Amount *@
                 @if (remainingPercent > 0.1m)
                 {
-                    <div class="r4-progress-bar"
-                         style="width: @remainingPercent%; background-color: var(--gray-200); color: var(--gray-700); font-size: 0.85rem; font-weight: 600;"
+                    <div class="r4-progress-bar r4-progress-bar-remaining"
+                         style="width: @remainingPercent%;"
                          role="progressbar"
                          aria-valuenow="@remainingPercent"
                          title="Remaining: @remainingPercent.ToString("F1")%">
@@ -311,7 +302,7 @@
                     </div>
                 }
             </div>
-            <div class="budget-legend" style="margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.9rem;">
+            <div class="budget-legend">
                 <span><strong>Appropriated:</strong> @Model.Metrics.ApproprietedAmount.ToString("C0")</span>
                 @if (Model.Metrics.ReservedAmount > 0)
                 {

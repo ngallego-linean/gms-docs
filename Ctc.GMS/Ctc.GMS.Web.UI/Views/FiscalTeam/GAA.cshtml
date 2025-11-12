@@ -27,46 +27,38 @@ else
 {
 
     <!-- Search/Filter Section -->
-    <div class="r4-card" style="margin-bottom: 1.5rem;">
+    <div class="r4-card filter-card">
         <div class="r4-card-body">
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="filterStudentName" class="form-label">Search by Student Name</label>
-                        <input type="text" id="filterStudentName" class="form-control" placeholder="Enter student name...">
-                    </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="filterStudentName" class="form-label">Search by Student Name</label>
+                    <input type="text" id="filterStudentName" class="form-control" placeholder="Enter student name...">
                 </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label for="filterLEA" class="form-label">Filter by LEA</label>
-                        <select id="filterLEA" class="form-control">
-                            <option value="">All LEAs</option>
-                            @foreach (var group in Model.DisbursementGroups.Select(g => g.LEAName).Distinct().OrderBy(l => l))
-                            {
-                                <option value="@group">@group</option>
-                            }
-                        </select>
-                    </div>
+                <div class="form-group">
+                    <label for="filterLEA" class="form-label">Filter by LEA</label>
+                    <select id="filterLEA" class="form-control">
+                        <option value="">All LEAs</option>
+                        @foreach (var group in Model.DisbursementGroups.Select(g => g.LEAName).Distinct().OrderBy(l => l))
+                        {
+                            <option value="@group">@group</option>
+                        }
+                    </select>
                 </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label for="filterMonth" class="form-label">Filter by Submission Month</label>
-                        <select id="filterMonth" class="form-control">
-                            <option value="">All Months</option>
-                            @foreach (var month in Model.DisbursementGroups.Select(g => g.SubmissionMonth).Distinct().OrderBy(m => m))
-                            {
-                                <option value="@month">@month</option>
-                            }
-                        </select>
-                    </div>
+                <div class="form-group">
+                    <label for="filterMonth" class="form-label">Filter by Submission Month</label>
+                    <select id="filterMonth" class="form-control">
+                        <option value="">All Months</option>
+                        @foreach (var month in Model.DisbursementGroups.Select(g => g.SubmissionMonth).Distinct().OrderBy(m => m))
+                        {
+                            <option value="@month">@month</option>
+                        }
+                    </select>
                 </div>
-                <div class="col-md-2">
-                    <div class="form-group">
-                        <label class="form-label">&nbsp;</label>
-                        <button type="button" class="r4-button r4-button-secondary" onclick="clearFilters()" style="width: 100%;">
-                            <i class="mdi mdi-filter-off"></i> Clear Filters
-                        </button>
-                    </div>
+                <div class="form-group">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="button" class="r4-button r4-button-secondary filter-clear-btn" onclick="clearFilters()">
+                        <i class="mdi mdi-filter-off"></i> Clear Filters
+                    </button>
                 </div>
             </div>
         </div>
@@ -78,20 +70,20 @@ else
         var groupId = $"group-{group.Id}";
         var collapseId = $"collapse-{group.Id}";
 
-        <div class="r4-card disbursement-group-card" data-lea="@group.LEAName" data-month="@group.SubmissionMonth" style="margin-bottom: 1.5rem;">
-            <div class="r4-card-header" style="background-color: var(--gray-50);">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div style="flex: 1; cursor: pointer;" data-bs-toggle="collapse" data-bs-target="#@collapseId">
-                        <h4 style="margin-bottom: 0.25rem;">
+        <div class="r4-card disbursement-group-card" data-lea="@group.LEAName" data-month="@group.SubmissionMonth">
+            <div class="r4-card-header disbursement-group-header">
+                <div class="group-header-content">
+                    <div class="group-header-info" data-bs-toggle="collapse" data-bs-target="#@collapseId">
+                        <h4 class="group-header-title">
                             <i class="mdi mdi-chevron-down"></i>
                             <strong>@group.LEAName</strong>
-                            <span class="badge badge-secondary" style="margin-left: 0.5rem;">@group.SubmissionMonth</span>
+                            <span class="badge badge-secondary badge-spacing">@group.SubmissionMonth</span>
                         </h4>
-                        <p style="margin: 0; font-size: 0.9rem; color: var(--gray-600);">
+                        <p class="group-header-subtitle">
                             @group.StudentCount student(s) &bull; @group.TotalAmount.ToString("C0") total
                         </p>
                     </div>
-                    <div class="card-actions" style="margin-right: 1rem;">
+                    <div class="card-actions">
                         <button type="button" class="r4-button r4-button-primary" onclick="generateGroupGAAs(@group.Id, @group.StudentCount)">
                             <i class="mdi mdi-file-document-check-outline"></i> Generate All GAAs for Group
                         </button>
@@ -162,7 +154,7 @@ else
                             </tbody>
                         </table>
                     </div>
-                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-300);">
+                    <div class="card-footer-actions">
                         <button type="button" class="r4-button r4-button-primary" onclick="generateSelectedInGroup(@group.Id)">
                             <i class="mdi mdi-file-plus-outline"></i> Generate Selected GAAs in Group
                         </button>
