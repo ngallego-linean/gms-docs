@@ -15,6 +15,8 @@ public class DashboardViewModel
 
     public List<ApplicationSummaryViewModel> ApplicationsWithPendingStudents { get; set; } = new();
 
+    public List<ApplicationResultViewModel> ApplicationResults { get; set; } = new();
+
     public string CurrentUser { get; set; } = string.Empty;
 
     public List<ActionItemViewModel> ActionItems { get; set; } = new();

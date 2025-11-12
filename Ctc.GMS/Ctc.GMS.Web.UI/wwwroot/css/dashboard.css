@@ -379,3 +379,167 @@
     font-weight: 700;
     color: var(--primary-blue);
 }
+
+/* Action Items */
+.action-item {
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: white;
+    transition: box-shadow 0.2s;
+}
+
+.action-item:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.action-item-urgent {
+    border: 2px solid #DC3545;
+    background-color: #FFF5F5;
+}
+
+.action-item-normal {
+    border: 1px solid #E0E0E0;
+}
+
+.action-item-content {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex: 1;
+}
+
+.action-item-icon {
+    width: 56px;
+    height: 56px;
+    background-color: #1E3A5F;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.action-item-icon i {
+    font-size: 28px;
+    color: white;
+}
+
+.action-item-details {
+    flex: 1;
+}
+
+.action-item-details h5 {
+    margin: 0 0 0.5rem 0;
+    color: #333;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.action-item-details p {
+    margin: 0 0 0.25rem 0;
+    color: #666;
+    font-size: 0.95rem;
+}
+
+.action-item-due {
+    font-size: 0.85rem !important;
+    color: #999 !important;
+    margin-top: 0.25rem !important;
+}
+
+.action-item-actions {
+    flex-shrink: 0;
+    margin-left: 1rem;
+}
+
+/* Budget Progress Bars */
+.budget-progress-inline {
+    border-top: none !important;
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+.r4-progress-bar-reserved {
+    background-color: var(--warning);
+    color: var(--gray-900);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.r4-progress-bar-encumbered {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.r4-progress-bar-disbursed {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.r4-progress-bar-remaining {
+    background-color: var(--gray-200);
+    color: var(--gray-700);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.budget-legend {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.9rem;
+}
+
+/* Filter Card */
+.filter-card {
+    margin-bottom: 1.5rem;
+}
+
+.filter-clear-btn {
+    width: 100%;
+}
+
+/* Disbursement Group Cards */
+.disbursement-group-card {
+    margin-bottom: 1.5rem;
+}
+
+.disbursement-group-header {
+    background-color: var(--gray-50);
+}
+
+.group-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.group-header-info {
+    flex: 1;
+    cursor: pointer;
+}
+
+.group-header-title {
+    margin-bottom: 0.25rem;
+}
+
+.group-header-subtitle {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--gray-600);
+}
+
+.badge-spacing {
+    margin-left: 0.5rem;
+}
+
+.card-footer-actions {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--gray-300);
+}

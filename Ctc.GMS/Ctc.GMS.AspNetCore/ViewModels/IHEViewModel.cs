@@ -9,40 +9,29 @@ public class IHEDashboardViewModel
     public string IHEName { get; set; } = string.Empty;
     public int GrantCycleId { get; set; }
     public string GrantCycleName { get; set; } = string.Empty;
-    public int TotalApplications { get; set; }
-    public int TotalStudents { get; set; }
+
+    // Candidate Status Metrics (renamed from Application)
+    public int TotalCandidates { get; set; }
     public int DraftCount { get; set; }
-    public int SubmittedCount { get; set; }
+    public int UnderReviewCount { get; set; }
     public int ApprovedCount { get; set; }
-    public List<ApplicationSummaryViewModel> Applications { get; set; } = new();
+
+    // Submissions by LEA Partner
+    public List<ApplicationSummaryViewModel> Submissions { get; set; } = new();
+
+    // Action Items
     public List<ActionItemViewModel> ActionItems { get; set; } = new();
 
-    // Reporting Section Metrics
+    // Post-Payment Reporting Section Metrics
     public int FundedCandidatesCount { get; set; }
     public int ReportsDue { get; set; }
-    public int ReportsOutstanding { get; set; }
+    public int ReportsInProgress { get; set; }
     public int ReportsSubmitted { get; set; }
-    public int ReportsApproved { get; set; }
     public DateTime? NextReportDeadline { get; set; }
     public string? NextReportPeriodName { get; set; }
     public int? DaysUntilDeadline { get; set; }
     public bool HasActiveReportingPeriod { get; set; }
     public List<ReportingAlertViewModel> ReportingAlerts { get; set; } = new();
-
-    // Additional Dashboard Metrics (from Leslie Friend requirements)
-    public int TotalLEAs { get; set; }
-    public int TotalIHEs { get; set; }
-    public decimal AmountAppropriated { get; set; }
-    public decimal AmountEncumbered { get; set; }
-    public decimal AmountDistributed { get; set; }
-    public Dictionary<string, int> CredentialAreas { get; set; } = new();
-    public Dictionary<string, int> Demographics { get; set; } = new();
-    public int CredentialEarnedCount { get; set; }
-    public int CredentialNotEarnedCount { get; set; }
-    public int TotalFieldHours { get; set; }
-    public int AverageFieldHours { get; set; }
-    public int EmployedInDistrictCount { get; set; }
-    public int EmployedInStateCount { get; set; }
 }
 
 /// <summary>
@@ -81,6 +70,21 @@ public class SubmitCandidatesViewModel
     public string POCPhone { get; set; } = string.Empty;
 
     public List<CandidateViewModel> Candidates { get; set; } = new();
+}
+
+/// <summary>
+/// ViewModel for bulk uploading candidates via Excel/CSV
+/// </summary>
+public class BulkUploadCandidatesViewModel
+{
+    public int IHEId { get; set; }
+    public string IHEName { get; set; } = string.Empty;
+    public int GrantCycleId { get; set; }
+    public string GrantCycleName { get; set; } = string.Empty;
+    public int UploadedCount { get; set; }
+    public int SuccessCount { get; set; }
+    public int ErrorCount { get; set; }
+    public List<BulkUploadError> Errors { get; set; } = new();
 }
 
 public class CandidateViewModel

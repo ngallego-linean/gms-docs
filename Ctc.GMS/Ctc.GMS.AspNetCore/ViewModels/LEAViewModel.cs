@@ -17,6 +17,20 @@ public class LEADashboardViewModel
     public List<ApplicationSummaryViewModel> Applications { get; set; } = new();
     public List<ActionItemViewModel> ActionItems { get; set; } = new();
 
+    // Action Items (Enhanced)
+    public int CandidatesReadyForApplication { get; set; }
+    public int ApplicationsWithErrors { get; set; }
+    public int CurrentMonthDay { get; set; }
+    public int DaysRemainingInMonth { get; set; }
+    public string CurrentBatchMonth { get; set; } = string.Empty;
+
+    // Draft Applications
+    public int DraftApplicationCount { get; set; }
+    public List<DraftApplicationSummaryViewModel> DraftApplications { get; set; } = new();
+
+    // IHE Submissions (replaces Applications in some views)
+    public List<IHESubmissionViewModel> IHESubmissions { get; set; } = new();
+
     // Reporting Metrics
     public int TotalFundedStudents { get; set; }
     public int ReportsSubmitted { get; set; }
@@ -317,4 +331,49 @@ public class ReportHistorySearchCriteria
     public int? SubmissionYear { get; set; }
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
+}
+
+/// <summary>
+/// IHE submission grouped by partner for LEA dashboard
+/// </summary>
+public class IHESubmissionViewModel
+{
+    public int ApplicationId { get; set; }
+    public string IHEName { get; set; } = string.Empty;
+    public DateTime SubmissionDate { get; set; }
+    public List<CandidateSummaryViewModel> Candidates { get; set; } = new();
+    public int TotalCandidates { get; set; }
+    public string Status { get; set; } = string.Empty; // DRAFT, PENDING_COMPLETION, SUBMITTED, APPROVED
+    public DateTime LastModified { get; set; }
+    public bool HasErrors { get; set; }
+    public List<string> ValidationErrors { get; set; } = new();
+}
+
+/// <summary>
+/// Summary of a candidate/student for LEA view
+/// </summary>
+public class CandidateSummaryViewModel
+{
+    public int StudentId { get; set; }
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
+    public string FullName => $"{FirstName} {LastName}";
+    public string CredentialArea { get; set; } = string.Empty;
+    public decimal AwardAmount { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public bool NeedsCompletion { get; set; }
+    public string? SEID { get; set; }
+}
+
+/// <summary>
+/// Draft application summary for LEA dashboard
+/// </summary>
+public class DraftApplicationSummaryViewModel
+{
+    public int ApplicationId { get; set; }
+    public string IHEName { get; set; } = string.Empty;
+    public int CandidateCount { get; set; }
+    public DateTime LastSaved { get; set; }
+    public int DaysRemainingInMonth { get; set; }
+    public string FormattedLastSaved => LastSaved.ToString("MMM dd, yyyy h:mm tt");
 }

@@ -12,39 +12,37 @@
 }
 
 <div class="page-header">
-    <h2><i class="mdi mdi-clipboard-check-outline"></i> Review Queue</h2>
-    <p class="subtitle">@Model.GrantCycleName - Applications Pending Review</p>
+    <h2><i class="mdi mdi-clipboard-check-outline"></i> Disbursement Group Review Queue</h2>
+    <p class="subtitle">@Model.GrantCycleName - Disbursement Groups Pending Review</p>
 </div>
 
 @if (!Model.Applications.Any())
 {
     <div class="alert alert-info">
         <i class="mdi mdi-information-outline"></i>
-        No applications are currently pending review. All applications have been processed.
+        No disbursement groups are currently pending review. All groups have been processed.
     </div>
 }
 else
 {
     <div class="alert alert-warning">
         <i class="mdi mdi-alert-outline"></i>
-        <strong>@Model.Applications.Sum(a => a.PendingCount) student(s)</strong> from <strong>@Model.Applications.Count application(s)</strong> are waiting for your review.
+        <strong>@Model.Applications.Sum(a => a.PendingCount) student(s)</strong> from <strong>@Model.Applications.Count disbursement group(s)</strong> are waiting for your review.
     </div>
 
     <div class="r4-card">
         <div class="r4-card-header">
-            <h4><i class="mdi mdi-folder-open-outline"></i> Applications Requiring Review</h4>
+            <h4><i class="mdi mdi-folder-open-outline"></i> Disbursement Groups Requiring Review</h4>
         </div>
         <div class="r4-card-body">
             <table class="r4-table">
                 <thead>
                     <tr>
-                        <th>Submitted Date</th>
-                        <th>IHE Institution</th>
+                        <th>Submission Date</th>
                         <th>LEA District</th>
                         <th>Total Students</th>
                         <th>Pending Review</th>
                         <th>Already Approved</th>
-                        <th>Priority</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -52,9 +50,8 @@ else
                     @foreach (var app in Model.Applications)
                     {
                         var daysSinceSubmission = (DateTime.Now - app.LastModified).Days;
-                        var isUrgent = daysSinceSubmission > 5;
 
-                        <tr class="@(isUrgent ? "table-warning" : "")">
+                        <tr>
                             <td>
                                 @app.LastModified.ToString("MM/dd/yyyy")
                                 @if (daysSinceSubmission > 0)
@@ -62,7 +59,6 @@ else
                                     <small class="text-muted">(@daysSinceSubmission day(s) ago)</small>
                                 }
                             </td>
-                            <td>@app.IHEName</td>
                             <td>@app.LEAName</td>
                             <td>
                                 <span class="badge badge-secondary">@app.TotalStudents</span>
@@ -81,18 +77,6 @@ else
                                 }
                             </td>
                             <td>
-                                @if (isUrgent)
-                                {
-                                    <span class="badge badge-danger">
-                                        <i class="mdi mdi-alert"></i> Urgent
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="badge badge-secondary">Normal</span>
-                                }
-                            </td>
-                            <td>
                                 <a href="@Url.Action("Details", "Application", new { id = app.Id })" class="r4-button r4-button-primary r4-button-sm">
                                     <i class="mdi mdi-eye-outline"></i> Review Students
                                 </a>
@@ -108,11 +92,8 @@ else
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Highlight urgent items
-            const urgentRows = document.querySelectorAll('.table-warning');
-            if (urgentRows.length > 0) {
-                console.log(`Found ${urgentRows.length} urgent application(s) requiring immediate attention`);
-            }
+            // Disbursement group review queue loaded
+            console.log('Disbursement group review queue ready');
         });
     </script>
 }

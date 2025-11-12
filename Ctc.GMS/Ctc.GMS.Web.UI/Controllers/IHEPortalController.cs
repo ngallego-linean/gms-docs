@@ -65,13 +65,12 @@ public class IHEPortalController : Controller
             var activeReportingPeriod = _repository.GetReportingPeriods(grantCycleId)
                 .FirstOrDefault(rp => rp.IsActive);
 
-            var reportsOutstanding = fundedStudents.Count(s => s.ReportingStatus == "NOT_STARTED");
+            var reportsNotStarted = fundedStudents.Count(s => s.ReportingStatus == "NOT_STARTED");
             var reportsInProgress = fundedStudents.Count(s => s.ReportingStatus == "IN_PROGRESS");
             var reportsSubmitted = fundedStudents.Count(s => s.ReportingStatus == "SUBMITTED");
-            var reportsApproved = fundedStudents.Count(s => s.ReportingStatus == "APPROVED");
 
             var reportingAlerts = new List<ReportingAlertViewModel>();
-            if (activeReportingPeriod != null && reportsOutstanding > 0)
+            if (activeReportingPeriod != null && reportsNotStarted > 0)
             {
                 var daysUntilDue = (activeReportingPeriod.DueDate - DateTime.Now).Days;
                 if (daysUntilDue <= 7)
@@ -79,43 +78,27 @@ public class IHEPortalController : Controller
                     reportingAlerts.Add(new ReportingAlertViewModel
                     {
                         AlertType = "WARNING",
-                        Message = $"Reports due in {daysUntilDue} days! You have {reportsOutstanding} outstanding report(s).",
+                        Message = $"Reports due in {daysUntilDue} days! You have {reportsNotStarted} outstanding report(s).",
                         ActionUrl = Url.Action("FundedCandidates", "IHEPortal", new { iheId, grantCycleId }) ?? "",
                         ActionText = "Complete Reports Now"
                     });
                 }
             }
 
-            // Calculate additional metrics
-            var allOrgs = _repository.GetOrganizations();
-            var allLEAs = allOrgs.Where(o => o.Type == "LEA").ToList();
-            var allIHEs = allOrgs.Where(o => o.Type == "IHE").ToList();
-
-            var totalAwardAmount = allStudents.Sum(s => s.AwardAmount);
-            var encumberedAmount = allStudents.Where(s => s.Status == "APPROVED" || s.GAAStatus != null).Sum(s => s.AwardAmount);
-            var distributedAmount = allStudents.Where(s => s.GAAStatus == "PAYMENT_COMPLETED").Sum(s => s.AwardAmount);
-
-            var credentialAreas = allStudents
-                .Where(s => !string.IsNullOrEmpty(s.CredentialArea))
-                .GroupBy(s => s.CredentialArea)
-                .ToDictionary(g => g.Key, g => g.Count());
-
-            var demographics = new Dictionary<string, int>();
-            // Gender breakdown
-            var genderGroups = allStudents.Where(s => !string.IsNullOrEmpty(s.Gender)).GroupBy(s => s.Gender);
-            foreach (var g in genderGroups)
-                demographics[$"Gender: {g.Key}"] = g.Count();
-
-            // Race breakdown (from reports data)
-            var allReports = _repository.GetIHEReports();
-            var credentialEarnedFromReports = allReports.Count(r => r.CredentialEarned);
-            var credentialNotEarned = allReports.Where(r => r.Status == "SUBMITTED" || r.Status == "APPROVED").Count(r => !r.CredentialEarned);
-
-            var totalFieldHours = allReports.Where(r => r.GrantProgramHours > 0).Sum(r => r.GrantProgramHours + r.CredentialProgramHours);
-            var avgFieldHours = allReports.Any() ? (int)allReports.Where(r => r.GrantProgramHours > 0).Average(r => r.GrantProgramHours + r.CredentialProgramHours) : 0;
-
-            var employedInDistrict = allReports.Count(r => r.EmployedInDistrict);
-            var employedInState = allReports.Count(r => r.EmployedInState);
+            // Add action item for reports if there are funded candidates
+            if (fundedStudents.Count > 0 && (reportsNotStarted > 0 || reportsInProgress > 0))
+            {
+                actionItems.Add(new ActionItemViewModel
+                {
+                    Id = 2,
+                    Type = "reports_required",
+                    Title = "Reports Required",
+                    Description = $"{reportsNotStarted + reportsInProgress} report(s) need to be completed",
+                    DueDate = activeReportingPeriod?.DueDate,
+                    Priority = "high",
+                    AssignedTo = "IHE"
+                });
+            }
 
             var model = new IHEDashboardViewModel
             {
@@ -123,12 +106,15 @@ public class IHEPortalController : Controller
                 IHEName = iheApplications.FirstOrDefault()?.IHE.Name ?? "Institution",
                 GrantCycleId = grantCycleId,
                 GrantCycleName = grantCycle.Name,
-                TotalApplications = iheApplications.Count,
-                TotalStudents = totalStudents,
+
+                // Candidate Status Metrics
+                TotalCandidates = totalStudents,
                 DraftCount = draftStudents,
-                SubmittedCount = submittedStudents,
+                UnderReviewCount = submittedStudents,
                 ApprovedCount = approvedStudents,
-                Applications = iheApplications.Select(a => new ApplicationSummaryViewModel
+
+                // Submissions by LEA Partner
+                Submissions = iheApplications.Select(a => new ApplicationSummaryViewModel
                 {
                     Id = a.Id,
                     IHEName = a.IHE.Name,
@@ -139,34 +125,20 @@ public class IHEPortalController : Controller
                     Status = a.Status,
                     LastModified = a.LastModified
                 }).ToList(),
+
+                // Action Items
                 ActionItems = actionItems,
 
-                // Reporting metrics
+                // Post-Payment Reporting Metrics
                 FundedCandidatesCount = fundedStudents.Count,
-                ReportsDue = reportsInProgress,
-                ReportsOutstanding = reportsOutstanding,
+                ReportsDue = reportsNotStarted + reportsInProgress,
+                ReportsInProgress = reportsInProgress,
                 ReportsSubmitted = reportsSubmitted,
-                ReportsApproved = reportsApproved,
                 NextReportDeadline = activeReportingPeriod?.DueDate,
                 NextReportPeriodName = activeReportingPeriod?.PeriodName,
                 DaysUntilDeadline = activeReportingPeriod != null ? (activeReportingPeriod.DueDate - DateTime.Now).Days : null,
                 HasActiveReportingPeriod = activeReportingPeriod != null,
-                ReportingAlerts = reportingAlerts,
-
-                // Additional dashboard metrics
-                TotalLEAs = allLEAs.Count,
-                TotalIHEs = allIHEs.Count,
-                AmountAppropriated = grantCycle.ApproprietedAmount,
-                AmountEncumbered = encumberedAmount,
-                AmountDistributed = distributedAmount,
-                CredentialAreas = credentialAreas,
-                Demographics = demographics,
-                CredentialEarnedCount = credentialEarnedFromReports,
-                CredentialNotEarnedCount = credentialNotEarned,
-                TotalFieldHours = totalFieldHours,
-                AverageFieldHours = avgFieldHours,
-                EmployedInDistrictCount = employedInDistrict,
-                EmployedInStateCount = employedInState
+                ReportingAlerts = reportingAlerts
             };
 
             return View(model);
@@ -202,6 +174,37 @@ public class IHEPortalController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error loading submit candidates page");
+            return View("Error");
+        }
+    }
+
+    [Route("BulkUploadCandidates")]
+    public IActionResult BulkUploadCandidates(int iheId = 1, int grantCycleId = 1)
+    {
+        try
+        {
+            var grantCycle = _grantService.GetGrantCycle(grantCycleId);
+
+            if (grantCycle == null)
+            {
+                return NotFound("Grant cycle not found");
+            }
+
+            var ihe = _repository.GetOrganizations().FirstOrDefault(o => o.Id == iheId && o.Type == "IHE");
+
+            var model = new BulkUploadCandidatesViewModel
+            {
+                IHEId = iheId,
+                IHEName = ihe?.Name ?? "Institution",
+                GrantCycleId = grantCycleId,
+                GrantCycleName = grantCycle.Name
+            };
+
+            return View(model);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading bulk upload candidates page");
             return View("Error");
         }
     }
