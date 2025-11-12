@@ -579,27 +579,32 @@ body {
 }
 
 .badge-success {
-    background-color: var(--gray-200);
-    color: var(--gray-900);
+    background-color: var(--success);
+    color: var(--white);
 }
 
 .badge-warning {
-    background-color: var(--gray-300);
+    background-color: var(--warning);
     color: var(--gray-900);
 }
 
 .badge-danger {
-    background-color: var(--gray-400);
-    color: var(--gray-900);
+    background-color: var(--danger);
+    color: var(--white);
+}
+
+.badge-info {
+    background-color: #17A2B8;
+    color: var(--white);
 }
 
 .badge-secondary {
-    background-color: var(--gray-200);
-    color: var(--gray-800);
+    background-color: var(--gray-600);
+    color: var(--white);
 }
 
 .badge-primary {
-    background-color: var(--ctc-blue);
+    background-color: var(--primary);
     color: var(--white);
 }
 
@@ -827,6 +832,12 @@ body {
     background-color: #D4EDDA;
     border: 1px solid #C3E6CB;
     color: #155724;
+}
+
+.alert-danger {
+    background-color: #F8D7DA;
+    border: 1px solid #F5C6CB;
+    color: #721C24;
 }
 
 .alert-link {
@@ -1910,4 +1921,26 @@ body {
 .empty-state p {
     margin: 0;
     font-size: 1rem;
+}
+
+/* ============================================
+   GAA TABLE STYLING
+   ============================================ */
+.gaa-table .col-checkbox {
+    width: 40px;
+}
+
+.gaa-table .col-wrap {
+    white-space: normal;
+    word-wrap: break-word;
+    max-width: 200px;
+}
+
+.gaa-table .col-nowrap {
+    white-space: nowrap;
+}
+
+.gaa-table .badge {
+    white-space: normal;
+    line-height: 1.3;
 }

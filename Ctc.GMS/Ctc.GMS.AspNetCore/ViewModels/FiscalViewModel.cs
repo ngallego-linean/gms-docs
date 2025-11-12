@@ -36,6 +36,31 @@ public class GAAListViewModel
 {
     public int GrantCycleId { get; set; }
     public string GrantCycleName { get; set; } = string.Empty;
+    public List<DisbursementGroupViewModel> DisbursementGroups { get; set; } = new();
+    public int TotalStudents => DisbursementGroups.Sum(g => g.StudentCount);
+    public int TotalGroups => DisbursementGroups.Count;
+}
+
+public class DisbursementGroupViewModel
+{
+    public int Id { get; set; }
+
+    [Display(Name = "LEA District")]
+    public string LEAName { get; set; } = string.Empty;
+
+    [Display(Name = "Submission Month")]
+    public string SubmissionMonth { get; set; } = string.Empty;
+
+    [Display(Name = "Student Count")]
+    public int StudentCount { get; set; }
+
+    [Display(Name = "Total Amount")]
+    [DisplayFormat(DataFormatString = "{0:C0}")]
+    public decimal TotalAmount { get; set; }
+
+    [Display(Name = "GAA Status")]
+    public string GAAStatus { get; set; } = string.Empty;
+
     public List<StudentGAAViewModel> Students { get; set; } = new();
 }
 
@@ -201,4 +226,76 @@ public class FiscalReportingDashboardViewModel
     public string ComplianceHealth { get; set; } = string.Empty;  // "GREEN", "YELLOW", "RED"
 
     public OutcomeMetricsViewModel OutcomeMetrics { get; set; } = new();
+}
+
+public class DisbursementGroupInvoiceViewModel
+{
+    public int DisbursementGroupId { get; set; }
+
+    [Display(Name = "LEA District")]
+    public string LEAName { get; set; } = string.Empty;
+
+    [Display(Name = "LEA Address")]
+    public string LEAAddress { get; set; } = string.Empty;
+
+    [Display(Name = "Student Count")]
+    public int StudentCount { get; set; }
+
+    [Display(Name = "Total Amount")]
+    [DisplayFormat(DataFormatString = "{0:C0}")]
+    public decimal TotalAmount { get; set; }
+
+    [Display(Name = "GAA Signed Date")]
+    [DataType(DataType.Date)]
+    public DateTime? GAASignedDate { get; set; }
+
+    [Display(Name = "Days Since Signed")]
+    public int DaysSinceSigned { get; set; }
+
+    public bool InvoiceGenerated { get; set; }
+
+    [Display(Name = "Invoice Number")]
+    public string? InvoiceNumber { get; set; }
+}
+
+public class InvoiceGenerationViewModel
+{
+    public int DisbursementGroupId { get; set; }
+
+    [Display(Name = "LEA District")]
+    public string LEAName { get; set; } = string.Empty;
+
+    [Display(Name = "LEA Address")]
+    [Required(ErrorMessage = "LEA Address is required")]
+    public string LEAAddress { get; set; } = string.Empty;
+
+    [Display(Name = "Invoice Number")]
+    [Required(ErrorMessage = "Invoice Number is required")]
+    public string InvoiceNumber { get; set; } = string.Empty;
+
+    [Display(Name = "PO Number")]
+    [Required(ErrorMessage = "PO Number is required")]
+    public string PONumber { get; set; } = string.Empty;
+
+    [Display(Name = "Invoice Amount")]
+    [DisplayFormat(DataFormatString = "{0:C0}")]
+    [Required(ErrorMessage = "Amount is required")]
+    [Range(0.01, double.MaxValue, ErrorMessage = "Amount must be greater than 0")]
+    public decimal Amount { get; set; }
+
+    [Display(Name = "Invoice Date")]
+    [DataType(DataType.Date)]
+    public DateTime InvoiceDate { get; set; } = DateTime.Now;
+
+    [Display(Name = "Student Count")]
+    public int StudentCount { get; set; }
+
+    public List<StudentGAAViewModel> Students { get; set; } = new();
+}
+
+public class InvoiceListViewModel
+{
+    public int GrantCycleId { get; set; }
+    public string GrantCycleName { get; set; } = string.Empty;
+    public List<DisbursementGroupInvoiceViewModel> DisbursementGroups { get; set; } = new();
 }

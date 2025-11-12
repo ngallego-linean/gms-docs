@@ -46,25 +46,71 @@ public class FiscalTeamController : Controller
                 .Where(s => s.Status == "APPROVED" && string.IsNullOrEmpty(s.GAAStatus))
                 .Count();
 
+            // Calculate disbursement groups (mock: ~10 students per group)
+            var disbursementGroupsNeedingGAA = studentsNeedingGAA > 0 ? (studentsNeedingGAA / 10) + 1 : 0;
+
             var actionItems = new List<ActionItemViewModel>();
 
-            if (studentsNeedingGAA > 0)
+            if (disbursementGroupsNeedingGAA > 0)
             {
                 actionItems.Add(new ActionItemViewModel
                 {
                     Id = 1,
                     Type = "gaa_generation",
                     Title = "Generate GAA Documents",
-                    Description = $"{studentsNeedingGAA} approved student(s) need Grant Award Agreement",
+                    Description = $"{disbursementGroupsNeedingGAA} disbursement group(s) ready for GAA processing",
                     DueDate = DateTime.Now.AddDays(3),
                     Priority = "high",
                     AssignedTo = "Fiscal Team"
                 });
             }
 
-            // Get reporting metrics
-            var reportingDashboardDTO = _grantService.GetReportingDashboardMetrics(grantCycleId);
-            var reportingDashboardMetrics = MapToReportingDashboardViewModel(reportingDashboardDTO);
+            // Mock: Disbursement groups ready for invoice generation (DocuSign completed)
+            var disbursementGroupsNeedingInvoice = 0; // Mock data - would come from DocuSign completion status
+            if (disbursementGroupsNeedingInvoice > 0)
+            {
+                actionItems.Add(new ActionItemViewModel
+                {
+                    Id = 2,
+                    Type = "invoice_generation",
+                    Title = "Generate Invoices",
+                    Description = $"{disbursementGroupsNeedingInvoice} disbursement group(s) ready for invoice generation (GAA signed)",
+                    DueDate = DateTime.Now.AddDays(2),
+                    Priority = "high",
+                    AssignedTo = "Fiscal Team"
+                });
+            }
+
+            // Get application results for display
+            var applicationResults = cycleApplications
+                .Where(a => a.Status == "SUBMITTED" || a.Status == "APPROVED")
+                .Select(a => new ApplicationResultViewModel
+                {
+                    ApplicationId = a.Id,
+                    SubmissionDate = a.CreatedAt,
+                    LEAName = a.LEA.Name,
+                    IHEName = a.IHE.Name
+                })
+                .OrderByDescending(a => a.SubmissionDate)
+                .ToList();
+
+            // Get applications with pending students
+            var applicationsWithPendingStudents = cycleApplications
+                .Where(a => a.Students.Any(s => s.Status == "SUBMITTED" || s.Status == "PENDING"))
+                .Select(a => new ApplicationSummaryViewModel
+                {
+                    Id = a.Id,
+                    SubmissionDate = a.CreatedAt,
+                    LEAName = a.LEA.Name,
+                    IHEName = a.IHE.Name,
+                    PendingCount = a.Students.Count(s => s.Status == "SUBMITTED" || s.Status == "PENDING"),
+                    ApprovedCount = a.Students.Count(s => s.Status == "APPROVED"),
+                    TotalStudents = a.Students.Count,
+                    Status = a.Status,
+                    LastModified = a.LastModified
+                })
+                .OrderByDescending(a => a.SubmissionDate)
+                .ToList();
 
             var model = new DashboardViewModel
             {
@@ -94,13 +140,11 @@ public class FiscalTeamController : Controller
                         Rejected = metrics.StatusCounts.Rejected
                     }
                 },
-                ApplicationsWithPendingStudents = new List<ApplicationSummaryViewModel>(),
+                ApplicationsWithPendingStudents = applicationsWithPendingStudents,
+                ApplicationResults = applicationResults,
                 CurrentUser = User.Identity?.Name ?? "Fiscal Team Member",
                 ActionItems = actionItems
             };
-
-            // Pass reporting metrics via ViewBag
-            ViewBag.ReportingMetrics = reportingDashboardMetrics;
 
             return View(model);
         }
@@ -124,33 +168,51 @@ public class FiscalTeamController : Controller
             }
 
             var allApplications = _grantService.GetApplications();
-            var studentsNeedingGAA = allApplications
+
+            // Group students by LEA and submission month (disbursement groups)
+            var disbursementGroups = allApplications
                 .Where(a => a.GrantCycleId == grantCycleId)
                 .SelectMany(a => a.Students.Select(s => new
                 {
                     Application = a,
                     Student = s
                 }))
-                .Where(x => x.Student.Status == "APPROVED")
-                .Select(x => new StudentGAAViewModel
+                .Where(x => x.Student.Status == "APPROVED" && string.IsNullOrEmpty(x.Student.GAAStatus))
+                .GroupBy(x => new
                 {
-                    StudentId = x.Student.Id,
-                    StudentName = $"{x.Student.FirstName} {x.Student.LastName}",
-                    SEID = x.Student.SEID,
-                    IHEName = x.Application.IHE.Name,
-                    LEAName = x.Application.LEA.Name,
-                    CredentialArea = x.Student.CredentialArea,
-                    AwardAmount = x.Student.AwardAmount,
-                    GAAStatus = x.Student.GAAStatus,
-                    ApprovedDate = x.Student.SubmittedAt
+                    LEA = x.Application.LEA.Name,
+                    Month = x.Student.SubmittedAt?.ToString("yyyy-MM") ?? DateTime.Now.ToString("yyyy-MM")
                 })
+                .Select((g, index) => new DisbursementGroupViewModel
+                {
+                    Id = index + 1,
+                    LEAName = g.Key.LEA,
+                    SubmissionMonth = g.Key.Month,
+                    StudentCount = g.Count(),
+                    TotalAmount = g.Sum(x => x.Student.AwardAmount),
+                    GAAStatus = "PENDING",
+                    Students = g.Select(x => new StudentGAAViewModel
+                    {
+                        StudentId = x.Student.Id,
+                        StudentName = $"{x.Student.FirstName} {x.Student.LastName}",
+                        SEID = x.Student.SEID,
+                        IHEName = x.Application.IHE.Name,
+                        LEAName = x.Application.LEA.Name,
+                        CredentialArea = x.Student.CredentialArea,
+                        AwardAmount = x.Student.AwardAmount,
+                        GAAStatus = x.Student.GAAStatus,
+                        ApprovedDate = x.Student.SubmittedAt
+                    }).ToList()
+                })
+                .OrderBy(g => g.LEAName)
+                .ThenBy(g => g.SubmissionMonth)
                 .ToList();
 
             var model = new GAAListViewModel
             {
                 GrantCycleId = grantCycleId,
                 GrantCycleName = grantCycle.Name,
-                Students = studentsNeedingGAA
+                DisbursementGroups = disbursementGroups
             };
 
             return View(model);
@@ -187,6 +249,193 @@ public class FiscalTeamController : Controller
         {
             _logger.LogError(ex, "Error loading payments page");
             return View("Error");
+        }
+    }
+
+    [Route("Invoices")]
+    public IActionResult Invoices(int grantCycleId = 1)
+    {
+        try
+        {
+            var grantCycle = _grantService.GetGrantCycle(grantCycleId);
+
+            if (grantCycle == null)
+            {
+                return NotFound("Grant cycle not found");
+            }
+
+            var allApplications = _grantService.GetApplications();
+
+            // Mock: Group students by LEA who have GAA signed (DocuSign completed)
+            // In production, this would query actual disbursement groups with signed GAAs
+            var disbursementGroups = allApplications
+                .Where(a => a.GrantCycleId == grantCycleId)
+                .GroupBy(a => a.LEA.Name)
+                .Select((group, index) => new DisbursementGroupInvoiceViewModel
+                {
+                    DisbursementGroupId = index + 1,
+                    LEAName = group.Key,
+                    LEAAddress = $"{index + 100} Main Street, Sacramento, CA 95814", // Mock address
+                    StudentCount = group.SelectMany(a => a.Students).Count(s => s.Status == "APPROVED"),
+                    TotalAmount = group.SelectMany(a => a.Students).Where(s => s.Status == "APPROVED").Sum(s => s.AwardAmount),
+                    GAASignedDate = DateTime.Now.AddDays(-7), // Mock: signed 7 days ago
+                    DaysSinceSigned = 7,
+                    InvoiceGenerated = false
+                })
+                .Where(dg => dg.StudentCount > 0)
+                .ToList();
+
+            var model = new InvoiceListViewModel
+            {
+                GrantCycleId = grantCycleId,
+                GrantCycleName = grantCycle.Name,
+                DisbursementGroups = disbursementGroups
+            };
+
+            return View(model);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading invoice generation page");
+            return View("Error");
+        }
+    }
+
+    [Route("GenerateInvoice")]
+    public IActionResult GenerateInvoice(int disbursementGroupId, int grantCycleId = 1)
+    {
+        try
+        {
+            var grantCycle = _grantService.GetGrantCycle(grantCycleId);
+
+            if (grantCycle == null)
+            {
+                return NotFound("Grant cycle not found");
+            }
+
+            var allApplications = _grantService.GetApplications();
+
+            // Mock: Get disbursement group details
+            // In production, this would query actual disbursement group by ID
+            var leaGroups = allApplications
+                .Where(a => a.GrantCycleId == grantCycleId)
+                .GroupBy(a => a.LEA.Name)
+                .ToList();
+
+            if (disbursementGroupId < 1 || disbursementGroupId > leaGroups.Count)
+            {
+                return NotFound("Disbursement group not found");
+            }
+
+            var group = leaGroups[disbursementGroupId - 1];
+            var students = group.SelectMany(a => a.Students.Select(s => new
+            {
+                Application = a,
+                Student = s
+            }))
+            .Where(x => x.Student.Status == "APPROVED")
+            .Select(x => new StudentGAAViewModel
+            {
+                StudentId = x.Student.Id,
+                StudentName = $"{x.Student.FirstName} {x.Student.LastName}",
+                SEID = x.Student.SEID,
+                IHEName = x.Application.IHE.Name,
+                LEAName = x.Application.LEA.Name,
+                CredentialArea = x.Student.CredentialArea,
+                AwardAmount = x.Student.AwardAmount,
+                GAAStatus = "SIGNED"
+            })
+            .ToList();
+
+            var model = new InvoiceGenerationViewModel
+            {
+                DisbursementGroupId = disbursementGroupId,
+                LEAName = group.Key,
+                LEAAddress = $"{disbursementGroupId + 99} Main Street, Sacramento, CA 95814", // Mock
+                InvoiceNumber = $"INV-{grantCycleId}-{disbursementGroupId:D4}",
+                Amount = students.Sum(s => s.AwardAmount),
+                StudentCount = students.Count,
+                Students = students,
+                InvoiceDate = DateTime.Now,
+                PONumber = "" // To be filled by user
+            };
+
+            return View(model);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading invoice generation form");
+            return View("Error");
+        }
+    }
+
+    [HttpPost]
+    [Route("GenerateInvoice")]
+    public IActionResult GenerateInvoice(InvoiceGenerationViewModel model)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                // Repopulate the Students list before returning to view
+                RepopulateInvoiceModel(model, 1);
+                return View(model);
+            }
+
+            // Mock: In production, this would save the invoice to database
+            // and trigger payment processing workflow
+            _logger.LogInformation($"Invoice generated: {model.InvoiceNumber} for {model.LEAName}, PO: {model.PONumber}, Amount: {model.Amount:C0}");
+
+            TempData["SuccessMessage"] = $"Invoice {model.InvoiceNumber} generated successfully for {model.LEAName}";
+
+            return RedirectToAction("Invoices", new { grantCycleId = 1 });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error saving invoice");
+            RepopulateInvoiceModel(model, 1);
+            ModelState.AddModelError("", "An error occurred while generating the invoice");
+            return View(model);
+        }
+    }
+
+    private void RepopulateInvoiceModel(InvoiceGenerationViewModel model, int grantCycleId)
+    {
+        try
+        {
+            var allApplications = _grantService.GetApplications();
+            var leaGroups = allApplications
+                .Where(a => a.GrantCycleId == grantCycleId)
+                .GroupBy(a => a.LEA.Name)
+                .ToList();
+
+            if (model.DisbursementGroupId > 0 && model.DisbursementGroupId <= leaGroups.Count)
+            {
+                var group = leaGroups[model.DisbursementGroupId - 1];
+                model.Students = group.SelectMany(a => a.Students.Select(s => new
+                {
+                    Application = a,
+                    Student = s
+                }))
+                .Where(x => x.Student.Status == "APPROVED")
+                .Select(x => new StudentGAAViewModel
+                {
+                    StudentId = x.Student.Id,
+                    StudentName = $"{x.Student.FirstName} {x.Student.LastName}",
+                    SEID = x.Student.SEID,
+                    IHEName = x.Application.IHE.Name,
+                    LEAName = x.Application.LEA.Name,
+                    CredentialArea = x.Student.CredentialArea,
+                    AwardAmount = x.Student.AwardAmount,
+                    GAAStatus = "SIGNED"
+                })
+                .ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error repopulating invoice model");
+            model.Students = new List<StudentGAAViewModel>();
         }
     }
 
