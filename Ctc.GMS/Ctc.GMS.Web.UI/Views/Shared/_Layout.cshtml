@@ -97,6 +97,11 @@
                         </a>
                     </li>
                     <li>
+                        <a asp-controller="GrantsTeam" asp-action="Analytics" class="@(ViewContext.RouteData.Values["action"]?.ToString() == "Analytics" ? "active" : "")">
+                            <i class="mdi mdi-chart-box-outline"></i> Analytics
+                        </a>
+                    </li>
+                    <li>
                         <a asp-controller="Reporting" asp-action="Dashboard" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Reporting" ? "active" : "")">
                             <i class="mdi mdi-chart-line"></i> Reporting
                         </a>

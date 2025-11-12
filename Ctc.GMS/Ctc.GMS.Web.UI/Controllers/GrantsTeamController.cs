@@ -212,4 +212,129 @@ public class GrantsTeamController : Controller
 
         return View(model);
     }
+
+    [Route("Analytics")]
+    public IActionResult Analytics(int grantCycleId = 1)
+    {
+        try
+        {
+            var metrics = _grantService.CalculateMetrics(grantCycleId);
+            var grantCycle = _grantService.GetGrantCycle(grantCycleId);
+
+            if (grantCycle == null)
+            {
+                return NotFound("Grant cycle not found");
+            }
+
+            var allApplications = _grantService.GetApplications();
+            var cycleApplications = allApplications
+                .Where(a => a.GrantCycleId == grantCycleId)
+                .ToList();
+
+            // Calculate comprehensive analytics
+            var totalStudents = cycleApplications.SelectMany(a => a.Students).ToList();
+            var credentialBreakdown = totalStudents
+                .GroupBy(s => s.CredentialArea)
+                .Select(g => new CredentialAreaBreakdown
+                {
+                    CredentialArea = g.Key,
+                    StudentCount = g.Count(),
+                    Percentage = (decimal)g.Count() / totalStudents.Count * 100
+                })
+                .OrderByDescending(x => x.StudentCount)
+                .ToList();
+
+            var model = new AnalyticsViewModel
+            {
+                GrantCycleId = grantCycleId,
+                GrantCycleName = grantCycle.Name,
+                BudgetOverview = new BudgetOverviewViewModel
+                {
+                    ApproprietedAmount = metrics.ApproprietedAmount,
+                    ReservedAmount = metrics.ReservedAmount,
+                    EncumberedAmount = metrics.EncumberedAmount,
+                    DisbursedAmount = metrics.DisbursedAmount,
+                    RemainingAmount = metrics.RemainingAmount,
+                    OutstandingBalance = metrics.OutstandingBalance,
+                    RemainingPercent = metrics.RemainingPercent,
+                    EncumberedPercent = metrics.ApproprietedAmount > 0
+                        ? (metrics.EncumberedAmount / metrics.ApproprietedAmount) * 100
+                        : 0,
+                    DisbursedPercent = metrics.ApproprietedAmount > 0
+                        ? (metrics.DisbursedAmount / metrics.ApproprietedAmount) * 100
+                        : 0
+                },
+                GrantSubmissions = new GrantSubmissionsViewModel
+                {
+                    TotalStudents = metrics.TotalStudents,
+                    StudentsApproved = metrics.StatusCounts.Approved,
+                    StudentsUnderReview = metrics.StatusCounts.Submitted,
+                    StudentsPendingLEA = metrics.StatusCounts.PendingLEA,
+                    StudentsDraft = metrics.StatusCounts.Draft,
+                    StudentsRejected = metrics.StatusCounts.Rejected,
+                    StatusCounts = new StatusCountsViewModel
+                    {
+                        Draft = metrics.StatusCounts.Draft,
+                        PendingLEA = metrics.StatusCounts.PendingLEA,
+                        Submitted = metrics.StatusCounts.Submitted,
+                        UnderReview = metrics.StatusCounts.UnderReview,
+                        Approved = metrics.StatusCounts.Approved,
+                        Rejected = metrics.StatusCounts.Rejected
+                    }
+                },
+                ProgramOutcomes = new ProgramOutcomesViewModel
+                {
+                    TotalHoursCompleted = 0, // TODO: Implement when hours tracking is added
+                    AverageHoursPerStudent = 0,
+                    CompletionRate = metrics.StatusCounts.Approved > 0 && metrics.TotalStudents > 0
+                        ? (decimal)metrics.StatusCounts.Approved / metrics.TotalStudents
+                        : 0,
+                    StudentsCompleting = metrics.StatusCounts.Approved,
+                    CredentialAreasServed = credentialBreakdown.Count,
+                    CredentialBreakdown = credentialBreakdown
+                },
+                GranteeReportingMetrics = new GranteeReportingMetricsViewModel
+                {
+                    TotalReportsRequired = 14, // Mock data - will be calculated from actual reports
+                    ReportsSubmitted = 7,
+                    ReportsOutstanding = 7,
+                    ReportsUnderReview = 3,
+                    ReportsApproved = 4,
+                    IHEReportsSubmitted = 4,
+                    LEAReportsSubmitted = 3,
+                    SubmissionRate = 0.50m
+                },
+                FinancialSummary = new FinancialSummaryViewModel
+                {
+                    TotalDisbursements = cycleApplications.Count,
+                    PendingGAAs = cycleApplications.Count(a => a.Status == "SUBMITTED"),
+                    ActiveGAAs = cycleApplications.Count(a => a.Status == "APPROVED"),
+                    CompletedPayments = 0, // TODO: Calculate from payment records
+                    TotalAmountPaid = metrics.DisbursedAmount,
+                    AveragePaymentAmount = metrics.StatusCounts.Approved > 0
+                        ? metrics.DisbursedAmount / metrics.StatusCounts.Approved
+                        : 0
+                },
+                PartnershipStatistics = new PartnershipStatisticsViewModel
+                {
+                    TotalIHEs = metrics.UniqueIHEs,
+                    TotalLEAs = metrics.UniqueLEAs,
+                    ActivePartnerships = metrics.ActivePartnerships,
+                    IHEsWithSubmissions = cycleApplications.Select(a => a.IHE.Id).Distinct().Count(),
+                    LEAsWithApprovedStudents = cycleApplications
+                        .Where(a => a.Students.Any(s => s.Status == "APPROVED"))
+                        .Select(a => a.LEA.Id)
+                        .Distinct()
+                        .Count()
+                }
+            };
+
+            return View(model);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading Analytics page");
+            return View("Error");
+        }
+    }
 }

@@ -1,0 +1,520 @@
+@model AnalyticsViewModel
+
+@{
+    ViewData["Title"] = "Grant Program Analytics";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="GrantsTeam" asp-action="Dashboard">Grants/Fiscal Team</a></li>
+        <li class="breadcrumb-item active">Analytics</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-chart-box-outline"></i> Grant Program Analytics</h2>
+    <p class="subtitle">@Model.GrantCycleName - Comprehensive Metrics & Insights</p>
+</div>
+
+@* BUDGET OVERVIEW *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-cash-multiple"></i> Budget Overview</h4>
+    </div>
+    <div class="r4-card-body">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-bank"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Appropriated Amount</div>
+                    <div class="metric-value">@Model.BudgetOverview.ApproprietedAmount.ToString("C0")</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-lock-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Reserved Amount</div>
+                    <div class="metric-value">@Model.BudgetOverview.ReservedAmount.ToString("C0")</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-file-document-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Encumbered Amount</div>
+                    <div class="metric-value">@Model.BudgetOverview.EncumberedAmount.ToString("C0")</div>
+                    <div class="metric-secondary">@Model.BudgetOverview.EncumberedPercent.ToString("F1")% of total</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-cash-check"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Disbursed Amount</div>
+                    <div class="metric-value">@Model.BudgetOverview.DisbursedAmount.ToString("C0")</div>
+                    <div class="metric-secondary">@Model.BudgetOverview.DisbursedPercent.ToString("F1")% of total</div>
+                </div>
+            </div>
+            <div class="metric-card metric-card-success">
+                <div class="metric-icon">
+                    <i class="mdi mdi-cash-plus"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Remaining Amount</div>
+                    <div class="metric-value">@Model.BudgetOverview.RemainingAmount.ToString("C0")</div>
+                    <div class="metric-secondary">@Model.BudgetOverview.RemainingPercent.ToString("F1")% available</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-cash-minus"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Outstanding Balance</div>
+                    <div class="metric-value">@Model.BudgetOverview.OutstandingBalance.ToString("C0")</div>
+                </div>
+            </div>
+        </div>
+
+        @* Budget Utilization Progress Bar *@
+        @{
+            var encumberedM = Model.BudgetOverview.EncumberedAmount / 1000000m;
+            var disbursedM = Model.BudgetOverview.DisbursedAmount / 1000000m;
+            var remainingM = Model.BudgetOverview.RemainingAmount / 1000000m;
+            var encumberedPercent = Model.BudgetOverview.EncumberedPercent;
+            var disbursedPercent = Model.BudgetOverview.DisbursedPercent;
+            var remainingPercent = Model.BudgetOverview.RemainingPercent;
+        }
+        <div class="budget-utilization">
+            <h5>Budget Utilization</h5>
+            <div class="r4-progress" style="height: 40px; position: relative; display: flex;">
+                @if (encumberedPercent > 0.1m)
+                {
+                    <div class="r4-progress-bar r4-progress-bar-encumbered"
+                         style="width: @encumberedPercent%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.875rem; font-weight: 600; padding: 0 0.5rem;"
+                         role="progressbar"
+                         aria-valuenow="@encumberedPercent"
+                         aria-valuemin="0"
+                         aria-valuemax="100"
+                         title="@encumberedPercent.ToString("F1")% of total budget">
+                        @if (encumberedPercent > 12)
+                        {
+                            <span>$@encumberedM.ToString("F1")M Encumbered</span>
+                        }
+                    </div>
+                }
+                @if (disbursedPercent > 0.1m)
+                {
+                    <div class="r4-progress-bar r4-progress-bar-disbursed"
+                         style="width: @disbursedPercent%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.875rem; font-weight: 600; padding: 0 0.5rem;"
+                         role="progressbar"
+                         aria-valuenow="@disbursedPercent"
+                         aria-valuemin="0"
+                         aria-valuemax="100"
+                         title="@disbursedPercent.ToString("F1")% of total budget">
+                        @if (disbursedPercent > 12)
+                        {
+                            <span>$@disbursedM.ToString("F1")M Disbursed</span>
+                        }
+                    </div>
+                }
+                @if (remainingPercent > 0.1m)
+                {
+                    <div style="flex: 1; background-color: var(--gray-200); display: flex; align-items: center; justify-content: center; color: var(--gray-700); font-size: 0.875rem; font-weight: 600; padding: 0 0.5rem;"
+                         title="@remainingPercent.ToString("F1")% of total budget">
+                        @if (remainingPercent > 12)
+                        {
+                            <span>$@remainingM.ToString("F1")M Remaining</span>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@* GRANT SUBMISSIONS *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-account-multiple-check"></i> Grant Submissions</h4>
+    </div>
+    <div class="r4-card-body">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+            <div class="metric-card metric-card-primary">
+                <div class="metric-icon">
+                    <i class="mdi mdi-account-group"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Total Students</div>
+                    <div class="metric-value">@Model.GrantSubmissions.TotalStudents</div>
+                </div>
+            </div>
+            <div class="metric-card metric-card-success">
+                <div class="metric-icon">
+                    <i class="mdi mdi-check-circle"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Approved</div>
+                    <div class="metric-value">@Model.GrantSubmissions.StudentsApproved</div>
+                </div>
+            </div>
+            <div class="metric-card metric-card-warning">
+                <div class="metric-icon">
+                    <i class="mdi mdi-clock-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Under Review</div>
+                    <div class="metric-value">@Model.GrantSubmissions.StudentsUnderReview</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-file-document-edit-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Pending LEA</div>
+                    <div class="metric-value">@Model.GrantSubmissions.StudentsPendingLEA</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-file-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Draft</div>
+                    <div class="metric-value">@Model.GrantSubmissions.StudentsDraft</div>
+                </div>
+            </div>
+            <div class="metric-card metric-card-danger">
+                <div class="metric-icon">
+                    <i class="mdi mdi-close-circle"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Rejected</div>
+                    <div class="metric-value">@Model.GrantSubmissions.StudentsRejected</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* PROGRAM OUTCOMES *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-chart-line"></i> Program Outcomes</h4>
+    </div>
+    <div class="r4-card-body">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-certificate-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Completion Rate</div>
+                    <div class="metric-value">@Model.ProgramOutcomes.CompletionRate.ToString("P0")</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-account-check"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Students Completing</div>
+                    <div class="metric-value">@Model.ProgramOutcomes.StudentsCompleting</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-book-education-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Credential Areas Served</div>
+                    <div class="metric-value">@Model.ProgramOutcomes.CredentialAreasServed</div>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.ProgramOutcomes.CredentialBreakdown.Any())
+        {
+            <div class="credential-breakdown">
+                <h5>Credential Area Breakdown</h5>
+                <div style="max-width: 600px; margin: 2rem auto; padding: 1rem;">
+                    <canvas id="credentialPieChart"></canvas>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@* GRANTEE REPORTING METRICS *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-file-chart-outline"></i> Grantee Reporting Metrics</h4>
+        <p class="card-subtitle">Post-Payment Reporting Status</p>
+    </div>
+    <div class="r4-card-body">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+            <div class="metric-card metric-card-primary">
+                <div class="metric-icon">
+                    <i class="mdi mdi-file-multiple-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Total Reports Required</div>
+                    <div class="metric-value">@Model.GranteeReportingMetrics.TotalReportsRequired</div>
+                </div>
+            </div>
+            <div class="metric-card metric-card-success">
+                <div class="metric-icon">
+                    <i class="mdi mdi-check-circle"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Reports Submitted</div>
+                    <div class="metric-value">@Model.GranteeReportingMetrics.ReportsSubmitted</div>
+                </div>
+            </div>
+            <div class="metric-card metric-card-warning">
+                <div class="metric-icon">
+                    <i class="mdi mdi-alert-circle-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Reports Outstanding</div>
+                    <div class="metric-value">@Model.GranteeReportingMetrics.ReportsOutstanding</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-eye-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Under Review</div>
+                    <div class="metric-value">@Model.GranteeReportingMetrics.ReportsUnderReview</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-school-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">IHE Reports</div>
+                    <div class="metric-value">@Model.GranteeReportingMetrics.IHEReportsSubmitted</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-domain"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">LEA Reports</div>
+                    <div class="metric-value">@Model.GranteeReportingMetrics.LEAReportsSubmitted</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="reporting-rate">
+            <h5>Overall Submission Rate</h5>
+            <div class="r4-progress">
+                <div class="progress-segment progress-success" style="width: @((Model.GranteeReportingMetrics.SubmissionRate * 100).ToString("F2"))%"></div>
+            </div>
+            <div class="progress-text">@Model.GranteeReportingMetrics.SubmissionRate.ToString("P0") of required reports submitted</div>
+        </div>
+    </div>
+</div>
+
+@* FINANCIAL SUMMARY *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-currency-usd"></i> Financial Summary</h4>
+    </div>
+    <div class="r4-card-body">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-file-document-multiple-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Total Disbursement Groups</div>
+                    <div class="metric-value">@Model.FinancialSummary.TotalDisbursements</div>
+                </div>
+            </div>
+            <div class="metric-card metric-card-warning">
+                <div class="metric-icon">
+                    <i class="mdi mdi-file-clock-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Pending GAAs</div>
+                    <div class="metric-value">@Model.FinancialSummary.PendingGAAs</div>
+                </div>
+            </div>
+            <div class="metric-card metric-card-success">
+                <div class="metric-icon">
+                    <i class="mdi mdi-file-check-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Active GAAs</div>
+                    <div class="metric-value">@Model.FinancialSummary.ActiveGAAs</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-cash-check"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Total Amount Paid</div>
+                    <div class="metric-value">@Model.FinancialSummary.TotalAmountPaid.ToString("C0")</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-calculator"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Avg Payment Amount</div>
+                    <div class="metric-value">@Model.FinancialSummary.AveragePaymentAmount.ToString("C0")</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* PARTNERSHIP STATISTICS *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-handshake-outline"></i> Partnership Statistics</h4>
+    </div>
+    <div class="r4-card-body">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-school-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Total IHEs</div>
+                    <div class="metric-value">@Model.PartnershipStatistics.TotalIHEs</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-domain"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Total LEAs</div>
+                    <div class="metric-value">@Model.PartnershipStatistics.TotalLEAs</div>
+                </div>
+            </div>
+            <div class="metric-card metric-card-primary">
+                <div class="metric-icon">
+                    <i class="mdi mdi-link-variant"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Active Partnerships</div>
+                    <div class="metric-value">@Model.PartnershipStatistics.ActivePartnerships</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-file-upload-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">IHEs with Submissions</div>
+                    <div class="metric-value">@Model.PartnershipStatistics.IHEsWithSubmissions</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-check-decagram"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">LEAs with Approved Students</div>
+                    <div class="metric-value">@Model.PartnershipStatistics.LEAsWithApprovedStudents</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        // Credential Area Breakdown Pie Chart
+        @if (Model.ProgramOutcomes.CredentialBreakdown.Any())
+        {
+            <text>
+            const credentialData = {
+                labels: [@Html.Raw(string.Join(",", Model.ProgramOutcomes.CredentialBreakdown.Select(x => $"'{x.CredentialArea}'")))],
+                datasets: [{
+                    label: 'Student Count',
+                    data: [@Html.Raw(string.Join(",", Model.ProgramOutcomes.CredentialBreakdown.Select(x => x.StudentCount)))],
+                    backgroundColor: [
+                        '#1E3A5F', // CTC Blue
+                        '#0066CC', // Primary Blue
+                        '#4A90E2', // Light Blue
+                        '#87CEEB', // Sky Blue
+                        '#B0C4DE', // Light Steel Blue
+                        '#C69214', // CTC Gold
+                        '#6c757d', // Gray
+                        '#95a5a6'  // Light Gray
+                    ],
+                    borderColor: '#ffffff',
+                    borderWidth: 2
+                }]
+            };
+
+            const credentialConfig = {
+                type: 'pie',
+                data: credentialData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 13,
+                                    family: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+                                },
+                                color: '#1E3A5F',
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return label + ': ' + value + ' students (' + percentage + '%)';
+                                }
+                            },
+                            backgroundColor: 'rgba(30, 58, 95, 0.95)',
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 13 },
+                            padding: 12,
+                            cornerRadius: 4
+                        }
+                    }
+                }
+            };
+
+            const credentialChart = new Chart(
+                document.getElementById('credentialPieChart'),
+                credentialConfig
+            );
+            </text>
+        }
+
+        // Auto-refresh every 5 minutes to keep data current
+        setTimeout(function() {
+            location.reload();
+        }, 300000);
+    </script>
+}
