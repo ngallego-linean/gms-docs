@@ -28,7 +28,7 @@
                 <div class="action-item @(item.Priority == "critical" || item.Priority == "high" ? "action-item-urgent" : "action-item-normal")">
                     <div class="action-item-content">
                         <div class="action-item-icon">
-                            <i class="mdi @(item.Type == "reports_due" ? "mdi-clipboard-text-outline" : item.Type == "candidates_ready" ? "mdi-account-multiple-plus-outline" : "mdi-alert-circle-outline")"></i>
+                            <i class="mdi @(item.Type == "candidates_review" ? "mdi-account-check-outline" : item.Type == "candidates_ready" ? "mdi-account-multiple-plus-outline" : "mdi-alert-circle-outline")"></i>
                         </div>
                         <div class="action-item-details">
                             <h5>@item.Title</h5>
@@ -40,10 +40,10 @@
                         </div>
                     </div>
                     <div class="action-item-actions">
-                        @if (item.Type == "reports_due")
+                        @if (item.Type == "candidates_review")
                         {
-                            <a href="@Url.Action("FundedCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-primary">
-                                <i class="mdi mdi-arrow-right"></i> Start Reports
+                            <a href="@Url.Action("CompleteApplication", "LEAPortal", new { id = 1 })" class="r4-button r4-button-primary">
+                                <i class="mdi mdi-arrow-right"></i> Review Candidates
                             </a>
                         }
                         else if (item.Type == "candidates_ready")
@@ -227,9 +227,9 @@
             // MOCK DATA: Student queue showing most recent candidates
             var studentQueue = new List<dynamic>
             {
-                new { StudentName = "Maria Garcia", IHEPartner = "Cal State University, Fullerton", CredentialArea = "Multiple Subject", Status = "APPROVED", LastModified = DateTime.Now.AddDays(-1) },
-                new { StudentName = "James Wilson", IHEPartner = "UCLA", CredentialArea = "Single Subject - Mathematics", Status = "SUBMITTED", LastModified = DateTime.Now.AddDays(-3) },
-                new { StudentName = "Sarah Chen", IHEPartner = "Cal State University, Northridge", CredentialArea = "Education Specialist", Status = "APPROVED", LastModified = DateTime.Now.AddDays(-5) }
+                new { ApplicationDate = DateTime.Now.AddDays(-1), StudentName = "Maria Garcia", IHEPartner = "Cal State University, Fullerton", CredentialArea = "Multiple Subject", Status = "APPROVED" },
+                new { ApplicationDate = DateTime.Now.AddDays(-3), StudentName = "James Wilson", IHEPartner = "UCLA", CredentialArea = "Single Subject - Mathematics", Status = "SUBMITTED" },
+                new { ApplicationDate = DateTime.Now.AddDays(-5), StudentName = "Sarah Chen", IHEPartner = "Cal State University, Northridge", CredentialArea = "Education Specialist", Status = "APPROVED" }
             };
         }
 
@@ -239,17 +239,18 @@
                 <table class="r4-table">
                     <thead>
                         <tr>
+                            <th>Application Date</th>
                             <th>Student Name</th>
                             <th>IHE Partner</th>
                             <th>Credential Area</th>
                             <th>Status</th>
-                            <th>Last Modified</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var student in studentQueue)
                         {
                             <tr>
+                                <td>@student.ApplicationDate.ToString("MM/dd/yyyy")</td>
                                 <td>
                                     <strong>@student.StudentName</strong>
                                 </td>
@@ -265,7 +266,6 @@
                                         <span class="badge badge-success">Approved</span>
                                     }
                                 </td>
-                                <td>@student.LastModified.ToString("MM/dd/yyyy")</td>
                             </tr>
                         }
                     </tbody>
