@@ -7,6 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Grant Management System</title>
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico">
 
     @* Material Design Icons *@
     <link rel="stylesheet" href="https://cdn.materialdesignicons.com/7.4.47/css/materialdesignicons.min.css">
@@ -21,8 +22,12 @@
     <header class="r4-header">
         <div class="r4-header-left">
             <div class="logo-container">
-                <img src="~/images/ca-logo.png" alt="California State Logo" class="logo-ca">
-                <img src="~/images/ctc-logo.png" alt="CTC Logo" class="logo-ctc">
+                <a href="https://ca.gov" target="_blank" title="California State Portal">
+                    <img src="~/images/ca-logo.png" alt="California State Logo" class="logo-ca">
+                </a>
+                <a href="https://www.ctc.ca.gov" target="_blank" title="Commission on Teacher Credentialing">
+                    <img src="~/images/ctc-logo.png" alt="CTC Logo" class="logo-ctc">
+                </a>
             </div>
             <div class="system-name">
                 <h1>Grant Management System</h1>
@@ -65,31 +70,6 @@
                         <a asp-controller="GrantsTeam" asp-action="Dashboard" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "GrantsTeam" ? "active" : "")">
                             <i class="mdi mdi-clipboard-check-outline"></i> Grants Team
                         </a>
-                    </li>
-                    <li>
-                        <a asp-controller="FiscalTeam" asp-action="Dashboard" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "FiscalTeam" ? "active" : "")">
-                            <i class="mdi mdi-currency-usd"></i> Fiscal Team
-                        </a>
-                        @if (ViewContext.RouteData.Values["controller"]?.ToString() == "FiscalTeam")
-                        {
-                            <ul class="nav-submenu">
-                                <li>
-                                    <a asp-controller="FiscalTeam" asp-action="GAA" class="@(ViewContext.RouteData.Values["action"]?.ToString() == "GAA" ? "active" : "")">
-                                        <i class="mdi mdi-file-document-outline"></i> GAA Generation
-                                    </a>
-                                </li>
-                                <li>
-                                    <a asp-controller="FiscalTeam" asp-action="Invoices" class="@(ViewContext.RouteData.Values["action"]?.ToString() == "Invoices" || ViewContext.RouteData.Values["action"]?.ToString() == "GenerateInvoice" ? "active" : "")">
-                                        <i class="mdi mdi-file-document-edit-outline"></i> Invoice Generation
-                                    </a>
-                                </li>
-                                <li>
-                                    <a asp-controller="FiscalTeam" asp-action="Reports">
-                                        <i class="mdi mdi-chart-box-outline"></i> Reports
-                                    </a>
-                                </li>
-                            </ul>
-                        }
                     </li>
                     <li>
                         <a asp-controller="Application" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Application" ? "active" : "")">
