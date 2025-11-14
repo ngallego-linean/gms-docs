@@ -135,16 +135,19 @@ public class LEAPortalController : Controller
             var (totalFunded, reportsSubmitted, reportsPending, reportsOverdue) =
                 _grantService.GetReportingMetrics(leaId, grantCycleId, reportingDeadline);
 
-            if (reportsPending > 0 || reportsOverdue > 0)
+            // Candidates awaiting review (mock count for demonstration)
+            var candidatesAwaitingReview = candidatesReadyForApplication > 0 ? candidatesReadyForApplication : 5;
+
+            if (candidatesAwaitingReview > 0)
             {
                 actionItems.Add(new ActionItemViewModel
                 {
                     Id = 3,
-                    Type = "reports_due",
-                    Title = "Reports Due",
-                    Description = $"You have {reportsPending} report(s) due" + (reportsOverdue > 0 ? $" ({reportsOverdue} overdue)" : ""),
-                    DueDate = reportingDeadline,
-                    Priority = reportsOverdue > 0 ? "high" : "medium",
+                    Type = "candidates_review",
+                    Title = "Candidates Awaiting Review",
+                    Description = $"You have {candidatesAwaitingReview} candidate(s) awaiting your review",
+                    DueDate = DateTime.Now.AddDays(7),
+                    Priority = "medium",
                     AssignedTo = "LEA"
                 });
             }
