@@ -1,161 +1,233 @@
-@* ~/Views/Home/Index.cshtml *@
-@model DashboardViewModel
+@* ~/Views/Home/Index.cshtml - Public-Facing Homepage *@
 
 @{
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "Student Teacher Stipend Program";
 }
 
-@section Breadcrumbs {
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item active">Dashboard</li>
-    </ol>
-}
-
-@* Page Header *@
-<div class="page-header">
-    <h2><i class="mdi mdi-shield-check-outline"></i> Grants/Fiscal Team Dashboard</h2>
-    <p class="subtitle">@Model.GrantCycleName</p>
-</div>
-
-@* GRANTS TEAM - Action Items *@
-<div class="r4-card">
-    <div class="r4-card-header">
-        <h4><i class="mdi mdi-clipboard-check-outline"></i> GRANTS TEAM - Action Items</h4>
-    </div>
-    <div class="r4-card-body">
-        @if (!Model.ApplicationsWithPendingStudents.Any())
-        {
-            <div class="alert alert-success">
-                <i class="mdi mdi-check-circle-outline"></i>
-                All caught up! No applications currently need review.
-            </div>
-        }
-        else
-        {
-            <div class="alert alert-warning">
-                <i class="mdi mdi-alert-outline"></i>
-                <strong>@Model.PendingReviewCount student application@(Model.PendingReviewCount != 1 ? "s" : "") waiting for review</strong>
-            </div>
-            <div class="application-cards-grid">
-                @foreach (var app in Model.ApplicationsWithPendingStudents)
-                {
-                    <div class="application-card">
-                        <div class="application-card-header">
-                            <div class="application-id">#@app.Id</div>
-                            <span class="badge badge-warning">Needs Review</span>
-                        </div>
-                        <div class="application-card-body">
-                            <div class="org-info">
-                                <div class="org-label">IHE:</div>
-                                <div class="org-name">@app.IHEName</div>
-                            </div>
-                            <div class="org-info">
-                                <div class="org-label">LEA:</div>
-                                <div class="org-name">@app.LEAName</div>
-                            </div>
-                            <div class="student-counts">
-                                <span class="count-badge">
-                                    <i class="mdi mdi-account-alert"></i>
-                                    @app.PendingCount Pending
-                                </span>
-                                <span class="count-badge">
-                                    <i class="mdi mdi-account"></i>
-                                    @app.TotalStudents Total
-                                </span>
-                            </div>
-                        </div>
-                        <div class="application-card-footer">
-                            <a asp-controller="Application" asp-action="Details" asp-route-id="@app.Id" class="r4-button r4-button-primary r4-button-sm">
-                                <i class="mdi mdi-eye"></i> Review Students
-                            </a>
-                        </div>
-                    </div>
-                }
-            </div>
-        }
-    </div>
-</div>
-
-@* FISCAL TEAM - Action Items *@
-<div class="r4-card">
-    <div class="r4-card-header">
-        <h4><i class="mdi mdi-currency-usd"></i> FISCAL TEAM - Action Items</h4>
-        <div class="card-actions">
-            <a href="@Url.Action("GAA", "FiscalTeam", new { grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-primary">
-                <i class="mdi mdi-file-plus-outline"></i> Generate GAAs
+@* Hero Section *@
+<div class="hero-section">
+    <div class="hero-content">
+        <h1>Student Teacher Stipend Program</h1>
+        <p class="hero-subtitle">Supporting California's Future Teachers</p>
+        <p class="hero-description">
+            The California Commission on Teacher Credentialing administers the Student Teacher Stipend Program,
+            established under Assembly Bill 121, providing $300 million in funding to support credential candidates
+            during their student teaching experience.
+        </p>
+        <div class="hero-actions">
+            <a href="@Url.Action("Dashboard", "LEAPortal")" class="r4-button r4-button-primary r4-button-lg">
+                <i class="mdi mdi-login"></i> Access Portal
+            </a>
+            <a href="#program-info" class="r4-button r4-button-secondary r4-button-lg">
+                <i class="mdi mdi-information-outline"></i> Learn More
             </a>
         </div>
     </div>
-    <div class="r4-card-body">
-        @if (Model.Metrics.StatusCounts.Approved > 0)
-        {
-            <div class="alert alert-info">
-                <i class="mdi mdi-information-outline"></i>
-                <strong>@Model.Metrics.StatusCounts.Approved approved student@(Model.Metrics.StatusCounts.Approved != 1 ? "s" : "") ready for GAA processing</strong>
-            </div>
-        }
-        else
-        {
-            <div class="alert alert-success">
-                <i class="mdi mdi-check-circle-outline"></i>
-                All caught up! No GAAs currently need processing.
-            </div>
-        }
-    </div>
 </div>
 
-@* Budget Utilization *@
-<div class="r4-card">
-    <div class="r4-card-header">
-        <h4><i class="mdi mdi-chart-bar"></i> Budget Utilization</h4>
-    </div>
-    <div class="r4-card-body">
-        <div class="budget-progress">
-            <div class="r4-progress">
-                @{
-                    var reservedPercent = Model.Metrics.ApproprietedAmount > 0
-                        ? (Model.Metrics.ReservedAmount / Model.Metrics.ApproprietedAmount * 100)
-                        : 0;
-                    var encumberedPercent = Model.Metrics.ApproprietedAmount > 0
-                        ? (Model.Metrics.EncumberedAmount / Model.Metrics.ApproprietedAmount * 100)
-                        : 0;
-                    var disbursedPercent = Model.Metrics.ApproprietedAmount > 0
-                        ? (Model.Metrics.DisbursedAmount / Model.Metrics.ApproprietedAmount * 100)
-                        : 0;
-                }
-                @if (reservedPercent > 0.1m)
-                {
-                    <div class="r4-progress-bar r4-progress-bar-reserved"
-                         style="width: @reservedPercent%"
-                         role="progressbar"
-                         aria-valuenow="@reservedPercent" aria-valuemin="0" aria-valuemax="100">
-                        Reserved @reservedPercent.ToString("F1")%
+@* Program Overview *@
+<div id="program-info" class="content-section">
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h2><i class="mdi mdi-book-education-outline"></i> About the Program</h2>
+        </div>
+        <div class="r4-card-body">
+            <p class="lead-text">
+                The Student Teacher Stipend Program provides <strong>$10,000 stipends</strong> to credential candidates
+                completing 500 or more hours of student teaching as part of their teacher preparation program.
+            </p>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="mdi mdi-cash-multiple"></i>
                     </div>
-                }
-                @if (encumberedPercent > 0.1m)
-                {
-                    <div class="r4-progress-bar r4-progress-bar-encumbered"
-                         style="width: @encumberedPercent%"
-                         role="progressbar"
-                         aria-valuenow="@encumberedPercent" aria-valuemin="0" aria-valuemax="100">
-                        Encumbered @encumberedPercent.ToString("F1")%
+                    <div class="info-content">
+                        <h3>$300 Million</h3>
+                        <p>Total program funding for 2025-26 fiscal year under Assembly Bill 121</p>
                     </div>
-                }
-                @if (disbursedPercent > 0.1m)
-                {
-                    <div class="r4-progress-bar r4-progress-bar-disbursed"
-                         style="width: @disbursedPercent%"
-                         role="progressbar"
-                         aria-valuenow="@disbursedPercent" aria-valuemin="0" aria-valuemax="100">
-                        Disbursed @disbursedPercent.ToString("F1")%
+                </div>
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="mdi mdi-account-cash"></i>
                     </div>
-                }
-            </div>
-            <div style="margin-top: 1rem;">
-                <p><strong>Total Appropriated:</strong> @Model.Metrics.ApproprietedAmount.ToString("C0")</p>
-                <p><strong>Remaining:</strong> @Model.Metrics.RemainingAmount.ToString("C0") (@Model.Metrics.RemainingPercent.ToString("F1")%)</p>
+                    <div class="info-content">
+                        <h3>$10,000 Stipend</h3>
+                        <p>Direct financial support provided to each eligible credential candidate</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="mdi mdi-clock-outline"></i>
+                    </div>
+                    <div class="info-content">
+                        <h3>500+ Hours</h3>
+                        <p>Minimum student teaching requirement for stipend eligibility</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="mdi mdi-account-group"></i>
+                    </div>
+                    <div class="info-content">
+                        <h3>Partnership Model</h3>
+                        <p>Collaborative effort between LEAs, IHEs, and credential candidates</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
+@* Audience-Specific Cards *@
+<div class="content-section">
+    <h2 class="section-title">Who Can Participate?</h2>
+    <div class="feature-cards-grid">
+        <div class="feature-card">
+            <div class="feature-card-icon">
+                <i class="mdi mdi-account-school"></i>
+            </div>
+            <h3>Credential Candidates</h3>
+            <p>
+                Student teachers completing 500+ hours of student teaching in a California teacher preparation program
+                may receive a $10,000 stipend through their partnering LEA.
+            </p>
+            <ul class="feature-list">
+                <li>Enrolled in approved teacher preparation program</li>
+                <li>Placed with participating LEA</li>
+                <li>Completing full student teaching requirement</li>
+            </ul>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-card-icon">
+                <i class="mdi mdi-school"></i>
+            </div>
+            <h3>Higher Education Institutions</h3>
+            <p>
+                IHEs partner with LEAs to identify eligible candidates, coordinate placements, and track
+                student teaching hours for stipend eligibility.
+            </p>
+            <ul class="feature-list">
+                <li>Submit candidate information via portal</li>
+                <li>Verify student teaching hours</li>
+                <li>Coordinate with LEA partners</li>
+            </ul>
+            <a asp-controller="IHEPortal" asp-action="Dashboard" class="feature-link">
+                <i class="mdi mdi-arrow-right"></i> IHE Portal
+            </a>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-card-icon">
+                <i class="mdi mdi-domain"></i>
+            </div>
+            <h3>Local Educational Agencies</h3>
+            <p>
+                LEAs receive grant funding to provide stipends to credential candidates placed within their district
+                or school system for student teaching experiences.
+            </p>
+            <ul class="feature-list">
+                <li>Apply for grant funding</li>
+                <li>Distribute stipends to candidates</li>
+                <li>Submit compliance reports</li>
+            </ul>
+            <a asp-controller="LEAPortal" asp-action="Dashboard" class="feature-link">
+                <i class="mdi mdi-arrow-right"></i> LEA Portal
+            </a>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-card-icon">
+                <i class="mdi mdi-shield-check"></i>
+            </div>
+            <h3>CTC Staff</h3>
+            <p>
+                CTC Grants and Fiscal teams administer the program, review applications, process disbursements,
+                and ensure compliance with AB 121 requirements.
+            </p>
+            <ul class="feature-list">
+                <li>Review candidate applications</li>
+                <li>Process grant agreements</li>
+                <li>Monitor program compliance</li>
+            </ul>
+            <a asp-controller="GrantsTeam" asp-action="Dashboard" class="feature-link">
+                <i class="mdi mdi-arrow-right"></i> Staff Portal
+            </a>
+        </div>
+    </div>
+</div>
+
+@* Quick Links *@
+<div class="content-section">
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h2><i class="mdi mdi-link-variant"></i> Quick Links</h2>
+        </div>
+        <div class="r4-card-body">
+            <div class="quick-links-grid">
+                <div class="quick-link-section">
+                    <h4>For Applicants</h4>
+                    <ul class="quick-links-list">
+                        <li><a href="#"><i class="mdi mdi-file-document-outline"></i> Program Guidelines</a></li>
+                        <li><a href="#"><i class="mdi mdi-calendar"></i> Important Dates</a></li>
+                        <li><a href="#"><i class="mdi mdi-help-circle-outline"></i> FAQs</a></li>
+                        <li><a href="#"><i class="mdi mdi-phone"></i> Contact Support</a></li>
+                    </ul>
+                </div>
+                <div class="quick-link-section">
+                    <h4>Resources</h4>
+                    <ul class="quick-links-list">
+                        <li><a href="https://legiscan.com/CA/text/AB121/id/3259901" target="_blank"><i class="mdi mdi-file-document"></i> Assembly Bill 121</a></li>
+                        <li><a href="#"><i class="mdi mdi-download"></i> Application Forms</a></li>
+                        <li><a href="#"><i class="mdi mdi-book-open-variant"></i> Technical Documentation</a></li>
+                        <li><a href="#"><i class="mdi mdi-video"></i> Training Materials</a></li>
+                    </ul>
+                </div>
+                <div class="quick-link-section">
+                    <h4>Reports & Data</h4>
+                    <ul class="quick-links-list">
+                        <li><a asp-controller="Reporting" asp-action="Dashboard"><i class="mdi mdi-chart-bar"></i> Program Dashboard</a></li>
+                        <li><a href="#"><i class="mdi mdi-file-chart"></i> Annual Reports</a></li>
+                        <li><a href="#"><i class="mdi mdi-table"></i> Program Statistics</a></li>
+                        <li><a href="#"><i class="mdi mdi-map"></i> Regional Data</a></li>
+                    </ul>
+                </div>
+                <div class="quick-link-section">
+                    <h4>CTC Resources</h4>
+                    <ul class="quick-links-list">
+                        <li><a href="https://www.ctc.ca.gov" target="_blank"><i class="mdi mdi-home"></i> CTC Homepage</a></li>
+                        <li><a href="https://www.ctc.ca.gov/credentials" target="_blank"><i class="mdi mdi-certificate"></i> Credential Information</a></li>
+                        <li><a href="https://www.ctc.ca.gov/educator-prep" target="_blank"><i class="mdi mdi-school"></i> Educator Preparation</a></li>
+                        <li><a href="https://www.ctc.ca.gov/contact" target="_blank"><i class="mdi mdi-email"></i> Contact CTC</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Program Impact *@
+<div class="content-section impact-section">
+    <div class="impact-content">
+        <h2>Building California's Teacher Workforce</h2>
+        <p class="impact-text">
+            The Student Teacher Stipend Program addresses a critical barrier in teacher preparation by providing
+            financial support during the intensive student teaching period. By removing financial obstacles,
+            California is investing in a diverse and well-prepared teaching workforce to serve all students.
+        </p>
+        <div class="impact-stats">
+            <div class="impact-stat">
+                <div class="stat-number">30,000+</div>
+                <div class="stat-label">Potential Stipends Available</div>
+            </div>
+            <div class="impact-stat">
+                <div class="stat-number">$10,000</div>
+                <div class="stat-label">Support Per Candidate</div>
+            </div>
+            <div class="impact-stat">
+                <div class="stat-number">500+</div>
+                <div class="stat-label">Hours of Student Teaching</div>
+            </div>
+        </div>
+    </div>
+</div>
