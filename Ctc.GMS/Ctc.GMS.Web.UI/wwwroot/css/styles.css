@@ -6,21 +6,74 @@
 }
 
 :root {
-    /* R4 CTC Colors */
+    /* R4 CTC Brand Colors */
     --ctc-blue: #1E3A5F;
     --ctc-blue-light: #2E5A8F;
     --ctc-gold: #C69214;
-    --primary-blue: #0066CC;
-    --primary-blue-dark: #004C99;
-    --success-green: #28A745;
-    --warning-orange: #FFC107;
-    --danger-red: #DC3545;
-    --info-blue: #17A2B8;
-    --gray-light: #F8F9FA;
-    --gray-medium: #6C757D;
-    --gray-dark: #343A40;
+
+    /* Functional Colors (R4 Standard) */
+    --primary: #0066CC;
+    --success: #28A745;
+    --warning: #FFC107;
+    --danger: #DC3545;
+    --info: #17A2B8;
+
+    /* Grayscale */
     --white: #FFFFFF;
-    --border-color: #DEE2E6;
+    --gray-50: #F8F9FA;
+    --gray-100: #F1F3F5;
+    --gray-200: #E9ECEF;
+    --gray-300: #DEE2E6;
+    --gray-400: #CED4DA;
+    --gray-500: #ADB5BD;
+    --gray-600: #6C757D;
+    --gray-700: #495057;
+    --gray-800: #343A40;
+    --gray-900: #212529;
+
+    /* Hover/Dark States */
+    --primary-dark: #0052A3;
+    --success-dark: #218838;
+    --danger-dark: #C82333;
+    --warning-dark: #856404;
+    --info-dark: #0C5460;
+
+    /* Light Background States */
+    --primary-light: #F0F7FF;
+    --success-light: #D4EDDA;
+    --warning-light: #FFF3CD;
+    --danger-light: #F8D7DA;
+    --info-light: #D1ECF1;
+
+    /* Border Colors */
+    --success-border: #C3E6CB;
+    --warning-border: #FFEAA7;
+    --danger-border: #F5C6CB;
+    --info-border: #BEE5EB;
+
+    /* Text Colors on Light Backgrounds */
+    --success-text: #155724;
+    --warning-text: #856404;
+    --danger-text: #721C24;
+    --info-text: #0C5460;
+
+    /* Gradient Endpoints */
+    --success-gradient: #20c997;
+    --warning-gradient: #fd7e14;
+
+    /* Overlay */
+    --overlay-dark: rgba(0, 0, 0, 0.5);
+
+    /* Legacy aliases (for backwards compatibility during transition) */
+    --primary-blue: var(--primary);
+    --success-green: var(--success);
+    --warning-orange: var(--warning);
+    --danger-red: var(--danger);
+    --info-blue: var(--info);
+    --gray-light: var(--gray-50);
+    --gray-medium: var(--gray-600);
+    --gray-dark: var(--gray-800);
+    --border-color: var(--gray-300);
 }
 
 body {
@@ -658,13 +711,13 @@ body {
 }
 
 .alert-warning {
-    background-color: #FFF3CD;
-    border: 1px solid var(--warning-orange);
-    color: #856404;
+    background-color: var(--warning-light);
+    border: 1px solid var(--warning);
+    color: var(--warning-text);
 }
 
 .alert-warning i {
-    color: var(--warning-orange);
+    color: var(--warning);
 }
 
 /* Kendo Grid Simulation Styling */
@@ -694,7 +747,7 @@ body {
 }
 
 .k-grid-header {
-    background-color: #F5F5F5;
+    background-color: var(--gray-100);
     border-bottom: 2px solid var(--border-color);
 }
 
@@ -715,7 +768,7 @@ body {
 }
 
 .k-header.k-sortable:hover {
-    background-color: #ECECEC;
+    background-color: var(--gray-200);
 }
 
 .k-link {
@@ -833,23 +886,23 @@ body {
 
 /* Team-Specific Metric Colors */
 .metric-pending {
-    border-left: 4px solid #ff9800;
+    border-left: 4px solid var(--warning);
 }
 
 .metric-success {
-    border-left: 4px solid #4caf50;
+    border-left: 4px solid var(--success);
 }
 
 .metric-info {
-    border-left: 4px solid #2196f3;
+    border-left: 4px solid var(--info);
 }
 
 .metric-danger {
-    border-left: 4px solid #f44336;
+    border-left: 4px solid var(--danger);
 }
 
 .metric-draft {
-    border-left: 4px solid #9e9e9e;
+    border-left: 4px solid var(--gray-600);
 }
 
 /* Application Card Variants */
@@ -877,16 +930,16 @@ body {
 /* R4 Validation Summary (UI-548 to UI-550) */
 /* @Html.R4().ValidationSummary() - Displayed above forms */
 .validation-summary {
-    background-color: #fff3cd;
-    border: 1px solid #ffc107;
-    border-left: 4px solid #ff9800;
+    background-color: var(--warning-light);
+    border: 1px solid var(--warning);
+    border-left: 4px solid var(--warning);
     border-radius: 4px;
     padding: 1rem 1.5rem;
     margin-bottom: 1.5rem;
 }
 
 .validation-summary-title {
-    color: #856404;
+    color: var(--warning-text);
     font-weight: 600;
     margin-bottom: 0.5rem;
     display: flex;
@@ -901,7 +954,7 @@ body {
 .validation-summary-list {
     margin: 0;
     padding-left: 1.5rem;
-    color: #856404;
+    color: var(--warning-text);
 }
 
 .validation-summary-list li {
@@ -914,42 +967,42 @@ body {
 
 /* Validation Summary - Error State */
 .validation-summary.validation-error {
-    background-color: #f8d7da;
-    border-color: #f5c6cb;
-    border-left-color: #dc3545;
+    background-color: var(--danger-light);
+    border-color: var(--danger-border);
+    border-left-color: var(--danger);
 }
 
 .validation-summary.validation-error .validation-summary-title,
 .validation-summary.validation-error .validation-summary-list {
-    color: #721c24;
+    color: var(--danger-text);
 }
 
 /* Validation Summary - Success State */
 .validation-summary.validation-success {
-    background-color: #d4edda;
-    border-color: #c3e6cb;
-    border-left-color: #28a745;
+    background-color: var(--success-light);
+    border-color: var(--success-border);
+    border-left-color: var(--success);
 }
 
 .validation-summary.validation-success .validation-summary-title,
 .validation-summary.validation-success .validation-summary-list {
-    color: #155724;
+    color: var(--success-text);
 }
 
 /* Field Validation Errors */
 .field-validation-error {
-    color: #dc3545;
+    color: var(--danger);
     font-size: 0.875rem;
     margin-top: 0.25rem;
     display: block;
 }
 
 .input-validation-error {
-    border-color: #dc3545 !important;
+    border-color: var(--danger) !important;
 }
 
 .input-validation-error:focus {
-    border-color: #dc3545 !important;
+    border-color: var(--danger) !important;
     box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
 }
 
@@ -1090,7 +1143,7 @@ body {
 }
 
 .btn-success:hover {
-    background-color: #218838;
+    background-color: var(--success-dark);
 }
 
 .btn-warning {
@@ -1164,38 +1217,38 @@ body {
 }
 
 .badge-draft {
-    background-color: #E9ECEF;
+    background-color: var(--gray-200);
     color: var(--gray-dark);
 }
 
 .badge-submitted {
-    background-color: #FFF3CD;
-    color: #856404;
+    background-color: var(--warning-light);
+    color: var(--warning-text);
 }
 
 .badge-review {
-    background-color: #D1ECF1;
-    color: #0C5460;
+    background-color: var(--info-light);
+    color: var(--info-text);
 }
 
 .badge-approved {
-    background-color: #D4EDDA;
-    color: #155724;
+    background-color: var(--success-light);
+    color: var(--success-text);
 }
 
 .badge-rejected {
-    background-color: #F8D7DA;
-    color: #721C24;
+    background-color: var(--danger-light);
+    color: var(--danger-text);
 }
 
 .badge-completed {
-    background-color: #D4EDDA;
-    color: #155724;
+    background-color: var(--success-light);
+    color: var(--success-text);
 }
 
 .badge-pending {
-    background-color: #FFF3CD;
-    color: #856404;
+    background-color: var(--warning-light);
+    color: var(--warning-text);
 }
 
 /* Forms */
@@ -1410,7 +1463,7 @@ body {
 }
 
 .notification-item.unread {
-    background-color: #F0F7FF;
+    background-color: var(--primary-light);
 }
 
 .notification-item.unread::before {
@@ -1526,10 +1579,10 @@ body {
 
 @keyframes pulseProgress {
     0%, 100% {
-        box-shadow: 0 0 0 0 rgba(0,102,204,0.7);
+        box-shadow: 0 0 0 0 rgba(0,102,204,0.7); /* var(--primary) with 70% opacity */
     }
     50% {
-        box-shadow: 0 0 0 10px rgba(0,102,204,0);
+        box-shadow: 0 0 0 10px rgba(0,102,204,0); /* var(--primary) transparent for fade effect */
     }
 }
 
@@ -1710,8 +1763,8 @@ body {
     text-align: center;
     margin-bottom: 3rem;
     padding: 2rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--ctc-blue) 0%, var(--ctc-blue-light) 100%);
+    color: var(--white);
     border-radius: 12px;
 }
 
@@ -1738,7 +1791,7 @@ body {
     border-radius: 8px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
-    background: white;
+    background: var(--white);
 }
 
 .grant-card.grant-open {
@@ -1770,7 +1823,7 @@ body {
 
 .grant-metric {
     padding: 1rem;
-    background: #F8F9FA;
+    background: var(--gray-50);
     border-radius: 6px;
     text-align: center;
 }
@@ -1834,7 +1887,7 @@ body {
     width: 40px;
     height: 40px;
     background: var(--primary-blue);
-    color: white;
+    color: var(--white);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -1885,7 +1938,7 @@ body {
 }
 
 .data-table thead {
-    background: #F8F9FA;
+    background: var(--gray-50);
 }
 
 .data-table th {
@@ -1902,7 +1955,7 @@ body {
 }
 
 .data-table tr:hover {
-    background: #F8F9FA;
+    background: var(--gray-50);
 }
 
 /* Report Forms */
@@ -1967,8 +2020,8 @@ body {
 
 /* Status-specific metric cards */
 .metric-card.status-warning {
-    background: #FFF3CD;
-    border-color: #FFC107;
+    background: var(--warning-light);
+    border-color: var(--warning);
 }
 
 /* Text utilities */
@@ -1989,7 +2042,7 @@ body {
 /* Magic Link Portal specific styles */
 #app-content {
     min-height: 100vh;
-    background: #F8F9FA;
+    background: var(--gray-50);
 }
 
 #app-content .public-portal {

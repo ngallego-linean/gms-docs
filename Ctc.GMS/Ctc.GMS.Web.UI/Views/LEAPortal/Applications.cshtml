@@ -1,97 +1,145 @@
 @model ApplicationListViewModel
 
 @{
-    ViewData["Title"] = "My Applications";
+    ViewData["Title"] = "Your Submissions";
 }
 
 @section Breadcrumbs {
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "LEAPortal", new { leaId = ViewContext.RouteData.Values["leaId"], grantCycleId = Model.GrantCycleId })">LEA Portal</a></li>
-        <li class="breadcrumb-item active">Applications</li>
+        <li class="breadcrumb-item active">Your Submissions</li>
     </ol>
 }
 
 <div class="page-header">
-    <h2><i class="mdi mdi-file-document-multiple"></i> My Applications</h2>
+    <h2><i class="mdi mdi-file-document-multiple"></i> Your Submissions</h2>
     <p class="subtitle">@Model.GrantCycleName</p>
 </div>
 
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-table"></i> Application Results</h4>
+        <h4><i class="mdi mdi-account-multiple-outline"></i> All Candidates</h4>
     </div>
     <div class="r4-card-body">
-        @if (!Model.Applications.Any())
-        {
-            <div class="alert alert-info">
-                <i class="mdi mdi-information-outline"></i>
-                No applications found for your LEA in this grant cycle.
-            </div>
+        @{
+            // MOCK DATA: Full student queue
+            var allStudents = new List<dynamic>
+            {
+                new { StudentName = "Maria Garcia", IHEPartner = "Cal State University, Fullerton", CredentialArea = "Multiple Subject", Status = "APPROVED", LastModified = DateTime.Now.AddDays(-1) },
+                new { StudentName = "James Wilson", IHEPartner = "UCLA", CredentialArea = "Single Subject - Mathematics", Status = "SUBMITTED", LastModified = DateTime.Now.AddDays(-3) },
+                new { StudentName = "Sarah Chen", IHEPartner = "Cal State University, Northridge", CredentialArea = "Education Specialist", Status = "APPROVED", LastModified = DateTime.Now.AddDays(-5) },
+                new { StudentName = "Michael Rodriguez", IHEPartner = "Cal State University, Fullerton", CredentialArea = "Multiple Subject", Status = "APPROVED", LastModified = DateTime.Now.AddDays(-7) },
+                new { StudentName = "Emily Thompson", IHEPartner = "UCLA", CredentialArea = "Single Subject - English", Status = "SUBMITTED", LastModified = DateTime.Now.AddDays(-8) },
+                new { StudentName = "David Kim", IHEPartner = "Cal State University, Northridge", CredentialArea = "Single Subject - Science", Status = "SUBMITTED", LastModified = DateTime.Now.AddDays(-10) },
+                new { StudentName = "Jennifer Martinez", IHEPartner = "Cal State University, Fullerton", CredentialArea = "Education Specialist", Status = "APPROVED", LastModified = DateTime.Now.AddDays(-12) },
+                new { StudentName = "Robert Johnson", IHEPartner = "UCLA", CredentialArea = "Multiple Subject", Status = "APPROVED", LastModified = DateTime.Now.AddDays(-14) },
+                new { StudentName = "Amanda Lee", IHEPartner = "Cal State University, Northridge", CredentialArea = "Single Subject - History", Status = "SUBMITTED", LastModified = DateTime.Now.AddDays(-15) },
+                new { StudentName = "Christopher Brown", IHEPartner = "Cal State University, Fullerton", CredentialArea = "Multiple Subject", Status = "APPROVED", LastModified = DateTime.Now.AddDays(-18) },
+                new { StudentName = "Jessica Anderson", IHEPartner = "UCLA", CredentialArea = "Education Specialist", Status = "SUBMITTED", LastModified = DateTime.Now.AddDays(-20) },
+                new { StudentName = "Daniel White", IHEPartner = "Cal State University, Northridge", CredentialArea = "Single Subject - Mathematics", Status = "APPROVED", LastModified = DateTime.Now.AddDays(-22) }
+            };
         }
-        else
+
+        @if (allStudents.Any())
         {
+            <div style="display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-xl); align-items: flex-end; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 250px;">
+                    <label for="searchStudents" style="display: block; font-weight: 600; margin-bottom: var(--spacing-sm);">
+                        <i class="mdi mdi-magnify"></i> Search by Student Name
+                    </label>
+                    <input type="text" id="searchStudents" class="form-control" placeholder="Enter student name..." />
+                </div>
+                <div style="min-width: 250px;">
+                    <label for="filterIHE" style="display: block; font-weight: 600; margin-bottom: var(--spacing-sm);">
+                        <i class="mdi mdi-filter-outline"></i> Filter by IHE Partner
+                    </label>
+                    <select id="filterIHE" class="form-control">
+                        <option value="">All IHE Partners</option>
+                        <option value="csuf">Cal State University, Fullerton</option>
+                        <option value="ucla">UCLA</option>
+                        <option value="csun">Cal State University, Northridge</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="table-wrapper">
-                <table class="r4-table">
+                <table class="r4-table" id="studentsTable">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>IHE Institution</th>
-                            <th>Students</th>
-                            <th>Approved</th>
-                            <th>Pending</th>
+                            <th>Student Name</th>
+                            <th>IHE Partner</th>
+                            <th>Credential Area</th>
                             <th>Status</th>
                             <th>Last Modified</th>
-                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var app in Model.Applications)
+                        @foreach (var student in allStudents)
                         {
-                            <tr>
-                                <td><a href="@Url.Action("Details", "Application", new { id = app.Id })">@app.Id</a></td>
-                                <td>@app.IHEName</td>
-                                <td>@app.TotalStudents</td>
-                                <td>@app.ApprovedCount</td>
-                                <td>@app.PendingCount</td>
+                            <tr data-student-name="@student.StudentName.ToLower()" data-ihe="@student.IHEPartner">
                                 <td>
-                                    <span class="badge badge-@(GetStatusClass(app.Status))">
-                                        @app.Status
-                                    </span>
+                                    <strong>@student.StudentName</strong>
                                 </td>
-                                <td>@app.LastModified.ToShortDateString()</td>
+                                <td>@student.IHEPartner</td>
+                                <td>@student.CredentialArea</td>
                                 <td>
-                                    <a href="@Url.Action("Details", "Application", new { id = app.Id })" class="r4-button r4-button-primary r4-button-sm">
-                                        <i class="mdi mdi-eye"></i> View
-                                    </a>
-                                    @if (app.PendingCount > 0)
+                                    @if (student.Status == "SUBMITTED")
                                     {
-                                        <a href="@Url.Action("CompleteApplication", "LEAPortal", new { id = app.Id })" class="r4-button r4-button-success r4-button-sm">
-                                            <i class="mdi mdi-pencil"></i> Complete
-                                        </a>
+                                        <span class="badge badge-info">Submitted</span>
+                                    }
+                                    else if (student.Status == "APPROVED")
+                                    {
+                                        <span class="badge badge-success">Approved</span>
                                     }
                                 </td>
+                                <td>@student.LastModified.ToString("MM/dd/yyyy")</td>
                             </tr>
                         }
                     </tbody>
                 </table>
             </div>
         }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="mdi mdi-information-outline"></i>
+                No candidates found for your LEA in this grant cycle.
+            </div>
+        }
     </div>
 </div>
 
-@functions {
-    string GetStatusClass(string status)
-    {
-        return status switch
-        {
-            "APPROVED" => "success",
-            "ACTIVE" => "primary",
-            "SUBMITTED" => "warning",
-            "UNDER_REVIEW" => "info",
-            "COMPLETED" => "success",
-            "DRAFT" => "secondary",
-            "PENDING_LEA" => "warning",
-            _ => "secondary"
-        };
-    }
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchStudents');
+            const filterSelect = document.getElementById('filterIHE');
+            const tableRows = document.querySelectorAll('#studentsTable tbody tr');
+
+            function filterTable() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const selectedIHE = filterSelect.value;
+
+                tableRows.forEach(row => {
+                    const studentName = row.getAttribute('data-student-name');
+                    const ihePartner = row.getAttribute('data-ihe');
+
+                    const matchesSearch = studentName.includes(searchTerm);
+                    const matchesIHE = !selectedIHE ||
+                        (selectedIHE === 'csuf' && ihePartner.includes('Fullerton')) ||
+                        (selectedIHE === 'ucla' && ihePartner.includes('UCLA')) ||
+                        (selectedIHE === 'csun' && ihePartner.includes('Northridge'));
+
+                    if (matchesSearch && matchesIHE) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+
+            searchInput.addEventListener('input', filterTable);
+            filterSelect.addEventListener('change', filterTable);
+        });
+    </script>
 }

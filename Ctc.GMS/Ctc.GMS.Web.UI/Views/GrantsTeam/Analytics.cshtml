@@ -97,7 +97,7 @@
                 @if (encumberedPercent > 0.1m)
                 {
                     <div class="r4-progress-bar r4-progress-bar-encumbered"
-                         style="width: @encumberedPercent%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.875rem; font-weight: 600; padding: 0 0.5rem;"
+                         style="width: @encumberedPercent%; display: flex; align-items: center; justify-content: center; color: var(--white); font-size: 0.875rem; font-weight: 600; padding: 0 0.5rem;"
                          role="progressbar"
                          aria-valuenow="@encumberedPercent"
                          aria-valuemin="0"
@@ -112,7 +112,7 @@
                 @if (disbursedPercent > 0.1m)
                 {
                     <div class="r4-progress-bar r4-progress-bar-disbursed"
-                         style="width: @disbursedPercent%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.875rem; font-weight: 600; padding: 0 0.5rem;"
+                         style="width: @disbursedPercent%; display: flex; align-items: center; justify-content: center; color: var(--white); font-size: 0.875rem; font-weight: 600; padding: 0 0.5rem;"
                          role="progressbar"
                          aria-valuenow="@disbursedPercent"
                          aria-valuemin="0"
@@ -451,16 +451,16 @@
                     label: 'Student Count',
                     data: [@Html.Raw(string.Join(",", Model.ProgramOutcomes.CredentialBreakdown.Select(x => x.StudentCount)))],
                     backgroundColor: [
-                        '#1E3A5F', // CTC Blue
-                        '#0066CC', // Primary Blue
-                        '#4A90E2', // Light Blue
-                        '#87CEEB', // Sky Blue
-                        '#B0C4DE', // Light Steel Blue
-                        '#C69214', // CTC Gold
-                        '#6c757d', // Gray
-                        '#95a5a6'  // Light Gray
+                        '#1E3A5F', // CTC Blue - var(--ctc-blue)
+                        '#0066CC', // Primary Blue - var(--primary)
+                        '#C69214', // CTC Gold - var(--ctc-gold)
+                        '#28A745', // Success Green - var(--success)
+                        '#17A2B8', // Info Blue - var(--info)
+                        '#FFC107', // Warning Yellow - var(--warning)
+                        '#6C757D', // Gray - var(--gray-600)
+                        '#ADB5BD'  // Light Gray - var(--gray-500)
                     ],
-                    borderColor: '#ffffff',
+                    borderColor: '#FFFFFF', // White - var(--white)
                     borderWidth: 2
                 }]
             };
@@ -480,7 +480,7 @@
                                     size: 13,
                                     family: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
                                 },
-                                color: '#1E3A5F',
+                                color: '#1E3A5F', /* CTC Blue - var(--ctc-blue) */
                                 usePointStyle: true,
                                 pointStyle: 'circle'
                             }
@@ -495,7 +495,7 @@
                                     return label + ': ' + value + ' students (' + percentage + '%)';
                                 }
                             },
-                            backgroundColor: 'rgba(30, 58, 95, 0.95)',
+                            backgroundColor: 'rgba(30, 58, 95, 0.95)', // CTC Blue with 95% opacity - var(--ctc-blue)
                             titleFont: { size: 14, weight: 'bold' },
                             bodyFont: { size: 13 },
                             padding: 12,

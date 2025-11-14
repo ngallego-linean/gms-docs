@@ -90,7 +90,6 @@
                     <tr>
                         <th>Submission Date</th>
                         <th>Candidate Name</th>
-                        <th>SEID</th>
                         <th>IHE Partner</th>
                         <th>Credential Area</th>
                         <th>Status</th>
@@ -103,7 +102,6 @@
                         <tr>
                             <td>@(report.ReportSubmittedDate?.ToString("MM/dd/yyyy") ?? "N/A")</td>
                             <td>@report.StudentName</td>
-                            <td>@report.SEID</td>
                             <td>@report.IHEName</td>
                             <td>@report.CredentialArea</td>
                             <td><span class="badge @report.ReportStatusBadgeClass">@report.ReportStatus</span></td>

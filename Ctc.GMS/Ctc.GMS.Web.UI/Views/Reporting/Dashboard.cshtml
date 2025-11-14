@@ -16,28 +16,66 @@
     <p class="subtitle">Generate custom reports for internal stakeholders</p>
 </div>
 
-@* NATURAL LANGUAGE QUERY - FUTURE ENHANCEMENT *@
+@* QUICK ACCESS REPORTS *@
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-robot-outline"></i> Natural Language Query <span class="badge">Coming Soon</span></h4>
+        <h4><i class="mdi mdi-lightning-bolt-outline"></i> Quick Access Reports</h4>
+        <p class="card-subtitle">Frequently used report templates</p>
     </div>
     <div class="r4-card-body">
-        <p class="text-muted">Ask questions in plain English and get instant custom reports. This AI-powered feature will be available in version 2.0.</p>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+            <div style="display: flex; gap: 1rem; padding: 1.5rem; border: 1px solid var(--gray-300); border-radius: 8px; background-color: var(--white); transition: box-shadow 0.2s;">
+                <div style="font-size: 3rem; color: var(--ctc-blue);">
+                    <i class="mdi mdi-account-group"></i>
+                </div>
+                <div style="flex: 1;">
+                    <h5 style="margin: 0 0 0.5rem 0; color: var(--ctc-blue);">Current Demographics</h5>
+                    <p style="margin: 0 0 1rem 0; color: var(--gray-600); font-size: 0.875rem;">Student demographics for current grant cycle</p>
+                    <a href="@Url.Action("GenerateReport", "Reporting", new { type = "demographic", cycle = "current" })" class="r4-button r4-button-sm r4-button-primary">
+                        <i class="mdi mdi-download"></i> Generate
+                    </a>
+                </div>
+            </div>
 
-        <div class="form-group">
-            <label for="nlQuery">
-                <i class="mdi mdi-message-text-outline"></i> Enter your question
-            </label>
-            <textarea id="nlQuery"
-                      class="form-control"
-                      rows="3"
-                      disabled
-                      placeholder="Example: Show me all students from Los Angeles who received funding in the last quarter"></textarea>
+            <div style="display: flex; gap: 1rem; padding: 1.5rem; border: 1px solid var(--gray-300); border-radius: 8px; background-color: var(--white); transition: box-shadow 0.2s;">
+                <div style="font-size: 3rem; color: var(--ctc-blue);">
+                    <i class="mdi mdi-domain"></i>
+                </div>
+                <div style="flex: 1;">
+                    <h5 style="margin: 0 0 0.5rem 0; color: var(--ctc-blue);">LEA Performance</h5>
+                    <p style="margin: 0 0 1rem 0; color: var(--gray-600); font-size: 0.875rem;">Summary of all LEA participation and outcomes</p>
+                    <a href="@Url.Action("GenerateReport", "Reporting", new { type = "lea-summary", cycle = "current" })" class="r4-button r4-button-sm r4-button-primary">
+                        <i class="mdi mdi-download"></i> Generate
+                    </a>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; padding: 1.5rem; border: 1px solid var(--gray-300); border-radius: 8px; background-color: var(--white); transition: box-shadow 0.2s;">
+                <div style="font-size: 3rem; color: var(--ctc-blue);">
+                    <i class="mdi mdi-currency-usd"></i>
+                </div>
+                <div style="flex: 1;">
+                    <h5 style="margin: 0 0 0.5rem 0; color: var(--ctc-blue);">Financial Summary</h5>
+                    <p style="margin: 0 0 1rem 0; color: var(--gray-600); font-size: 0.875rem;">Budget utilization and disbursement tracking</p>
+                    <a href="@Url.Action("GenerateReport", "Reporting", new { type = "financial", cycle = "current" })" class="r4-button r4-button-sm r4-button-primary">
+                        <i class="mdi mdi-download"></i> Generate
+                    </a>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; padding: 1.5rem; border: 1px solid var(--gray-300); border-radius: 8px; background-color: var(--white); transition: box-shadow 0.2s;">
+                <div style="font-size: 3rem; color: var(--ctc-blue);">
+                    <i class="mdi mdi-chart-line"></i>
+                </div>
+                <div style="flex: 1;">
+                    <h5 style="margin: 0 0 0.5rem 0; color: var(--ctc-blue);">Program Outcomes</h5>
+                    <p style="margin: 0 0 1rem 0; color: var(--gray-600); font-size: 0.875rem;">Credential areas, completion rates, and impact</p>
+                    <a href="@Url.Action("GenerateReport", "Reporting", new { type = "outcomes", cycle = "current" })" class="r4-button r4-button-sm r4-button-primary">
+                        <i class="mdi mdi-download"></i> Generate
+                    </a>
+                </div>
+            </div>
         </div>
-
-        <button type="button" class="r4-button r4-button-primary" disabled>
-            <i class="mdi mdi-sparkles"></i> Generate Report
-        </button>
     </div>
 </div>
 
@@ -175,69 +213,6 @@
     </div>
 </div>
 
-@* QUICK ACCESS REPORTS *@
-<div class="r4-card">
-    <div class="r4-card-header">
-        <h4><i class="mdi mdi-lightning-bolt-outline"></i> Quick Access Reports</h4>
-        <p class="card-subtitle">Frequently used report templates</p>
-    </div>
-    <div class="r4-card-body">
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
-            <div style="display: flex; gap: 1rem; padding: 1.5rem; border: 1px solid #dee2e6; border-radius: 8px; background-color: white; transition: box-shadow 0.2s;">
-                <div style="font-size: 3rem; color: #1E3A5F;">
-                    <i class="mdi mdi-account-group"></i>
-                </div>
-                <div style="flex: 1;">
-                    <h5 style="margin: 0 0 0.5rem 0; color: #1E3A5F;">Current Demographics</h5>
-                    <p style="margin: 0 0 1rem 0; color: #6c757d; font-size: 0.875rem;">Student demographics for current grant cycle</p>
-                    <a href="@Url.Action("GenerateReport", "Reporting", new { type = "demographic", cycle = "current" })" class="r4-button r4-button-sm r4-button-primary">
-                        <i class="mdi mdi-download"></i> Generate
-                    </a>
-                </div>
-            </div>
-
-            <div style="display: flex; gap: 1rem; padding: 1.5rem; border: 1px solid #dee2e6; border-radius: 8px; background-color: white; transition: box-shadow 0.2s;">
-                <div style="font-size: 3rem; color: #1E3A5F;">
-                    <i class="mdi mdi-domain"></i>
-                </div>
-                <div style="flex: 1;">
-                    <h5 style="margin: 0 0 0.5rem 0; color: #1E3A5F;">LEA Performance</h5>
-                    <p style="margin: 0 0 1rem 0; color: #6c757d; font-size: 0.875rem;">Summary of all LEA participation and outcomes</p>
-                    <a href="@Url.Action("GenerateReport", "Reporting", new { type = "lea-summary", cycle = "current" })" class="r4-button r4-button-sm r4-button-primary">
-                        <i class="mdi mdi-download"></i> Generate
-                    </a>
-                </div>
-            </div>
-
-            <div style="display: flex; gap: 1rem; padding: 1.5rem; border: 1px solid #dee2e6; border-radius: 8px; background-color: white; transition: box-shadow 0.2s;">
-                <div style="font-size: 3rem; color: #1E3A5F;">
-                    <i class="mdi mdi-currency-usd"></i>
-                </div>
-                <div style="flex: 1;">
-                    <h5 style="margin: 0 0 0.5rem 0; color: #1E3A5F;">Financial Summary</h5>
-                    <p style="margin: 0 0 1rem 0; color: #6c757d; font-size: 0.875rem;">Budget utilization and disbursement tracking</p>
-                    <a href="@Url.Action("GenerateReport", "Reporting", new { type = "financial", cycle = "current" })" class="r4-button r4-button-sm r4-button-primary">
-                        <i class="mdi mdi-download"></i> Generate
-                    </a>
-                </div>
-            </div>
-
-            <div style="display: flex; gap: 1rem; padding: 1.5rem; border: 1px solid #dee2e6; border-radius: 8px; background-color: white; transition: box-shadow 0.2s;">
-                <div style="font-size: 3rem; color: #1E3A5F;">
-                    <i class="mdi mdi-chart-line"></i>
-                </div>
-                <div style="flex: 1;">
-                    <h5 style="margin: 0 0 0.5rem 0; color: #1E3A5F;">Program Outcomes</h5>
-                    <p style="margin: 0 0 1rem 0; color: #6c757d; font-size: 0.875rem;">Credential areas, completion rates, and impact</p>
-                    <a href="@Url.Action("GenerateReport", "Reporting", new { type = "outcomes", cycle = "current" })" class="r4-button r4-button-sm r4-button-primary">
-                        <i class="mdi mdi-download"></i> Generate
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 @* RECENT REPORTS *@
 <div class="r4-card">
     <div class="r4-card-header">
@@ -248,6 +223,31 @@
             <i class="mdi mdi-information-outline"></i>
             <strong>Report History:</strong> Your recently generated reports will appear here for quick access. (Coming soon in future release)
         </div>
+    </div>
+</div>
+
+@* NATURAL LANGUAGE QUERY - FUTURE ENHANCEMENT *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-robot-outline"></i> Natural Language Query <span class="badge">Coming Soon</span></h4>
+    </div>
+    <div class="r4-card-body">
+        <p class="text-muted">Ask questions in plain English and get instant custom reports. This AI-powered feature will be available in version 2.0.</p>
+
+        <div class="form-group">
+            <label for="nlQuery">
+                <i class="mdi mdi-message-text-outline"></i> Enter your question
+            </label>
+            <textarea id="nlQuery"
+                      class="form-control"
+                      rows="3"
+                      disabled
+                      placeholder="Example: Show me all students from Los Angeles who received funding in the last quarter"></textarea>
+        </div>
+
+        <button type="button" class="r4-button r4-button-primary" disabled>
+            <i class="mdi mdi-sparkles"></i> Generate Report
+        </button>
     </div>
 </div>
 

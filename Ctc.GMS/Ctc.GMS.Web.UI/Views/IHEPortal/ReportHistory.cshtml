@@ -16,6 +16,26 @@
     <p class="subtitle">@Model.IHEName - Submitted Reports</p>
 </div>
 
+@{
+    // MOCK DATA: Filter options
+    var mockPeriods = Model.AvailablePeriods.Any() ? Model.AvailablePeriods : new List<ReportingPeriodViewModel>
+    {
+        new ReportingPeriodViewModel { Id = 1, PeriodName = "Fall 2024" },
+        new ReportingPeriodViewModel { Id = 2, PeriodName = "Spring 2025" },
+        new ReportingPeriodViewModel { Id = 3, PeriodName = "Summer 2025" }
+    };
+
+    var mockLEAs = Model.AvailableLEAs.Any() ? Model.AvailableLEAs : new List<OrganizationOption>
+    {
+        new OrganizationOption { Id = 1, Name = "Los Angeles Unified School District" },
+        new OrganizationOption { Id = 2, Name = "San Diego Unified School District" },
+        new OrganizationOption { Id = 3, Name = "Fresno Unified School District" },
+        new OrganizationOption { Id = 4, Name = "Oakland Unified School District" },
+        new OrganizationOption { Id = 5, Name = "Sacramento City Unified School District" },
+        new OrganizationOption { Id = 6, Name = "San Francisco Unified School District" }
+    };
+}
+
 <div class="r4-card">
     <div class="r4-card-header">
         <h4><i class="mdi mdi-filter-outline"></i> Filter Reports</h4>
@@ -81,11 +101,29 @@
     </div>
 </div>
 
-@if (Model.SubmittedReports.Any())
+@{
+    // MOCK DATA: Submitted completion reports
+    var mockReports = new List<SubmittedReportViewModel>
+    {
+        new SubmittedReportViewModel { ConfirmationNumber = "RPT-2025-001234", StudentName = "Maria Garcia", LEAName = "Los Angeles Unified School District", SubmittedDate = DateTime.Now.AddDays(-5), SubmittedBy = "John Smith", Status = "APPROVED", CompletionStatus = "COMPLETED", CredentialEarned = true, EmployedInDistrict = true, ReportId = 1 },
+        new SubmittedReportViewModel { ConfirmationNumber = "RPT-2025-001235", StudentName = "James Wilson", LEAName = "San Diego Unified School District", SubmittedDate = DateTime.Now.AddDays(-10), SubmittedBy = "Jane Doe", Status = "APPROVED", CompletionStatus = "COMPLETED", CredentialEarned = true, EmployedInDistrict = false, ReportId = 2 },
+        new SubmittedReportViewModel { ConfirmationNumber = "RPT-2025-001236", StudentName = "Sarah Chen", LEAName = "Fresno Unified School District", SubmittedDate = DateTime.Now.AddDays(-12), SubmittedBy = "Michael Brown", Status = "SUBMITTED", CompletionStatus = "IN_PROGRESS", CredentialEarned = false, EmployedInDistrict = false, ReportId = 3 },
+        new SubmittedReportViewModel { ConfirmationNumber = "RPT-2025-001237", StudentName = "David Kim", LEAName = "Oakland Unified School District", SubmittedDate = DateTime.Now.AddDays(-15), SubmittedBy = "Emily Johnson", Status = "APPROVED", CompletionStatus = "COMPLETED", CredentialEarned = true, EmployedInDistrict = true, ReportId = 4 },
+        new SubmittedReportViewModel { ConfirmationNumber = "RPT-2025-001238", StudentName = "Jennifer Martinez", LEAName = "Sacramento City Unified School District", SubmittedDate = DateTime.Now.AddDays(-18), SubmittedBy = "Robert Davis", Status = "REJECTED", CompletionStatus = "IN_PROGRESS", CredentialEarned = false, EmployedInDistrict = false, ReportId = 5 },
+        new SubmittedReportViewModel { ConfirmationNumber = "RPT-2025-001239", StudentName = "Michael Rodriguez", LEAName = "Los Angeles Unified School District", SubmittedDate = DateTime.Now.AddDays(-20), SubmittedBy = "John Smith", Status = "APPROVED", CompletionStatus = "COMPLETED", CredentialEarned = true, EmployedInDistrict = true, ReportId = 6 },
+        new SubmittedReportViewModel { ConfirmationNumber = "RPT-2025-001240", StudentName = "Amanda Lee", LEAName = "San Francisco Unified School District", SubmittedDate = DateTime.Now.AddDays(-22), SubmittedBy = "Lisa White", Status = "APPROVED", CompletionStatus = "COMPLETED", CredentialEarned = true, EmployedInDistrict = false, ReportId = 7 },
+        new SubmittedReportViewModel { ConfirmationNumber = "RPT-2025-001241", StudentName = "Christopher Brown", LEAName = "San Diego Unified School District", SubmittedDate = DateTime.Now.AddDays(-25), SubmittedBy = "Jane Doe", Status = "SUBMITTED", CompletionStatus = "IN_PROGRESS", CredentialEarned = false, EmployedInDistrict = false, ReportId = 8 }
+    };
+
+    // Use mock data if no real data exists
+    var displayReports = Model.SubmittedReports.Any() ? Model.SubmittedReports : mockReports;
+}
+
+@if (displayReports.Any())
 {
     <div class="r4-card">
         <div class="r4-card-header">
-            <h4><i class="mdi mdi-file-check-outline"></i> Submitted Reports (@Model.TotalCount)</h4>
+            <h4><i class="mdi mdi-file-check-outline"></i> Submitted Reports (@displayReports.Count())</h4>
             <div class="card-actions">
                 <button type="button" class="r4-button" onclick="exportReports()">
                     <i class="mdi mdi-file-download-outline"></i> Export to Excel
@@ -97,9 +135,7 @@
                 <table class="r4-table">
                     <thead>
                         <tr>
-                            <th>Confirmation #</th>
                             <th>Student Name</th>
-                            <th>SEID</th>
                             <th>LEA Partner</th>
                             <th>Submitted Date</th>
                             <th>Submitted By</th>
@@ -111,14 +147,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var report in Model.SubmittedReports)
+                        @foreach (var report in displayReports)
                         {
                             <tr>
-                                <td>
-                                    <strong>@report.ConfirmationNumber</strong>
-                                </td>
                                 <td>@report.StudentName</td>
-                                <td>@report.SEID</td>
                                 <td>@report.LEAName</td>
                                 <td>@report.SubmittedDate?.ToString("MM/dd/yyyy")</td>
                                 <td>@report.SubmittedBy</td>
@@ -157,21 +189,21 @@
                                 <td>
                                     @if (report.CredentialEarned)
                                     {
-                                        <i class="mdi mdi-check-circle text-success"></i>
+                                        <i class="mdi mdi-check-circle" style="color: var(--success);"></i>
                                     }
                                     else
                                     {
-                                        <i class="mdi mdi-close-circle text-muted"></i>
+                                        <i class="mdi mdi-close-circle" style="color: var(--gray-500);"></i>
                                     }
                                 </td>
                                 <td>
                                     @if (report.EmployedInDistrict)
                                     {
-                                        <i class="mdi mdi-check-circle text-success"></i> <small>In District</small>
+                                        <i class="mdi mdi-check-circle" style="color: var(--success);"></i> <small>In District</small>
                                     }
                                     else
                                     {
-                                        <i class="mdi mdi-close-circle text-muted"></i>
+                                        <i class="mdi mdi-close-circle" style="color: var(--gray-500);"></i>
                                     }
                                 </td>
                                 <td>

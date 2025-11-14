@@ -227,60 +227,73 @@
             </div>
         </div>
         <div class="r4-card-body">
-            <div class="table-wrapper">
-                <table class="r4-table applications-table">
-                <thead>
-                    <tr>
-                        <th>LEA Partner</th>
-                        <th>Total Candidates</th>
-                        <th>Draft</th>
-                        <th>Submitted</th>
-                        <th>Approved</th>
-                        <th>Last Modified</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var app in Model.Submissions)
-                    {
-                        <tr>
-                            <td>@app.LEAName</td>
-                            <td>@app.TotalStudents</td>
-                            <td>
-                                @if (app.TotalStudents - app.PendingCount - app.ApprovedCount > 0)
-                                {
-                                    <span class="badge badge-secondary">@(app.TotalStudents - app.PendingCount - app.ApprovedCount)</span>
-                                }
-                                else
-                                {
-                                    <span class="text-muted">0</span>
-                                }
-                            </td>
-                            <td>
-                                @if (app.PendingCount > 0)
-                                {
-                                    <span class="badge badge-warning">@app.PendingCount</span>
-                                }
-                                else
-                                {
-                                    <span class="text-muted">0</span>
-                                }
-                            </td>
-                            <td>
-                                @if (app.ApprovedCount > 0)
-                                {
-                                    <span class="badge badge-success">@app.ApprovedCount</span>
-                                }
-                                else
-                                {
-                                    <span class="text-muted">0</span>
-                                }
-                            </td>
-                            <td>@app.LastModified.ToString("MM/dd/yyyy")</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-            </div>
+            @{
+                // MOCK DATA: Student queue showing most recent candidates submitted by IHE
+                var studentQueue = new List<dynamic>
+                {
+                    new { StudentName = "John Martinez", LEAPartner = "Los Angeles Unified School District", DOB = "05/12/1998", LastSSN = "4521", CredentialArea = "Multiple Subject", CountyCDS = "19", LEACDS = "64733", SchoolCDS = "1933021", Status = "APPROVED", LastModified = DateTime.Now.AddDays(-2) },
+                    new { StudentName = "Emily Rodriguez", LEAPartner = "San Diego Unified School District", DOB = "08/24/1997", LastSSN = "7832", CredentialArea = "Single Subject - Mathematics", CountyCDS = "37", LEACDS = "68338", SchoolCDS = "3768338", Status = "SUBMITTED", LastModified = DateTime.Now.AddDays(-4) },
+                    new { StudentName = "Michael Chen", LEAPartner = "Fresno Unified School District", DOB = "11/03/1999", LastSSN = "2947", CredentialArea = "Education Specialist", CountyCDS = "10", LEACDS = "62331", SchoolCDS = "1062331", Status = "APPROVED", LastModified = DateTime.Now.AddDays(-6) }
+                };
+            }
+
+            @if (studentQueue.Any())
+            {
+                <div class="table-wrapper">
+                    <table class="r4-table">
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>LEA Partner</th>
+                                <th>DOB</th>
+                                <th>Last 4 SSN</th>
+                                <th>Credential Area</th>
+                                <th>County CDS</th>
+                                <th>LEA CDS</th>
+                                <th>School CDS</th>
+                                <th>Status</th>
+                                <th>Last Modified</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var student in studentQueue)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>@student.StudentName</strong>
+                                    </td>
+                                    <td>@student.LEAPartner</td>
+                                    <td>@student.DOB</td>
+                                    <td>@student.LastSSN</td>
+                                    <td>@student.CredentialArea</td>
+                                    <td>@student.CountyCDS</td>
+                                    <td>@student.LEACDS</td>
+                                    <td>@student.SchoolCDS</td>
+                                    <td>
+                                        @if (student.Status == "SUBMITTED")
+                                        {
+                                            <span class="badge badge-info">Submitted</span>
+                                        }
+                                        else if (student.Status == "APPROVED")
+                                        {
+                                            <span class="badge badge-success">Approved</span>
+                                        }
+                                    </td>
+                                    <td>@student.LastModified.ToString("MM/dd/yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div style="text-align: center; padding: 3rem; color: var(--gray-500);">
+                    <i class="mdi mdi-file-document-outline" style="font-size: 4rem; display: block; margin-bottom: 1rem; opacity: 0.3;"></i>
+                    <p style="font-size: 1.1rem; margin: 0; color: var(--gray-700);">No candidates submitted yet</p>
+                    <small style="color: var(--gray-500);">Submit your candidate lists to LEA partners to get started.</small>
+                </div>
+            }
         </div>
     </div>
 }
@@ -307,8 +320,8 @@ else
             align-items: center;
             justify-content: space-between;
             padding: 1.5rem;
-            background: white;
-            border: 2px solid #dee2e6;
+            background: var(--white);
+            border: 2px solid var(--gray-300);
             border-radius: 8px;
             margin-bottom: 1rem;
             transition: all 0.2s;
@@ -319,13 +332,13 @@ else
         }
 
         .action-item-urgent {
-            border-color: #dc3545;
-            background: #fff5f5;
+            border-color: var(--danger);
+            background: var(--gray-50);
         }
 
         .action-item-normal {
-            border-color: #ffc107;
-            background: #fffbf0;
+            border-color: var(--warning);
+            background: var(--gray-50);
         }
 
         .action-item:hover {
@@ -346,27 +359,27 @@ else
             justify-content: center;
             width: 48px;
             height: 48px;
-            background: #1E3A5F;
-            color: white;
+            background: var(--ctc-blue);
+            color: var(--white);
             border-radius: 50%;
             font-size: 1.5rem;
         }
 
         .action-item-details h5 {
             margin: 0 0 0.5rem 0;
-            color: #1E3A5F;
+            color: var(--ctc-blue);
             font-size: 1.1rem;
         }
 
         .action-item-details p {
             margin: 0;
-            color: #6c757d;
+            color: var(--gray-600);
             font-size: 0.9rem;
         }
 
         .action-item-due {
             margin-top: 0.25rem !important;
-            color: #dc3545;
+            color: var(--danger);
             font-weight: 600;
         }
 

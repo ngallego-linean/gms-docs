@@ -15,7 +15,7 @@
 
 <div class="page-header">
     <h2><i class="mdi mdi-file-document-edit-outline"></i> Candidate Completion Report</h2>
-    <p class="subtitle">@Model.Student.FullName - SEID: @Model.Student.SEID</p>
+    <p class="subtitle">@Model.Student.FullName</p>
 </div>
 
 @if (isReadOnly)
@@ -56,10 +56,6 @@
             <div class="form-group col-md-4">
                 <label>Student Name</label>
                 <p class="form-control-plaintext">@Model.Student.FullName</p>
-            </div>
-            <div class="form-group col-md-4">
-                <label>SEID</label>
-                <p class="form-control-plaintext">@Model.Student.SEID</p>
             </div>
             <div class="form-group col-md-4">
                 <label>Credential Area</label>

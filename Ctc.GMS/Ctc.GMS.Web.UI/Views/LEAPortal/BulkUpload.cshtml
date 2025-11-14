@@ -127,7 +127,6 @@
                     <thead>
                         <tr>
                             <th>Row</th>
-                            <th>SEID</th>
                             <th>Candidate Name</th>
                             <th>Status</th>
                             <th>Errors</th>
@@ -138,7 +137,6 @@
                         {
                             <tr class="@(!result.Success ? "error-row" : "")">
                                 <td>@result.RowNumber</td>
-                                <td>@result.SEID</td>
                                 <td>@result.StudentName</td>
                                 <td>
                                     @if (result.Success)

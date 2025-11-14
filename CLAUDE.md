@@ -8,8 +8,8 @@ R4 describes how CTC websites look, coding style, etc. AND YOU MUST ADHERE TO AL
 IMPORTANT NOTES:
 - ALWAYS adhere to R4 Framework for every decision
 - ALWAYS refer to Figma MCP (via Desktop) for any USER FLOW
+- AlWAYS use the semantic search MCP when attempting to locate anything
 
-**IMPORTANT READ ME**
+**IMPORTANT -> READ ME**
 - DO NOT make any changes that are not requested. You must be very strict with this. 
-- WE ARE MAKING CHANGES FROM A MEETING. YOU MUST VERIFY AND REFER TO THE [TRANSCRIPT](transcript.txt)
 - THIS IS A PROOF OF CONCEPT SO SOME MOCK DATA IS OKAY, BUT ALWAYS ADHERE TO STANDARDS FOR STYLING, CODING, AND MORE IN [r4/](r4/)

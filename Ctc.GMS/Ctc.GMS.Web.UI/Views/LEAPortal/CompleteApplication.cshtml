@@ -20,13 +20,13 @@
         var daysRemaining = daysInMonth - currentDate.Day;
         var currentBatchMonth = currentDate.ToString("MMMM yyyy");
     }
-    <div style="display: flex; gap: 2rem; margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+    <div style="display: flex; gap: 2rem; margin-top: 0.5rem; font-size: 0.9rem; color: var(--gray-600);">
         <div>
-            <i class="mdi mdi-calendar-clock-outline" style="color: #1E3A5F;"></i>
+            <i class="mdi mdi-calendar-clock-outline" style="color: var(--ctc-blue);"></i>
             <strong>Batch Period:</strong> @currentBatchMonth (Day @currentDate.Day of @daysInMonth)
         </div>
         <div>
-            <i class="mdi mdi-clock-outline" style="color: #1E3A5F;"></i>
+            <i class="mdi mdi-clock-outline" style="color: var(--ctc-blue);"></i>
             @daysRemaining days remaining
         </div>
     </div>

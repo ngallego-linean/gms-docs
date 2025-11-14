@@ -346,50 +346,50 @@
 
     <style>
         .upload-area {
-            border: 3px dashed #dee2e6;
+            border: 3px dashed var(--gray-300);
             border-radius: 8px;
             padding: 3rem 2rem;
             text-align: center;
-            background: #f8f9fa;
+            background: var(--gray-50);
             transition: all 0.3s;
             cursor: pointer;
         }
 
         .upload-area:hover {
-            border-color: #1E3A5F;
-            background: #e9ecef;
+            border-color: var(--ctc-blue);
+            background: var(--gray-200);
         }
 
         .upload-area.drag-over {
-            border-color: #1E3A5F;
-            background: #d3e5ff;
+            border-color: var(--ctc-blue);
+            background: var(--gray-100);
         }
 
         .upload-icon {
             font-size: 4rem;
-            color: #6c757d;
+            color: var(--gray-600);
             margin-bottom: 1rem;
         }
 
         .upload-area h5 {
-            color: #1E3A5F;
+            color: var(--ctc-blue);
             margin-bottom: 0.5rem;
         }
 
         .required-fields-info {
-            background: #f8f9fa;
+            background: var(--gray-50);
             padding: 1.5rem;
             border-radius: 8px;
             margin-top: 1.5rem;
         }
 
         .required-fields-info h5 {
-            color: #1E3A5F;
+            color: var(--ctc-blue);
             margin-bottom: 1rem;
         }
 
         .required-fields-info h6 {
-            color: #495057;
+            color: var(--gray-700);
             margin-top: 1rem;
             margin-bottom: 0.5rem;
             font-weight: 600;
@@ -402,40 +402,40 @@
         .upload-summary .metric-card {
             text-align: center;
             padding: 1.5rem;
-            background: white;
-            border: 1px solid #dee2e6;
+            background: var(--white);
+            border: 1px solid var(--gray-300);
             border-radius: 8px;
         }
 
         .upload-summary .metric-value {
             font-size: 2.5rem;
             font-weight: bold;
-            color: #1E3A5F;
+            color: var(--ctc-blue);
         }
 
         .upload-summary .metric-label {
-            color: #6c757d;
+            color: var(--gray-600);
             font-size: 0.9rem;
             margin-top: 0.5rem;
         }
 
         .upload-summary .metric-card.metric-success .metric-value {
-            color: #28a745;
+            color: var(--success);
         }
 
         .upload-summary .metric-card.metric-warning .metric-value {
-            color: #ffc107;
+            color: var(--warning);
         }
 
         .error-details {
-            background: #fff5f5;
+            background: var(--gray-50);
             padding: 1.5rem;
             border-radius: 8px;
-            border: 1px solid #f8d7da;
+            border: 1px solid var(--gray-300);
         }
 
         .error-details h5 {
-            color: #dc3545;
+            color: var(--danger);
             margin-bottom: 1rem;
         }
 

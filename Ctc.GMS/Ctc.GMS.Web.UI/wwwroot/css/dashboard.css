@@ -54,15 +54,15 @@
 }
 
 .metric-card.fund-low .metric-value {
-    color: var(--danger-red);
+    color: var(--danger);
 }
 
 .metric-card.fund-warning .metric-value {
-    color: var(--warning-orange);
+    color: var(--warning);
 }
 
 .metric-card.fund-good .metric-value {
-    color: var(--success-green);
+    color: var(--success);
 }
 
 /* Progress Bar */
@@ -77,20 +77,20 @@
 
 .progress-fill {
     height: 100%;
-    background-color: var(--primary-blue);
+    background-color: var(--primary);
     transition: width 0.5s ease-out;
 }
 
 .progress-fill.low {
-    background-color: var(--danger-red);
+    background-color: var(--danger);
 }
 
 .progress-fill.warning {
-    background-color: var(--warning-orange);
+    background-color: var(--warning);
 }
 
 .progress-fill.good {
-    background-color: var(--success-green);
+    background-color: var(--success);
 }
 
 /* Chart Container */
@@ -130,7 +130,7 @@
 }
 
 .status-item:hover {
-    background-color: #E9ECEF;
+    background-color: var(--gray-200);
     transform: translateY(-2px);
 }
 
@@ -212,10 +212,10 @@
 
 @keyframes pulseGlow {
     0%, 100% {
-        box-shadow: 0 0 0 0 rgba(0,102,204,0.7);
+        box-shadow: 0 0 0 0 rgba(0,102,204,0.7); /* var(--primary) with 70% opacity */
     }
     50% {
-        box-shadow: 0 0 0 10px rgba(0,102,204,0);
+        box-shadow: 0 0 0 10px rgba(0,102,204,0); /* var(--primary) transparent for fade effect */
     }
 }
 
@@ -272,27 +272,27 @@
 
 /* Fund Warning Alert */
 .fund-warning-alert {
-    background-color: #FFF3CD;
-    border: 1px solid #FFC107;
-    border-left: 4px solid #FFC107;
+    background-color: var(--warning-light);
+    border: 1px solid var(--warning);
+    border-left: 4px solid var(--warning);
     border-radius: 4px;
     padding: 1rem;
     margin-bottom: 1.5rem;
 }
 
 .fund-warning-alert.danger {
-    background-color: #F8D7DA;
-    border-color: var(--danger-red);
+    background-color: var(--danger-light);
+    border-color: var(--danger);
 }
 
 .fund-warning-alert h4 {
-    color: #856404;
+    color: var(--warning-text);
     margin-bottom: 0.5rem;
     font-size: 1rem;
 }
 
 .fund-warning-alert.danger h4 {
-    color: #721C24;
+    color: var(--danger-text);
 }
 
 .fund-warning-alert p {
@@ -388,7 +388,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: white;
+    background-color: var(--white);
     transition: box-shadow 0.2s;
 }
 
@@ -397,12 +397,12 @@
 }
 
 .action-item-urgent {
-    border: 2px solid #DC3545;
-    background-color: #FFF5F5;
+    border: 2px solid var(--danger);
+    background-color: var(--gray-50);
 }
 
 .action-item-normal {
-    border: 1px solid #E0E0E0;
+    border: 1px solid var(--gray-300);
 }
 
 .action-item-content {
@@ -415,7 +415,7 @@
 .action-item-icon {
     width: 56px;
     height: 56px;
-    background-color: #1E3A5F;
+    background-color: var(--ctc-blue);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -425,7 +425,7 @@
 
 .action-item-icon i {
     font-size: 28px;
-    color: white;
+    color: var(--white);
 }
 
 .action-item-details {
@@ -542,4 +542,10 @@
     margin-top: 1rem;
     padding-top: 1rem;
     border-top: 1px solid var(--gray-300);
+}
+
+/* Force dashboard action buttons to fill their containers */
+.r4-table td .r4-button-sm {
+    width: 100% !important;
+    display: block !important;
 }

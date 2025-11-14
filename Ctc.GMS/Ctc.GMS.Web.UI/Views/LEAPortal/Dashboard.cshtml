@@ -80,41 +80,41 @@
     </div>
     <div class="r4-card-body">
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
-            <div style="border: 1px solid #e0e0e0; border-radius: 4px; padding: 1.5rem; background-color: white;">
+            <div style="border: 1px solid var(--gray-300); border-radius: 4px; padding: 1.5rem; background-color: var(--white);">
                 <div style="display: flex; align-items: center; gap: 1rem;">
-                    <div style="width: 48px; height: 48px; background-color: #1E3A5F; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                        <i class="mdi mdi-account-multiple" style="font-size: 24px; color: white;"></i>
+                    <div style="width: 48px; height: 48px; background-color: var(--ctc-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="mdi mdi-account-multiple" style="font-size: 24px; color: var(--white);"></i>
                     </div>
                     <div>
-                        <div style="font-size: 2rem; font-weight: bold; color: #1E3A5F;">@Model.TotalStudents</div>
-                        <div style="color: #1E3A5F; font-size: 0.9rem; font-weight: 600;">Total Candidates</div>
-                        <small style="color: #999;">Candidates submitted</small>
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--ctc-blue);">@Model.TotalStudents</div>
+                        <div style="color: var(--ctc-blue); font-size: 0.9rem; font-weight: 600;">Total Candidates</div>
+                        <small style="color: var(--gray-500);">Candidates submitted</small>
                     </div>
                 </div>
             </div>
 
-            <div style="border: 1px solid #e0e0e0; border-radius: 4px; padding: 1.5rem; background-color: white;">
+            <div style="border: 1px solid var(--gray-300); border-radius: 4px; padding: 1.5rem; background-color: var(--white);">
                 <div style="display: flex; align-items: center; gap: 1rem;">
-                    <div style="width: 48px; height: 48px; background-color: #F5F5F5; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                        <i class="mdi mdi-clock-outline" style="font-size: 24px; color: #666;"></i>
+                    <div style="width: 48px; height: 48px; background-color: var(--gray-100); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="mdi mdi-clock-outline" style="font-size: 24px; color: var(--gray-600);"></i>
                     </div>
                     <div>
-                        <div style="font-size: 2rem; font-weight: bold; color: #333;">@Model.PendingCompletionCount</div>
-                        <div style="color: #666; font-size: 0.9rem; font-weight: 600;">Under Review</div>
-                        <small style="color: #999;">Awaiting CTC approval</small>
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--gray-900);">@Model.PendingCompletionCount</div>
+                        <div style="color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Under Review</div>
+                        <small style="color: var(--gray-500);">Awaiting CTC approval</small>
                     </div>
                 </div>
             </div>
 
-            <div style="border: 1px solid #e0e0e0; border-radius: 4px; padding: 1.5rem; background-color: white;">
+            <div style="border: 1px solid var(--gray-300); border-radius: 4px; padding: 1.5rem; background-color: var(--white);">
                 <div style="display: flex; align-items: center; gap: 1rem;">
-                    <div style="width: 48px; height: 48px; background-color: #F5F5F5; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                        <i class="mdi mdi-check-circle" style="font-size: 24px; color: #666;"></i>
+                    <div style="width: 48px; height: 48px; background-color: var(--gray-100); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="mdi mdi-check-circle" style="font-size: 24px; color: var(--gray-600);"></i>
                     </div>
                     <div>
-                        <div style="font-size: 2rem; font-weight: bold; color: #333;">@Model.ApprovedCount</div>
-                        <div style="color: #666; font-size: 0.9rem; font-weight: 600;">Approved</div>
-                        <small style="color: #999;">Eligible for payment</small>
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--gray-900);">@Model.ApprovedCount</div>
+                        <div style="color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Approved</div>
+                        <small style="color: var(--gray-500);">Eligible for payment</small>
                     </div>
                 </div>
             </div>
@@ -136,28 +136,28 @@
         </div>
         <div class="r4-card-body">
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-                <div style="border: 1px solid #e0e0e0; border-radius: 4px; padding: 1.5rem; background-color: white;">
+                <div style="border: 1px solid var(--gray-300); border-radius: 4px; padding: 1.5rem; background-color: var(--white);">
                     <div style="display: flex; align-items: center; gap: 1rem;">
-                        <div style="width: 48px; height: 48px; background-color: #1E3A5F; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                            <i class="mdi mdi-account-multiple-check" style="font-size: 24px; color: white;"></i>
+                        <div style="width: 48px; height: 48px; background-color: var(--ctc-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="mdi mdi-account-multiple-check" style="font-size: 24px; color: var(--white);"></i>
                         </div>
                         <div>
-                            <div style="font-size: 2rem; font-weight: bold; color: #1E3A5F;">@Model.TotalFundedStudents</div>
-                            <div style="color: #1E3A5F; font-size: 0.9rem; font-weight: 600;">Funded Candidates</div>
-                            <small style="color: #999;">Candidates who received payment</small>
+                            <div style="font-size: 2rem; font-weight: bold; color: var(--ctc-blue);">@Model.TotalFundedStudents</div>
+                            <div style="color: var(--ctc-blue); font-size: 0.9rem; font-weight: 600;">Funded Candidates</div>
+                            <small style="color: var(--gray-500);">Candidates who received payment</small>
                         </div>
                     </div>
                 </div>
 
-                <div style="border: 1px solid #e0e0e0; border-radius: 4px; padding: 1.5rem; background-color: white;">
+                <div style="border: 1px solid var(--gray-300); border-radius: 4px; padding: 1.5rem; background-color: var(--white);">
                     <div style="display: flex; align-items: center; gap: 1rem;">
-                        <div style="width: 48px; height: 48px; background-color: #F5F5F5; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                            <i class="mdi mdi-file-document-outline" style="font-size: 24px; color: #666;"></i>
+                        <div style="width: 48px; height: 48px; background-color: var(--gray-100); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="mdi mdi-file-document-outline" style="font-size: 24px; color: var(--gray-600);"></i>
                         </div>
                         <div>
-                            <div style="font-size: 2rem; font-weight: bold; color: #333;">@Model.ReportsPending</div>
-                            <div style="color: #666; font-size: 0.9rem; font-weight: 600;">Reports Due</div>
-                            <small style="color: #999;">
+                            <div style="font-size: 2rem; font-weight: bold; color: var(--gray-900);">@Model.ReportsPending</div>
+                            <div style="color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Reports Due</div>
+                            <small style="color: var(--gray-500);">
                                 @if (Model.ReportingDeadline.HasValue)
                                 {
                                     <text>Due @Model.ReportingDeadline.Value.ToString("MMM dd, yyyy")</text>
@@ -167,28 +167,28 @@
                     </div>
                 </div>
 
-                <div style="border: 1px solid #e0e0e0; border-radius: 4px; padding: 1.5rem; background-color: white;">
+                <div style="border: 1px solid var(--gray-300); border-radius: 4px; padding: 1.5rem; background-color: var(--white);">
                     <div style="display: flex; align-items: center; gap: 1rem;">
-                        <div style="width: 48px; height: 48px; background-color: #F5F5F5; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                            <i class="mdi mdi-progress-clock" style="font-size: 24px; color: #666;"></i>
+                        <div style="width: 48px; height: 48px; background-color: var(--gray-100); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="mdi mdi-progress-clock" style="font-size: 24px; color: var(--gray-600);"></i>
                         </div>
                         <div>
-                            <div style="font-size: 2rem; font-weight: bold; color: #333;">0</div>
-                            <div style="color: #666; font-size: 0.9rem; font-weight: 600;">In Progress</div>
-                            <small style="color: #999;">Draft reports not yet submitted</small>
+                            <div style="font-size: 2rem; font-weight: bold; color: var(--gray-900);">0</div>
+                            <div style="color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">In Progress</div>
+                            <small style="color: var(--gray-500);">Draft reports not yet submitted</small>
                         </div>
                     </div>
                 </div>
 
-                <div style="border: 1px solid #e0e0e0; border-radius: 4px; padding: 1.5rem; background-color: white;">
+                <div style="border: 1px solid var(--gray-300); border-radius: 4px; padding: 1.5rem; background-color: var(--white);">
                     <div style="display: flex; align-items: center; gap: 1rem;">
-                        <div style="width: 48px; height: 48px; background-color: #F5F5F5; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                            <i class="mdi mdi-file-check-outline" style="font-size: 24px; color: #666;"></i>
+                        <div style="width: 48px; height: 48px; background-color: var(--gray-100); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="mdi mdi-file-check-outline" style="font-size: 24px; color: var(--gray-600);"></i>
                         </div>
                         <div>
-                            <div style="font-size: 2rem; font-weight: bold; color: #333;">@Model.ReportsSubmitted</div>
-                            <div style="color: #666; font-size: 0.9rem; font-weight: 600;">Submitted</div>
-                            <small style="color: #999;">Reports submitted to CTC</small>
+                            <div style="font-size: 2rem; font-weight: bold; color: var(--gray-900);">@Model.ReportsSubmitted</div>
+                            <div style="color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Submitted</div>
+                            <small style="color: var(--gray-500);">Reports submitted to CTC</small>
                         </div>
                     </div>
                 </div>
@@ -223,79 +223,61 @@
         }
     </div>
     <div class="r4-card-body">
-        @if (Model.IHESubmissions.Any())
-        {
-            <table class="r4-table">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>IHE Partner</th>
-                        <th>Total Candidates</th>
-                        <th>Draft</th>
-                        <th>Submitted</th>
-                        <th>Approved</th>
-                        <th>Last Modified</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var submission in Model.IHESubmissions)
-                    {
-                        var draftCount = submission.Candidates.Count(c => c.Status == "DRAFT" || c.Status == "PENDING_LEA");
-                        var submittedCount = submission.Candidates.Count(c => c.Status == "SUBMITTED");
-                        var approvedCount = submission.Candidates.Count(c => c.Status == "APPROVED");
+        @{
+            // MOCK DATA: Student queue showing most recent candidates
+            var studentQueue = new List<dynamic>
+            {
+                new { StudentName = "Maria Garcia", IHEPartner = "Cal State University, Fullerton", CredentialArea = "Multiple Subject", Status = "APPROVED", LastModified = DateTime.Now.AddDays(-1) },
+                new { StudentName = "James Wilson", IHEPartner = "UCLA", CredentialArea = "Single Subject - Mathematics", Status = "SUBMITTED", LastModified = DateTime.Now.AddDays(-3) },
+                new { StudentName = "Sarah Chen", IHEPartner = "Cal State University, Northridge", CredentialArea = "Education Specialist", Status = "APPROVED", LastModified = DateTime.Now.AddDays(-5) }
+            };
+        }
 
-                        <tr style="cursor: pointer;" onclick="window.location='@Url.Action("CompleteApplication", "LEAPortal", new { id = submission.ApplicationId })'">
-                            <td style="width: 20px;">
-                                <i class="mdi mdi-chevron-right" style="color: #999;"></i>
-                            </td>
-                            <td>
-                                <strong style="color: #1E3A5F;">@submission.IHEName</strong>
-                            </td>
-                            <td>
-                                <strong>@submission.TotalCandidates</strong>
-                            </td>
-                            <td>
-                                @if (draftCount > 0)
-                                {
-                                    <span class="badge badge-secondary">@draftCount</span>
-                                }
-                                else
-                                {
-                                    <span style="color: #ccc;">0</span>
-                                }
-                            </td>
-                            <td>
-                                @if (submittedCount > 0)
-                                {
-                                    <span class="badge badge-info">@submittedCount</span>
-                                }
-                                else
-                                {
-                                    <span style="color: #ccc;">0</span>
-                                }
-                            </td>
-                            <td>
-                                @if (approvedCount > 0)
-                                {
-                                    <span class="badge badge-success">@approvedCount</span>
-                                }
-                                else
-                                {
-                                    <span style="color: #ccc;">0</span>
-                                }
-                            </td>
-                            <td>@submission.LastModified.ToString("MM/dd/yyyy")</td>
+        @if (studentQueue.Any())
+        {
+            <div class="table-wrapper">
+                <table class="r4-table">
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>IHE Partner</th>
+                            <th>Credential Area</th>
+                            <th>Status</th>
+                            <th>Last Modified</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var student in studentQueue)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@student.StudentName</strong>
+                                </td>
+                                <td>@student.IHEPartner</td>
+                                <td>@student.CredentialArea</td>
+                                <td>
+                                    @if (student.Status == "SUBMITTED")
+                                    {
+                                        <span class="badge badge-info">Submitted</span>
+                                    }
+                                    else if (student.Status == "APPROVED")
+                                    {
+                                        <span class="badge badge-success">Approved</span>
+                                    }
+                                </td>
+                                <td>@student.LastModified.ToString("MM/dd/yyyy")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         }
         else
         {
-            <div style="text-align: center; padding: 3rem; color: #999;">
+            <div style="text-align: center; padding: 3rem; color: var(--gray-500);">
                 <i class="mdi mdi-file-document-outline" style="font-size: 4rem; display: block; margin-bottom: 1rem; opacity: 0.3;"></i>
-                <p style="font-size: 1.1rem; margin: 0; color: #666;">No submissions yet</p>
-                <small style="color: #999;">Your IHE partners will submit candidate lists that you will need to complete.</small>
+                <p style="font-size: 1.1rem; margin: 0; color: var(--gray-700);">No submissions yet</p>
+                <small style="color: var(--gray-500);">Your IHE partners will submit candidate lists that you will need to complete.</small>
             </div>
         }
     </div>
@@ -307,4 +289,98 @@
             console.log('LEA Portal loaded for: @Model.LEAName');
         });
     </script>
+
+    <style>
+
+        /* Action Items Styling */
+        .action-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem;
+            background: var(--white);
+            border: 2px solid var(--gray-300);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+        }
+
+        .action-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .action-item-urgent {
+            border-color: var(--danger);
+            background: var(--gray-50);
+        }
+
+        .action-item-normal {
+            border-color: var(--warning);
+            background: var(--gray-50);
+        }
+
+        .action-item:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .action-item-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .action-item-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background: var(--ctc-blue);
+            color: var(--white);
+            border-radius: 50%;
+            font-size: 1.5rem;
+        }
+
+        .action-item-details h5 {
+            margin: 0 0 0.5rem 0;
+            color: var(--ctc-blue);
+            font-size: 1.1rem;
+        }
+
+        .action-item-details p {
+            margin: 0;
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+
+        .action-item-due {
+            margin-top: 0.25rem !important;
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        .action-item-actions {
+            margin-left: 1rem;
+        }
+
+        @@media (max-width: 768px) {
+            .action-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .action-item-actions {
+                margin-left: 0;
+                margin-top: 1rem;
+                width: 100%;
+            }
+
+            .action-item-actions .r4-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
 }
