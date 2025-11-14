@@ -132,6 +132,17 @@ body {
     border-radius: 4px;
 }
 
+.logo-container a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.logo-container a:hover {
+    opacity: 0.8;
+}
+
 .logo-ca,
 .logo-ctc {
     height: 50px;
