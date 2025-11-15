@@ -58,7 +58,8 @@ public class LEAReport
     public string DocumentationUrl { get; set; } = string.Empty;
 
     // Report Status and Workflow
-    public string ReportStatus { get; set; } = string.Empty;  // "DRAFT", "SUBMITTED", "LOCKED", "REVISION_REQUESTED", "APPROVED"
+    // Status Values: DRAFT, SUBMITTED, UNDER_REVIEW, APPROVED, REVISION_REQUESTED, REJECTED
+    // (Consolidated from separate ReportStatus and Status fields)
     public bool IsLocked { get; set; }  // Lock after submission, unlock only if CTC requests revisions
     public DateTime? LockedDate { get; set; }
     public string LockedBy { get; set; } = string.Empty;
@@ -75,7 +76,7 @@ public class LEAReport
     public string SubmittedByEmail { get; set; } = string.Empty;
 
     // Review and Approval Tracking
-    public string Status { get; set; } = "SUBMITTED";  // SUBMITTED, UNDER_REVIEW, APPROVED, REVISIONS_REQUESTED
+    public string Status { get; set; } = "DRAFT";
     public string ReviewedBy { get; set; } = string.Empty;
     public DateTime? ReviewedDate { get; set; }
     public DateTime? ApprovedDate { get; set; }

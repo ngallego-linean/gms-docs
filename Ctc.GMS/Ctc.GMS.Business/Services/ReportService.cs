@@ -191,7 +191,7 @@ public class ReportService : IReportService
         var leaReports = GetLEAReports();
 
         var allStudents = _repository.GetApplications().SelectMany(a => a.Students).ToList();
-        var paidStudents = allStudents.Where(s => s.GAAStatus == "PAYMENT_COMPLETED").ToList();
+        var paidStudents = allStudents.Where(s => GMS.Business.Helpers.StatusHelper.IsDisbursedStatus(s.Status)).ToList();
 
         var submitted = iheReports.Count(r => r.Status == "SUBMITTED") + leaReports.Count(r => r.Status == "SUBMITTED");
         var underReview = iheReports.Count(r => r.Status == "UNDER_REVIEW") + leaReports.Count(r => r.Status == "UNDER_REVIEW");
@@ -204,8 +204,8 @@ public class ReportService : IReportService
         );
         var outstanding = paidStudents.Count(s => !reportedStudentIds.Contains(s.Id));
 
-        var totalReportsExpected = paidStudents.Count * 2; // IHE + LEA per student
-        var totalReportsSubmitted = iheReports.Count + leaReports.Count;
+        var totalReportsExpected = paidStudents.Count() * 2; // IHE + LEA per student
+        var totalReportsSubmitted = iheReports.Count() + leaReports.Count();
         var complianceRate = totalReportsExpected > 0 ? (double)totalReportsSubmitted / totalReportsExpected * 100 : 0;
 
         return new ReportMetrics
@@ -235,10 +235,10 @@ public class ReportService : IReportService
             var leaApplications = applications.Where(a => a.LEA.Id == lea.Id).ToList();
             var paidStudents = leaApplications
                 .SelectMany(a => a.Students)
-                .Where(s => s.GAAStatus == "PAYMENT_COMPLETED")
+                .Where(s => GMS.Business.Helpers.StatusHelper.IsDisbursedStatus(s.Status))
                 .ToList();
 
-            var reportsRequired = paidStudents.Count;
+            var reportsRequired = paidStudents.Count();
             var reportsSubmitted = leaReports.Count(r =>
                 paidStudents.Any(s => s.Id == r.StudentId));
 
@@ -321,16 +321,16 @@ public class ReportService : IReportService
             iheReports.Select(r => r.StudentId).Union(leaReports.Select(r => r.StudentId))
         );
 
-        var paidStudents = allStudents.Where(s => s.GAAStatus == "PAYMENT_COMPLETED").ToList();
+        var paidStudents = allStudents.Where(s => GMS.Business.Helpers.StatusHelper.IsDisbursedStatus(s.Status)).ToList();
         var reportedStudents = paidStudents.Where(s => reportedStudentIds.Contains(s.Id)).ToList();
 
         // Calculate program outcomes
         var completedPrograms = iheReports.Count(r => r.CompletionStatus == "COMPLETED");
-        var completionRate = iheReports.Count > 0 ? (double)completedPrograms / iheReports.Count * 100 : 0;
+        var completionRate = iheReports.Count() > 0 ? (double)completedPrograms / iheReports.Count() * 100 : 0;
 
         // Employment statistics
         var employed = leaReports.Count(r => r.EmploymentStatus == "FULL_TIME" || r.EmploymentStatus == "PART_TIME");
-        var employmentRate = leaReports.Count > 0 ? (double)employed / leaReports.Count * 100 : 0;
+        var employmentRate = leaReports.Count() > 0 ? (double)employed / leaReports.Count() * 100 : 0;
         var hiredInDistrict = leaReports.Count(r => r.HiredInDistrict);
         var hiredInDistrictRate = employed > 0 ? (double)hiredInDistrict / employed * 100 : 0;
 
@@ -351,10 +351,10 @@ public class ReportService : IReportService
 
         var analytics = new ReportAnalytics
         {
-            TotalCandidatesFunded = paidStudents.Count,
-            TotalCandidatesReported = reportedStudents.Count,
-            ReportingComplianceRate = paidStudents.Count > 0
-                ? (double)reportedStudents.Count / paidStudents.Count * 100
+            TotalCandidatesFunded = paidStudents.Count(),
+            TotalCandidatesReported = reportedStudents.Count(),
+            ReportingComplianceRate = paidStudents.Count() > 0
+                ? (double)reportedStudents.Count() / paidStudents.Count() * 100
                 : 0,
 
             ProgramCompletions = completedPrograms,
@@ -395,7 +395,7 @@ public class ReportService : IReportService
 
         foreach (var app in applications)
         {
-            var paidStudents = app.Students.Where(s => s.GAAStatus == "PAYMENT_COMPLETED").ToList();
+            var paidStudents = app.Students.Where(s => GMS.Business.Helpers.StatusHelper.IsDisbursedStatus(s.Status)).ToList();
             var unreportedStudents = paidStudents.Where(s => !reportedStudentIds.Contains(s.Id)).ToList();
 
             if (unreportedStudents.Any())
@@ -414,7 +414,7 @@ public class ReportService : IReportService
                     LEAName = app.LEA.Name,
                     IHEId = app.IHE.Id,
                     IHEName = app.IHE.Name,
-                    CandidatesPendingReport = unreportedStudents.Count,
+                    CandidatesPendingReport = unreportedStudents.Count(),
                     PaymentDate = paymentDate,
                     ReportingDeadline = deadline,
                     DaysOverdue = Math.Max(0, daysOverdue),

@@ -135,14 +135,7 @@ else
                                             }
                                         </td>
                                         <td>
-                                            @if (string.IsNullOrEmpty(student.GAAStatus))
-                                            {
-                                                <span class="badge badge-warning">PENDING</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge badge-success">@student.GAAStatus</span>
-                                            }
+                                            @await Html.PartialAsync("_StatusBadge", student.GAAStatus ?? "PENDING")
                                         </td>
                                         <td>
                                             <button type="button" class="r4-button r4-button-sm" onclick="generateSingleGAA(@student.StudentId, '@student.StudentName')">

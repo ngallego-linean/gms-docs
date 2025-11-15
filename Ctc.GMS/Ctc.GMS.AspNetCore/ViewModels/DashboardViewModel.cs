@@ -64,12 +64,12 @@ public class GrantCycleMetricsViewModel
 
 public class StatusCountsViewModel
 {
-    public int Draft { get; set; }
-    public int PendingLEA { get; set; }
-    public int Submitted { get; set; }
-    public int UnderReview { get; set; }
-    public int Approved { get; set; }
+    public int Submission { get; set; }
+    public int Review { get; set; }
+    public int Disbursement { get; set; }
+    public int Reporting { get; set; }
     public int Rejected { get; set; }
+    public int Complete { get; set; }
 }
 
 public class ActionItemViewModel

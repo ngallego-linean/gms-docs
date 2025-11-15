@@ -1,6 +1,7 @@
 using GMS.Data.Repositories;
 using GMS.DomainModel;
 using GMS.Business.DTOs;
+using GMS.Business.Helpers;
 
 namespace GMS.Business.Services;
 
@@ -49,15 +50,15 @@ public class GrantService : IGrantService
         var allStudents = applications.SelectMany(a => a.Students).ToList();
 
         var reservedAmount = allStudents
-            .Where(s => s.Status == "APPROVED" && string.IsNullOrEmpty(s.GAAStatus))
+            .Where(s => StatusHelper.IsReservedStatus(s.Status))
             .Sum(s => s.AwardAmount);
 
         var encumberedAmount = allStudents
-            .Where(s => !string.IsNullOrEmpty(s.GAAStatus) && s.GAAStatus != "PAYMENT_COMPLETED")
+            .Where(s => StatusHelper.IsEncumberedStatus(s.Status))
             .Sum(s => s.AwardAmount);
 
         var disbursedAmount = allStudents
-            .Where(s => s.GAAStatus == "PAYMENT_COMPLETED")
+            .Where(s => StatusHelper.IsDisbursedStatus(s.Status))
             .Sum(s => s.AwardAmount);
 
         var remainingAmount = cycle.ApproprietedAmount - reservedAmount - encumberedAmount - disbursedAmount;
@@ -80,12 +81,12 @@ public class GrantService : IGrantService
             ActivePartnerships = applications.Count,
             StatusCounts = new StatusCounts
             {
-                Draft = allStudents.Count(s => s.Status == "DRAFT"),
-                PendingLEA = allStudents.Count(s => s.Status == "PENDING_LEA"),
-                Submitted = allStudents.Count(s => s.Status == "SUBMITTED"),
-                UnderReview = allStudents.Count(s => s.Status == "UNDER_REVIEW"),
-                Approved = allStudents.Count(s => s.Status == "APPROVED"),
-                Rejected = allStudents.Count(s => s.Status == "REJECTED")
+                Submission = allStudents.Count(s => StatusHelper.GetWorkflowStage(s.Status) == StatusHelper.WorkflowStage.Submission),
+                Review = allStudents.Count(s => StatusHelper.GetWorkflowStage(s.Status) == StatusHelper.WorkflowStage.Review),
+                Disbursement = allStudents.Count(s => StatusHelper.GetWorkflowStage(s.Status) == StatusHelper.WorkflowStage.Disbursement),
+                Reporting = allStudents.Count(s => StatusHelper.GetWorkflowStage(s.Status) == StatusHelper.WorkflowStage.Reporting),
+                Rejected = allStudents.Count(s => StatusHelper.GetWorkflowStage(s.Status) == StatusHelper.WorkflowStage.Rejected),
+                Complete = allStudents.Count(s => s.Status == "REPORTS_APPROVED")
             }
         };
     }
@@ -309,7 +310,7 @@ public class GrantService : IGrantService
         return _repository.GetApplications()
             .Where(a => a.LEA.Id == leaId && a.GrantCycleId == grantCycleId)
             .SelectMany(a => a.Students)
-            .Where(s => s.Status == "APPROVED" || s.GAAStatus == "PAYMENT_COMPLETED")
+            .Where(s => StatusHelper.IsPayableStatus(s.Status))
             .OrderByDescending(s => s.ApprovedAt)
             .ToList();
     }
@@ -361,7 +362,7 @@ public class GrantService : IGrantService
                 PlacementQualityNotes = "Excellent candidate, very well prepared",
                 MentorTeacherName = "Dr. Susan Martinez",
                 MentorTeacherFeedback = "Outstanding student teacher, highly recommended",
-                ReportStatus = "SUBMITTED",
+                Status = "SUBMITTED",
                 IsLocked = true,
                 SubmittedDate = DateTime.Now.AddDays(-7),
                 SubmittedBy = "LEA Coordinator",
@@ -392,7 +393,7 @@ public class GrantService : IGrantService
                 JobTitle = "Middle School English Teacher",
                 PlacementQualityRating = 4,
                 MentorTeacherName = "Ms. Jennifer Lee",
-                ReportStatus = "APPROVED",
+                Status = "APPROVED",
                 IsLocked = true,
                 SubmittedDate = DateTime.Now.AddDays(-14),
                 SubmittedBy = "LEA Administrator",
@@ -432,7 +433,7 @@ public class GrantService : IGrantService
     public List<LEAReport> GetLEAReportsByStatus(int leaId, int grantCycleId, string status)
     {
         var reports = GetLEAReports(leaId, grantCycleId);
-        return reports.Where(r => r.ReportStatus == status).ToList();
+        return reports.Where(r => r.Status == status).ToList();
     }
 
     public LEAReport CreateOrUpdateLEAReport(LEAReport report)
@@ -474,7 +475,7 @@ public class GrantService : IGrantService
             // Create new
             report.Id = _mockReports.Any() ? _mockReports.Max(r => r.Id) + 1 : 1;
             report.CreatedAt = DateTime.UtcNow;
-            report.ReportStatus = "DRAFT";
+            report.Status = "DRAFT";
             report.IsLocked = false;
             _mockReports.Add(report);
             return report;
@@ -538,7 +539,7 @@ public class GrantService : IGrantService
         if (!isValid)
             throw new InvalidOperationException($"Report validation failed: {string.Join(", ", errors)}");
 
-        report.ReportStatus = "SUBMITTED";
+        report.Status = "SUBMITTED";
         report.SubmittedDate = DateTime.UtcNow;
         report.SubmittedBy = submittedBy;
         report.SubmittedByEmail = submittedByEmail;
@@ -556,7 +557,7 @@ public class GrantService : IGrantService
         report.IsLocked = true;
         report.LockedDate = DateTime.UtcNow;
         report.LockedBy = lockedBy;
-        report.ReportStatus = "LOCKED";
+        report.Status = "UNDER_REVIEW";
         report.LastModified = DateTime.UtcNow;
 
         return report;
@@ -571,7 +572,7 @@ public class GrantService : IGrantService
         report.IsLocked = false;
         report.LockedDate = null;
         report.LockedBy = string.Empty;
-        report.ReportStatus = "REVISION_REQUESTED";
+        report.Status = "REVISION_REQUESTED";
         report.CTCReviewer = ctcReviewer;
         report.CTCFeedback = feedback;
         report.CTCReviewDate = DateTime.UtcNow;
@@ -586,7 +587,7 @@ public class GrantService : IGrantService
         if (report == null)
             throw new ArgumentException($"Report {reportId} not found");
 
-        report.ReportStatus = "APPROVED";
+        report.Status = "APPROVED";
         report.CTCReviewer = ctcReviewer;
         report.CTCApprovalDate = DateTime.UtcNow;
         report.CTCReviewDate = DateTime.UtcNow;
@@ -603,7 +604,7 @@ public class GrantService : IGrantService
         var total = fundedStudents.Count;
 
         var reports = GetLEAReports(leaId, grantCycleId);
-        var submitted = reports.Count(r => r.ReportStatus == "SUBMITTED" || r.ReportStatus == "APPROVED");
+        var submitted = reports.Count(r => r.Status == "SUBMITTED" || r.Status == "APPROVED");
 
         var pending = total - submitted;
 

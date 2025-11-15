@@ -55,7 +55,8 @@ public class IHEReport
     public string DocumentationUrl { get; set; } = string.Empty;
 
     // Submission and Approval Workflow
-    public string Status { get; set; } = "DRAFT";  // DRAFT, SUBMITTED, APPROVED, REJECTED, REVISIONS_REQUESTED
+    // Status Values: DRAFT, SUBMITTED, UNDER_REVIEW, APPROVED, REVISION_REQUESTED, REJECTED
+    public string Status { get; set; } = "DRAFT";
     public DateTime? SubmittedDate { get; set; }
     public string SubmittedBy { get; set; } = string.Empty;
     public string SubmittedByEmail { get; set; } = string.Empty;

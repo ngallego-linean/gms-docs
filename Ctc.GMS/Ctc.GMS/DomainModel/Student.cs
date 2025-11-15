@@ -24,15 +24,57 @@ public class Student
     public string CountyCDSCode { get; set; } = string.Empty;
     public string SchoolCDSCode { get; set; } = string.Empty;
 
-    // Status and Award
-    public string Status { get; set; } = string.Empty;
+    // Comprehensive Status Tracking
+    // Replaces fragmented Status, GAAStatus, and ReportingStatus fields with unified lifecycle tracking
+    // Status Values:
+    //   Submission Phase: DRAFT, IHE_SUBMITTED, LEA_REVIEWING, LEA_APPROVED, CTC_SUBMITTED
+    //   Review Phase: CTC_REVIEWING, CTC_APPROVED, CTC_REJECTED, REVISION_REQUESTED
+    //   Disbursement Phase: GAA_PENDING, GAA_GENERATED, GAA_SIGNED, INVOICE_GENERATED,
+    //                       PAYMENT_AUTHORIZED, WARRANT_ISSUED, PAYMENT_COMPLETE
+    //   Reporting Phase: REPORTING_PENDING, REPORTING_PARTIAL, REPORTING_COMPLETE, REPORTS_APPROVED
+    public string Status { get; set; } = "DRAFT";
     public decimal AwardAmount { get; set; }
-    public string GAAStatus { get; set; } = string.Empty;
 
-    // Reporting Status
-    public string ReportingStatus { get; set; } = "NOT_STARTED";  // NOT_STARTED, IN_PROGRESS, SUBMITTED, APPROVED
+    // Last Action Tracking (for display and audit)
+    public DateTime? LastActionDate { get; set; }
+    public string LastActionBy { get; set; } = string.Empty;
+
+    // Reporting Tracking
     public int? CurrentReportingPeriodId { get; set; }
     public ReportingPeriod? CurrentReportingPeriod { get; set; }
+
+    // Computed property for display purposes - combines status with last action date
+    public string ApplicationStatus
+    {
+        get
+        {
+            var dateStr = LastActionDate?.ToString("MM/dd/yyyy") ?? "";
+            return Status switch
+            {
+                "DRAFT" => "Draft",
+                "IHE_SUBMITTED" => $"Submitted to LEA{(dateStr != "" ? $": {dateStr}" : "")}",
+                "LEA_REVIEWING" => $"LEA Reviewing{(dateStr != "" ? $": {dateStr}" : "")}",
+                "LEA_APPROVED" => $"LEA Approved{(dateStr != "" ? $": {dateStr}" : "")}",
+                "CTC_SUBMITTED" => $"Submitted to CTC{(dateStr != "" ? $": {dateStr}" : "")}",
+                "CTC_REVIEWING" => $"CTC Reviewing{(dateStr != "" ? $": {dateStr}" : "")}",
+                "CTC_APPROVED" => $"Approved by CTC{(dateStr != "" ? $": {dateStr}" : "")}",
+                "CTC_REJECTED" => $"Rejected{(dateStr != "" ? $": {dateStr}" : "")}",
+                "REVISION_REQUESTED" => $"Revision Requested{(dateStr != "" ? $": {dateStr}" : "")}",
+                "GAA_PENDING" => "Awaiting GAA Generation",
+                "GAA_GENERATED" => $"GAA Generated{(dateStr != "" ? $": {dateStr}" : "")}",
+                "GAA_SIGNED" => $"GAA Signed{(dateStr != "" ? $": {dateStr}" : "")}",
+                "INVOICE_GENERATED" => $"Invoice Generated{(dateStr != "" ? $": {dateStr}" : "")}",
+                "PAYMENT_AUTHORIZED" => $"Payment Authorized{(dateStr != "" ? $": {dateStr}" : "")}",
+                "WARRANT_ISSUED" => $"Warrant Issued{(dateStr != "" ? $": {dateStr}" : "")}",
+                "PAYMENT_COMPLETE" => $"Payment Complete{(dateStr != "" ? $": {dateStr}" : "")}",
+                "REPORTING_PENDING" => "Reports Pending",
+                "REPORTING_PARTIAL" => "Partial Reports Submitted",
+                "REPORTING_COMPLETE" => $"Reports Submitted{(dateStr != "" ? $": {dateStr}" : "")}",
+                "REPORTS_APPROVED" => $"Reports Approved{(dateStr != "" ? $": {dateStr}" : "")}",
+                _ => Status
+            };
+        }
+    }
 
     // Hours Tracking (from IHE Report requirements)
     public int? GrantProgramHours { get; set; }  // 500 required

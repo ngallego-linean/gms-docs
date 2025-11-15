@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Ctc.GMS.AspNetCore.ViewModels;
 using GMS.Business.Services;
+using GMS.Business.Helpers;
 
 namespace Ctc.GMS.Web.UI.Controllers;
 
@@ -36,15 +37,15 @@ public class GrantsTeamController : Controller
                 .ToList();
 
             var applicationsWithPending = cycleApplications
-                .Where(a => a.Students.Any(s => s.Status == "SUBMITTED"))
+                .Where(a => a.Students.Any(s => StatusHelper.GetWorkflowStage(s.Status) == StatusHelper.WorkflowStage.Review))
                 .Select(a => new ApplicationSummaryViewModel
                 {
                     Id = a.Id,
                     IHEName = a.IHE.Name,
                     LEAName = a.LEA.Name,
                     TotalStudents = a.Students.Count,
-                    ApprovedCount = a.Students.Count(s => s.Status == "APPROVED"),
-                    PendingCount = a.Students.Count(s => s.Status == "SUBMITTED"),
+                    ApprovedCount = a.Students.Count(s => StatusHelper.GetWorkflowStage(s.Status) == StatusHelper.WorkflowStage.Disbursement || StatusHelper.GetWorkflowStage(s.Status) == StatusHelper.WorkflowStage.Reporting || StatusHelper.GetWorkflowStage(s.Status) == StatusHelper.WorkflowStage.Complete),
+                    PendingCount = a.Students.Count(s => StatusHelper.GetWorkflowStage(s.Status) == StatusHelper.WorkflowStage.Review),
                     Status = a.Status,
                     LastModified = a.LastModified
                 })
@@ -89,7 +90,7 @@ public class GrantsTeamController : Controller
             {
                 GrantCycleId = grantCycleId,
                 GrantCycleName = grantCycle.Name,
-                PendingReviewCount = metrics.StatusCounts.Submitted,
+                PendingReviewCount = metrics.StatusCounts.Review,
                 Metrics = new GrantCycleMetricsViewModel
                 {
                     ApproprietedAmount = metrics.ApproprietedAmount,
@@ -105,12 +106,12 @@ public class GrantsTeamController : Controller
                     ActivePartnerships = metrics.ActivePartnerships,
                     StatusCounts = new StatusCountsViewModel
                     {
-                        Draft = metrics.StatusCounts.Draft,
-                        PendingLEA = metrics.StatusCounts.PendingLEA,
-                        Submitted = metrics.StatusCounts.Submitted,
-                        UnderReview = metrics.StatusCounts.UnderReview,
-                        Approved = metrics.StatusCounts.Approved,
-                        Rejected = metrics.StatusCounts.Rejected
+                        Submission = metrics.StatusCounts.Submission,
+                        Review = metrics.StatusCounts.Review,
+                        Disbursement = metrics.StatusCounts.Disbursement,
+                        Reporting = metrics.StatusCounts.Reporting,
+                        Rejected = metrics.StatusCounts.Rejected,
+                        Complete = metrics.StatusCounts.Complete
                     }
                 },
                 ApplicationsWithPendingStudents = applicationsWithPending,
@@ -142,15 +143,15 @@ public class GrantsTeamController : Controller
             var allApplications = _grantService.GetApplications();
             var applicationsWithPending = allApplications
                 .Where(a => a.GrantCycleId == grantCycleId)
-                .Where(a => a.Students.Any(s => s.Status == "SUBMITTED"))
+                .Where(a => a.Students.Any(s => StatusHelper.GetWorkflowStage(s.Status) == StatusHelper.WorkflowStage.Review))
                 .Select(a => new ApplicationSummaryViewModel
                 {
                     Id = a.Id,
                     IHEName = a.IHE.Name,
                     LEAName = a.LEA.Name,
                     TotalStudents = a.Students.Count,
-                    ApprovedCount = a.Students.Count(s => s.Status == "APPROVED"),
-                    PendingCount = a.Students.Count(s => s.Status == "SUBMITTED"),
+                    ApprovedCount = a.Students.Count(s => StatusHelper.GetWorkflowStage(s.Status) == StatusHelper.WorkflowStage.Disbursement || StatusHelper.GetWorkflowStage(s.Status) == StatusHelper.WorkflowStage.Reporting || StatusHelper.GetWorkflowStage(s.Status) == StatusHelper.WorkflowStage.Complete),
+                    PendingCount = a.Students.Count(s => StatusHelper.GetWorkflowStage(s.Status) == StatusHelper.WorkflowStage.Review),
                     Status = a.Status,
                     LastModified = a.LastModified
                 })
@@ -267,29 +268,29 @@ public class GrantsTeamController : Controller
                 GrantSubmissions = new GrantSubmissionsViewModel
                 {
                     TotalStudents = metrics.TotalStudents,
-                    StudentsApproved = metrics.StatusCounts.Approved,
-                    StudentsUnderReview = metrics.StatusCounts.Submitted,
-                    StudentsPendingLEA = metrics.StatusCounts.PendingLEA,
-                    StudentsDraft = metrics.StatusCounts.Draft,
+                    StudentsApproved = metrics.StatusCounts.Disbursement + metrics.StatusCounts.Reporting + metrics.StatusCounts.Complete,
+                    StudentsUnderReview = metrics.StatusCounts.Submission + metrics.StatusCounts.Review,
+                    StudentsPendingLEA = 0, // No longer tracked separately in workflow stages
+                    StudentsDraft = 0, // No longer tracked separately in workflow stages
                     StudentsRejected = metrics.StatusCounts.Rejected,
                     StatusCounts = new StatusCountsViewModel
                     {
-                        Draft = metrics.StatusCounts.Draft,
-                        PendingLEA = metrics.StatusCounts.PendingLEA,
-                        Submitted = metrics.StatusCounts.Submitted,
-                        UnderReview = metrics.StatusCounts.UnderReview,
-                        Approved = metrics.StatusCounts.Approved,
-                        Rejected = metrics.StatusCounts.Rejected
+                        Submission = metrics.StatusCounts.Submission,
+                        Review = metrics.StatusCounts.Review,
+                        Disbursement = metrics.StatusCounts.Disbursement,
+                        Reporting = metrics.StatusCounts.Reporting,
+                        Rejected = metrics.StatusCounts.Rejected,
+                        Complete = metrics.StatusCounts.Complete
                     }
                 },
                 ProgramOutcomes = new ProgramOutcomesViewModel
                 {
                     TotalHoursCompleted = 0, // TODO: Implement when hours tracking is added
                     AverageHoursPerStudent = 0,
-                    CompletionRate = metrics.StatusCounts.Approved > 0 && metrics.TotalStudents > 0
-                        ? (decimal)metrics.StatusCounts.Approved / metrics.TotalStudents
+                    CompletionRate = metrics.StatusCounts.Complete > 0 && metrics.TotalStudents > 0
+                        ? (decimal)metrics.StatusCounts.Complete / metrics.TotalStudents
                         : 0,
-                    StudentsCompleting = metrics.StatusCounts.Approved,
+                    StudentsCompleting = metrics.StatusCounts.Complete,
                     CredentialAreasServed = credentialBreakdown.Count,
                     CredentialBreakdown = credentialBreakdown
                 },
@@ -311,8 +312,8 @@ public class GrantsTeamController : Controller
                     ActiveGAAs = cycleApplications.Count(a => a.Status == "APPROVED"),
                     CompletedPayments = 0, // TODO: Calculate from payment records
                     TotalAmountPaid = metrics.DisbursedAmount,
-                    AveragePaymentAmount = metrics.StatusCounts.Approved > 0
-                        ? metrics.DisbursedAmount / metrics.StatusCounts.Approved
+                    AveragePaymentAmount = metrics.StatusCounts.Disbursement > 0
+                        ? metrics.DisbursedAmount / metrics.StatusCounts.Disbursement
                         : 0
                 },
                 PartnershipStatistics = new PartnershipStatisticsViewModel

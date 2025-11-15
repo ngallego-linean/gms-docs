@@ -69,7 +69,9 @@ public class MockRepository
                 GrantCycleId = 1,
                 IHE = _organizations.First(o => o.Id == 1),
                 LEA = _organizations.First(o => o.Id == 5),
-                Status = "ACTIVE",
+                Status = "DISBURSEMENT",  // Most students in disbursement/reporting phase
+                LastActionDate = new DateTime(2025, 10, 15),
+                LastActionBy = "CTC Grants Team",
                 CreatedAt = new DateTime(2025, 8, 15, 10, 0, 0),
                 CreatedBy = "coordinator@fullerton.edu",
                 LastModified = new DateTime(2025, 11, 3, 14, 30, 0),
@@ -81,7 +83,9 @@ public class MockRepository
                 GrantCycleId = 1,
                 IHE = _organizations.First(o => o.Id == 2),
                 LEA = _organizations.First(o => o.Id == 6),
-                Status = "ACTIVE",
+                Status = "DISBURSEMENT",  // Mixed disbursement and reporting
+                LastActionDate = new DateTime(2025, 10, 20),
+                LastActionBy = "CTC Grants Team",
                 CreatedAt = new DateTime(2025, 8, 20, 9, 0, 0),
                 CreatedBy = "grants@ucla.edu",
                 LastModified = new DateTime(2025, 11, 2, 16, 45, 0),
@@ -93,7 +97,9 @@ public class MockRepository
                 GrantCycleId = 1,
                 IHE = _organizations.First(o => o.Id == 3),
                 LEA = _organizations.First(o => o.Id == 7),
-                Status = "ACTIVE",
+                Status = "CTC_REVIEW",  // Some students still under review
+                LastActionDate = new DateTime(2025, 10, 28),
+                LastActionBy = "CTC Grants Team",
                 CreatedAt = new DateTime(2025, 9, 1, 11, 0, 0),
                 CreatedBy = "teacher.ed@sdsu.edu",
                 LastModified = new DateTime(2025, 10, 28, 10, 15, 0),
@@ -112,8 +118,10 @@ public class MockRepository
                 LastName = "Smith",
                 SEID = "12345678",
                 CredentialArea = "Multiple Subject",
-                Status = "SUBMITTED",
+                Status = "CTC_REVIEWING",
                 AwardAmount = 10000,
+                LastActionDate = new DateTime(2025, 10, 15),
+                LastActionBy = "CTC Grants Team",
                 CreatedAt = new DateTime(2025, 8, 16),
                 SubmittedAt = new DateTime(2025, 9, 1)
             },
@@ -125,9 +133,10 @@ public class MockRepository
                 LastName = "Garcia",
                 SEID = "23456789",
                 CredentialArea = "Single Subject - Mathematics",
-                Status = "APPROVED",
+                Status = "PAYMENT_COMPLETE",
                 AwardAmount = 10000,
-                GAAStatus = "PAYMENT_COMPLETED",
+                LastActionDate = new DateTime(2025, 10, 28),
+                LastActionBy = "CTC Fiscal Team",
                 CreatedAt = new DateTime(2025, 8, 17),
                 SubmittedAt = new DateTime(2025, 9, 2),
                 ApprovedAt = new DateTime(2025, 9, 15, 10, 30, 0)
@@ -140,10 +149,13 @@ public class MockRepository
                 LastName = "Chen",
                 SEID = "34567890",
                 CredentialArea = "Education Specialist",
-                Status = "SUBMITTED",
+                Status = "GAA_SIGNED",
                 AwardAmount = 10000,
+                LastActionDate = new DateTime(2025, 10, 20),
+                LastActionBy = "LEA Coordinator",
                 CreatedAt = new DateTime(2025, 8, 18),
-                SubmittedAt = new DateTime(2025, 9, 3)
+                SubmittedAt = new DateTime(2025, 9, 3),
+                ApprovedAt = new DateTime(2025, 9, 18, 14, 15, 0)
             }
         });
 
@@ -157,12 +169,13 @@ public class MockRepository
                 LastName = "Johnson",
                 SEID = "45678901",
                 CredentialArea = "Single Subject - English",
-                Status = "APPROVED",
+                Status = "REPORTING_PENDING",
                 AwardAmount = 10000,
+                LastActionDate = new DateTime(2025, 11, 1),
+                LastActionBy = "CTC Fiscal Team",
                 CreatedAt = new DateTime(2025, 8, 21),
                 SubmittedAt = new DateTime(2025, 9, 4),
-                ApprovedAt = new DateTime(2025, 9, 20, 14, 15, 0),
-                GAAStatus = "PAYMENT_COMPLETED"
+                ApprovedAt = new DateTime(2025, 9, 20, 14, 15, 0)
             },
             new Student
             {
@@ -172,19 +185,63 @@ public class MockRepository
                 LastName = "Brown",
                 SEID = "56789012",
                 CredentialArea = "Multiple Subject",
-                Status = "SUBMITTED",
+                Status = "INVOICE_GENERATED",
                 AwardAmount = 10000,
+                LastActionDate = new DateTime(2025, 10, 25),
+                LastActionBy = "CTC Fiscal Team",
                 CreatedAt = new DateTime(2025, 8, 22),
-                SubmittedAt = new DateTime(2025, 9, 5)
+                SubmittedAt = new DateTime(2025, 9, 5),
+                ApprovedAt = new DateTime(2025, 9, 22, 11, 30, 0)
             }
         });
 
-        // Add more students to show budget utilization (94% used)
-        // Total budget: $25M, want to show ~$23.5M used
-        // Add 1170 more students at $20k each = $23.4M
+        // Add more students to show budget utilization and workflow distribution
+        // Total budget: $25M, distribute students across lifecycle stages
         var additionalStudentId = 6;
         for (int i = 0; i < 390; i++)
         {
+            // Distribute students across workflow stages:
+            // 5% CTC_REVIEWING, 10% CTC_APPROVED/GAA stages, 40% disbursement stages, 35% reporting, 10% complete
+            string status;
+            DateTime? lastActionDate;
+            string lastActionBy;
+
+            if (i % 20 == 0)  // 5% - CTC Review
+            {
+                status = "CTC_REVIEWING";
+                lastActionDate = new DateTime(2025, 10, 1).AddDays(i % 30);
+                lastActionBy = "CTC Grants Team";
+            }
+            else if (i % 10 < 2)  // 10% - GAA stages
+            {
+                status = i % 2 == 0 ? "GAA_PENDING" : "GAA_GENERATED";
+                lastActionDate = new DateTime(2025, 10, 5).AddDays(i % 30);
+                lastActionBy = "CTC Grants Team";
+            }
+            else if (i % 10 < 6)  // 40% - Disbursement stages
+            {
+                status = (i % 4) switch {
+                    0 => "GAA_SIGNED",
+                    1 => "INVOICE_GENERATED",
+                    2 => "PAYMENT_AUTHORIZED",
+                    _ => "WARRANT_ISSUED"
+                };
+                lastActionDate = new DateTime(2025, 10, 10).AddDays(i % 30);
+                lastActionBy = i % 2 == 0 ? "CTC Fiscal Team" : "LEA Coordinator";
+            }
+            else if (i % 10 < 9)  // 30% - Payment complete / Reporting
+            {
+                status = i % 3 == 0 ? "PAYMENT_COMPLETE" : "REPORTING_PENDING";
+                lastActionDate = new DateTime(2025, 10, 20).AddDays(i % 30);
+                lastActionBy = "CTC Fiscal Team";
+            }
+            else  // 10% - Reports submitted/approved
+            {
+                status = i % 2 == 0 ? "REPORTING_COMPLETE" : "REPORTS_APPROVED";
+                lastActionDate = new DateTime(2025, 11, 1).AddDays(i % 10);
+                lastActionBy = i % 2 == 0 ? "IHE Coordinator" : "CTC Grants Team";
+            }
+
             applications[0].Students.Add(new Student
             {
                 Id = additionalStudentId++,
@@ -193,17 +250,59 @@ public class MockRepository
                 LastName = $"Test{i}",
                 SEID = $"{10000000 + i}",
                 CredentialArea = i % 3 == 0 ? "Multiple Subject" : i % 3 == 1 ? "Single Subject" : "Education Specialist",
-                Status = "APPROVED",
+                Status = status,
                 AwardAmount = 10000,
+                LastActionDate = lastActionDate,
+                LastActionBy = lastActionBy,
                 CreatedAt = new DateTime(2025, 9, 1).AddDays(i % 30),
                 SubmittedAt = new DateTime(2025, 9, 15).AddDays(i % 30),
-                ApprovedAt = new DateTime(2025, 10, 1).AddDays(i % 30).AddHours(i % 24),
-                GAAStatus = i % 3 == 0 ? "PAYMENT_COMPLETED" : i % 3 == 1 ? "GAA_SIGNED" : null
+                ApprovedAt = status != "CTC_REVIEWING" ? new DateTime(2025, 10, 1).AddDays(i % 30).AddHours(i % 24) : null
             });
         }
 
         for (int i = 0; i < 390; i++)
         {
+            // Similar distribution for application 2
+            string status;
+            DateTime? lastActionDate;
+            string lastActionBy;
+
+            if (i % 20 == 0)  // 5% - CTC Review
+            {
+                status = "CTC_REVIEWING";
+                lastActionDate = new DateTime(2025, 10, 2).AddDays(i % 30);
+                lastActionBy = "CTC Grants Team";
+            }
+            else if (i % 10 < 2)  // 10% - GAA stages
+            {
+                status = i % 2 == 0 ? "GAA_PENDING" : "GAA_SIGNED";
+                lastActionDate = new DateTime(2025, 10, 8).AddDays(i % 30);
+                lastActionBy = i % 2 == 0 ? "CTC Grants Team" : "LEA Coordinator";
+            }
+            else if (i % 10 < 6)  // 40% - Disbursement stages
+            {
+                status = (i % 4) switch {
+                    0 => "GAA_SIGNED",
+                    1 => "INVOICE_GENERATED",
+                    2 => "WARRANT_ISSUED",
+                    _ => "PAYMENT_AUTHORIZED"
+                };
+                lastActionDate = new DateTime(2025, 10, 15).AddDays(i % 30);
+                lastActionBy = "CTC Fiscal Team";
+            }
+            else if (i % 10 < 9)  // 30% - Payment complete / Reporting
+            {
+                status = i % 3 == 0 ? "PAYMENT_COMPLETE" : "REPORTING_PENDING";
+                lastActionDate = new DateTime(2025, 10, 25).AddDays(i % 30);
+                lastActionBy = "CTC Fiscal Team";
+            }
+            else  // 10% - Reports submitted/approved
+            {
+                status = i % 2 == 0 ? "REPORTING_PARTIAL" : "REPORTING_COMPLETE";
+                lastActionDate = new DateTime(2025, 11, 2).AddDays(i % 10);
+                lastActionBy = "LEA Coordinator";
+            }
+
             applications[1].Students.Add(new Student
             {
                 Id = additionalStudentId++,
@@ -212,17 +311,61 @@ public class MockRepository
                 LastName = $"Test{i + 390}",
                 SEID = $"{10000390 + i}",
                 CredentialArea = i % 3 == 0 ? "Multiple Subject" : i % 3 == 1 ? "Single Subject" : "Education Specialist",
-                Status = "APPROVED",
+                Status = status,
                 AwardAmount = 10000,
+                LastActionDate = lastActionDate,
+                LastActionBy = lastActionBy,
                 CreatedAt = new DateTime(2025, 9, 1).AddDays(i % 30),
                 SubmittedAt = new DateTime(2025, 9, 15).AddDays(i % 30),
-                ApprovedAt = new DateTime(2025, 10, 1).AddDays(i % 30).AddHours((i + 8) % 24),
-                GAAStatus = i % 3 == 0 ? "PAYMENT_COMPLETED" : i % 3 == 1 ? "GAA_SIGNED" : null
+                ApprovedAt = status != "CTC_REVIEWING" ? new DateTime(2025, 10, 1).AddDays(i % 30).AddHours((i + 8) % 24) : null
             });
         }
 
         for (int i = 0; i < 390; i++)
         {
+            // Application 3 has more students in earlier stages (CTC_REVIEW application status)
+            string status;
+            DateTime? lastActionDate;
+            string lastActionBy;
+
+            if (i % 5 == 0)  // 20% - CTC Review
+            {
+                status = i % 2 == 0 ? "CTC_REVIEWING" : "CTC_SUBMITTED";
+                lastActionDate = new DateTime(2025, 10, 20).AddDays(i % 30);
+                lastActionBy = i % 2 == 0 ? "CTC Grants Team" : "LEA Coordinator";
+            }
+            else if (i % 10 < 3)  // 10% - Just approved / GAA stages
+            {
+                status = (i % 3) switch {
+                    0 => "CTC_APPROVED",
+                    1 => "GAA_PENDING",
+                    _ => "GAA_GENERATED"
+                };
+                lastActionDate = new DateTime(2025, 10, 25).AddDays(i % 30);
+                lastActionBy = "CTC Grants Team";
+            }
+            else if (i % 10 < 7)  // 40% - Disbursement stages
+            {
+                status = (i % 4) switch {
+                    0 => "GAA_SIGNED",
+                    1 => "INVOICE_GENERATED",
+                    2 => "PAYMENT_AUTHORIZED",
+                    _ => "WARRANT_ISSUED"
+                };
+                lastActionDate = new DateTime(2025, 10, 28).AddDays(i % 30);
+                lastActionBy = i % 2 == 0 ? "CTC Fiscal Team" : "LEA Coordinator";
+            }
+            else  // 30% - Payment complete / Early reporting
+            {
+                status = (i % 3) switch {
+                    0 => "PAYMENT_COMPLETE",
+                    1 => "REPORTING_PENDING",
+                    _ => "REPORTING_PARTIAL"
+                };
+                lastActionDate = new DateTime(2025, 11, 5).AddDays(i % 10);
+                lastActionBy = "CTC Fiscal Team";
+            }
+
             applications[2].Students.Add(new Student
             {
                 Id = additionalStudentId++,
@@ -231,12 +374,14 @@ public class MockRepository
                 LastName = $"Test{i + 780}",
                 SEID = $"{10000780 + i}",
                 CredentialArea = i % 3 == 0 ? "Multiple Subject" : i % 3 == 1 ? "Single Subject" : "Education Specialist",
-                Status = "APPROVED",
+                Status = status,
                 AwardAmount = 10000,
+                LastActionDate = lastActionDate,
+                LastActionBy = lastActionBy,
                 CreatedAt = new DateTime(2025, 9, 1).AddDays(i % 30),
                 SubmittedAt = new DateTime(2025, 9, 15).AddDays(i % 30),
-                ApprovedAt = new DateTime(2025, 10, 1).AddDays(i % 30).AddHours((i + 16) % 24),
-                GAAStatus = i % 3 == 0 ? "PAYMENT_COMPLETED" : i % 3 == 1 ? "GAA_SIGNED" : null
+                ApprovedAt = (status != "CTC_REVIEWING" && status != "CTC_SUBMITTED") ?
+                    new DateTime(2025, 10, 1).AddDays(i % 30).AddHours((i + 16) % 24) : null
             });
         }
 
@@ -247,8 +392,8 @@ public class MockRepository
     {
         var payments = new List<Payment>();
 
-        // Create payments for approved students (showing various scenarios)
-        // Student 2 (Maria Garcia) - Has both reports (COMPLIANT)
+        // Create payments for approved students (showing various payment lifecycle stages)
+        // Student 2 (Maria Garcia) - Payment complete, has both reports (COMPLIANT)
         payments.Add(new Payment
         {
             Id = 1,
@@ -271,7 +416,7 @@ public class MockRepository
             ModifiedBy = "fiscal@ctc.ca.gov"
         });
 
-        // Student 4 (Sarah Johnson) - Has IHE report but missing LEA report (WARNING)
+        // Student 4 (Sarah Johnson) - Warrant issued, awaiting distribution (Has IHE report but missing LEA report - WARNING)
         payments.Add(new Payment
         {
             Id = 2,
@@ -285,25 +430,66 @@ public class MockRepository
             LEAAddress = "4100 Normal St, San Diego, CA 92103",
             WarrantNumber = "W-2025-002",
             WarrantDate = new DateTime(2025, 10, 1),
-            ActualPaymentAmount = 10000,
-            ActualPaymentDate = new DateTime(2025, 10, 1),
-            Status = "COMPLETED",
+            ActualPaymentAmount = null,
+            ActualPaymentDate = null,
+            Status = "WARRANT_ISSUED",
             CreatedAt = new DateTime(2025, 9, 15),
             CreatedBy = "fiscal@ctc.ca.gov",
             LastModified = new DateTime(2025, 10, 1),
             ModifiedBy = "fiscal@ctc.ca.gov"
         });
 
-        // Add 20 more payments with varying report compliance
+        // Add 20 more payments with varying payment lifecycle stages
+        // Distribution: 15% AUTHORIZED, 20% INVOICE_GENERATED, 25% WARRANT_ISSUED, 40% COMPLETED
         for (int i = 0; i < 20; i++)
         {
+            string status;
+            string warrantNumber = "";
+            DateTime? warrantDate = null;
+            decimal? actualPaymentAmount = null;
+            DateTime? actualPaymentDate = null;
+            DateTime? lastModified;
+            string invoiceNumber = "";
+
+            // Determine status and associated fields based on distribution
+            if (i < 3)  // 15% - AUTHORIZED (no invoice yet)
+            {
+                status = "AUTHORIZED";
+                invoiceNumber = "";
+                lastModified = new DateTime(2025, 9, 1).AddDays(i);
+            }
+            else if (i < 7)  // 20% - INVOICE_GENERATED (invoice created, no warrant)
+            {
+                status = "INVOICE_GENERATED";
+                invoiceNumber = $"INV-{(003 + i):D3}";
+                lastModified = new DateTime(2025, 9, 5).AddDays(i);
+            }
+            else if (i < 12)  // 25% - WARRANT_ISSUED (warrant issued, not distributed)
+            {
+                status = "WARRANT_ISSUED";
+                invoiceNumber = $"INV-{(003 + i):D3}";
+                warrantNumber = $"W-2025-{(003 + i):D3}";
+                warrantDate = new DateTime(2025, 9, 10).AddDays(i);
+                lastModified = new DateTime(2025, 9, 10).AddDays(i);
+            }
+            else  // 40% - COMPLETED (payment distributed)
+            {
+                status = "COMPLETED";
+                invoiceNumber = $"INV-{(003 + i):D3}";
+                warrantNumber = $"W-2025-{(003 + i):D3}";
+                warrantDate = new DateTime(2025, 9, 15).AddDays(i);
+                actualPaymentAmount = 10000;
+                actualPaymentDate = new DateTime(2025, 9, 15).AddDays(i);
+                lastModified = new DateTime(2025, 9, 15).AddDays(i);
+            }
+
             payments.Add(new Payment
             {
                 Id = 3 + i,
                 StudentId = 100 + i,
                 ApplicationId = (i % 3) + 1,
                 PONumber = $"PO-2025-{(003 + i):D3}",
-                InvoiceNumber = $"INV-{(003 + i):D3}",
+                InvoiceNumber = invoiceNumber,
                 AuthorizedAmount = 10000,
                 AuthorizationDate = new DateTime(2025, 9, 1).AddDays(i),
                 LEAName = i % 3 == 0 ? "Los Angeles Unified School District" :
@@ -312,14 +498,14 @@ public class MockRepository
                 LEAAddress = i % 3 == 0 ? "333 S. Beaudry Ave, Los Angeles, CA 90017" :
                             i % 3 == 1 ? "4100 Normal St, San Diego, CA 92103" :
                             "2309 Tulare St, Fresno, CA 93721",
-                WarrantNumber = $"W-2025-{(003 + i):D3}",
-                WarrantDate = new DateTime(2025, 9, 15).AddDays(i),
-                ActualPaymentAmount = 10000,
-                ActualPaymentDate = new DateTime(2025, 9, 15).AddDays(i),
-                Status = "COMPLETED",
+                WarrantNumber = warrantNumber,
+                WarrantDate = warrantDate,
+                ActualPaymentAmount = actualPaymentAmount,
+                ActualPaymentDate = actualPaymentDate,
+                Status = status,
                 CreatedAt = new DateTime(2025, 9, 1).AddDays(i),
                 CreatedBy = "fiscal@ctc.ca.gov",
-                LastModified = new DateTime(2025, 9, 15).AddDays(i),
+                LastModified = lastModified,
                 ModifiedBy = "fiscal@ctc.ca.gov"
             });
         }
@@ -350,6 +536,7 @@ public class MockRepository
             HireDate = new DateTime(2025, 8, 1),
             JobTitle = "Elementary School Teacher",
             SchoolSite = "Washington Elementary School",
+            Status = "SUBMITTED",
             SubmittedDate = new DateTime(2025, 11, 1),
             SubmittedBy = "Jane Smith",
             SubmittedByEmail = "jsmith@lausd.net",
@@ -358,6 +545,7 @@ public class MockRepository
         });
 
         // Add reports for ~60% of other payments (showing partial compliance)
+        // Status distribution: 70% SUBMITTED, 30% APPROVED
         for (int i = 0; i < 12; i++)
         {
             reports.Add(new LEAReport
@@ -377,6 +565,7 @@ public class MockRepository
                 HireDate = i % 3 != 0 ? new DateTime(2025, 8, 1).AddDays(i) : null,
                 JobTitle = i % 3 == 1 ? "Middle School Teacher" : i % 3 == 2 ? "High School Teacher" : "",
                 SchoolSite = i % 3 != 0 ? $"School Site {i}" : "",
+                Status = i % 10 < 7 ? "SUBMITTED" : "APPROVED",
                 SubmittedDate = new DateTime(2025, 10, 20).AddDays(i),
                 SubmittedBy = "LEA Coordinator",
                 SubmittedByEmail = $"coordinator{i}@district.edu",
@@ -406,6 +595,7 @@ public class MockRepository
             Met500Hours = true,
             CredentialProgramHours = 650,
             Met600Hours = true,
+            Status = "SUBMITTED",
             SubmittedDate = new DateTime(2025, 10, 25),
             SubmittedBy = "Dr. John Davis",
             SubmittedByEmail = "jdavis@fullerton.edu",
@@ -427,6 +617,7 @@ public class MockRepository
             Met500Hours = true,
             CredentialProgramHours = 630,
             Met600Hours = true,
+            Status = "SUBMITTED",
             SubmittedDate = new DateTime(2025, 10, 28),
             SubmittedBy = "Dr. Sarah Williams",
             SubmittedByEmail = "swilliams@ucla.edu",
@@ -435,6 +626,7 @@ public class MockRepository
         });
 
         // Add reports for ~70% of other payments (showing higher IHE compliance than LEA)
+        // Status distribution: 60% SUBMITTED, 40% APPROVED
         for (int i = 0; i < 15; i++)
         {
             reports.Add(new IHEReport
@@ -452,6 +644,7 @@ public class MockRepository
                 Met500Hours = (480 + (i * 10)) >= 500,
                 CredentialProgramHours = 580 + (i * 10),
                 Met600Hours = (580 + (i * 10)) >= 600,
+                Status = i % 10 < 6 ? "SUBMITTED" : "APPROVED",
                 SubmittedDate = new DateTime(2025, 10, 15).AddDays(i),
                 SubmittedBy = "IHE Coordinator",
                 SubmittedByEmail = $"coordinator{i}@university.edu",

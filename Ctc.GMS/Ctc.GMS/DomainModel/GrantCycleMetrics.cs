@@ -20,14 +20,14 @@ public class GrantCycleMetrics
 }
 
 /// <summary>
-/// Student status counts for reporting
+/// Student status counts for reporting - grouped by workflow stage
 /// </summary>
 public class StatusCounts
 {
-    public int Draft { get; set; }
-    public int PendingLEA { get; set; }
-    public int Submitted { get; set; }
-    public int UnderReview { get; set; }
-    public int Approved { get; set; }
-    public int Rejected { get; set; }
+    public int Submission { get; set; }     // DRAFT through CTC_SUBMITTED
+    public int Review { get; set; }         // CTC_REVIEWING
+    public int Disbursement { get; set; }   // CTC_APPROVED through PAYMENT_COMPLETE
+    public int Reporting { get; set; }      // REPORTING_PENDING through REPORTS_APPROVED
+    public int Rejected { get; set; }       // CTC_REJECTED, REVISION_REQUESTED
+    public int Complete { get; set; }       // REPORTS_APPROVED (final state)
 }

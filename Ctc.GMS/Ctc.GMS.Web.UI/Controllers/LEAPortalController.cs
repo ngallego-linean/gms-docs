@@ -331,7 +331,7 @@ public class LEAPortalController : Controller
                     AwardAmount = s.AwardAmount,
                     ApprovedDate = s.ApprovedAt,
                     HasReport = true,
-                    ReportStatus = r.ReportStatus,
+                    ReportStatus = r.Status,
                     ReportSubmittedDate = r.SubmittedDate
                 })
                 .ToList();
@@ -391,7 +391,7 @@ public class LEAPortalController : Controller
                     ApprovedDate = s.ApprovedAt,
                     Cohort = s.ApprovedAt?.ToString("MMMM yyyy") ?? "Unknown",
                     HasReport = report != null,
-                    ReportStatus = report?.ReportStatus ?? "PENDING",
+                    ReportStatus = report?.Status ?? "PENDING",
                     ReportSubmittedDate = report?.SubmittedDate
                 };
             }).ToList();
@@ -466,7 +466,7 @@ public class LEAPortalController : Controller
                 AwardAmount = student.AwardAmount,
                 IHEName = application.IHE.Name,
                 ApprovedDate = student.ApprovedAt,
-                ReportStatus = existingReport?.ReportStatus ?? "DRAFT",
+                ReportStatus = existingReport?.Status ?? "DRAFT",
                 IsLocked = existingReport?.IsLocked ?? false,
                 CTCFeedback = existingReport?.CTCFeedback
             };
@@ -643,7 +643,7 @@ public class LEAPortalController : Controller
 
             // Filter to only submitted/approved reports
             var submittedReports = allReports
-                .Where(r => r.ReportStatus == "SUBMITTED" || r.ReportStatus == "APPROVED" || r.ReportStatus == "REVISION_REQUESTED")
+                .Where(r => r.Status == "SUBMITTED" || r.Status == "APPROVED" || r.Status == "REVISION_REQUESTED")
                 .ToList();
 
             var reports = submittedReports
@@ -664,7 +664,7 @@ public class LEAPortalController : Controller
                     AwardAmount = x.Student.AwardAmount,
                     ApprovedDate = x.Student.ApprovedAt,
                     HasReport = true,
-                    ReportStatus = x.Report.ReportStatus,
+                    ReportStatus = x.Report.Status,
                     ReportSubmittedDate = x.Report.SubmittedDate
                 })
                 .ToList();

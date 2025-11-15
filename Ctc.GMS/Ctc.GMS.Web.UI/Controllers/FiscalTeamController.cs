@@ -43,7 +43,7 @@ public class FiscalTeamController : Controller
 
             var studentsNeedingGAA = cycleApplications
                 .SelectMany(a => a.Students)
-                .Where(s => s.Status == "APPROVED" && string.IsNullOrEmpty(s.GAAStatus))
+                .Where(s => s.Status == "CTC_APPROVED")
                 .Count();
 
             // Calculate disbursement groups (mock: ~10 students per group)
@@ -132,12 +132,12 @@ public class FiscalTeamController : Controller
                     ActivePartnerships = metrics.ActivePartnerships,
                     StatusCounts = new StatusCountsViewModel
                     {
-                        Draft = metrics.StatusCounts.Draft,
-                        PendingLEA = metrics.StatusCounts.PendingLEA,
-                        Submitted = metrics.StatusCounts.Submitted,
-                        UnderReview = metrics.StatusCounts.UnderReview,
-                        Approved = metrics.StatusCounts.Approved,
-                        Rejected = metrics.StatusCounts.Rejected
+                        Submission = metrics.StatusCounts.Submission,
+                        Review = metrics.StatusCounts.Review,
+                        Disbursement = metrics.StatusCounts.Disbursement,
+                        Reporting = metrics.StatusCounts.Reporting,
+                        Rejected = metrics.StatusCounts.Rejected,
+                        Complete = metrics.StatusCounts.Complete
                     }
                 },
                 ApplicationsWithPendingStudents = applicationsWithPendingStudents,
@@ -177,7 +177,7 @@ public class FiscalTeamController : Controller
                     Application = a,
                     Student = s
                 }))
-                .Where(x => x.Student.Status == "APPROVED" && string.IsNullOrEmpty(x.Student.GAAStatus))
+                .Where(x => x.Student.Status == "CTC_APPROVED")
                 .GroupBy(x => new
                 {
                     LEA = x.Application.LEA.Name,
@@ -190,7 +190,7 @@ public class FiscalTeamController : Controller
                     SubmissionMonth = g.Key.Month,
                     StudentCount = g.Count(),
                     TotalAmount = g.Sum(x => x.Student.AwardAmount),
-                    GAAStatus = "PENDING",
+                    GAAStatus = "GAA_PENDING",
                     Students = g.Select(x => new StudentGAAViewModel
                     {
                         StudentId = x.Student.Id,
@@ -200,7 +200,7 @@ public class FiscalTeamController : Controller
                         LEAName = x.Application.LEA.Name,
                         CredentialArea = x.Student.CredentialArea,
                         AwardAmount = x.Student.AwardAmount,
-                        GAAStatus = x.Student.GAAStatus,
+                        GAAStatus = x.Student.Status,
                         ApprovedDate = x.Student.SubmittedAt
                     }).ToList()
                 })
@@ -343,7 +343,7 @@ public class FiscalTeamController : Controller
                 LEAName = x.Application.LEA.Name,
                 CredentialArea = x.Student.CredentialArea,
                 AwardAmount = x.Student.AwardAmount,
-                GAAStatus = "SIGNED"
+                GAAStatus = "GAA_SIGNED"
             })
             .ToList();
 
@@ -427,7 +427,7 @@ public class FiscalTeamController : Controller
                     LEAName = x.Application.LEA.Name,
                     CredentialArea = x.Student.CredentialArea,
                     AwardAmount = x.Student.AwardAmount,
-                    GAAStatus = "SIGNED"
+                    GAAStatus = "GAA_SIGNED"
                 })
                 .ToList();
             }

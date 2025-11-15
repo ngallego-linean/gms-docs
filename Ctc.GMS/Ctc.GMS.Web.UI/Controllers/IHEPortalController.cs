@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Ctc.GMS.AspNetCore.ViewModels;
 using GMS.Business.Services;
+using GMS.Business.Helpers;
 using GMS.Data.Repositories;
 using GMS.DomainModel;
 
@@ -63,13 +64,13 @@ public class IHEPortalController : Controller
 
             // Get reporting metrics
             var allStudents = iheApplications.SelectMany(a => a.Students).ToList();
-            var fundedStudents = allStudents.Where(s => s.GAAStatus == "PAYMENT_COMPLETED").ToList();
+            var fundedStudents = allStudents.Where(s => StatusHelper.IsDisbursedStatus(s.Status)).ToList();
             var activeReportingPeriod = _repository.GetReportingPeriods(grantCycleId)
                 .FirstOrDefault(rp => rp.IsActive);
 
-            var reportsNotStarted = fundedStudents.Count(s => s.ReportingStatus == "NOT_STARTED");
-            var reportsInProgress = fundedStudents.Count(s => s.ReportingStatus == "IN_PROGRESS");
-            var reportsSubmitted = fundedStudents.Count(s => s.ReportingStatus == "SUBMITTED");
+            var reportsNotStarted = fundedStudents.Count(s => s.Status == "PAYMENT_COMPLETE");
+            var reportsInProgress = fundedStudents.Count(s => s.Status == "REPORTING_PENDING" || s.Status == "REPORTING_PARTIAL");
+            var reportsSubmitted = fundedStudents.Count(s => s.Status == "REPORTING_COMPLETE" || s.Status == "REPORTS_APPROVED");
 
             var reportingAlerts = new List<ReportingAlertViewModel>();
             if (activeReportingPeriod != null && reportsNotStarted > 0)
@@ -88,7 +89,7 @@ public class IHEPortalController : Controller
             }
 
             // Add action item for reports if there are funded candidates
-            if (fundedStudents.Count > 0 && (reportsNotStarted > 0 || reportsInProgress > 0))
+            if (fundedStudents.Count() > 0 && (reportsNotStarted > 0 || reportsInProgress > 0))
             {
                 actionItems.Add(new ActionItemViewModel
                 {
@@ -132,7 +133,7 @@ public class IHEPortalController : Controller
                 ActionItems = actionItems,
 
                 // Post-Payment Reporting Metrics
-                FundedCandidatesCount = fundedStudents.Count,
+                FundedCandidatesCount = fundedStudents.Count(),
                 ReportsDue = reportsNotStarted + reportsInProgress,
                 ReportsInProgress = reportsInProgress,
                 ReportsSubmitted = reportsSubmitted,
@@ -288,7 +289,7 @@ public class IHEPortalController : Controller
                 .ToList();
 
             var allStudents = allApplications.SelectMany(a => a.Students).ToList();
-            var fundedStudents = allStudents.Where(s => s.GAAStatus == "PAYMENT_COMPLETED").ToList();
+            var fundedStudents = allStudents.Where(s => StatusHelper.IsPayableStatus(s.Status)).ToList();
 
             // Apply filters
             if (filters != null)
@@ -300,7 +301,7 @@ public class IHEPortalController : Controller
                     fundedStudents = fundedStudents.Where(s => allApplications.First(a => a.Id == s.ApplicationId).LEA.Id == filters.LEAId.Value).ToList();
 
                 if (!string.IsNullOrEmpty(filters.ReportingStatus))
-                    fundedStudents = fundedStudents.Where(s => s.ReportingStatus == filters.ReportingStatus).ToList();
+                    fundedStudents = fundedStudents.Where(s => s.Status == filters.ReportingStatus).ToList();
             }
 
             var activeReportingPeriod = _repository.GetReportingPeriods(grantCycleId).FirstOrDefault(rp => rp.IsActive);
@@ -325,14 +326,14 @@ public class IHEPortalController : Controller
                         LEAName = app.LEA.Name,
                         CredentialArea = s.CredentialArea,
                         AwardAmount = s.AwardAmount,
-                        PaymentStatus = s.GAAStatus ?? "",
-                        ReportingStatus = s.ReportingStatus,
+                        PaymentStatus = StatusHelper.GetDisplayText(s.Status),
+                        ReportingStatus = s.ApplicationStatus,
                         LastReportDate = report?.LastModified,
-                        IsReportOverdue = activeReportingPeriod != null && s.ReportingStatus == "NOT_STARTED" && activeReportingPeriod.DueDate < DateTime.Now,
-                        CanReport = activeReportingPeriod != null && s.ReportingStatus != "APPROVED"
+                        IsReportOverdue = activeReportingPeriod != null && s.Status == "PAYMENT_COMPLETE" && activeReportingPeriod.DueDate < DateTime.Now,
+                        CanReport = activeReportingPeriod != null && s.Status != "REPORTS_APPROVED"
                     };
                 }).ToList(),
-                TotalCount = fundedStudents.Count,
+                TotalCount = fundedStudents.Count(),
                 AvailableCohorts = new List<string> { "2025-26", "2024-25" },
                 AvailableLEAs = allApplications.Select(a => new OrganizationOption
                 {
@@ -643,8 +644,7 @@ public class IHEPortalController : Controller
                 IHEName = application.IHE.Name,
                 LEAName = application.LEA.Name,
                 GrantCycleName = grantCycle?.Name ?? "",
-                Status = student.Status,
-                GAAStatus = student.GAAStatus,
+                Status = student.ApplicationStatus,
                 AwardAmount = student.AwardAmount,
                 CreatedAt = student.CreatedAt,
                 SubmittedAt = student.SubmittedAt,
@@ -657,7 +657,6 @@ public class IHEPortalController : Controller
                 EmployedInDistrict = student.EmployedInDistrict,
                 EmployedInState = student.EmployedInState,
                 EmploymentStatus = student.EmploymentStatus,
-                ReportingStatus = student.ReportingStatus,
                 LatestReport = latestReport
             };
 

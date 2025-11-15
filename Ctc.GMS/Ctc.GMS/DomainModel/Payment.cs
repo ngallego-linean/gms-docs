@@ -26,8 +26,10 @@ public class Payment
     public decimal? ActualPaymentAmount { get; set; }
     public DateTime? ActualPaymentDate { get; set; }
 
-    // Status Tracking
-    public string Status { get; set; } = string.Empty;  // AUTHORIZED, DISTRIBUTED, COMPLETED
+    // Status Tracking - Granular Payment Lifecycle
+    // Status Values: PENDING, AUTHORIZED, INVOICE_GENERATED, WARRANT_ISSUED,
+    //                DISTRIBUTED, COMPLETED, CANCELLED
+    public string Status { get; set; } = "PENDING";
 
     // Notes
     public string Notes { get; set; } = string.Empty;

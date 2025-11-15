@@ -1,0 +1,20 @@
+@model (string Status, DateTime? LastActionDate)
+
+@*
+    Application Status Partial View with Date
+    Usage: @await Html.PartialAsync("_ApplicationStatus", (student.Status, student.LastActionDate))
+
+    This partial renders the full application status text including date
+    in the "Last Action" format (e.g., "Approved by CTC: 11/14/2025")
+*@
+
+@if (!string.IsNullOrEmpty(Model.Status))
+{
+    var displayText = GMS.Business.Helpers.StatusHelper.GetApplicationStatus(Model.Status, Model.LastActionDate);
+
+    <span>@displayText</span>
+}
+else
+{
+    <span class="text-muted">No status</span>
+}
