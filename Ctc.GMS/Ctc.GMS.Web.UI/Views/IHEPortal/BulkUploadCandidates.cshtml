@@ -35,8 +35,8 @@
         </div>
 
         <div class="mb-4">
-            <a href="#" class="r4-button r4-button-primary" id="downloadTemplate">
-                <i class="mdi mdi-download"></i> Download Excel Template
+            <a href="@Url.Action("DownloadCandidateTemplate", "IHEPortal")" class="r4-button r4-button-primary">
+                <i class="mdi mdi-file-excel"></i> Download Excel Template
             </a>
             <a href="#" class="r4-button" id="downloadInstructions">
                 <i class="mdi mdi-file-document-outline"></i> Download Instructions (PDF)
@@ -219,12 +219,7 @@
             return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
         }
 
-        // Template download (mock)
-        document.getElementById('downloadTemplate').addEventListener('click', (e) => {
-            e.preventDefault();
-            alert('Mock: Excel template download would start here.\n\nThe template would include all required columns:\n- IHE POC Info (First Name, Last Name, Email, Phone)\n- Candidate Info (First Name, Last Name, DOB, Last 4 SSN/ITIN)\n- Demographics (Race, Ethnicity, Gender)\n- Credential Area\n- School Codes (County CDS, LEA CDS, School CDS)\n- LEA POC Info (First Name, Last Name, Email, Phone)');
-        });
-
+        // Instructions download (mock)
         document.getElementById('downloadInstructions').addEventListener('click', (e) => {
             e.preventDefault();
             alert('Mock: Instructions PDF download would start here.');

@@ -12,12 +12,14 @@ public class IHEPortalController : Controller
     private readonly IGrantService _grantService;
     private readonly MockRepository _repository;
     private readonly ILogger<IHEPortalController> _logger;
+    private readonly IIHETemplateService _templateService;
 
-    public IHEPortalController(IGrantService grantService, MockRepository repository, ILogger<IHEPortalController> logger)
+    public IHEPortalController(IGrantService grantService, MockRepository repository, ILogger<IHEPortalController> logger, IIHETemplateService templateService)
     {
         _grantService = grantService;
         _repository = repository;
         _logger = logger;
+        _templateService = templateService;
     }
 
     [Route("")]
@@ -205,6 +207,25 @@ public class IHEPortalController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error loading bulk upload candidates page");
+            return View("Error");
+        }
+    }
+
+    [Route("DownloadCandidateTemplate")]
+    [HttpGet]
+    public IActionResult DownloadCandidateTemplate()
+    {
+        try
+        {
+            var fileBytes = _templateService.GenerateStudentUploadTemplate();
+            var fileName = "CTC_Student_Upload_Template.xlsx";
+            var contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+            return File(fileBytes, contentType, fileName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating student upload template");
             return View("Error");
         }
     }

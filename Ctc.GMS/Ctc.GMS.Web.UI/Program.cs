@@ -10,6 +10,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<MockRepository>();
 builder.Services.AddScoped<IGrantService, GrantService>();
 builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IIHETemplateService, IHETemplateService>();
 
 // Add session support
 builder.Services.AddDistributedMemoryCache();
