@@ -1,0 +1,339 @@
+@model LEABatchDetailsViewModel
+
+@{
+    ViewData["Title"] = $"Batch Details - {Model.BatchMonth}";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })">LEA Portal</a></li>
+        <li class="breadcrumb-item active">Batch Details - @Model.BatchMonth</li>
+    </ol>
+}
+
+@* Page Header *@
+<div class="page-header">
+    <h2><i class="mdi mdi-file-document-multiple-outline"></i> Batch Submission Details</h2>
+    <p class="subtitle">@Model.BatchMonth Batch to CTC</p>
+</div>
+
+@* Action Button *@
+<div class="page-actions">
+    <a href="@Url.Action("Dashboard", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-secondary">
+        <i class="mdi mdi-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
+
+@* Batch Information Card *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-information-outline"></i> Batch Information</h4>
+    </div>
+    <div class="r4-card-body">
+        <dl class="r4-dl-horizontal">
+            <dt>Batch Month:</dt>
+            <dd><strong>@Model.BatchMonth</strong></dd>
+
+            <dt>Grant Cycle:</dt>
+            <dd>@Model.GrantCycleName</dd>
+
+            <dt>Status:</dt>
+            <dd>
+                @await Html.PartialAsync("_StatusBadge", Model.Status)
+            </dd>
+
+            <dt>LEA District:</dt>
+            <dd>@Model.LEAName</dd>
+
+            <dt>Total Candidates:</dt>
+            <dd><strong>@Model.TotalCandidates</strong></dd>
+
+            <dt>IHE Partners:</dt>
+            <dd>
+                <strong>@Model.IHEPartnerCount</strong>
+                <div style="margin-top: 0.5rem;">
+                    @foreach (var ihe in Model.IHEPartnerNames)
+                    {
+                        <span class="badge badge-info" style="margin-right: 0.5rem; margin-bottom: 0.25rem;">@ihe</span>
+                    }
+                </div>
+            </dd>
+
+            <dt>Total Award Amount:</dt>
+            <dd><strong>@Model.TotalAwardAmount.ToString("C")</strong></dd>
+
+            <dt>Created Date:</dt>
+            <dd>@Model.CreatedDate.ToString("MM/dd/yyyy")</dd>
+
+            <dt>Last Modified:</dt>
+            <dd>@Model.LastModified.ToString("MM/dd/yyyy h:mm tt")</dd>
+
+            @if (Model.SubmissionDate.HasValue)
+            {
+                <dt>Submission Date:</dt>
+                <dd>@Model.SubmissionDate.Value.ToString("MM/dd/yyyy h:mm tt")</dd>
+            }
+        </dl>
+    </div>
+</div>
+
+@* Batch Metrics *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-chart-timeline-variant"></i> Batch Summary</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="dashboard-grid">
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-account-group-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.TotalCandidates</div>
+                    <div class="metric-label">Total Candidates</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-school-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.IHEPartnerCount</div>
+                    <div class="metric-label">IHE Partners</div>
+                </div>
+            </div>
+            <div class="metric-card metric-approved">
+                <div class="metric-icon">
+                    <i class="mdi mdi-cash-multiple"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.TotalAwardAmount.ToString("C0")</div>
+                    <div class="metric-label">Total Funding</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="mdi mdi-file-multiple-outline"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.ApplicationCount</div>
+                    <div class="metric-label">Source Applications</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Timeline *@
+@if (Model.TimelineEvents.Any())
+{
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-timeline-outline"></i> Batch Timeline</h4>
+        </div>
+        <div class="r4-card-body">
+            <div class="timeline">
+                @foreach (var evt in Model.TimelineEvents.OrderByDescending(e => e.EventDate))
+                {
+                    <div class="timeline-item">
+                        <div class="timeline-marker @GetTimelineMarkerClass(evt.EventType)">
+                            <i class="mdi @GetTimelineIcon(evt.EventType)"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <strong>@evt.Description</strong>
+                                @if (!string.IsNullOrEmpty(evt.IHESource))
+                                {
+                                    <span class="badge badge-info" style="margin-left: 0.5rem;">@evt.IHESource</span>
+                                }
+                            </div>
+                            <div class="timeline-meta">
+                                <span><i class="mdi mdi-clock-outline"></i> @evt.EventDate.ToString("MM/dd/yyyy h:mm tt")</span>
+                                @if (!string.IsNullOrEmpty(evt.Actor))
+                                {
+                                    <span style="margin-left: 1rem;"><i class="mdi mdi-account-outline"></i> @evt.Actor</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@* Student List *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-account-group-outline"></i> Candidates in Batch</h4>
+    </div>
+    <div class="r4-card-body">
+        @if (!Model.Students.Any())
+        {
+            <div class="alert alert-info">
+                <i class="mdi mdi-information-outline"></i>
+                No students have been added to this batch yet.
+            </div>
+        }
+        else
+        {
+            @* Search and Filter Bar *@
+            <div style="display: grid; grid-template-columns: 1fr 200px 250px; gap: 1rem; margin-bottom: 1.5rem; align-items: end;">
+                <div>
+                    <label for="studentSearch" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
+                        <i class="mdi mdi-magnify"></i> Search
+                    </label>
+                    <input type="text" id="studentSearch" class="r4-input" placeholder="Search by name, SEID, or credential area..." style="width: 100%;">
+                </div>
+                <div>
+                    <label for="statusFilter" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
+                        <i class="mdi mdi-filter-outline"></i> Status
+                    </label>
+                    <select id="statusFilter" class="r4-select" style="width: 100%;">
+                        <option value="">All Statuses</option>
+                        <option value="SUBMITTED">Submitted</option>
+                        <option value="APPROVED">Approved</option>
+                        <option value="UNDER_REVIEW">Under Review</option>
+                        <option value="PENDING_LEA">Pending LEA</option>
+                        <option value="DRAFT">Draft</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="credentialFilter" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
+                        <i class="mdi mdi-school-outline"></i> Credential Area
+                    </label>
+                    <select id="credentialFilter" class="r4-select" style="width: 100%;">
+                        <option value="">All Credential Areas</option>
+                        @foreach (var credential in Model.Students.Select(s => s.CredentialArea).Distinct().OrderBy(c => c))
+                        {
+                            <option value="@credential">@credential</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="r4-table" id="studentsTable">
+                    <thead>
+                        <tr>
+                            <th>SEID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Credential Area</th>
+                            <th>Status</th>
+                            <th class="text-right">Award Amount</th>
+                            <th>Submitted</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var student in Model.Students.OrderBy(s => s.LastName))
+                        {
+                            <tr>
+                                <td>@student.SEID</td>
+                                <td>@student.FirstName</td>
+                                <td>@student.LastName</td>
+                                <td>@student.CredentialArea</td>
+                                <td>
+                                    @await Html.PartialAsync("_StatusBadge", student.Status)
+                                </td>
+                                <td class="text-right">@student.AwardAmount.ToString("C")</td>
+                                <td>@(student.SubmittedAt?.ToString("MM/dd/yyyy") ?? "-")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Student table filtering
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('studentSearch');
+            const statusFilter = document.getElementById('statusFilter');
+            const credentialFilter = document.getElementById('credentialFilter');
+            const table = document.getElementById('studentsTable');
+            const tbody = table ? table.getElementsByTagName('tbody')[0] : null;
+
+            if (!tbody) return;
+
+            const rows = tbody.getElementsByTagName('tr');
+
+            function filterTable() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const statusValue = statusFilter.value.toUpperCase();
+                const credentialValue = credentialFilter.value;
+
+                for (let i = 0; i < rows.length; i++) {
+                    const row = rows[i];
+                    const cells = row.getElementsByTagName('td');
+
+                    if (cells.length > 0) {
+                        const seid = cells[0].textContent.toLowerCase();
+                        const firstName = cells[1].textContent.toLowerCase();
+                        const lastName = cells[2].textContent.toLowerCase();
+                        const credentialArea = cells[3].textContent;
+                        const status = cells[4].textContent.trim().toUpperCase();
+
+                        // Check search term
+                        const matchesSearch = searchTerm === '' ||
+                            seid.includes(searchTerm) ||
+                            firstName.includes(searchTerm) ||
+                            lastName.includes(searchTerm) ||
+                            credentialArea.toLowerCase().includes(searchTerm);
+
+                        // Check status filter
+                        const matchesStatus = statusValue === '' || status.includes(statusValue);
+
+                        // Check credential filter
+                        const matchesCredential = credentialValue === '' || credentialArea === credentialValue;
+
+                        // Show/hide row based on all filters
+                        if (matchesSearch && matchesStatus && matchesCredential) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    }
+                }
+            }
+
+            // Add event listeners
+            searchInput.addEventListener('keyup', filterTable);
+            statusFilter.addEventListener('change', filterTable);
+            credentialFilter.addEventListener('change', filterTable);
+        });
+    </script>
+}
+
+@functions {
+    string GetTimelineIcon(string eventType)
+    {
+        return eventType switch
+        {
+            "BATCH_CREATED" => "mdi-file-document-outline",
+            "LEA_REVIEW" => "mdi-file-search-outline",
+            "CTC_SUBMITTED" => "mdi-send-outline",
+            "CTC_APPROVED" => "mdi-check-circle-outline",
+            "REPORTING" => "mdi-file-chart-outline",
+            "COMPLETE" => "mdi-check-all",
+            _ => "mdi-circle-outline"
+        };
+    }
+
+    string GetTimelineMarkerClass(string eventType)
+    {
+        return eventType switch
+        {
+            "BATCH_CREATED" => "timeline-marker-info",
+            "LEA_REVIEW" => "timeline-marker-primary",
+            "CTC_SUBMITTED" => "timeline-marker-warning",
+            "CTC_APPROVED" => "timeline-marker-success",
+            "REPORTING" => "timeline-marker-primary",
+            "COMPLETE" => "timeline-marker-success",
+            _ => "timeline-marker-default"
+        };
+    }
+}

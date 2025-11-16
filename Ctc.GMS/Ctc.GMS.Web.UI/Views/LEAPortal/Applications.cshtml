@@ -18,80 +18,60 @@
 
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-account-multiple-outline"></i> All Candidates</h4>
+        <h4><i class="mdi mdi-folder-multiple-outline"></i> All Applications</h4>
     </div>
     <div class="r4-card-body">
-        @{
-            // MOCK DATA: Full student queue
-            var allStudents = new List<dynamic>
-            {
-                new { ApplicationDate = DateTime.Now.AddDays(-1), StudentName = "Maria Garcia", IHEPartner = "Cal State University, Fullerton", CredentialArea = "Multiple Subject", Status = "APPROVED" },
-                new { ApplicationDate = DateTime.Now.AddDays(-3), StudentName = "James Wilson", IHEPartner = "UCLA", CredentialArea = "Single Subject - Mathematics", Status = "SUBMITTED" },
-                new { ApplicationDate = DateTime.Now.AddDays(-5), StudentName = "Sarah Chen", IHEPartner = "Cal State University, Northridge", CredentialArea = "Education Specialist", Status = "APPROVED" },
-                new { ApplicationDate = DateTime.Now.AddDays(-7), StudentName = "Michael Rodriguez", IHEPartner = "Cal State University, Fullerton", CredentialArea = "Multiple Subject", Status = "APPROVED" },
-                new { ApplicationDate = DateTime.Now.AddDays(-8), StudentName = "Emily Thompson", IHEPartner = "UCLA", CredentialArea = "Single Subject - English", Status = "SUBMITTED" },
-                new { ApplicationDate = DateTime.Now.AddDays(-10), StudentName = "David Kim", IHEPartner = "Cal State University, Northridge", CredentialArea = "Single Subject - Science", Status = "SUBMITTED" },
-                new { ApplicationDate = DateTime.Now.AddDays(-12), StudentName = "Jennifer Martinez", IHEPartner = "Cal State University, Fullerton", CredentialArea = "Education Specialist", Status = "APPROVED" },
-                new { ApplicationDate = DateTime.Now.AddDays(-14), StudentName = "Robert Johnson", IHEPartner = "UCLA", CredentialArea = "Multiple Subject", Status = "APPROVED" },
-                new { ApplicationDate = DateTime.Now.AddDays(-15), StudentName = "Amanda Lee", IHEPartner = "Cal State University, Northridge", CredentialArea = "Single Subject - History", Status = "SUBMITTED" },
-                new { ApplicationDate = DateTime.Now.AddDays(-18), StudentName = "Christopher Brown", IHEPartner = "Cal State University, Fullerton", CredentialArea = "Multiple Subject", Status = "APPROVED" },
-                new { ApplicationDate = DateTime.Now.AddDays(-20), StudentName = "Jessica Anderson", IHEPartner = "UCLA", CredentialArea = "Education Specialist", Status = "SUBMITTED" },
-                new { ApplicationDate = DateTime.Now.AddDays(-22), StudentName = "Daniel White", IHEPartner = "Cal State University, Northridge", CredentialArea = "Single Subject - Mathematics", Status = "APPROVED" }
-            };
-        }
-
-        @if (allStudents.Any())
+        @if (Model.Applications.Any())
         {
             <div style="display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-xl); align-items: flex-end; flex-wrap: wrap;">
                 <div style="flex: 1; min-width: 250px;">
-                    <label for="searchStudents" style="display: block; font-weight: 600; margin-bottom: var(--spacing-sm);">
-                        <i class="mdi mdi-magnify"></i> Search by Student Name
+                    <label for="searchIHE" style="display: block; font-weight: 600; margin-bottom: var(--spacing-sm);">
+                        <i class="mdi mdi-magnify"></i> Search by IHE Partner
                     </label>
-                    <input type="text" id="searchStudents" class="form-control" placeholder="Enter student name..." />
+                    <input type="text" id="searchIHE" class="form-control" placeholder="Enter IHE name..." />
                 </div>
                 <div style="min-width: 250px;">
-                    <label for="filterIHE" style="display: block; font-weight: 600; margin-bottom: var(--spacing-sm);">
-                        <i class="mdi mdi-filter-outline"></i> Filter by IHE Partner
+                    <label for="filterStatus" style="display: block; font-weight: 600; margin-bottom: var(--spacing-sm);">
+                        <i class="mdi mdi-filter-outline"></i> Filter by Status
                     </label>
-                    <select id="filterIHE" class="form-control">
-                        <option value="">All IHE Partners</option>
-                        <option value="csuf">Cal State University, Fullerton</option>
-                        <option value="ucla">UCLA</option>
-                        <option value="csun">Cal State University, Northridge</option>
+                    <select id="filterStatus" class="form-control">
+                        <option value="">All Statuses</option>
+                        <option value="DRAFT">Draft</option>
+                        <option value="SUBMITTED">Submitted</option>
+                        <option value="APPROVED">Approved</option>
                     </select>
                 </div>
             </div>
 
             <div class="table-wrapper">
-                <table class="r4-table" id="studentsTable">
+                <table class="r4-table" id="applicationsTable">
                     <thead>
                         <tr>
-                            <th>Application Date</th>
-                            <th>Student Name</th>
+                            <th>Submission Date</th>
                             <th>IHE Partner</th>
-                            <th>Credential Area</th>
+                            <th>Total Candidates</th>
                             <th>Status</th>
+                            <th>Last Modified</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var student in allStudents)
+                        @foreach (var application in Model.Applications)
                         {
-                            <tr data-student-name="@student.StudentName.ToLower()" data-ihe="@student.IHEPartner">
-                                <td>@student.ApplicationDate.ToString("MM/dd/yyyy")</td>
+                            <tr data-ihe-name="@application.IHEName.ToLower()" data-status="@application.Status">
+                                <td>@application.SubmissionDate.ToString("MM/dd/yyyy")</td>
                                 <td>
-                                    <strong>@student.StudentName</strong>
+                                    <strong>@application.IHEName</strong>
                                 </td>
-                                <td>@student.IHEPartner</td>
-                                <td>@student.CredentialArea</td>
+                                <td>@application.TotalStudents</td>
                                 <td>
-                                    @if (student.Status == "SUBMITTED")
-                                    {
-                                        <span class="badge badge-info">Submitted</span>
-                                    }
-                                    else if (student.Status == "APPROVED")
-                                    {
-                                        <span class="badge badge-success">Approved</span>
-                                    }
+                                    @await Html.PartialAsync("_StatusBadge", application.Status)
+                                </td>
+                                <td>@application.LastModified.ToString("MM/dd/yyyy")</td>
+                                <td>
+                                    <a href="@Url.Action("Details", "Application", new { id = application.Id })" class="r4-button r4-button-sm">
+                                        <i class="mdi mdi-eye-outline"></i> View Details
+                                    </a>
                                 </td>
                             </tr>
                         }
@@ -103,7 +83,7 @@
         {
             <div class="alert alert-info">
                 <i class="mdi mdi-information-outline"></i>
-                No candidates found for your LEA in this grant cycle.
+                No applications found for your LEA in this grant cycle.
             </div>
         }
     </div>
@@ -112,25 +92,22 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('searchStudents');
-            const filterSelect = document.getElementById('filterIHE');
-            const tableRows = document.querySelectorAll('#studentsTable tbody tr');
+            const searchInput = document.getElementById('searchIHE');
+            const filterSelect = document.getElementById('filterStatus');
+            const tableRows = document.querySelectorAll('#applicationsTable tbody tr');
 
             function filterTable() {
                 const searchTerm = searchInput.value.toLowerCase();
-                const selectedIHE = filterSelect.value;
+                const selectedStatus = filterSelect.value;
 
                 tableRows.forEach(row => {
-                    const studentName = row.getAttribute('data-student-name');
-                    const ihePartner = row.getAttribute('data-ihe');
+                    const iheName = row.getAttribute('data-ihe-name');
+                    const status = row.getAttribute('data-status');
 
-                    const matchesSearch = studentName.includes(searchTerm);
-                    const matchesIHE = !selectedIHE ||
-                        (selectedIHE === 'csuf' && ihePartner.includes('Fullerton')) ||
-                        (selectedIHE === 'ucla' && ihePartner.includes('UCLA')) ||
-                        (selectedIHE === 'csun' && ihePartner.includes('Northridge'));
+                    const matchesSearch = !searchTerm || iheName.includes(searchTerm);
+                    const matchesStatus = !selectedStatus || status === selectedStatus;
 
-                    if (matchesSearch && matchesIHE) {
+                    if (matchesSearch && matchesStatus) {
                         row.style.display = '';
                     } else {
                         row.style.display = 'none';

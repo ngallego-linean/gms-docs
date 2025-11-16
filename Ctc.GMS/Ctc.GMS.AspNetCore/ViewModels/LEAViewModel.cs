@@ -31,6 +31,9 @@ public class LEADashboardViewModel
     // IHE Submissions (replaces Applications in some views)
     public List<IHESubmissionViewModel> IHESubmissions { get; set; } = new();
 
+    // LEA Batch Submissions to CTC (monthly batches)
+    public List<LEABatchSubmissionViewModel> BatchSubmissions { get; set; } = new();
+
     // Reporting Metrics
     public int TotalFundedStudents { get; set; }
     public int ReportsSubmitted { get; set; }
@@ -376,4 +379,70 @@ public class DraftApplicationSummaryViewModel
     public DateTime LastSaved { get; set; }
     public int DaysRemainingInMonth { get; set; }
     public string FormattedLastSaved => LastSaved.ToString("MMM dd, yyyy h:mm tt");
+}
+
+/// <summary>
+/// LEA batch submission to CTC (monthly batches containing students from multiple IHEs)
+/// </summary>
+public class LEABatchSubmissionViewModel
+{
+    public string BatchMonth { get; set; } = string.Empty; // "October 2025"
+    public int Year { get; set; }
+    public int Month { get; set; }
+    public DateTime? SubmissionDate { get; set; }
+    public int TotalCandidates { get; set; }
+    public int IHEPartnerCount { get; set; }
+    public List<string> IHEPartnerNames { get; set; } = new();
+    public string Status { get; set; } = string.Empty; // "DRAFT", "SUBMITTED", "APPROVED"
+    public DateTime LastModified { get; set; }
+    public List<int> ApplicationIds { get; set; } = new(); // IDs of applications included in this batch
+}
+
+/// <summary>
+/// Detailed view of a monthly LEA batch submission (aggregated from multiple applications)
+/// </summary>
+public class LEABatchDetailsViewModel
+{
+    // Basic Information
+    public int LEAId { get; set; }
+    public string LEAName { get; set; } = string.Empty;
+    public int GrantCycleId { get; set; }
+    public string GrantCycleName { get; set; } = string.Empty;
+    public string BatchMonth { get; set; } = string.Empty; // "October 2025"
+    public int Year { get; set; }
+    public int Month { get; set; }
+
+    // Aggregated Metrics
+    public int TotalCandidates { get; set; }
+    public int IHEPartnerCount { get; set; }
+    public List<string> IHEPartnerNames { get; set; } = new();
+    public decimal TotalAwardAmount { get; set; }
+
+    // Status and Timeline
+    public string Status { get; set; } = string.Empty; // "DRAFT", "IN_PROGRESS", "SUBMITTED", "APPROVED"
+    public DateTime? SubmissionDate { get; set; }
+    public DateTime CreatedDate { get; set; }
+    public DateTime LastModified { get; set; }
+
+    // Students (all students from all applications in this batch)
+    public List<StudentViewModel> Students { get; set; } = new();
+
+    // Source Applications
+    public List<int> ApplicationIds { get; set; } = new();
+    public int ApplicationCount { get; set; }
+
+    // Timeline Events
+    public List<BatchTimelineEvent> TimelineEvents { get; set; } = new();
+}
+
+/// <summary>
+/// Timeline event for batch history
+/// </summary>
+public class BatchTimelineEvent
+{
+    public DateTime EventDate { get; set; }
+    public string EventType { get; set; } = string.Empty; // "CREATED", "STUDENT_ADDED", "SUBMITTED", "APPROVED"
+    public string Description { get; set; } = string.Empty;
+    public string? Actor { get; set; }
+    public string? IHESource { get; set; } // For student additions
 }

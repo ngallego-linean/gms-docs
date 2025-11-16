@@ -212,59 +212,73 @@
 @* Your Submissions *@
 <div class="r4-card" id="submissions">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-file-multiple-outline"></i> Your Submissions</h4>
-        @if (Model.IHESubmissions.Any())
+        <h4><i class="mdi mdi-file-multiple-outline"></i> Your Submissions to CTC</h4>
+        @if (Model.BatchSubmissions.Any())
         {
             <div class="card-actions">
                 <a href="@Url.Action("Applications", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button">
-                    View All
+                    View All Applications
                 </a>
             </div>
         }
     </div>
     <div class="r4-card-body">
-        @{
-            // MOCK DATA: Student queue showing most recent candidates
-            var studentQueue = new List<dynamic>
-            {
-                new { ApplicationDate = DateTime.Now.AddDays(-1), StudentName = "Maria Garcia", IHEPartner = "Cal State University, Fullerton", CredentialArea = "Multiple Subject", Status = "APPROVED" },
-                new { ApplicationDate = DateTime.Now.AddDays(-3), StudentName = "James Wilson", IHEPartner = "UCLA", CredentialArea = "Single Subject - Mathematics", Status = "SUBMITTED" },
-                new { ApplicationDate = DateTime.Now.AddDays(-5), StudentName = "Sarah Chen", IHEPartner = "Cal State University, Northridge", CredentialArea = "Education Specialist", Status = "APPROVED" }
-            };
-        }
-
-        @if (studentQueue.Any())
+        @if (Model.BatchSubmissions.Any())
         {
             <div class="table-wrapper">
                 <table class="r4-table">
                     <thead>
                         <tr>
-                            <th>Application Date</th>
-                            <th>Student Name</th>
-                            <th>IHE Partner</th>
-                            <th>Credential Area</th>
+                            <th>Batch Month</th>
+                            <th>Total Candidates</th>
+                            <th>IHE Partners</th>
                             <th>Status</th>
+                            <th>Submission Date</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var student in studentQueue)
+                        @foreach (var batch in Model.BatchSubmissions)
                         {
                             <tr>
-                                <td>@student.ApplicationDate.ToString("MM/dd/yyyy")</td>
                                 <td>
-                                    <strong>@student.StudentName</strong>
+                                    <strong>@batch.BatchMonth</strong>
                                 </td>
-                                <td>@student.IHEPartner</td>
-                                <td>@student.CredentialArea</td>
+                                <td>@batch.TotalCandidates</td>
                                 <td>
-                                    @if (student.Status == "SUBMITTED")
+                                    @batch.IHEPartnerCount IHE@(batch.IHEPartnerCount != 1 ? "s" : "")
+                                    <small style="display: block; color: var(--gray-600); margin-top: 0.25rem;">
+                                        @string.Join(", ", batch.IHEPartnerNames.Take(2))@(batch.IHEPartnerNames.Count > 2 ? $", +{batch.IHEPartnerNames.Count - 2} more" : "")
+                                    </small>
+                                </td>
+                                <td>
+                                    @if (batch.Status == "DRAFT")
                                     {
-                                        <span class="badge badge-info">Submitted</span>
+                                        <span class="badge bg-secondary">Draft</span>
                                     }
-                                    else if (student.Status == "APPROVED")
+                                    else if (batch.Status == "SUBMITTED")
                                     {
-                                        <span class="badge badge-success">Approved</span>
+                                        <span class="badge bg-success">Submitted</span>
                                     }
+                                    else
+                                    {
+                                        <span class="badge bg-info">In Progress</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (batch.SubmissionDate.HasValue)
+                                    {
+                                        @batch.SubmissionDate.Value.ToString("MM/dd/yyyy")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Not submitted</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a href="@Url.Action("BatchDetails", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId, year = batch.Year, month = batch.Month })" class="r4-button r4-button-sm">
+                                        <i class="mdi mdi-eye-outline"></i> View Details
+                                    </a>
                                 </td>
                             </tr>
                         }
@@ -277,7 +291,7 @@
             <div style="text-align: center; padding: 3rem; color: var(--gray-500);">
                 <i class="mdi mdi-file-document-outline" style="font-size: 4rem; display: block; margin-bottom: 1rem; opacity: 0.3;"></i>
                 <p style="font-size: 1.1rem; margin: 0; color: var(--gray-700);">No submissions yet</p>
-                <small style="color: var(--gray-500);">Your IHE partners will submit candidate lists that you will need to complete.</small>
+                <small style="color: var(--gray-500);">Complete applications from your IHE partners to create batch submissions to CTC.</small>
             </div>
         }
     </div>

@@ -130,6 +130,38 @@ public class LEAPortalController : Controller
                 });
             }
 
+            // Create batch submissions grouped by month (LEA batches to CTC)
+            var batchSubmissions = leaApplications
+                .GroupBy(a => new { Year = a.CreatedAt.Year, Month = a.CreatedAt.Month })
+                .Select(g =>
+                {
+                    var allStudents = g.SelectMany(a => a.Students).ToList();
+                    var ihePartners = g.Select(a => a.IHE.Name).Distinct().ToList();
+                    var batchDate = new DateTime(g.Key.Year, g.Key.Month, 1);
+                    var lastModified = g.Max(a => a.LastModified);
+
+                    // Determine batch status based on application statuses
+                    var allSubmitted = g.All(a => a.Status == "DISBURSEMENT" || a.Status == "REPORTING" || a.Status == "COMPLETE");
+                    var anyDraft = g.Any(a => a.Status == "DRAFT" || a.Status == "COLLECTING_STUDENTS");
+                    var batchStatus = anyDraft ? "DRAFT" : allSubmitted ? "SUBMITTED" : "IN_PROGRESS";
+
+                    return new LEABatchSubmissionViewModel
+                    {
+                        BatchMonth = batchDate.ToString("MMMM yyyy"),
+                        Year = g.Key.Year,
+                        Month = g.Key.Month,
+                        SubmissionDate = allSubmitted ? lastModified : null,
+                        TotalCandidates = allStudents.Count,
+                        IHEPartnerCount = ihePartners.Count,
+                        IHEPartnerNames = ihePartners,
+                        Status = batchStatus,
+                        LastModified = lastModified,
+                        ApplicationIds = g.Select(a => a.Id).ToList()
+                    };
+                })
+                .OrderByDescending(b => b.LastModified)
+                .ToList();
+
             // Get reporting metrics
             var reportingDeadline = grantCycle.EndDate.AddMonths(3); // Example: 3 months after cycle end
             var (totalFunded, reportsSubmitted, reportsPending, reportsOverdue) =
@@ -178,6 +210,9 @@ public class LEAPortalController : Controller
                 // IHE Submissions
                 IHESubmissions = iheSubmissions,
 
+                // LEA Batch Submissions to CTC
+                BatchSubmissions = batchSubmissions,
+
                 Applications = leaApplications.Select(a => new ApplicationSummaryViewModel
                 {
                     Id = a.Id,
@@ -187,6 +222,7 @@ public class LEAPortalController : Controller
                     ApprovedCount = a.Students.Count(s => s.Status == "APPROVED"),
                     PendingCount = a.Students.Count(s => s.Status == "SUBMITTED" || s.Status == "PENDING_LEA"),
                     Status = a.Status,
+                    SubmissionDate = a.CreatedAt,
                     LastModified = a.LastModified
                 }).ToList(),
                 ActionItems = actionItems,
@@ -277,6 +313,7 @@ public class LEAPortalController : Controller
                     ApprovedCount = a.Students.Count(s => s.Status == "APPROVED"),
                     PendingCount = a.Students.Count(s => s.Status == "SUBMITTED" || s.Status == "PENDING_LEA"),
                     Status = a.Status,
+                    SubmissionDate = a.CreatedAt,
                     LastModified = a.LastModified
                 })
                 .ToList();
@@ -294,6 +331,187 @@ public class LEAPortalController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error loading LEA applications");
+            return View("Error");
+        }
+    }
+
+    [Route("BatchDetails")]
+    public IActionResult BatchDetails(int leaId = 5, int grantCycleId = 1, int year = 2025, int month = 8)
+    {
+        try
+        {
+            var grantCycle = _grantService.GetGrantCycle(grantCycleId);
+            if (grantCycle == null)
+            {
+                return NotFound("Grant cycle not found");
+            }
+
+            // Get all applications for this LEA in the specified month
+            var allApplications = _grantService.GetApplications();
+            var batchApplications = allApplications
+                .Where(a => a.LEA.Id == leaId &&
+                           a.GrantCycleId == grantCycleId &&
+                           a.CreatedAt.Year == year &&
+                           a.CreatedAt.Month == month)
+                .ToList();
+
+            if (!batchApplications.Any())
+            {
+                return NotFound($"No applications found for {new DateTime(year, month, 1):MMMM yyyy}");
+            }
+
+            // Aggregate all students from all applications
+            var allStudents = batchApplications.SelectMany(a => a.Students).ToList();
+
+            // Get unique IHE partners
+            var ihePartners = batchApplications.Select(a => a.IHE.Name).Distinct().ToList();
+
+            // Calculate total award amount
+            var totalAwardAmount = allStudents.Sum(s => s.AwardAmount);
+
+            // Determine batch status
+            var allSubmitted = batchApplications.All(a => a.Status == "DISBURSEMENT" || a.Status == "REPORTING" || a.Status == "COMPLETE");
+            var anyDraft = batchApplications.Any(a => a.Status == "DRAFT" || a.Status == "COLLECTING_STUDENTS");
+            var batchStatus = anyDraft ? "DRAFT" : allSubmitted ? "SUBMITTED" : "IN_PROGRESS";
+
+            // Get dates
+            var createdDate = batchApplications.Min(a => a.CreatedAt);
+            var lastModified = batchApplications.Max(a => a.LastModified);
+            var submissionDate = allSubmitted ? lastModified : (DateTime?)null;
+
+            // Build timeline events based on batch workflow progression
+            var timelineEvents = new List<BatchTimelineEvent>();
+
+            // Track which workflow stages the batch has reached
+            var statusValues = batchApplications.Select(a => a.Status).Distinct().ToList();
+            var hasReachedLEAReview = statusValues.Any(s => s == "LEA_REVIEW" || s == "CTC_REVIEW" || s == "DISBURSEMENT" || s == "REPORTING" || s == "COMPLETE");
+            var hasReachedCTCReview = statusValues.Any(s => s == "CTC_REVIEW" || s == "DISBURSEMENT" || s == "REPORTING" || s == "COMPLETE");
+            var hasReachedDisbursement = statusValues.Any(s => s == "DISBURSEMENT" || s == "REPORTING" || s == "COMPLETE");
+            var hasReachedReporting = statusValues.Any(s => s == "REPORTING" || s == "COMPLETE");
+            var hasReachedComplete = statusValues.Any(s => s == "COMPLETE");
+
+            // 1. CREATED event - when batch was first created
+            timelineEvents.Add(new BatchTimelineEvent
+            {
+                EventDate = createdDate,
+                EventType = "BATCH_CREATED",
+                Description = $"Batch created with {allStudents.Count} candidate(s) from {ihePartners.Count} IHE partner(s)",
+                Actor = batchApplications.OrderBy(a => a.CreatedAt).First().CreatedBy
+            });
+
+            // 2. LEA_REVIEW event - when batch entered LEA review
+            if (hasReachedLEAReview)
+            {
+                var leaReviewApps = batchApplications.Where(a => a.Status == "LEA_REVIEW" || a.Status == "CTC_REVIEW" || a.Status == "DISBURSEMENT" || a.Status == "REPORTING" || a.Status == "COMPLETE");
+                var leaReviewDate = leaReviewApps.Min(a => a.LastActionDate ?? a.LastModified);
+                timelineEvents.Add(new BatchTimelineEvent
+                {
+                    EventDate = leaReviewDate,
+                    EventType = "LEA_REVIEW",
+                    Description = "Batch submitted to LEA for review",
+                    Actor = leaReviewApps.OrderBy(a => a.LastActionDate ?? a.LastModified).FirstOrDefault()?.LastActionBy
+                });
+            }
+
+            // 3. CTC_SUBMITTED event - when batch was submitted to CTC
+            if (hasReachedCTCReview)
+            {
+                var ctcReviewApps = batchApplications.Where(a => a.Status == "CTC_REVIEW" || a.Status == "DISBURSEMENT" || a.Status == "REPORTING" || a.Status == "COMPLETE");
+                var ctcSubmitDate = ctcReviewApps.Min(a => a.LastActionDate ?? a.LastModified);
+                timelineEvents.Add(new BatchTimelineEvent
+                {
+                    EventDate = ctcSubmitDate,
+                    EventType = "CTC_SUBMITTED",
+                    Description = $"Batch submitted to CTC with {allStudents.Count} candidate(s)",
+                    Actor = ctcReviewApps.OrderBy(a => a.LastActionDate ?? a.LastModified).FirstOrDefault()?.LastActionBy
+                });
+            }
+
+            // 4. DISBURSEMENT event - when batch moved to disbursement
+            if (hasReachedDisbursement)
+            {
+                var disbursementApps = batchApplications.Where(a => a.Status == "DISBURSEMENT" || a.Status == "REPORTING" || a.Status == "COMPLETE");
+                var disbursementDate = disbursementApps.Min(a => a.LastActionDate ?? a.LastModified);
+                timelineEvents.Add(new BatchTimelineEvent
+                {
+                    EventDate = disbursementDate,
+                    EventType = "CTC_APPROVED",
+                    Description = "Batch approved by CTC and moved to disbursement",
+                    Actor = disbursementApps.OrderBy(a => a.LastActionDate ?? a.LastModified).FirstOrDefault()?.LastActionBy
+                });
+            }
+
+            // 5. REPORTING event - when batch entered reporting phase
+            if (hasReachedReporting)
+            {
+                var reportingApps = batchApplications.Where(a => a.Status == "REPORTING" || a.Status == "COMPLETE");
+                var reportingDate = reportingApps.Min(a => a.LastActionDate ?? a.LastModified);
+                timelineEvents.Add(new BatchTimelineEvent
+                {
+                    EventDate = reportingDate,
+                    EventType = "REPORTING",
+                    Description = "Batch entered reporting phase",
+                    Actor = reportingApps.OrderBy(a => a.LastActionDate ?? a.LastModified).FirstOrDefault()?.LastActionBy
+                });
+            }
+
+            // 6. COMPLETE event - when batch was completed
+            if (hasReachedComplete)
+            {
+                var completeApps = batchApplications.Where(a => a.Status == "COMPLETE");
+                var completeDate = completeApps.Min(a => a.LastActionDate ?? a.LastModified);
+                timelineEvents.Add(new BatchTimelineEvent
+                {
+                    EventDate = completeDate,
+                    EventType = "COMPLETE",
+                    Description = "Batch processing complete",
+                    Actor = completeApps.OrderBy(a => a.LastActionDate ?? a.LastModified).FirstOrDefault()?.LastActionBy
+                });
+            }
+
+            // Sort timeline events by date
+            timelineEvents = timelineEvents.OrderBy(e => e.EventDate).ToList();
+
+            var model = new LEABatchDetailsViewModel
+            {
+                LEAId = leaId,
+                LEAName = batchApplications.First().LEA.Name,
+                GrantCycleId = grantCycleId,
+                GrantCycleName = grantCycle.Name,
+                BatchMonth = new DateTime(year, month, 1).ToString("MMMM yyyy"),
+                Year = year,
+                Month = month,
+                TotalCandidates = allStudents.Count,
+                IHEPartnerCount = ihePartners.Count,
+                IHEPartnerNames = ihePartners,
+                TotalAwardAmount = totalAwardAmount,
+                Status = batchStatus,
+                SubmissionDate = submissionDate,
+                CreatedDate = createdDate,
+                LastModified = lastModified,
+                Students = allStudents.Select(s => new StudentViewModel
+                {
+                    Id = s.Id,
+                    ApplicationId = s.ApplicationId,
+                    SEID = s.SEID,
+                    FirstName = s.FirstName,
+                    LastName = s.LastName,
+                    CredentialArea = s.CredentialArea,
+                    Status = s.Status,
+                    AwardAmount = s.AwardAmount,
+                    CreatedAt = s.CreatedAt,
+                    SubmittedAt = s.SubmittedAt
+                }).ToList(),
+                ApplicationIds = batchApplications.Select(a => a.Id).ToList(),
+                ApplicationCount = batchApplications.Count,
+                TimelineEvents = timelineEvents
+            };
+
+            return View(model);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading batch details");
             return View("Error");
         }
     }
