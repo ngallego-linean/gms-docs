@@ -101,7 +101,7 @@ public class LEAPortalController : Controller
 
             var actionItems = new List<ActionItemViewModel>();
 
-            // Priority order: Errors, Candidates Ready, Reports Due
+            // Priority order: Errors, Candidates Awaiting Review, Reports Due
             if (applicationsWithErrors > 0)
             {
                 actionItems.Add(new ActionItemViewModel
@@ -112,20 +112,6 @@ public class LEAPortalController : Controller
                     Description = $"You have {applicationsWithErrors} application(s) that require attention",
                     DueDate = DateTime.Now.AddDays(7),
                     Priority = "critical",
-                    AssignedTo = "LEA"
-                });
-            }
-
-            if (candidatesReadyForApplication > 0)
-            {
-                actionItems.Add(new ActionItemViewModel
-                {
-                    Id = 2,
-                    Type = "candidates_ready",
-                    Title = "Candidates Ready for Application",
-                    Description = $"You have {candidatesReadyForApplication} candidate(s) ready for application",
-                    DueDate = DateTime.Now.AddDays(daysRemaining),
-                    Priority = "high",
                     AssignedTo = "LEA"
                 });
             }
@@ -332,6 +318,108 @@ public class LEAPortalController : Controller
         {
             _logger.LogError(ex, "Error loading LEA applications");
             return View("Error");
+        }
+    }
+
+    [Route("ReviewCandidates")]
+    public IActionResult ReviewCandidates(int leaId = 5, int grantCycleId = 1)
+    {
+        try
+        {
+            var grantCycle = _grantService.GetGrantCycle(grantCycleId);
+            if (grantCycle == null)
+            {
+                return NotFound("Grant cycle not found");
+            }
+
+            // Get all applications for this LEA
+            var allApplications = _grantService.GetApplications();
+            var leaApplications = allApplications
+                .Where(a => a.LEA.Id == leaId && a.GrantCycleId == grantCycleId)
+                .ToList();
+
+            // Get candidates awaiting review (status = PENDING_LEA or similar)
+            var candidatesForReview = leaApplications
+                .SelectMany(a => a.Students
+                    .Where(s => s.Status == "PENDING_LEA" || s.Status == "DRAFT")
+                    .Select(s => new CandidateForReviewViewModel
+                    {
+                        StudentId = s.Id,
+                        ApplicationId = a.Id,
+                        FirstName = s.FirstName,
+                        LastName = s.LastName,
+                        SEID = s.SEID,
+                        CredentialArea = s.CredentialArea,
+                        AwardAmount = s.AwardAmount,
+                        IHEName = a.IHE.Name,
+                        SubmittedDate = s.SubmittedAt ?? s.CreatedAt,
+                        Status = s.Status,
+                        IsSelected = true
+                    }))
+                .OrderBy(c => c.IHEName)
+                .ThenBy(c => c.LastName)
+                .ToList();
+
+            // Get existing draft applications
+            var draftApplications = leaApplications
+                .Where(a => a.Status == "DRAFT")
+                .Select(a => new DraftApplicationOptionViewModel
+                {
+                    ApplicationId = a.Id,
+                    IHEName = a.IHE.Name,
+                    CandidateCount = a.Students.Count,
+                    LastModified = a.LastModified
+                })
+                .ToList();
+
+            // Batch context
+            var currentDate = DateTime.Now;
+            var daysInMonth = DateTime.DaysInMonth(currentDate.Year, currentDate.Month);
+            var daysRemaining = daysInMonth - currentDate.Day;
+
+            var model = new ReviewCandidatesViewModel
+            {
+                LEAId = leaId,
+                LEAName = leaApplications.FirstOrDefault()?.LEA.Name ?? "District",
+                GrantCycleId = grantCycleId,
+                GrantCycleName = grantCycle.Name,
+                CurrentBatchMonth = currentDate.ToString("MMMM yyyy"),
+                CurrentMonthDay = currentDate.Day,
+                DaysInMonth = daysInMonth,
+                DaysRemainingInMonth = daysRemaining,
+                Candidates = candidatesForReview,
+                TotalCandidates = candidatesForReview.Count,
+                IHESourceCount = candidatesForReview.Select(c => c.IHEName).Distinct().Count(),
+                DraftApplications = draftApplications
+            };
+
+            return View(model);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading candidate review page");
+            return View("Error");
+        }
+    }
+
+    [HttpPost]
+    [Route("ReviewCandidates")]
+    public IActionResult ProcessCandidates(ProcessCandidatesViewModel model)
+    {
+        try
+        {
+            // In a real application, this would process the selected candidates
+            // For now, just redirect back to dashboard with success message
+
+            TempData["Success"] = $"Successfully processed {model.SelectedStudentIds.Count} candidate(s)";
+
+            return RedirectToAction("Dashboard", new { leaId = model.LEAId, grantCycleId = model.GrantCycleId });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error processing candidates");
+            TempData["Error"] = $"Error processing candidates: {ex.Message}";
+            return RedirectToAction("ReviewCandidates", new { leaId = model.LEAId, grantCycleId = model.GrantCycleId });
         }
     }
 

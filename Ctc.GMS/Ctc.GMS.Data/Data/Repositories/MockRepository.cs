@@ -104,6 +104,34 @@ public class MockRepository
                 CreatedBy = "teacher.ed@sdsu.edu",
                 LastModified = new DateTime(2025, 10, 28, 10, 15, 0),
                 Students = new List<Student>()
+            },
+            new Application
+            {
+                Id = 4,
+                GrantCycleId = 1,
+                IHE = _organizations.First(o => o.Id == 2), // UCLA
+                LEA = _organizations.First(o => o.Id == 5), // LAUSD
+                Status = "LEA_REVIEW",  // LEA reviewing IHE submission
+                LastActionDate = new DateTime(2025, 11, 5),
+                LastActionBy = "grants@ucla.edu",
+                CreatedAt = new DateTime(2025, 11, 1, 9, 0, 0),
+                CreatedBy = "grants@ucla.edu",
+                LastModified = new DateTime(2025, 11, 5, 14, 20, 0),
+                Students = new List<Student>()
+            },
+            new Application
+            {
+                Id = 5,
+                GrantCycleId = 1,
+                IHE = _organizations.First(o => o.Id == 4), // UCI
+                LEA = _organizations.First(o => o.Id == 5), // LAUSD
+                Status = "LEA_REVIEW",  // LEA reviewing IHE submission
+                LastActionDate = new DateTime(2025, 11, 6),
+                LastActionBy = "credentialing@uci.edu",
+                CreatedAt = new DateTime(2025, 11, 3, 14, 0, 0),
+                CreatedBy = "credentialing@uci.edu",
+                LastModified = new DateTime(2025, 11, 6, 9, 10, 0),
+                Students = new List<Student>()
             }
         };
 
@@ -384,6 +412,136 @@ public class MockRepository
                     new DateTime(2025, 10, 1).AddDays(i % 30).AddHours((i + 16) % 24) : null
             });
         }
+
+        // Add PENDING_LEA students to Application 4 (UCLA -> LAUSD) - Candidates awaiting review
+        applications[3].Students.AddRange(new[]
+        {
+            new Student
+            {
+                Id = additionalStudentId++,
+                ApplicationId = 4,
+                FirstName = "Jennifer",
+                LastName = "Martinez",
+                SEID = "87654321",
+                CredentialArea = "Multiple Subject",
+                Status = "PENDING_LEA",
+                AwardAmount = 10000,
+                LastActionDate = new DateTime(2025, 11, 5),
+                LastActionBy = "grants@ucla.edu",
+                CreatedAt = new DateTime(2025, 11, 1, 9, 15, 0),
+                SubmittedAt = new DateTime(2025, 11, 5, 14, 20, 0)
+            },
+            new Student
+            {
+                Id = additionalStudentId++,
+                ApplicationId = 4,
+                FirstName = "Robert",
+                LastName = "Thompson",
+                SEID = "87654322",
+                CredentialArea = "Single Subject - Science",
+                Status = "PENDING_LEA",
+                AwardAmount = 10000,
+                LastActionDate = new DateTime(2025, 11, 5),
+                LastActionBy = "grants@ucla.edu",
+                CreatedAt = new DateTime(2025, 11, 1, 10, 30, 0),
+                SubmittedAt = new DateTime(2025, 11, 5, 14, 20, 0)
+            },
+            new Student
+            {
+                Id = additionalStudentId++,
+                ApplicationId = 4,
+                FirstName = "Amanda",
+                LastName = "Lee",
+                SEID = "87654323",
+                CredentialArea = "Education Specialist - Mild/Moderate",
+                Status = "PENDING_LEA",
+                AwardAmount = 10000,
+                LastActionDate = new DateTime(2025, 11, 5),
+                LastActionBy = "grants@ucla.edu",
+                CreatedAt = new DateTime(2025, 11, 2, 8, 45, 0),
+                SubmittedAt = new DateTime(2025, 11, 5, 14, 20, 0)
+            },
+            new Student
+            {
+                Id = additionalStudentId++,
+                ApplicationId = 4,
+                FirstName = "Christopher",
+                LastName = "Williams",
+                SEID = "87654324",
+                CredentialArea = "Single Subject - English",
+                Status = "PENDING_LEA",
+                AwardAmount = 10000,
+                LastActionDate = new DateTime(2025, 11, 5),
+                LastActionBy = "grants@ucla.edu",
+                CreatedAt = new DateTime(2025, 11, 2, 13, 20, 0),
+                SubmittedAt = new DateTime(2025, 11, 5, 14, 20, 0)
+            },
+            new Student
+            {
+                Id = additionalStudentId++,
+                ApplicationId = 4,
+                FirstName = "Michelle",
+                LastName = "Rodriguez",
+                SEID = "87654325",
+                CredentialArea = "Multiple Subject",
+                Status = "PENDING_LEA",
+                AwardAmount = 10000,
+                LastActionDate = new DateTime(2025, 11, 5),
+                LastActionBy = "grants@ucla.edu",
+                CreatedAt = new DateTime(2025, 11, 3, 11, 0, 0),
+                SubmittedAt = new DateTime(2025, 11, 5, 14, 20, 0)
+            }
+        });
+
+        // Add PENDING_LEA students to Application 5 (UCI -> LAUSD) - Candidates awaiting review
+        applications[4].Students.AddRange(new[]
+        {
+            new Student
+            {
+                Id = additionalStudentId++,
+                ApplicationId = 5,
+                FirstName = "Kevin",
+                LastName = "Nguyen",
+                SEID = "76543210",
+                CredentialArea = "Single Subject - Mathematics",
+                Status = "PENDING_LEA",
+                AwardAmount = 10000,
+                LastActionDate = new DateTime(2025, 11, 6),
+                LastActionBy = "credentialing@uci.edu",
+                CreatedAt = new DateTime(2025, 11, 3, 14, 30, 0),
+                SubmittedAt = new DateTime(2025, 11, 6, 9, 10, 0)
+            },
+            new Student
+            {
+                Id = additionalStudentId++,
+                ApplicationId = 5,
+                FirstName = "Patricia",
+                LastName = "Anderson",
+                SEID = "76543211",
+                CredentialArea = "Multiple Subject",
+                Status = "PENDING_LEA",
+                AwardAmount = 10000,
+                LastActionDate = new DateTime(2025, 11, 6),
+                LastActionBy = "credentialing@uci.edu",
+                CreatedAt = new DateTime(2025, 11, 4, 9, 15, 0),
+                SubmittedAt = new DateTime(2025, 11, 6, 9, 10, 0)
+            },
+            new Student
+            {
+                Id = additionalStudentId++,
+                ApplicationId = 5,
+                FirstName = "Brian",
+                LastName = "Kim",
+                SEID = "76543212",
+                CredentialArea = "Single Subject - Social Studies",
+                Status = "PENDING_LEA",
+                AwardAmount = 10000,
+                LastActionDate = new DateTime(2025, 11, 6),
+                LastActionBy = "credentialing@uci.edu",
+                CreatedAt = new DateTime(2025, 11, 5, 10, 45, 0),
+                SubmittedAt = new DateTime(2025, 11, 6, 9, 10, 0)
+            }
+        });
 
         return applications;
     }

@@ -1,0 +1,298 @@
+@model ReviewCandidatesViewModel
+
+@{
+    ViewData["Title"] = "Review Candidates";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })">LEA Portal</a></li>
+        <li class="breadcrumb-item active">Review Candidates</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-account-check-outline"></i> Review Candidates</h2>
+    <p class="subtitle">@Model.GrantCycleName</p>
+    <div style="display: flex; gap: 2rem; margin-top: 0.5rem; font-size: 0.9rem; color: var(--gray-600);">
+        <div>
+            <i class="mdi mdi-calendar-clock-outline" style="color: var(--ctc-blue);"></i>
+            <strong>Batch Period:</strong> @Model.CurrentBatchMonth (Day @Model.CurrentMonthDay of @Model.DaysInMonth)
+        </div>
+        <div>
+            <i class="mdi mdi-clock-outline" style="color: var(--ctc-blue);"></i>
+            @Model.DaysRemainingInMonth days remaining
+        </div>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        <i class="mdi mdi-check-circle-outline"></i> @TempData["Success"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        <i class="mdi mdi-alert-circle-outline"></i> @TempData["Error"]
+    </div>
+}
+
+<form method="post" action="@Url.Action("ProcessCandidates", "LEAPortal")" id="reviewForm">
+    <input type="hidden" name="LEAId" value="@Model.LEAId" />
+    <input type="hidden" name="GrantCycleId" value="@Model.GrantCycleId" />
+
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-account-group-outline"></i> Candidates Awaiting Review (@Model.TotalCandidates)</h4>
+            <div class="card-actions">
+                <span style="font-size: 0.9rem; color: var(--gray-600); margin-right: 1rem;">
+                    From @Model.IHESourceCount IHE Partner@(Model.IHESourceCount != 1 ? "s" : "")
+                </span>
+            </div>
+        </div>
+        <div class="r4-card-body">
+            @if (!Model.Candidates.Any())
+            {
+                <div class="alert alert-info">
+                    <i class="mdi mdi-information-outline"></i>
+                    No candidates awaiting review at this time.
+                </div>
+            }
+            else
+            {
+                @* Filter and Selection Controls *@
+                <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: center; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 250px;">
+                        <label for="filterIHE" style="display: block; font-weight: 600; margin-bottom: 0.5rem;">
+                            <i class="mdi mdi-filter-outline"></i> Filter by IHE Partner
+                        </label>
+                        <select id="filterIHE" class="form-control">
+                            <option value="">All IHE Partners</option>
+                            @foreach (var ihe in Model.Candidates.Select(c => c.IHEName).Distinct().OrderBy(n => n))
+                            {
+                                <option value="@ihe">@ihe</option>
+                            }
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; align-items: flex-end;">
+                        <button type="button" class="r4-button r4-button-sm" onclick="selectAll()">
+                            <i class="mdi mdi-checkbox-multiple-marked-outline"></i> Select All
+                        </button>
+                        <button type="button" class="r4-button r4-button-sm r4-button-secondary" onclick="deselectAll()">
+                            <i class="mdi mdi-checkbox-multiple-blank-outline"></i> Deselect All
+                        </button>
+                    </div>
+                </div>
+
+                @* Candidates Table *@
+                <div class="table-wrapper">
+                    <table class="r4-table" id="candidatesTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">
+                                    <input type="checkbox" id="selectAllCheckbox" checked onchange="toggleAll(this)" />
+                                </th>
+                                <th>Candidate Name</th>
+                                <th>SEID</th>
+                                <th>IHE Partner</th>
+                                <th>Credential Area</th>
+                                <th>Award Amount</th>
+                                <th>Submitted Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var candidate in Model.Candidates)
+                            {
+                                <tr data-ihe="@candidate.IHEName">
+                                    <td>
+                                        <input type="checkbox"
+                                               name="SelectedStudentIds"
+                                               value="@candidate.StudentId"
+                                               checked
+                                               class="candidate-checkbox" />
+                                    </td>
+                                    <td><strong>@candidate.FullName</strong></td>
+                                    <td>@candidate.SEID</td>
+                                    <td>@candidate.IHEName</td>
+                                    <td>@candidate.CredentialArea</td>
+                                    <td>@candidate.AwardAmount.ToString("C")</td>
+                                    <td>@candidate.SubmittedDate.ToString("MM/dd/yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="margin-top: 1.5rem; padding: 1.5rem; background: var(--gray-50); border-radius: var(--border-radius-md); border: 1px solid var(--gray-200);">
+                    <h5 style="margin: 0 0 1rem 0; font-weight: 600;">
+                        <i class="mdi mdi-file-document-edit-outline"></i> Processing Options
+                    </h5>
+                    <p style="color: var(--gray-600); margin-bottom: 1rem; font-size: 0.9rem;">
+                        <span id="selectedCount">@Model.TotalCandidates</span> candidate(s) selected
+                    </p>
+
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 0.75rem; border-radius: var(--border-radius-sm); border: 2px solid var(--gray-300); background: white;">
+                            <input type="radio" name="Action" value="create_new" checked style="margin: 0;" />
+                            <div>
+                                <strong>Create New Application</strong>
+                                <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
+                                    Start a new batch application for the current month
+                                </p>
+                            </div>
+                        </label>
+
+                        @if (Model.DraftApplications.Any())
+                        {
+                            <label style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer; padding: 0.75rem; border-radius: var(--border-radius-sm); border: 2px solid var(--gray-300); background: white;">
+                                <input type="radio" name="Action" value="add_to_existing" style="margin-top: 0.25rem;" />
+                                <div style="flex: 1;">
+                                    <strong>Add to Existing Application</strong>
+                                    <p style="margin: 0.25rem 0 0.5rem 0; font-size: 0.85rem; color: var(--gray-600);">
+                                        Add candidates to a draft application
+                                    </p>
+                                    <select name="ExistingApplicationId" class="form-control" style="margin-top: 0.5rem;" disabled id="existingAppSelect">
+                                        <option value="">Select an application...</option>
+                                        @foreach (var draft in Model.DraftApplications)
+                                        {
+                                            <option value="@draft.ApplicationId">@draft.DisplayText</option>
+                                        }
+                                    </select>
+                                </div>
+                            </label>
+                        }
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--gray-200);">
+                    <a href="@Url.Action("Dashboard", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-secondary">
+                        <i class="mdi mdi-arrow-left"></i> Cancel
+                    </a>
+                    <button type="submit" class="r4-button r4-button-primary" onclick="return validateForm()">
+                        <i class="mdi mdi-check"></i> Process Selected Candidates
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterIHE = document.getElementById('filterIHE');
+            const table = document.getElementById('candidatesTable');
+            const tbody = table ? table.getElementsByTagName('tbody')[0] : null;
+
+            if (!tbody) return;
+
+            const rows = tbody.getElementsByTagName('tr');
+
+            // IHE Filter
+            filterIHE.addEventListener('change', function() {
+                const selectedIHE = this.value;
+
+                for (let i = 0; i < rows.length; i++) {
+                    const row = rows[i];
+                    const ihe = row.getAttribute('data-ihe');
+
+                    if (!selectedIHE || ihe === selectedIHE) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+
+                updateSelectedCount();
+            });
+
+            // Radio button handling
+            const radioButtons = document.getElementsByName('Action');
+            const existingAppSelect = document.getElementById('existingAppSelect');
+
+            radioButtons.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (existingAppSelect) {
+                        existingAppSelect.disabled = this.value !== 'add_to_existing';
+                        if (this.value === 'add_to_existing') {
+                            existingAppSelect.focus();
+                        }
+                    }
+                });
+            });
+
+            // Update count when checkboxes change
+            const checkboxes = document.getElementsByClassName('candidate-checkbox');
+            for (let i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].addEventListener('change', updateSelectedCount);
+            }
+        });
+
+        function selectAll() {
+            const checkboxes = document.getElementsByClassName('candidate-checkbox');
+            const rows = document.getElementById('candidatesTable').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+            for (let i = 0; i < checkboxes.length; i++) {
+                if (rows[i].style.display !== 'none') {
+                    checkboxes[i].checked = true;
+                }
+            }
+
+            document.getElementById('selectAllCheckbox').checked = true;
+            updateSelectedCount();
+        }
+
+        function deselectAll() {
+            const checkboxes = document.getElementsByClassName('candidate-checkbox');
+            for (let i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = false;
+            }
+            document.getElementById('selectAllCheckbox').checked = false;
+            updateSelectedCount();
+        }
+
+        function toggleAll(checkbox) {
+            if (checkbox.checked) {
+                selectAll();
+            } else {
+                deselectAll();
+            }
+        }
+
+        function updateSelectedCount() {
+            const checkboxes = document.getElementsByClassName('candidate-checkbox');
+            const rows = document.getElementById('candidatesTable').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            let count = 0;
+
+            for (let i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].checked && rows[i].style.display !== 'none') {
+                    count++;
+                }
+            }
+
+            document.getElementById('selectedCount').textContent = count;
+        }
+
+        function validateForm() {
+            const checkedBoxes = document.querySelectorAll('.candidate-checkbox:checked');
+            if (checkedBoxes.length === 0) {
+                alert('Please select at least one candidate to process.');
+                return false;
+            }
+
+            const action = document.querySelector('input[name="Action"]:checked').value;
+            if (action === 'add_to_existing') {
+                const existingAppId = document.getElementById('existingAppSelect').value;
+                if (!existingAppId) {
+                    alert('Please select an existing application to add candidates to.');
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    </script>
+}

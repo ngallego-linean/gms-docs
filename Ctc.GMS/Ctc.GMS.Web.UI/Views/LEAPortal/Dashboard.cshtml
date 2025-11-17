@@ -28,7 +28,7 @@
                 <div class="action-item @(item.Priority == "critical" || item.Priority == "high" ? "action-item-urgent" : "action-item-normal")">
                     <div class="action-item-content">
                         <div class="action-item-icon">
-                            <i class="mdi @(item.Type == "candidates_review" ? "mdi-account-check-outline" : item.Type == "candidates_ready" ? "mdi-account-multiple-plus-outline" : "mdi-alert-circle-outline")"></i>
+                            <i class="mdi @(item.Type == "candidates_review" ? "mdi-account-check-outline" : "mdi-alert-circle-outline")"></i>
                         </div>
                         <div class="action-item-details">
                             <h5>@item.Title</h5>
@@ -42,14 +42,8 @@
                     <div class="action-item-actions">
                         @if (item.Type == "candidates_review")
                         {
-                            <a href="@Url.Action("CompleteApplication", "LEAPortal", new { id = 1 })" class="r4-button r4-button-primary">
+                            <a href="@Url.Action("ReviewCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-primary">
                                 <i class="mdi mdi-arrow-right"></i> Review Candidates
-                            </a>
-                        }
-                        else if (item.Type == "candidates_ready")
-                        {
-                            <a href="#submissions" class="r4-button r4-button-primary">
-                                <i class="mdi mdi-arrow-right"></i> View Candidates
                             </a>
                         }
                         else

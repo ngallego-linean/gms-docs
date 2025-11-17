@@ -446,3 +446,71 @@ public class BatchTimelineEvent
     public string? Actor { get; set; }
     public string? IHESource { get; set; } // For student additions
 }
+
+/// <summary>
+/// View model for reviewing and batching candidates from multiple IHE sources
+/// </summary>
+public class ReviewCandidatesViewModel
+{
+    public int LEAId { get; set; }
+    public string LEAName { get; set; } = string.Empty;
+    public int GrantCycleId { get; set; }
+    public string GrantCycleName { get; set; } = string.Empty;
+
+    // Batch context
+    public string CurrentBatchMonth { get; set; } = string.Empty;
+    public int CurrentMonthDay { get; set; }
+    public int DaysInMonth { get; set; }
+    public int DaysRemainingInMonth { get; set; }
+
+    // Candidates awaiting review
+    public List<CandidateForReviewViewModel> Candidates { get; set; } = new();
+    public int TotalCandidates { get; set; }
+    public int IHESourceCount { get; set; }
+
+    // Existing draft applications to add candidates to
+    public List<DraftApplicationOptionViewModel> DraftApplications { get; set; } = new();
+}
+
+/// <summary>
+/// Candidate awaiting LEA review
+/// </summary>
+public class CandidateForReviewViewModel
+{
+    public int StudentId { get; set; }
+    public int ApplicationId { get; set; }
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
+    public string FullName => $"{FirstName} {LastName}";
+    public string SEID { get; set; } = string.Empty;
+    public string CredentialArea { get; set; } = string.Empty;
+    public decimal AwardAmount { get; set; }
+    public string IHEName { get; set; } = string.Empty;
+    public DateTime SubmittedDate { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public bool IsSelected { get; set; } = true; // Default to selected
+}
+
+/// <summary>
+/// Draft application option for adding candidates
+/// </summary>
+public class DraftApplicationOptionViewModel
+{
+    public int ApplicationId { get; set; }
+    public string IHEName { get; set; } = string.Empty;
+    public int CandidateCount { get; set; }
+    public DateTime LastModified { get; set; }
+    public string DisplayText => $"{IHEName} ({CandidateCount} candidates) - Last modified {LastModified:MMM dd, yyyy}";
+}
+
+/// <summary>
+/// Form submission for processing reviewed candidates
+/// </summary>
+public class ProcessCandidatesViewModel
+{
+    public int LEAId { get; set; }
+    public int GrantCycleId { get; set; }
+    public List<int> SelectedStudentIds { get; set; } = new();
+    public string Action { get; set; } = string.Empty; // "create_new" or "add_to_existing"
+    public int? ExistingApplicationId { get; set; } // For adding to existing application
+}
