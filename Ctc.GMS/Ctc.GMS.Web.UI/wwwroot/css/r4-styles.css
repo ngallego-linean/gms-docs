@@ -660,6 +660,26 @@ body {
     color: var(--white);
 }
 
+/* CTC Custom Status Badges */
+.badge-waitlist {
+    background-color: var(--ctc-gold);
+    color: var(--white);
+}
+
+.badge-paid {
+    background-color: var(--success-text);
+    color: var(--white);
+}
+
+/* Fixed-width status badge for table consistency */
+.badge-status {
+    display: inline-block;
+    min-width: 130px;
+    text-align: center;
+    white-space: nowrap;
+    padding: 0.375rem 0.75rem;
+}
+
 /* ============================================
    PROGRESS SUMMARY GRID (for Details pages)
    ============================================ */

@@ -17,131 +17,504 @@
     <p class="subtitle">@Model.LEAName - @Model.GrantCycleName</p>
 </div>
 
-@* Filters Card *@
-<div class="r4-card">
-    <div class="r4-card-header">
-        <h4><i class="mdi mdi-filter-outline"></i> Filter Candidates</h4>
+@* Submission Method Tabs *@
+<div class="submission-tabs">
+    <button type="button" class="r4-button r4-button-primary" data-tab="manual" onclick="switchTab('manual')">
+        <i class="mdi mdi-clipboard-text-outline"></i> Individual Reports
+    </button>
+    <button type="button" class="r4-button" data-tab="bulk" onclick="switchTab('bulk')">
+        <i class="mdi mdi-file-upload-outline"></i> Bulk Upload
+    </button>
+</div>
+
+@* Individual Reports Tab Content *@
+<div class="tab-content" data-tab-content="manual">
+    @* Filters Card *@
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-filter-outline"></i> Filter Candidates</h4>
+        </div>
+        <div class="r4-card-body">
+            <form method="get" asp-action="FundedCandidates">
+                <input type="hidden" name="leaId" value="@Model.LEAId" />
+                <input type="hidden" name="grantCycleId" value="@Model.GrantCycleId" />
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="ihePartner">IHE Partner</label>
+                        <select id="ihePartner" name="ihePartner" class="form-control">
+                            <option value="">All IHE Partners</option>
+                            @foreach (var ihe in Model.IHEPartners)
+                            {
+                                <option value="@ihe" selected="@(Model.SearchCriteria.IHEPartner == ihe)">@ihe</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="credentialType">Credential Type</label>
+                        <select id="credentialType" name="credentialType" class="form-control">
+                            <option value="">All Credentials</option>
+                            @foreach (var cred in Model.CredentialTypes)
+                            {
+                                <option value="@cred" selected="@(Model.SearchCriteria.CredentialType == cred)">@cred</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cohort">Cohort/Batch</label>
+                        <select id="cohort" name="cohort" class="form-control">
+                            <option value="">All Cohorts</option>
+                            @foreach (var cohort in Model.Cohorts)
+                            {
+                                <option value="@cohort" selected="@(Model.SearchCriteria.Cohort == cohort)">@cohort</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reportStatus">Report Status</label>
+                        <select id="reportStatus" name="reportStatus" class="form-control">
+                            <option value="">All Statuses</option>
+                            <option value="PENDING" selected="@(Model.SearchCriteria.ReportStatus == "PENDING")">Pending</option>
+                            <option value="DRAFT" selected="@(Model.SearchCriteria.ReportStatus == "DRAFT")">Draft</option>
+                            <option value="SUBMITTED" selected="@(Model.SearchCriteria.ReportStatus == "SUBMITTED")">Submitted</option>
+                            <option value="APPROVED" selected="@(Model.SearchCriteria.ReportStatus == "APPROVED")">Approved</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="r4-button r4-button-primary">
+                        <i class="mdi mdi-filter"></i> Apply Filters
+                    </button>
+                    <a href="@Url.Action("FundedCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button">
+                        <i class="mdi mdi-filter-remove"></i> Clear Filters
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
-    <div class="r4-card-body">
-        <form method="get" asp-action="FundedCandidates">
-            <input type="hidden" name="leaId" value="@Model.LEAId" />
-            <input type="hidden" name="grantCycleId" value="@Model.GrantCycleId" />
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="ihePartner">IHE Partner</label>
-                    <select id="ihePartner" name="ihePartner" class="form-control">
-                        <option value="">All IHE Partners</option>
-                        @foreach (var ihe in Model.IHEPartners)
+    @* Results *@
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-table"></i> Candidates (@Model.FilteredCount of @Model.TotalCount)</h4>
+        </div>
+        <div class="r4-card-body">
+            @if (Model.Students.Any())
+            {
+                <table class="r4-table">
+                    <thead>
+                        <tr>
+                            <th>LEA</th>
+                            <th>IHE Partner</th>
+                            <th>Candidate Name</th>
+                            <th>Credential Area</th>
+                            <th>Award Amount</th>
+                            <th>Cohort</th>
+                            <th>Report Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var student in Model.Students)
                         {
-                            <option value="@ihe" selected="@(Model.SearchCriteria.IHEPartner == ihe)">@ihe</option>
+                            <tr>
+                                <td>@Model.LEAName</td>
+                                <td>@student.IHEName</td>
+                                <td>@student.StudentName</td>
+                                <td>@student.CredentialArea</td>
+                                <td>@student.AwardAmount.ToString("C")</td>
+                                <td>@student.Cohort</td>
+                                <td><span class="badge @student.ReportStatusBadgeClass">@student.ReportStatus</span></td>
+                                <td>
+                                    @if (student.ReportStatus == "PENDING" || student.ReportStatus == "DRAFT" || student.ReportStatus == "REVISION_REQUESTED")
+                                    {
+                                        <a href="@Url.Action("SubmitReport", "LEAPortal", new { studentId = student.StudentId })" class="r4-button r4-button-primary r4-button-sm">
+                                            <i class="mdi mdi-clipboard-text-outline"></i> Submit Report
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="@Url.Action("SubmitReport", "LEAPortal", new { studentId = student.StudentId })" class="r4-button r4-button-sm">
+                                            <i class="mdi mdi-eye-outline"></i> View Report
+                                        </a>
+                                    }
+                                </td>
+                            </tr>
                         }
-                    </select>
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <i class="mdi mdi-information-outline"></i>
+                    No funded candidates found matching your criteria.
                 </div>
+            }
+        </div>
+    </div>
+</div>
 
-                <div class="form-group">
-                    <label for="credentialType">Credential Type</label>
-                    <select id="credentialType" name="credentialType" class="form-control">
-                        <option value="">All Credentials</option>
-                        @foreach (var cred in Model.CredentialTypes)
-                        {
-                            <option value="@cred" selected="@(Model.SearchCriteria.CredentialType == cred)">@cred</option>
-                        }
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="cohort">Cohort/Batch</label>
-                    <select id="cohort" name="cohort" class="form-control">
-                        <option value="">All Cohorts</option>
-                        @foreach (var cohort in Model.Cohorts)
-                        {
-                            <option value="@cohort" selected="@(Model.SearchCriteria.Cohort == cohort)">@cohort</option>
-                        }
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="reportStatus">Report Status</label>
-                    <select id="reportStatus" name="reportStatus" class="form-control">
-                        <option value="">All Statuses</option>
-                        <option value="PENDING" selected="@(Model.SearchCriteria.ReportStatus == "PENDING")">Pending</option>
-                        <option value="DRAFT" selected="@(Model.SearchCriteria.ReportStatus == "DRAFT")">Draft</option>
-                        <option value="SUBMITTED" selected="@(Model.SearchCriteria.ReportStatus == "SUBMITTED")">Submitted</option>
-                        <option value="APPROVED" selected="@(Model.SearchCriteria.ReportStatus == "APPROVED")">Approved</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-actions">
-                <button type="submit" class="r4-button r4-button-primary">
-                    <i class="mdi mdi-filter"></i> Apply Filters
-                </button>
-                <a href="@Url.Action("FundedCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button">
-                    <i class="mdi mdi-filter-remove"></i> Clear Filters
+@* Bulk Upload Tab Content *@
+<div class="tab-content" data-tab-content="bulk" style="display: none;">
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-file-upload-outline"></i> Upload Reports</h4>
+            <div class="card-actions">
+                <a href="#" class="r4-button r4-button-primary" onclick="alert('Template download functionality will be implemented.'); return false;">
+                    <i class="mdi mdi-file-excel"></i> Download Template
                 </a>
             </div>
-        </form>
+        </div>
+        <div class="r4-card-body">
+            <div class="required-fields-compact">
+                <p class="required-fields-label"><i class="mdi mdi-format-list-checks"></i> <strong>Required Fields:</strong></p>
+                <div class="field-tags">
+                    <span class="field-tag">Student ID</span>
+                    <span class="field-tag">Employment Status</span>
+                    <span class="field-tag">Employer Name</span>
+                    <span class="field-tag">Start Date</span>
+                    <span class="field-tag">Position Title</span>
+                    <span class="field-tag">Full-Time Status</span>
+                    <span class="field-tag field-tag-optional">End Date</span>
+                    <span class="field-tag field-tag-optional">Notes</span>
+                </div>
+            </div>
+
+            <form id="bulkUploadForm" enctype="multipart/form-data">
+                <input type="hidden" name="leaId" value="@Model.LEAId" />
+                <input type="hidden" name="grantCycleId" value="@Model.GrantCycleId" />
+
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">
+                        <i class="mdi mdi-cloud-upload-outline"></i>
+                    </div>
+                    <h5>Drag and drop your Excel file here</h5>
+                    <p class="text-muted">or click to browse</p>
+                    <input type="file" id="fileInput" name="file" accept=".xlsx,.xls,.csv" style="display: none;" />
+                    <button type="button" class="r4-button r4-button-primary mt-3" onclick="document.getElementById('fileInput').click();">
+                        <i class="mdi mdi-folder-open-outline"></i> Choose File
+                    </button>
+                </div>
+
+                <div id="fileInfo" class="file-info mt-3" style="display: none;">
+                    <div class="alert alert-success">
+                        <i class="mdi mdi-file-check-outline"></i>
+                        <strong>Selected file:</strong> <span id="fileName"></span> (<span id="fileSize"></span>)
+                        <button type="button" class="btn-close" onclick="clearFile()"></button>
+                    </div>
+                </div>
+
+                <div class="form-actions mt-4">
+                    <button type="submit" class="r4-button r4-button-primary" id="uploadButton" disabled>
+                        <i class="mdi mdi-upload"></i> Upload and Process
+                    </button>
+                    <a href="@Url.Action("Dashboard", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button">
+                        <i class="mdi mdi-arrow-left"></i> Cancel
+                    </a>
+                </div>
+            </form>
+
+            <div id="uploadProgress" class="upload-progress mt-4" style="display: none;">
+                <h5>Processing Upload...</h5>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                </div>
+                <p class="text-muted mt-2">Please wait while we process your file...</p>
+            </div>
+
+            <div id="uploadResults" class="upload-results mt-4" style="display: none;">
+                <!-- Results will be displayed here -->
+            </div>
+        </div>
     </div>
 </div>
 
-@* Results *@
-<div class="r4-card">
-    <div class="r4-card-header">
-        <h4><i class="mdi mdi-table"></i> Candidates (@Model.FilteredCount of @Model.TotalCount)</h4>
-    </div>
-    <div class="r4-card-body">
-        @if (Model.Students.Any())
-        {
-            <table class="r4-table">
-                <thead>
-                    <tr>
-                        <th>LEA</th>
-                        <th>IHE Partner</th>
-                        <th>Candidate Name</th>
-                        <th>Credential Area</th>
-                        <th>Award Amount</th>
-                        <th>Cohort</th>
-                        <th>Report Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var student in Model.Students)
-                    {
-                        <tr>
-                            <td>@Model.LEAName</td>
-                            <td>@student.IHEName</td>
-                            <td>@student.StudentName</td>
-                            <td>@student.CredentialArea</td>
-                            <td>@student.AwardAmount.ToString("C")</td>
-                            <td>@student.Cohort</td>
-                            <td><span class="badge @student.ReportStatusBadgeClass">@student.ReportStatus</span></td>
-                            <td>
-                                @if (student.ReportStatus == "PENDING" || student.ReportStatus == "DRAFT" || student.ReportStatus == "REVISION_REQUESTED")
-                                {
-                                    <a href="@Url.Action("SubmitReport", "LEAPortal", new { studentId = student.StudentId })" class="r4-button r4-button-primary r4-button-sm">
-                                        <i class="mdi mdi-clipboard-text-outline"></i> Submit Report
-                                    </a>
-                                }
-                                else
-                                {
-                                    <a href="@Url.Action("SubmitReport", "LEAPortal", new { studentId = student.StudentId })" class="r4-button r4-button-sm">
-                                        <i class="mdi mdi-eye-outline"></i> View Report
-                                    </a>
-                                }
-                            </td>
-                        </tr>
+@section Scripts {
+    <script>
+        // Tab Switching
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.submission-tabs button').forEach(btn => {
+                if (btn.dataset.tab === tabName) {
+                    btn.classList.add('r4-button-primary');
+                } else {
+                    btn.classList.remove('r4-button-primary');
+                }
+            });
+
+            // Show/hide tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                if (content.dataset.tabContent === tabName) {
+                    content.style.display = 'block';
+                } else {
+                    content.style.display = 'none';
+                }
+            });
+        }
+
+        // Bulk Upload Functions
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const uploadButton = document.getElementById('uploadButton');
+        const uploadForm = document.getElementById('bulkUploadForm');
+
+        // Drag and drop handlers
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelect(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        function handleFileSelect(file) {
+            const validTypes = ['.xlsx', '.xls', '.csv'];
+            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+
+            if (!validTypes.includes(fileExtension)) {
+                alert('Please select a valid Excel (.xlsx, .xls) or CSV (.csv) file.');
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File size must be less than 10MB.');
+                return;
+            }
+
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileInfo.style.display = 'block';
+            uploadButton.disabled = false;
+
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
+        }
+
+        function clearFile() {
+            fileInput.value = '';
+            fileInfo.style.display = 'none';
+            uploadButton.disabled = true;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        // Form submission
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            document.getElementById('uploadProgress').style.display = 'block';
+            uploadButton.disabled = true;
+
+            // Mock upload process
+            setTimeout(() => {
+                const progressBar = document.querySelector('.progress-bar');
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 10;
+                    progressBar.style.width = progress + '%';
+
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        setTimeout(() => {
+                            document.getElementById('uploadProgress').style.display = 'none';
+                            showMockResults();
+                        }, 500);
                     }
-                </tbody>
-            </table>
+                }, 200);
+            }, 500);
+        });
+
+        function showMockResults() {
+            const resultsDiv = document.getElementById('uploadResults');
+            resultsDiv.innerHTML = `
+                <div class="alert alert-success">
+                    <i class="mdi mdi-check-circle-outline"></i>
+                    <strong>Upload Successful!</strong> Your reports have been processed.
+                </div>
+                <div class="upload-summary">
+                    <h5><i class="mdi mdi-chart-box-outline"></i> Upload Summary</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="summary-card summary-success">
+                                <div class="summary-value">15</div>
+                                <div class="summary-label">Reports Uploaded</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="summary-card summary-success">
+                                <div class="summary-value">14</div>
+                                <div class="summary-label">Successfully Processed</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="summary-card summary-warning">
+                                <div class="summary-value">1</div>
+                                <div class="summary-label">Errors Found</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions mt-4">
+                    <a href="@Url.Action("Reports", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-primary">
+                        <i class="mdi mdi-arrow-left"></i> Return to Reporting
+                    </a>
+                    <button class="r4-button" onclick="location.reload()">
+                        <i class="mdi mdi-upload"></i> Upload Another File
+                    </button>
+                </div>
+            `;
+            resultsDiv.style.display = 'block';
         }
-        else
-        {
-            <div class="alert alert-info">
-                <i class="mdi mdi-information-outline"></i>
-                No funded candidates found matching your criteria.
-            </div>
+    </script>
+
+    <style>
+        /* Tab Styling */
+        .submission-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            padding: 0.5rem;
+            background: var(--gray-100);
+            border-radius: 8px;
+            width: fit-content;
         }
-    </div>
-</div>
+
+        .submission-tabs button {
+            min-width: 150px;
+        }
+
+        /* Required Fields Compact */
+        .required-fields-compact {
+            margin-bottom: 1.5rem;
+        }
+
+        .required-fields-label {
+            margin-bottom: 0.75rem;
+            color: var(--gray-700);
+        }
+
+        .field-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .field-tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--ctc-blue);
+            color: var(--white);
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .field-tag-optional {
+            background: var(--gray-400);
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 3px dashed var(--gray-300);
+            border-radius: 8px;
+            padding: 3rem 2rem;
+            text-align: center;
+            background: var(--gray-50);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: var(--ctc-blue);
+            background: var(--gray-200);
+        }
+
+        .upload-area.drag-over {
+            border-color: var(--ctc-blue);
+            background: var(--gray-100);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: var(--gray-600);
+            margin-bottom: 1rem;
+        }
+
+        .upload-area h5 {
+            color: var(--ctc-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Upload Summary */
+        .upload-summary .summary-card {
+            text-align: center;
+            padding: 1.5rem;
+            background: var(--white);
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+        }
+
+        .upload-summary .summary-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--ctc-blue);
+        }
+
+        .upload-summary .summary-label {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .upload-summary .summary-card.summary-success .summary-value {
+            color: var(--success);
+        }
+
+        .upload-summary .summary-card.summary-warning .summary-value {
+            color: var(--warning);
+        }
+
+        /* Progress Bar */
+        .progress {
+            height: 30px;
+            border-radius: 8px;
+        }
+
+        .progress-bar {
+            font-size: 1rem;
+            line-height: 30px;
+        }
+    </style>
+}

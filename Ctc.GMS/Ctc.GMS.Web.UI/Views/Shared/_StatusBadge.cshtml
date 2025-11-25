@@ -6,6 +6,7 @@
 
     This partial renders a Bootstrap badge with appropriate styling
     based on the student's workflow status using StatusHelper.
+    Uses badge-status class for consistent fixed-width display.
 *@
 
 @if (!string.IsNullOrEmpty(Model))
@@ -13,9 +14,9 @@
     var badgeClass = GMS.Business.Helpers.StatusHelper.GetBadgeClass(Model);
     var displayText = GMS.Business.Helpers.StatusHelper.GetDisplayText(Model);
 
-    <span class="@badgeClass">@displayText</span>
+    <span class="@badgeClass badge-status">@displayText</span>
 }
 else
 {
-    <span class="badge bg-secondary">Unknown</span>
+    <span class="badge badge-secondary badge-status">Unknown</span>
 }

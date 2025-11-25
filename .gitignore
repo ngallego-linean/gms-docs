@@ -14,3 +14,7 @@ obj/
 *.pdb
 *.cache
 *.gz
+
+# Environment secrets
+.env
+*.env

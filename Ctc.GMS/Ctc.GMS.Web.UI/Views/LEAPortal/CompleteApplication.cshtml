@@ -32,6 +32,18 @@
     </div>
 </div>
 
+@* Submission Method Tabs *@
+<div class="submission-tabs">
+    <button type="button" class="r4-button r4-button-primary" data-tab="individual" onclick="switchTab('individual')">
+        <i class="mdi mdi-account-edit-outline"></i> Individual Entry
+    </button>
+    <button type="button" class="r4-button" data-tab="bulk" onclick="switchTab('bulk')">
+        <i class="mdi mdi-file-upload-outline"></i> Bulk Upload
+    </button>
+</div>
+
+@* Individual Entry Tab Content *@
+<div class="tab-content" data-tab-content="individual">
 <form method="post" action="@Url.Action("ProcessApplication", "LEAPortal")" id="applicationForm">
     <input type="hidden" name="ApplicationId" value="@Model.ApplicationId" />
 
@@ -262,9 +274,101 @@
         </div>
     </div>
 </div>
+</div>
+
+@* Bulk Upload Tab Content *@
+<div class="tab-content" data-tab-content="bulk" style="display: none;">
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-file-upload-outline"></i> Upload SEID File</h4>
+            <div class="card-actions">
+                <a href="@Url.Action("DownloadSEIDTemplate", "LEAPortal")" class="r4-button r4-button-primary">
+                    <i class="mdi mdi-file-excel"></i> Download Excel Template
+                </a>
+            </div>
+        </div>
+        <div class="r4-card-body">
+            <div class="required-fields-compact">
+                <p class="required-fields-label"><i class="mdi mdi-format-list-checks"></i> <strong>Required Fields:</strong></p>
+                <div class="field-tags">
+                    <span class="field-tag">Student First Name</span>
+                    <span class="field-tag">Student Last Name</span>
+                    <span class="field-tag">SEID</span>
+                </div>
+            </div>
+
+            <form id="bulkUploadForm" enctype="multipart/form-data">
+                <input type="hidden" name="applicationId" value="@Model.ApplicationId" />
+
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">
+                        <i class="mdi mdi-cloud-upload-outline"></i>
+                    </div>
+                    <h5>Drag and drop your Excel file here</h5>
+                    <p class="text-muted">or click to browse</p>
+                    <input type="file" id="fileInput" name="file" accept=".xlsx,.xls,.csv" style="display: none;" />
+                    <button type="button" class="r4-button r4-button-primary mt-3" onclick="document.getElementById('fileInput').click();">
+                        <i class="mdi mdi-folder-open-outline"></i> Choose File
+                    </button>
+                </div>
+
+                <div id="fileInfo" class="file-info mt-3" style="display: none;">
+                    <div class="alert alert-success">
+                        <i class="mdi mdi-file-check-outline"></i>
+                        <strong>Selected file:</strong> <span id="fileName"></span> (<span id="fileSize"></span>)
+                        <button type="button" class="btn-close" onclick="clearFile()"></button>
+                    </div>
+                </div>
+
+                <div class="form-actions mt-4">
+                    <button type="submit" class="r4-button r4-button-primary" id="uploadButton" disabled>
+                        <i class="mdi mdi-upload"></i> Upload and Process
+                    </button>
+                    <a href="@Url.Action("Dashboard", "LEAPortal")" class="r4-button">
+                        <i class="mdi mdi-arrow-left"></i> Cancel
+                    </a>
+                </div>
+            </form>
+
+            <div id="uploadProgress" class="upload-progress mt-4" style="display: none;">
+                <h5>Processing Upload...</h5>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                </div>
+                <p class="text-muted mt-2">Please wait while we process your file...</p>
+            </div>
+
+            <div id="uploadResults" class="upload-results mt-4" style="display: none;">
+                <!-- Results will be displayed here -->
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <script>
+        // Tab Switching
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.submission-tabs button').forEach(btn => {
+                if (btn.dataset.tab === tabName) {
+                    btn.classList.add('r4-button-primary');
+                } else {
+                    btn.classList.remove('r4-button-primary');
+                }
+            });
+
+            // Show/hide tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                if (content.dataset.tabContent === tabName) {
+                    content.style.display = 'block';
+                } else {
+                    content.style.display = 'none';
+                }
+            });
+        }
+
+        // Individual Entry Form Submit
         document.getElementById('applicationForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -286,6 +390,7 @@
             }
         });
 
+        // Checklist progress tracking
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('applicationForm');
             const checkboxes = document.querySelectorAll('.review-checklist input[type="checkbox"]');
@@ -305,6 +410,282 @@
                 const total = checkboxes.length;
                 console.log(`Checklist progress: ${checked}/${total} items completed`);
             }
+
+            // Initialize bulk upload handlers
+            initBulkUpload();
         });
+
+        // Bulk Upload Functions
+        function initBulkUpload() {
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            const uploadButton = document.getElementById('uploadButton');
+            const uploadForm = document.getElementById('bulkUploadForm');
+
+            // Drag and drop handlers
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('drag-over');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('drag-over');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('drag-over');
+
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFileSelect(files[0]);
+                }
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFileSelect(e.target.files[0]);
+                }
+            });
+
+            // Form submission
+            uploadForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const formData = new FormData(uploadForm);
+
+                // Show progress
+                document.getElementById('uploadProgress').style.display = 'block';
+                uploadButton.disabled = true;
+
+                // Mock upload process
+                setTimeout(() => {
+                    const progressBar = document.querySelector('.progress-bar');
+                    let progress = 0;
+                    const interval = setInterval(() => {
+                        progress += 10;
+                        progressBar.style.width = progress + '%';
+
+                        if (progress >= 100) {
+                            clearInterval(interval);
+
+                            setTimeout(() => {
+                                document.getElementById('uploadProgress').style.display = 'none';
+                                showMockResults();
+                            }, 500);
+                        }
+                    }, 200);
+                }, 500);
+            });
+        }
+
+        function handleFileSelect(file) {
+            const fileInput = document.getElementById('fileInput');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            const uploadButton = document.getElementById('uploadButton');
+
+            // Validate file type
+            const validTypes = ['.xlsx', '.xls', '.csv'];
+            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+
+            if (!validTypes.includes(fileExtension)) {
+                alert('Please select a valid Excel (.xlsx, .xls) or CSV (.csv) file.');
+                return;
+            }
+
+            // Validate file size (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File size must be less than 10MB.');
+                return;
+            }
+
+            // Display file info
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileInfo.style.display = 'block';
+            uploadButton.disabled = false;
+
+            // Store file in form
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
+        }
+
+        function clearFile() {
+            const fileInput = document.getElementById('fileInput');
+            const fileInfo = document.getElementById('fileInfo');
+            const uploadButton = document.getElementById('uploadButton');
+
+            fileInput.value = '';
+            fileInfo.style.display = 'none';
+            uploadButton.disabled = true;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        function showMockResults() {
+            const resultsDiv = document.getElementById('uploadResults');
+            const studentCount = @Model.Students.Count;
+            resultsDiv.innerHTML = `
+                <div class="alert alert-success">
+                    <i class="mdi mdi-check-circle-outline"></i>
+                    <strong>Upload Successful!</strong> SEIDs have been processed and assigned to candidates.
+                </div>
+                <div class="upload-summary">
+                    <h5><i class="mdi mdi-chart-box-outline"></i> Upload Summary</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="summary-card summary-success">
+                                <div class="summary-value">${studentCount}</div>
+                                <div class="summary-label">Candidates Matched</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="summary-card summary-success">
+                                <div class="summary-value">${studentCount}</div>
+                                <div class="summary-label">SEIDs Assigned</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="summary-card">
+                                <div class="summary-value">0</div>
+                                <div class="summary-label">Errors Found</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions mt-4">
+                    <button class="r4-button r4-button-success" onclick="switchTab('individual')">
+                        <i class="mdi mdi-check"></i> Continue to Complete Application
+                    </button>
+                    <a href="@Url.Action("Dashboard", "LEAPortal")" class="r4-button">
+                        <i class="mdi mdi-arrow-left"></i> Return to Dashboard
+                    </a>
+                </div>
+            `;
+            resultsDiv.style.display = 'block';
+        }
     </script>
+
+    <style>
+        /* Tab Styling */
+        .submission-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            padding: 0.5rem;
+            background: var(--gray-100);
+            border-radius: 8px;
+            width: fit-content;
+        }
+
+        .submission-tabs button {
+            min-width: 150px;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 3px dashed var(--gray-300);
+            border-radius: 8px;
+            padding: 3rem 2rem;
+            text-align: center;
+            background: var(--gray-50);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: var(--ctc-blue);
+            background: var(--gray-200);
+        }
+
+        .upload-area.drag-over {
+            border-color: var(--ctc-blue);
+            background: var(--gray-100);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: var(--gray-600);
+            margin-bottom: 1rem;
+        }
+
+        .upload-area h5 {
+            color: var(--ctc-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Required Fields Compact */
+        .required-fields-compact {
+            margin-bottom: 1.5rem;
+        }
+
+        .required-fields-label {
+            margin-bottom: 0.75rem;
+            color: var(--gray-700);
+        }
+
+        .field-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .field-tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--ctc-blue);
+            color: var(--white);
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* Upload Summary */
+        .upload-summary .summary-card {
+            text-align: center;
+            padding: 1.5rem;
+            background: var(--white);
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+        }
+
+        .upload-summary .summary-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--ctc-blue);
+        }
+
+        .upload-summary .summary-label {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .upload-summary .summary-card.summary-success .summary-value {
+            color: var(--success);
+        }
+
+        /* Progress Bar */
+        .progress {
+            height: 30px;
+            border-radius: 8px;
+        }
+
+        .progress-bar {
+            font-size: 1rem;
+            line-height: 30px;
+        }
+    </style>
 }

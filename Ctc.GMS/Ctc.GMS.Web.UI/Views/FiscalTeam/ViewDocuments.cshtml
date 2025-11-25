@@ -1,0 +1,290 @@
+@{
+    ViewData["Title"] = "View Documents";
+
+    var leaName = ViewBag.LEAName as string;
+    var amount = (decimal)ViewBag.Amount;
+    var studentCount = (int)ViewBag.StudentCount;
+    var step1Date = ViewBag.Step1Date as DateTime?;
+    var step2Date = ViewBag.Step2Date as DateTime?;
+    var step3Date = ViewBag.Step3Date as DateTime?;
+    var step4Date = ViewBag.Step4Date as DateTime?;
+    var step5Date = ViewBag.Step5Date as DateTime?;
+    var step6Date = ViewBag.Step6Date as DateTime?;
+
+    // Document availability based on completed steps
+    var hasGAA = step1Date.HasValue;
+    var hasPO = step2Date.HasValue;
+    var hasInvoice = step4Date.HasValue;
+    var hasWarrant = step6Date.HasValue;
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam")">Grants Team</a></li>
+        <li class="breadcrumb-item active">View Documents</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-folder-open-outline"></i> Disbursement Documents</h2>
+    <p class="subtitle">@leaName</p>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-information-outline"></i> Submission Details</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">LEA District</span>
+                <span class="info-value">@leaName</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Total Amount</span>
+                <span class="info-value info-value-highlight">@amount.ToString("C0")</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Students</span>
+                <span class="info-value">@studentCount</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-file-multiple-outline"></i> Available Documents</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="document-grid">
+            @* GAA Document *@
+            <div class="document-tile @(hasGAA ? "available" : "unavailable")">
+                <div class="document-icon">
+                    <i class="mdi mdi-file-sign"></i>
+                </div>
+                <div class="document-info">
+                    <h5 class="document-title">Grant Award Agreement</h5>
+                    @if (hasGAA)
+                    {
+                        <p class="document-date">Signed: @step1Date.Value.ToString("MM/dd/yyyy")</p>
+                        <button type="button" class="r4-button r4-button-sm r4-button-primary" onclick="downloadDocument('GAA', '@leaName')">
+                            <i class="mdi mdi-download"></i> Download
+                        </button>
+                    }
+                    else
+                    {
+                        <p class="document-status">Pending GAA Signing</p>
+                        <button type="button" class="r4-button r4-button-sm" disabled>
+                            <i class="mdi mdi-download"></i> Download
+                        </button>
+                    }
+                </div>
+            </div>
+
+            @* Purchase Order *@
+            <div class="document-tile @(hasPO ? "available" : "unavailable")">
+                <div class="document-icon">
+                    <i class="mdi mdi-file-document-outline"></i>
+                </div>
+                <div class="document-info">
+                    <h5 class="document-title">Purchase Order</h5>
+                    @if (hasPO)
+                    {
+                        <p class="document-date">Generated: @step2Date.Value.ToString("MM/dd/yyyy")</p>
+                        <button type="button" class="r4-button r4-button-sm r4-button-primary" onclick="downloadDocument('PO', '@leaName')">
+                            <i class="mdi mdi-download"></i> Download
+                        </button>
+                    }
+                    else
+                    {
+                        <p class="document-status">Pending PO Generation</p>
+                        <button type="button" class="r4-button r4-button-sm" disabled>
+                            <i class="mdi mdi-download"></i> Download
+                        </button>
+                    }
+                </div>
+            </div>
+
+            @* Invoice *@
+            <div class="document-tile @(hasInvoice ? "available" : "unavailable")">
+                <div class="document-icon">
+                    <i class="mdi mdi-receipt-text-outline"></i>
+                </div>
+                <div class="document-info">
+                    <h5 class="document-title">Invoice</h5>
+                    @if (hasInvoice)
+                    {
+                        <p class="document-date">Generated: @step4Date.Value.ToString("MM/dd/yyyy")</p>
+                        <button type="button" class="r4-button r4-button-sm r4-button-primary" onclick="downloadDocument('Invoice', '@leaName')">
+                            <i class="mdi mdi-download"></i> Download
+                        </button>
+                    }
+                    else
+                    {
+                        <p class="document-status">Pending Invoice Generation</p>
+                        <button type="button" class="r4-button r4-button-sm" disabled>
+                            <i class="mdi mdi-download"></i> Download
+                        </button>
+                    }
+                </div>
+            </div>
+
+            @* Warrant Confirmation *@
+            <div class="document-tile @(hasWarrant ? "available" : "unavailable")">
+                <div class="document-icon">
+                    <i class="mdi mdi-check-decagram"></i>
+                </div>
+                <div class="document-info">
+                    <h5 class="document-title">Warrant Confirmation</h5>
+                    @if (hasWarrant)
+                    {
+                        <p class="document-date">Confirmed: @step6Date.Value.ToString("MM/dd/yyyy")</p>
+                        <button type="button" class="r4-button r4-button-sm r4-button-primary" onclick="downloadDocument('Warrant', '@leaName')">
+                            <i class="mdi mdi-download"></i> Download
+                        </button>
+                    }
+                    else
+                    {
+                        <p class="document-status">Pending Warrant Confirmation</p>
+                        <button type="button" class="r4-button r4-button-sm" disabled>
+                            <i class="mdi mdi-download"></i> Download
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="form-actions">
+    <a href="@Url.Action("Dashboard", "GrantsTeam")" class="r4-button">
+        <i class="mdi mdi-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
+
+@section Scripts {
+    <script>
+        function downloadDocument(docType, leaName) {
+            alert(`Downloading ${docType} document for ${leaName}...\n\nThis is a POC demonstration. In production, this would download the actual PDF document.`);
+        }
+    </script>
+
+    <style>
+        /* Reduce card body top padding */
+        .r4-card-body {
+            padding-top: 1rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .info-label {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            color: var(--gray-900);
+        }
+
+        .info-value-highlight {
+            font-weight: 600;
+            color: var(--ctc-blue);
+        }
+
+        .document-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .document-tile {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--gray-200);
+            background: var(--white);
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        .document-tile.available {
+            border-color: var(--success);
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.05) 0%, var(--white) 100%);
+        }
+
+        .document-tile.available:hover {
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.15);
+        }
+
+        .document-tile.unavailable {
+            opacity: 0.6;
+            background: var(--gray-50);
+        }
+
+        .document-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .document-tile.available .document-icon {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .document-tile.unavailable .document-icon {
+            background: var(--gray-300);
+            color: var(--gray-500);
+        }
+
+        .document-icon i {
+            font-size: 1.5rem;
+        }
+
+        .document-info {
+            flex: 1;
+        }
+
+        .document-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin: 0 0 0.25rem 0;
+        }
+
+        .document-date {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            margin: 0 0 0.75rem 0;
+        }
+
+        .document-status {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            font-style: italic;
+            margin: 0 0 0.75rem 0;
+        }
+
+        .form-actions {
+            margin-top: 2rem;
+        }
+    </style>
+}

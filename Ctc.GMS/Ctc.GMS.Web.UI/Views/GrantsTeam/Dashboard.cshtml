@@ -12,7 +12,7 @@
 
 <div class="page-header">
     <h2><i class="mdi mdi-clipboard-check-outline"></i> Grants/Fiscal Team Dashboard</h2>
-    <p class="subtitle">@Model.GrantCycleName</p>
+    <p class="subtitle">Student Teacher Stipend Program - FY 2025-26</p>
 </div>
 
 @* GRANTS TEAM - Disbursement Groups Awaiting Review *@
@@ -20,7 +20,7 @@
 {
     <div class="r4-card">
         <div class="r4-card-header">
-            <h4><i class="mdi mdi-folder-open-outline"></i> Applications with Pending Students</h4>
+            <h4><i class="mdi mdi-folder-open-outline"></i> Submissions with Pending Students</h4>
             <div class="card-actions">
                 <a href="@Url.Action("Review", "GrantsTeam", new { grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-sm r4-button-primary">
                     <i class="mdi mdi-eye-outline"></i> Review Queue
@@ -48,10 +48,10 @@
                                 <td>@app.LEAName</td>
                                 <td>@app.TotalStudents</td>
                                 <td>
-                                    <span class="badge badge-warning">@app.PendingCount</span>
+                                    <span class="badge badge-warning badge-status">@app.PendingCount Pending</span>
                                 </td>
                                 <td>
-                                    <span class="badge badge-success">@app.ApprovedCount</span>
+                                    <span class="badge badge-success badge-status">@app.ApprovedCount Approved</span>
                                 </td>
                                 <td>
                                     <div style="width: 160px; display: block;">
@@ -73,70 +73,173 @@
 <div class="r4-card">
     <div class="r4-card-header">
         <h4><i class="mdi mdi-file-document-outline"></i> Disbursement Processing</h4>
+        <div class="card-actions">
+            <a href="@Url.Action("BulkUploadPO", "FiscalTeam")" class="r4-button r4-button-sm">
+                <i class="mdi mdi-upload-multiple"></i> Bulk Upload PO
+            </a>
+            <a href="@Url.Action("DisbursementQueue", "FiscalTeam")" class="r4-button r4-button-sm r4-button-primary">
+                <i class="mdi mdi-format-list-checks"></i> Review Queue
+            </a>
+        </div>
     </div>
     <div class="r4-card-body">
         @{
             // MOCK DATA: Unified disbursement groups in processing pipeline
-            // Each record has a State property that determines the action and last action display
+            // States: NEEDS_GAA, NEEDS_PO, NEEDS_INVOICE, NEEDS_WARRANT, COMPLETE
             var disbursementGroups = new List<dynamic>
             {
-                new { SubmissionDate = DateTime.Now.AddDays(-5), LEA = "Fresno Unified School District", LastAction = "Approved", LastActionDate = DateTime.Now.AddDays(-1), Amount = 67500m, State = "NEEDS_GAA", Id = 1 },
-                new { SubmissionDate = DateTime.Now.AddDays(-7), LEA = "Sacramento City Unified School District", LastAction = "Approved", LastActionDate = DateTime.Now.AddDays(-2), Amount = 48000m, State = "NEEDS_GAA", Id = 2 },
-                new { SubmissionDate = DateTime.Now.AddDays(-10), LEA = "Oakland Unified School District", LastAction = "Approved", LastActionDate = DateTime.Now.AddDays(-3), Amount = 42000m, State = "NEEDS_GAA", Id = 3 },
-                new { SubmissionDate = DateTime.Now.AddDays(-15), LEA = "Los Angeles Unified School District", LastAction = "GAA Signed", LastActionDate = DateTime.Now.AddDays(-2), Amount = 125000m, State = "NEEDS_INVOICE", Id = 4 },
-                new { SubmissionDate = DateTime.Now.AddDays(-20), LEA = "San Diego Unified School District", LastAction = "GAA Signed", LastActionDate = DateTime.Now.AddDays(-1), Amount = 87500m, State = "NEEDS_INVOICE", Id = 5 },
-                new { SubmissionDate = DateTime.Now.AddDays(-25), LEA = "Long Beach Unified School District", LastAction = "Invoice Generated", LastActionDate = DateTime.Now.AddDays(-1), Amount = 52500m, State = "INVOICE_GENERATED", Id = 6 }
+                new { SubmissionDate = DateTime.Now.AddDays(-5), LEA = "Fresno Unified School District", LastAction = "Approved", LastActionDate = DateTime.Now.AddDays(-1), Amount = 67500m, State = "NEEDS_GAA", Id = 1,
+                    Step1Date = (DateTime?)null, Step2Date = (DateTime?)null, Step3Date = (DateTime?)null, Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, Step6Date = (DateTime?)null },
+                new { SubmissionDate = DateTime.Now.AddDays(-7), LEA = "Sacramento City Unified School District", LastAction = "GAA Signed", LastActionDate = DateTime.Now.AddDays(-2), Amount = 48000m, State = "NEEDS_PO", Id = 2,
+                    Step1Date = DateTime.Now.AddDays(-2), Step2Date = (DateTime?)null, Step3Date = (DateTime?)null, Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, Step6Date = (DateTime?)null },
+                new { SubmissionDate = DateTime.Now.AddDays(-10), LEA = "Oakland Unified School District", LastAction = "PO Uploaded", LastActionDate = DateTime.Now.AddDays(-3), Amount = 42000m, State = "NEEDS_INVOICE", Id = 3,
+                    Step1Date = DateTime.Now.AddDays(-8), Step2Date = DateTime.Now.AddDays(-3), Step3Date = (DateTime?)null, Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, Step6Date = (DateTime?)null },
+                new { SubmissionDate = DateTime.Now.AddDays(-15), LEA = "Los Angeles Unified School District", LastAction = "Invoice Sent", LastActionDate = DateTime.Now.AddDays(-2), Amount = 125000m, State = "NEEDS_WARRANT", Id = 4,
+                    Step1Date = DateTime.Now.AddDays(-12), Step2Date = DateTime.Now.AddDays(-8), Step3Date = DateTime.Now.AddDays(-5), Step4Date = DateTime.Now.AddDays(-2), Step5Date = (DateTime?)null, Step6Date = (DateTime?)null },
+                new { SubmissionDate = DateTime.Now.AddDays(-20), LEA = "San Diego Unified School District", LastAction = "Warrant Confirmed", LastActionDate = DateTime.Now.AddDays(-1), Amount = 87500m, State = "COMPLETE", Id = 5,
+                    Step1Date = DateTime.Now.AddDays(-18), Step2Date = DateTime.Now.AddDays(-14), Step3Date = DateTime.Now.AddDays(-10), Step4Date = DateTime.Now.AddDays(-5), Step5Date = DateTime.Now.AddDays(-2), Step6Date = DateTime.Now.AddDays(-1) },
+                new { SubmissionDate = DateTime.Now.AddDays(-25), LEA = "Long Beach Unified School District", LastAction = "Approved", LastActionDate = DateTime.Now.AddDays(-1), Amount = 52500m, State = "NEEDS_GAA", Id = 6,
+                    Step1Date = (DateTime?)null, Step2Date = (DateTime?)null, Step3Date = (DateTime?)null, Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, Step6Date = (DateTime?)null }
+            };
+
+            // Workflow step definitions (6 stages)
+            var workflowSteps = new[] {
+                new { Step = 1, Name = "GAA Signed", FullName = "GAA Signed", Icon = "mdi-file-sign" },
+                new { Step = 2, Name = "PO Generated", FullName = "PO Generated", Icon = "mdi-file-document-outline" },
+                new { Step = 3, Name = "PO Uploaded", FullName = "PO Uploaded", Icon = "mdi-cloud-upload-outline" },
+                new { Step = 4, Name = "Invoice", FullName = "Invoice Generated", Icon = "mdi-receipt-text-outline" },
+                new { Step = 5, Name = "Sent", FullName = "Invoice Sent to Accounting", Icon = "mdi-send-outline" },
+                new { Step = 6, Name = "Warrant", FullName = "Warrant Confirmed", Icon = "mdi-check-decagram" }
             };
         }
 
         @if (disbursementGroups.Any())
         {
             <div class="table-wrapper">
-                <table class="r4-table">
+                <table class="r4-table disbursement-table">
                     <thead>
                         <tr>
+                            <th style="width: 30px;"></th>
                             <th>Submission Date</th>
                             <th>LEA District</th>
                             <th>Last Action</th>
                             <th>Total Amount</th>
+                            <th>Documents</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var group in disbursementGroups)
                         {
-                            <tr>
+                            <tr class="disbursement-row" data-group-id="@group.Id" onclick="toggleTimelineRow(@group.Id)">
+                                <td>
+                                    <i class="mdi mdi-chevron-right expand-icon"></i>
+                                </td>
                                 <td>@group.SubmissionDate.ToString("MM/dd/yyyy")</td>
                                 <td>@group.LEA</td>
                                 <td>
                                     @group.LastAction: @group.LastActionDate.ToString("MM/dd/yyyy")
                                 </td>
                                 <td>@group.Amount.ToString("C0")</td>
-                                <td>
+                                <td onclick="event.stopPropagation();">
+                                    @if (group.Step1Date != null)
+                                    {
+                                        <a href="@Url.Action("ViewDocuments", "FiscalTeam", new { id = group.Id })" class="r4-button r4-button-sm">
+                                            <i class="mdi mdi-folder-open-outline"></i> View Docs
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">--</span>
+                                    }
+                                </td>
+                                <td onclick="event.stopPropagation();">
                                     @if (group.State == "NEEDS_GAA")
                                     {
-                                        <div style="width: 160px; display: block;">
+                                        <div style="width: 180px; display: block;">
                                             <a href="@Url.Action("GAA", "FiscalTeam", new { id = group.Id })" class="r4-button r4-button-sm r4-button-primary">
-                                                <i class="mdi mdi-file-plus-outline"></i> Generate GAA
+                                                <i class="mdi mdi-file-sign"></i> Generate GAA
+                                            </a>
+                                        </div>
+                                    }
+                                    else if (group.State == "NEEDS_PO")
+                                    {
+                                        <div style="width: 180px; display: block;">
+                                            <a href="@Url.Action("UploadPO", "FiscalTeam", new { id = group.Id })" class="r4-button r4-button-sm r4-button-primary">
+                                                <i class="mdi mdi-cloud-upload-outline"></i> Upload PO
                                             </a>
                                         </div>
                                     }
                                     else if (group.State == "NEEDS_INVOICE")
                                     {
-                                        <div style="width: 160px; display: block;">
-                                            <a href="@Url.Action("GenerateInvoice", "FiscalTeam", new { id = group.Id })" class="r4-button r4-button-sm r4-button-primary">
-                                                <i class="mdi mdi-file-plus-outline"></i> Generate Invoice
+                                        <div style="width: 180px; display: block;">
+                                            <a href="@Url.Action("DownloadInvoice", "FiscalTeam", new { id = group.Id })" class="r4-button r4-button-sm r4-button-primary">
+                                                <i class="mdi mdi-receipt-text-outline"></i> Generate Invoice
                                             </a>
                                         </div>
                                     }
-                                    else if (group.State == "INVOICE_GENERATED")
+                                    else if (group.State == "NEEDS_WARRANT")
                                     {
-                                        <div style="width: 160px; display: block;">
-                                            <a href="@Url.Action("ViewInvoice", "FiscalTeam", new { id = group.Id })" class="r4-button r4-button-sm">
-                                                <i class="mdi mdi-file-eye-outline"></i> View Invoice
+                                        <div style="width: 180px; display: block;">
+                                            <a href="@Url.Action("UploadWarrant", "FiscalTeam", new { id = group.Id })" class="r4-button r4-button-sm r4-button-primary">
+                                                <i class="mdi mdi-check-decagram"></i> Upload Warrant
                                             </a>
                                         </div>
                                     }
+                                    else if (group.State == "COMPLETE")
+                                    {
+                                        <div style="width: 180px; display: block;">
+                                            <span class="badge badge-success"><i class="mdi mdi-check"></i> Complete</span>
+                                        </div>
+                                    }
+                                </td>
+                            </tr>
+                            @* Timeline Sub-Row *@
+                            <tr id="timeline-@group.Id" class="timeline-sub-row collapse">
+                                <td colspan="7">
+                                    <div class="timeline-container">
+                                        <div class="horizontal-timeline">
+                                            @{
+                                                var stepDates = new DateTime?[] {
+                                                    group.Step1Date, group.Step2Date, group.Step3Date,
+                                                    group.Step4Date, group.Step5Date, group.Step6Date
+                                                };
+                                            }
+                                            @foreach (var step in workflowSteps)
+                                            {
+                                                var stepDate = stepDates[step.Step - 1];
+                                                var isCompleted = stepDate.HasValue;
+                                                // Current step = first uncompleted step where all previous steps are completed
+                                                var isCurrent = !isCompleted && stepDates.Take(step.Step - 1).All(d => d.HasValue);
+                                                var markerClass = isCompleted ? "timeline-marker-success" :
+                                                                  isCurrent ? "timeline-marker-primary" : "";
+                                                var iconClass = isCompleted ? "mdi-check" : step.Icon;
+
+                                                <div class="timeline-step @(isCompleted ? "completed" : "") @(isCurrent ? "current" : "")">
+                                                    <div class="timeline-step-marker @markerClass">
+                                                        <i class="mdi @iconClass"></i>
+                                                    </div>
+                                                    <div class="timeline-step-content">
+                                                        <div class="timeline-step-title">@step.Name</div>
+                                                        <div class="timeline-step-date">
+                                                            @if (isCompleted)
+                                                            {
+                                                                @stepDate.Value.ToString("MM/dd/yy")
+                                                            }
+                                                            else if (isCurrent)
+                                                            {
+                                                                <span class="current-step-label">In Progress</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="pending-label">Pending</span>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -161,7 +264,7 @@
             </a>
         </div>
     </div>
-    <div class="r4-card-body">
+    <div class="r4-card-body" style="padding-top: 0;">
         @{
             var encumberedM = Model.Metrics.EncumberedAmount / 1000000m;
             var disbursedM = Model.Metrics.DisbursedAmount / 1000000m;
@@ -223,9 +326,193 @@
 
 @section Scripts {
     <script>
+        // Toggle timeline sub-row visibility
+        function toggleTimelineRow(groupId) {
+            const timelineRow = document.getElementById('timeline-' + groupId);
+            const mainRow = document.querySelector(`tr[data-group-id="${groupId}"]`);
+            const icon = mainRow.querySelector('.expand-icon');
+
+            if (timelineRow.classList.contains('show')) {
+                timelineRow.classList.remove('show');
+                icon.classList.remove('mdi-chevron-down');
+                icon.classList.add('mdi-chevron-right');
+            } else {
+                timelineRow.classList.add('show');
+                icon.classList.remove('mdi-chevron-right');
+                icon.classList.add('mdi-chevron-down');
+            }
+        }
+
         // Auto-refresh dashboard every 5 minutes
         setTimeout(function() {
             location.reload();
         }, 300000);
     </script>
+
+    <style>
+        /* Clickable disbursement rows */
+        .disbursement-row {
+            cursor: pointer;
+        }
+
+        .disbursement-row:hover {
+            background-color: var(--gray-100);
+        }
+
+        .expand-icon {
+            font-size: 1.25rem;
+            color: var(--gray-600);
+            transition: transform 0.2s ease;
+        }
+
+        .disbursement-row:hover .expand-icon {
+            color: var(--ctc-blue);
+        }
+
+        /* Timeline sub-row */
+        .timeline-sub-row {
+            display: none;
+            background-color: var(--gray-50);
+        }
+
+        .timeline-sub-row.show {
+            display: table-row;
+        }
+
+        .timeline-sub-row td {
+            padding: 1rem 1.5rem !important;
+            border-top: none !important;
+        }
+
+        .timeline-container {
+            padding: 0.5rem 0;
+        }
+
+        /* Horizontal Timeline (adapted from BatchDetails) */
+        .horizontal-timeline {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0;
+            position: relative;
+            padding: 0.5rem 0;
+            justify-content: space-between;
+        }
+
+        .timeline-step {
+            flex: 1;
+            min-width: 100px;
+            max-width: 140px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            padding: 0 0.5rem;
+        }
+
+        .timeline-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: calc(50% + 18px);
+            width: calc(100% + 35px);
+            height: 2px;
+            background: var(--gray-300);
+        }
+
+        .timeline-step.completed:not(:last-child)::after {
+            background: var(--success);
+        }
+
+        .timeline-step-marker {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gray-200);
+            color: var(--gray-500);
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .timeline-step-marker.timeline-marker-success {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .timeline-step-marker.timeline-marker-primary {
+            background: var(--ctc-blue);
+            color: var(--white);
+        }
+
+        .timeline-step-content {
+            flex: 1;
+        }
+
+        .timeline-step-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 0.125rem;
+            line-height: 1.2;
+        }
+
+        .timeline-step-date {
+            font-size: 0.7rem;
+            color: var(--gray-600);
+        }
+
+        .current-step-label {
+            color: var(--ctc-blue);
+            font-weight: 500;
+        }
+
+        .pending-label {
+            color: var(--gray-400);
+        }
+
+        /* Responsive: stack timeline vertically on small screens */
+        @@media (max-width: 992px) {
+            .horizontal-timeline {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .timeline-step {
+                flex-direction: row;
+                align-items: center;
+                text-align: left;
+                min-width: 100%;
+                max-width: 100%;
+                padding: 0.25rem 0;
+            }
+
+            .timeline-step:not(:last-child)::after {
+                top: 32px;
+                left: 15px;
+                width: 2px;
+                height: calc(100% - 16px);
+            }
+
+            .timeline-step-marker {
+                margin-right: 0.75rem;
+                margin-bottom: 0;
+                flex-shrink: 0;
+            }
+
+            .timeline-step-content {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .timeline-step-title {
+                margin-bottom: 0;
+            }
+        }
+    </style>
 }

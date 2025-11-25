@@ -1,0 +1,277 @@
+@{
+    ViewData["Title"] = "Upload Purchase Order";
+
+    var leaName = ViewBag.LEAName as string;
+    var amount = (decimal)ViewBag.Amount;
+    var studentCount = (int)ViewBag.StudentCount;
+    var id = (int)ViewBag.Id;
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam")">Grants Team</a></li>
+        <li class="breadcrumb-item active">Upload Purchase Order</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-file-upload-outline"></i> Upload Purchase Order</h2>
+    <p class="subtitle">@leaName</p>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-information-outline"></i> Disbursement Details</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">LEA District</span>
+                <span class="info-value">@leaName</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Total Amount</span>
+                <span class="info-value info-value-highlight">@amount.ToString("C0")</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Students</span>
+                <span class="info-value">@studentCount</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-file-document-outline"></i> Upload Purchase Order</h4>
+    </div>
+    <div class="r4-card-body">
+        <form id="uploadPOForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="poFile" class="form-label">Purchase Order File</label>
+                <p class="form-help-text">Upload the signed Purchase Order document (PDF or Excel format)</p>
+                <div class="file-upload-area" id="dropZone">
+                    <i class="mdi mdi-cloud-upload-outline"></i>
+                    <p>Drag & drop your file here or</p>
+                    <label for="poFile" class="r4-button r4-button-secondary r4-button-sm">
+                        <i class="mdi mdi-folder-open-outline"></i> Browse Files
+                    </label>
+                    <input type="file" id="poFile" name="poFile" accept=".pdf,.xlsx,.xls,.csv" class="file-input" />
+                    <p class="file-types">Accepted formats: PDF, XLSX, XLS, CSV</p>
+                </div>
+                <div id="selectedFile" class="selected-file" style="display: none;">
+                    <i class="mdi mdi-file-check-outline"></i>
+                    <span id="fileName"></span>
+                    <button type="button" class="remove-file" onclick="clearFile()">
+                        <i class="mdi mdi-close"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="@Url.Action("Dashboard", "GrantsTeam")" class="r4-button">
+                    <i class="mdi mdi-arrow-left"></i> Cancel
+                </a>
+                <button type="submit" class="r4-button r4-button-primary" id="submitBtn" disabled>
+                    <i class="mdi mdi-upload"></i> Upload Purchase Order
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const fileInput = document.getElementById('poFile');
+        const dropZone = document.getElementById('dropZone');
+        const selectedFile = document.getElementById('selectedFile');
+        const fileName = document.getElementById('fileName');
+        const submitBtn = document.getElementById('submitBtn');
+        const form = document.getElementById('uploadPOForm');
+
+        // File input change handler
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                showSelectedFile(this.files[0]);
+            }
+        });
+
+        // Drag and drop handlers
+        dropZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                showSelectedFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        function showSelectedFile(file) {
+            fileName.textContent = file.name;
+            selectedFile.style.display = 'flex';
+            dropZone.style.display = 'none';
+            submitBtn.disabled = false;
+        }
+
+        function clearFile() {
+            fileInput.value = '';
+            selectedFile.style.display = 'none';
+            dropZone.style.display = 'flex';
+            submitBtn.disabled = true;
+        }
+
+        // Form submission
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            alert('Purchase Order uploaded successfully!\n\nThis is a POC demonstration. In production, this would:\n• Save the PO document to secure storage\n• Update the disbursement record\n• Notify relevant parties\n• Advance to the next workflow stage');
+
+            window.location.href = '@Url.Action("Dashboard", "GrantsTeam")';
+        });
+    </script>
+
+    <style>
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .info-label {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            color: var(--gray-900);
+        }
+
+        .info-value-highlight {
+            font-weight: 600;
+            color: var(--ctc-blue);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.25rem;
+        }
+
+        .form-help-text {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            margin-bottom: 1rem;
+        }
+
+        .file-upload-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2.5rem;
+            border: 2px dashed var(--gray-300);
+            border-radius: 8px;
+            background: var(--gray-50);
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .file-upload-area:hover,
+        .file-upload-area.drag-over {
+            border-color: var(--ctc-blue);
+            background: rgba(0, 86, 179, 0.05);
+        }
+
+        .file-upload-area i {
+            font-size: 3rem;
+            color: var(--gray-400);
+            margin-bottom: 1rem;
+        }
+
+        .file-upload-area p {
+            color: var(--gray-600);
+            margin: 0 0 1rem 0;
+        }
+
+        .file-upload-area .file-types {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            margin-top: 1rem;
+            margin-bottom: 0;
+        }
+
+        .file-input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            overflow: hidden;
+        }
+
+        .selected-file {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: rgba(40, 167, 69, 0.1);
+            border: 1px solid var(--success);
+            border-radius: 8px;
+            color: var(--success);
+        }
+
+        .selected-file i {
+            font-size: 1.5rem;
+        }
+
+        .selected-file span {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .remove-file {
+            background: none;
+            border: none;
+            color: var(--gray-600);
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .remove-file:hover {
+            background: var(--gray-200);
+            color: var(--danger);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--gray-200);
+        }
+    </style>
+}

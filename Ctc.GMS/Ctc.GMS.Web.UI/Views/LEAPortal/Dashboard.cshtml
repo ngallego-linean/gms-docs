@@ -64,11 +64,8 @@
     <div class="r4-card-header">
         <h4><i class="mdi mdi-chart-bar"></i> Candidate Status</h4>
         <div class="card-actions">
-            <a href="@Url.Action("BulkUpload", "LEAPortal")" class="r4-button">
-                <i class="mdi mdi-file-upload-outline"></i> Bulk Upload
-            </a>
             <a href="@Url.Action("CompleteApplication", "LEAPortal", new { id = Model.Applications.FirstOrDefault()?.Id ?? 0 })" class="r4-button r4-button-primary">
-                <i class="mdi mdi-send"></i> Submit Candidates
+                <i class="mdi mdi-file-document-edit-outline"></i> Complete Applications
             </a>
         </div>
     </div>
@@ -192,9 +189,6 @@
                 <a href="@Url.Action("FundedCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-primary">
                     <i class="mdi mdi-clipboard-text-outline"></i> Complete Reports
                 </a>
-                <a href="@Url.Action("BulkUpload", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button">
-                    <i class="mdi mdi-file-upload-outline"></i> Upload Bulk Reports
-                </a>
                 <a href="@Url.Action("ReportHistory", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button">
                     <i class="mdi mdi-history"></i> View History
                 </a>
@@ -223,7 +217,7 @@
                 <table class="r4-table">
                     <thead>
                         <tr>
-                            <th>Batch Month</th>
+                            <th>Month</th>
                             <th>Total Candidates</th>
                             <th>IHE Partners</th>
                             <th>Status</th>
@@ -246,18 +240,11 @@
                                     </small>
                                 </td>
                                 <td>
-                                    @if (batch.Status == "DRAFT")
-                                    {
-                                        <span class="badge bg-secondary">Draft</span>
+                                    @{
+                                        var badgeClass = GMS.Business.Helpers.StatusHelper.GetBadgeClass(batch.Status);
+                                        var displayText = GMS.Business.Helpers.StatusHelper.GetDisplayText(batch.Status);
                                     }
-                                    else if (batch.Status == "SUBMITTED")
-                                    {
-                                        <span class="badge bg-success">Submitted</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-info">In Progress</span>
-                                    }
+                                    <span class="@badgeClass badge-status">@displayText</span>
                                 </td>
                                 <td>
                                     @if (batch.SubmissionDate.HasValue)
@@ -285,7 +272,7 @@
             <div style="text-align: center; padding: 3rem; color: var(--gray-500);">
                 <i class="mdi mdi-file-document-outline" style="font-size: 4rem; display: block; margin-bottom: 1rem; opacity: 0.3;"></i>
                 <p style="font-size: 1.1rem; margin: 0; color: var(--gray-700);">No submissions yet</p>
-                <small style="color: var(--gray-500);">Complete applications from your IHE partners to create batch submissions to CTC.</small>
+                <small style="color: var(--gray-500);">Complete applications from your IHE partners to create submissions to CTC.</small>
             </div>
         }
     </div>

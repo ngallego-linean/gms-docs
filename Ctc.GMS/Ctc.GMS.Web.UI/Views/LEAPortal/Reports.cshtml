@@ -80,11 +80,11 @@
                     var daysRemaining = (Model.ReportingDeadline.Value - DateTime.UtcNow).Days;
                     if (daysRemaining >= 0)
                     {
-                        <span class="badge badge-info">@daysRemaining days remaining</span>
+                        <span class="badge badge-info badge-status">@daysRemaining days remaining</span>
                     }
                     else
                     {
-                        <span class="badge badge-danger">OVERDUE</span>
+                        <span class="badge badge-danger badge-status">OVERDUE</span>
                     }
                 }
             </div>
@@ -101,9 +101,6 @@
         <div class="button-group">
             <a href="@Url.Action("FundedCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-primary">
                 <i class="mdi mdi-clipboard-text-outline"></i> Submit Reports
-            </a>
-            <a href="@Url.Action("BulkUpload", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button">
-                <i class="mdi mdi-file-upload-outline"></i> Bulk Upload
             </a>
             <a href="@Url.Action("ReportHistory", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button">
                 <i class="mdi mdi-history"></i> View History
@@ -139,7 +136,7 @@
                             <td>@report.IHEName</td>
                             <td>@report.CredentialArea</td>
                             <td>@(report.ReportSubmittedDate?.ToString("MM/dd/yyyy") ?? "N/A")</td>
-                            <td><span class="badge @report.ReportStatusBadgeClass">@report.ReportStatus</span></td>
+                            <td><span class="badge @report.ReportStatusBadgeClass badge-status">@report.ReportStatus</span></td>
                             <td>
                                 <a href="@Url.Action("SubmitReport", "LEAPortal", new { studentId = report.StudentId })" class="r4-button r4-button-sm">
                                     <i class="mdi mdi-eye-outline"></i> View

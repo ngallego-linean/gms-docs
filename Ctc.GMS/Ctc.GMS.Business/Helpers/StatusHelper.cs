@@ -16,6 +16,18 @@ public static class StatusHelper
         Rejected
     }
 
+    // CTC Status Constants (public-facing statuses)
+    public static class CTCStatus
+    {
+        public const string Submitted = "SUBMITTED";
+        public const string Pending = "PENDING";
+        public const string UnderReview = "UNDER_REVIEW";
+        public const string Waitlist = "WAITLIST";
+        public const string Approved = "APPROVED";
+        public const string PaymentInProcess = "PAYMENT_IN_PROCESS";
+        public const string Paid = "PAID";
+    }
+
     /// <summary>
     /// Get the workflow stage for a given student status
     /// </summary>
@@ -23,6 +35,12 @@ public static class StatusHelper
     {
         return status switch
         {
+            // CTC Public-Facing Statuses
+            "SUBMITTED" or "PENDING" => WorkflowStage.Submission,
+            "UNDER_REVIEW" or "WAITLIST" => WorkflowStage.Review,
+            "APPROVED" or "PAYMENT_IN_PROCESS" or "PAID" => WorkflowStage.Disbursement,
+
+            // Legacy/Internal Statuses
             "DRAFT" or "IHE_SUBMITTED" or "LEA_REVIEWING" or "LEA_APPROVED" or "CTC_SUBMITTED" => WorkflowStage.Submission,
             "CTC_REVIEWING" => WorkflowStage.Review,
             "CTC_APPROVED" or "GAA_PENDING" or "GAA_GENERATED" or "GAA_SIGNED" or
@@ -40,23 +58,37 @@ public static class StatusHelper
     {
         return status switch
         {
+            // CTC Public-Facing Statuses
+            "SUBMITTED" => "badge badge-info",                    // Info Blue - submitted by IHE
+            "PENDING" => "badge badge-secondary",                 // Gray - LEA reviewing/processing
+            "UNDER_REVIEW" => "badge badge-warning",              // Warning Yellow - CTC reviewing
+            "WAITLIST" => "badge badge-waitlist",                 // CTC Gold - funding low, in queue
+            "APPROVED" => "badge badge-success",                  // Success Green - eligible for payment
+            "PAYMENT_IN_PROCESS" => "badge badge-primary",        // Primary Blue - disbursement happening
+            "PAID" => "badge badge-paid",                         // Dark Green - funds disbursed
+
+            // Reporting Statuses
+            "IN_PROGRESS" => "badge badge-warning",               // Warning Yellow - report in progress
+            "NOT_STARTED" => "badge badge-secondary",             // Gray - not started
+
+            // Legacy/Internal Statuses
             // Success statuses (green)
-            "CTC_APPROVED" or "LEA_APPROVED" or "PAYMENT_COMPLETE" or "REPORTS_APPROVED" => "badge bg-success",
+            "CTC_APPROVED" or "LEA_APPROVED" or "PAYMENT_COMPLETE" or "PAYMENT_COMPLETED" or "REPORTS_APPROVED" => "badge badge-success",
 
             // Warning statuses (yellow/orange)
-            "REVISION_REQUESTED" or "LEA_REVIEWING" or "CTC_REVIEWING" or "REPORTING_PARTIAL" => "badge bg-warning",
+            "REVISION_REQUESTED" or "LEA_REVIEWING" or "CTC_REVIEWING" or "REPORTING_PARTIAL" => "badge badge-warning",
 
             // Danger statuses (red)
-            "CTC_REJECTED" => "badge bg-danger",
+            "CTC_REJECTED" => "badge badge-danger",
 
             // Info statuses (blue)
-            "CTC_SUBMITTED" or "IHE_SUBMITTED" or "WARRANT_ISSUED" or "INVOICE_GENERATED" or "PAYMENT_AUTHORIZED" => "badge bg-info",
+            "CTC_SUBMITTED" or "IHE_SUBMITTED" or "WARRANT_ISSUED" or "INVOICE_GENERATED" or "PAYMENT_AUTHORIZED" => "badge badge-info",
 
             // Processing statuses (light blue)
-            "GAA_PENDING" or "GAA_GENERATED" or "GAA_SIGNED" or "REPORTING_PENDING" => "badge bg-primary",
+            "GAA_PENDING" or "GAA_GENERATED" or "GAA_SIGNED" or "REPORTING_PENDING" => "badge badge-primary",
 
             // Draft/default (gray)
-            "DRAFT" or _ => "badge bg-secondary"
+            "DRAFT" or _ => "badge badge-secondary"
         };
     }
 
@@ -67,6 +99,21 @@ public static class StatusHelper
     {
         return status switch
         {
+            // CTC Public-Facing Statuses
+            "SUBMITTED" => "Submitted",
+            "PENDING" => "Pending",
+            "UNDER_REVIEW" => "Under Review",
+            "WAITLIST" => "Waitlist",
+            "APPROVED" => "Approved",
+            "PAYMENT_IN_PROCESS" => "Payment in Process",
+            "PAID" => "Paid",
+
+            // Reporting Statuses
+            "IN_PROGRESS" => "In Progress",
+            "NOT_STARTED" => "Not Started",
+            "PAYMENT_COMPLETED" => "Paid",
+
+            // Legacy/Internal Statuses
             "DRAFT" => "Draft",
             "IHE_SUBMITTED" => "Submitted to LEA",
             "LEA_REVIEWING" => "LEA Reviewing",

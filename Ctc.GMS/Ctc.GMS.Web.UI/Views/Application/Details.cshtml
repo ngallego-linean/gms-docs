@@ -2,7 +2,7 @@
 @model ApplicationViewModel
 
 @{
-    ViewData["Title"] = "Application Details";
+    ViewData["Title"] = "Submission Details";
 
     var submissionCount = Model.Students.Count(s => GMS.Business.Helpers.StatusHelper.GetWorkflowStage(s.Status) == GMS.Business.Helpers.StatusHelper.WorkflowStage.Submission);
     var reviewCount = Model.Students.Count(s => GMS.Business.Helpers.StatusHelper.GetWorkflowStage(s.Status) == GMS.Business.Helpers.StatusHelper.WorkflowStage.Review);
@@ -14,111 +14,62 @@
 @section Breadcrumbs {
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Dashboard</a></li>
-        <li class="breadcrumb-item"><a asp-controller="Application" asp-action="Index">Applications</a></li>
-        <li class="breadcrumb-item active">Application Details</li>
+        <li class="breadcrumb-item"><a asp-controller="Application" asp-action="Index">Submissions</a></li>
+        <li class="breadcrumb-item active">Submission Details</li>
     </ol>
 }
 
 @* Page Header *@
 <div class="page-header">
-    <h2><i class="mdi mdi-file-document-outline"></i> Application Details</h2>
+    <h2><i class="mdi mdi-file-document-outline"></i> Submission Details</h2>
     <p class="subtitle">@Model.IHE.Name → @Model.LEA.Name</p>
 </div>
 
 @* Action Button *@
 <div class="page-actions">
     <a asp-controller="Application" asp-action="Index" class="r4-button r4-button-secondary">
-        <i class="mdi mdi-arrow-left"></i> Back to Applications
+        <i class="mdi mdi-arrow-left"></i> Back to Submissions
     </a>
 </div>
 
-@* Application Information Card *@
+@* Submission Information Card *@
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-information-outline"></i> Application Information</h4>
+        <h4><i class="mdi mdi-information-outline"></i> Submission Information</h4>
     </div>
-    <div class="r4-card-body">
-        <dl class="r4-dl-horizontal">
-            <dt>Application ID:</dt>
-            <dd><strong>#@Model.Id</strong></dd>
-
-            <dt>Grant Cycle:</dt>
-            <dd>@Model.GrantCycle.Name</dd>
-
-            <dt>Status:</dt>
-            <dd>
-                @Model.Status
-            </dd>
-
-            <dt>IHE Institution:</dt>
-            <dd>@Model.IHE.Name</dd>
-
-            <dt>LEA District:</dt>
-            <dd>@Model.LEA.Name</dd>
-
-            <dt>Created Date:</dt>
-            <dd>@Model.CreatedAt.ToShortDateString()</dd>
-
-            <dt>Last Modified:</dt>
-            <dd>@Model.LastModified.ToShortDateString()</dd>
-
-            <dt>Created By:</dt>
-            <dd>@Model.CreatedBy</dd>
-        </dl>
-    </div>
-</div>
-
-@* Application Progress Card *@
-<div class="r4-card">
-    <div class="r4-card-header">
-        <h4><i class="mdi mdi-chart-timeline-variant"></i> Application Progress</h4>
-    </div>
-    <div class="r4-card-body">
-        <div class="dashboard-grid">
-            <div class="metric-card">
-                <div class="metric-icon">
-                    <i class="mdi mdi-account-group-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@totalStudents</div>
-                    <div class="metric-label">Total Students</div>
-                </div>
+    <div class="r4-card-body" style="padding-top: 0;">
+        <div class="info-grid" style="margin-top: -0.15rem;">
+            <div class="info-item">
+                <span class="info-label">Submission ID</span>
+                <span class="info-value">#@Model.Id</span>
             </div>
-            <div class="metric-card">
-                <div class="metric-icon">
-                    <i class="mdi mdi-file-document-edit-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@submissionCount</div>
-                    <div class="metric-label">Submission</div>
-                </div>
+            <div class="info-item">
+                <span class="info-label">Grant Cycle</span>
+                <span class="info-value">@Model.GrantCycle.Name</span>
             </div>
-            <div class="metric-card metric-review">
-                <div class="metric-icon">
-                    <i class="mdi mdi-magnify"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@reviewCount</div>
-                    <div class="metric-label">Under Review</div>
-                </div>
+            <div class="info-item">
+                <span class="info-label">Status</span>
+                <span class="info-value">@Model.Status</span>
             </div>
-            <div class="metric-card metric-approved">
-                <div class="metric-icon">
-                    <i class="mdi mdi-cash-multiple"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@disbursementCount</div>
-                    <div class="metric-label">Disbursement</div>
-                </div>
+            <div class="info-item">
+                <span class="info-label">IHE Institution</span>
+                <span class="info-value">@Model.IHE.Name</span>
             </div>
-            <div class="metric-card metric-success">
-                <div class="metric-icon">
-                    <i class="mdi mdi-file-chart-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@reportingCount</div>
-                    <div class="metric-label">Reporting</div>
-                </div>
+            <div class="info-item">
+                <span class="info-label">LEA District</span>
+                <span class="info-value">@Model.LEA.Name</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Total Students</span>
+                <span class="info-value info-value-highlight">@Model.Students.Count</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Created Date</span>
+                <span class="info-value">@Model.CreatedAt.ToShortDateString()</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Last Modified</span>
+                <span class="info-value">@Model.LastModified.ToShortDateString()</span>
             </div>
         </div>
     </div>
@@ -134,37 +85,20 @@
         {
             <div class="alert alert-info">
                 <i class="mdi mdi-information-outline"></i>
-                No students have been added to this application yet.
+                No students have been added to this submission yet.
             </div>
         }
         else
         {
             @* Search and Filter Bar *@
-            <div style="display: grid; grid-template-columns: 1fr 200px 250px; gap: 1rem; margin-bottom: 1.5rem; align-items: end;">
-                <div>
-                    <label for="studentSearch" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                        <i class="mdi mdi-magnify"></i> Search
-                    </label>
-                    <input type="text" id="studentSearch" class="r4-input" placeholder="Search by name, SEID, or credential area..." style="width: 100%;">
+            <div class="form-row" style="margin-bottom: 1.5rem;">
+                <div class="form-group col-md-8">
+                    <label for="studentSearch"><i class="mdi mdi-magnify"></i> Search</label>
+                    <input type="text" id="studentSearch" class="form-control" placeholder="Search by name, SEID, or credential area...">
                 </div>
-                <div>
-                    <label for="statusFilter" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                        <i class="mdi mdi-filter-outline"></i> Status
-                    </label>
-                    <select id="statusFilter" class="r4-select" style="width: 100%;">
-                        <option value="">All Statuses</option>
-                        <option value="SUBMITTED">Submitted</option>
-                        <option value="APPROVED">Approved</option>
-                        <option value="UNDER_REVIEW">Under Review</option>
-                        <option value="PENDING_LEA">Pending LEA</option>
-                        <option value="DRAFT">Draft</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="credentialFilter" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                        <i class="mdi mdi-school-outline"></i> Credential Area
-                    </label>
-                    <select id="credentialFilter" class="r4-select" style="width: 100%;">
+                <div class="form-group col-md-4">
+                    <label for="credentialFilter"><i class="mdi mdi-school-outline"></i> Credential Area</label>
+                    <select id="credentialFilter" class="form-control">
                         <option value="">All Credential Areas</option>
                         <option value="Multiple Subject">Multiple Subject</option>
                         <option value="Single Subject">Single Subject</option>
@@ -174,15 +108,15 @@
                 </div>
             </div>
 
-            <table class="r4-table" id="studentsTable">
+            <div class="table-wrapper">
+                <table class="r4-table" id="studentsTable" style="width: 100%;">
                 <thead>
                     <tr>
                         <th>SEID</th>
                         <th>First Name</th>
                         <th>Last Name</th>
                         <th>Credential Area</th>
-                        <th>Status</th>
-                        <th class="text-right">Award Amount</th>
+                        <th style="text-align: right;">Award Amount</th>
                         <th>Submitted</th>
                     </tr>
                 </thead>
@@ -194,12 +128,7 @@
                             <td>@student.FirstName</td>
                             <td>@student.LastName</td>
                             <td>@student.CredentialArea</td>
-                            <td>
-                                <span class="badge badge-@(GetStatusBadgeClass(student.Status))">
-                                    @student.Status
-                                </span>
-                            </td>
-                            <td class="text-right">
+                            <td style="text-align: right;">
                                 @if (student.Status == "SUBMITTED" || student.Status == "UNDER_REVIEW")
                                 {
                                     <span class="text-muted">Pending</span>
@@ -214,6 +143,7 @@
                     }
                 </tbody>
             </table>
+            </div>
         }
     </div>
 </div>
@@ -223,14 +153,16 @@
         // Student table filtering
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('studentSearch');
-            const statusFilter = document.getElementById('statusFilter');
             const credentialFilter = document.getElementById('credentialFilter');
             const table = document.getElementById('studentsTable');
-            const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            const tbody = table ? table.getElementsByTagName('tbody')[0] : null;
+
+            if (!tbody) return;
+
+            const rows = tbody.getElementsByTagName('tr');
 
             function filterTable() {
                 const searchTerm = searchInput.value.toLowerCase();
-                const statusValue = statusFilter.value.toUpperCase();
                 const credentialValue = credentialFilter.value;
 
                 for (let i = 0; i < rows.length; i++) {
@@ -242,7 +174,6 @@
                         const firstName = cells[1].textContent.toLowerCase();
                         const lastName = cells[2].textContent.toLowerCase();
                         const credentialArea = cells[3].textContent;
-                        const status = cells[4].textContent.trim().toUpperCase();
 
                         // Check search term
                         const matchesSearch = searchTerm === '' ||
@@ -251,14 +182,11 @@
                             lastName.includes(searchTerm) ||
                             credentialArea.toLowerCase().includes(searchTerm);
 
-                        // Check status filter
-                        const matchesStatus = statusValue === '' || status === statusValue;
-
                         // Check credential filter
                         const matchesCredential = credentialValue === '' || credentialArea === credentialValue;
 
                         // Show/hide row based on all filters
-                        if (matchesSearch && matchesStatus && matchesCredential) {
+                        if (matchesSearch && matchesCredential) {
                             row.style.display = '';
                         } else {
                             row.style.display = 'none';
@@ -269,24 +197,58 @@
 
             // Add event listeners
             searchInput.addEventListener('keyup', filterTable);
-            statusFilter.addEventListener('change', filterTable);
             credentialFilter.addEventListener('change', filterTable);
         });
     </script>
-}
 
-@functions {
-    string GetStatusBadgeClass(string status)
-    {
-        return status switch
-        {
-            "APPROVED" => "success",
-            "SUBMITTED" => "warning",
-            "UNDER_REVIEW" => "info",
-            "REJECTED" => "danger",
-            "PENDING_LEA" => "warning",
-            "DRAFT" => "secondary",
-            _ => "secondary"
-        };
-    }
+    <style>
+        /* Info Grid - Submission Information */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem 2rem;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .info-item-full {
+            grid-column: 1 / -1;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            color: var(--gray-600);
+            font-weight: 500;
+            margin-bottom: 0.125rem;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .info-value {
+            font-size: 0.95rem;
+            color: var(--gray-900);
+        }
+
+        .info-value-highlight {
+            font-weight: 600;
+            color: var(--ctc-blue);
+        }
+
+        /* Table full width */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        @@media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 }

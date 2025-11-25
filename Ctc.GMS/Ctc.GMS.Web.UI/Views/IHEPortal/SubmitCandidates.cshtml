@@ -21,68 +21,158 @@
     Submit your list of student teacher candidates for this grant cycle. After submission, the LEA will receive an email notification to complete the application.
 </div>
 
-<form method="post" action="@Url.Action("ProcessSubmission", "IHEPortal")" id="candidateForm">
-    <input type="hidden" name="IHEId" value="@Model.IHEId" />
-    <input type="hidden" name="GrantCycleId" value="@Model.GrantCycleId" />
+@* Submission Method Tabs *@
+<div class="submission-tabs">
+    <button type="button" class="r4-button r4-button-primary" data-tab="manual" onclick="switchTab('manual')">
+        <i class="mdi mdi-account-edit-outline"></i> Manual Entry
+    </button>
+    <button type="button" class="r4-button" data-tab="bulk" onclick="switchTab('bulk')">
+        <i class="mdi mdi-file-upload-outline"></i> Bulk Upload
+    </button>
+</div>
 
-    <div class="r4-card">
-        <div class="r4-card-header">
-            <h4><i class="mdi mdi-account-outline"></i> IHE Point of Contact Information</h4>
-        </div>
-        <div class="r4-card-body">
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="POCFirstName">First Name <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="POCFirstName" name="POCFirstName" required>
+@* Manual Entry Tab Content *@
+<div class="tab-content" data-tab-content="manual">
+    <form method="post" action="@Url.Action("ProcessSubmission", "IHEPortal")" id="candidateForm">
+        <input type="hidden" name="IHEId" value="@Model.IHEId" />
+        <input type="hidden" name="GrantCycleId" value="@Model.GrantCycleId" />
+
+        <div class="r4-card">
+            <div class="r4-card-header">
+                <h4><i class="mdi mdi-account-outline"></i> IHE Point of Contact Information</h4>
+            </div>
+            <div class="r4-card-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="POCFirstName">First Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="POCFirstName" name="POCFirstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="POCLastName">Last Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="POCLastName" name="POCLastName" required>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="POCLastName">Last Name <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="POCLastName" name="POCLastName" required>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="POCEmail">Email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="POCEmail" name="POCEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="POCPhone">Phone <span class="text-danger">*</span></label>
+                        <input type="tel" class="form-control" id="POCPhone" name="POCPhone" placeholder="(555) 123-4567" required>
+                    </div>
                 </div>
             </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="POCEmail">Email <span class="text-danger">*</span></label>
-                    <input type="email" class="form-control" id="POCEmail" name="POCEmail" required>
+        </div>
+
+        <div class="r4-card">
+            <div class="r4-card-header">
+                <h4><i class="mdi mdi-account-group-outline"></i> Candidate Information</h4>
+                <div class="card-actions">
+                    <button type="button" class="r4-button r4-button-primary" onclick="addCandidate()">
+                        <i class="mdi mdi-plus"></i> Add Candidate
+                    </button>
                 </div>
-                <div class="form-group">
-                    <label for="POCPhone">Phone <span class="text-danger">*</span></label>
-                    <input type="tel" class="form-control" id="POCPhone" name="POCPhone" placeholder="(555) 123-4567" required>
+            </div>
+            <div class="r4-card-body" id="candidatesContainer">
+                <div class="empty-state">
+                    <i class="mdi mdi-account-plus-outline"></i>
+                    <p>Click "Add Candidate" to begin adding student teacher candidates.</p>
                 </div>
             </div>
         </div>
-    </div>
 
+        <div class="form-actions mt-4">
+            <button type="submit" class="r4-button r4-button-success">
+                <i class="mdi mdi-send-outline"></i> Submit Candidate List
+            </button>
+            <a href="@Url.Action("Dashboard", "IHEPortal")" class="r4-button r4-button-secondary">
+                <i class="mdi mdi-arrow-left"></i> Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+@* Bulk Upload Tab Content *@
+<div class="tab-content" data-tab-content="bulk" style="display: none;">
     <div class="r4-card">
         <div class="r4-card-header">
-            <h4><i class="mdi mdi-account-group-outline"></i> Candidate Information</h4>
+            <h4><i class="mdi mdi-file-upload-outline"></i> Upload Candidate File</h4>
             <div class="card-actions">
-                <button type="button" class="r4-button r4-button-primary" onclick="addCandidate()">
-                    <i class="mdi mdi-plus"></i> Add Candidate
-                </button>
-            </div>
-        </div>
-        <div class="r4-card-body" id="candidatesContainer">
-            <div class="empty-state">
-                <i class="mdi mdi-account-plus-outline"></i>
-                <p>Click "Add Candidate" to begin adding student teacher candidates.</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="r4-card">
-        <div class="r4-card-body">
-            <div class="form-actions">
-                <button type="submit" class="r4-button r4-button-success">
-                    <i class="mdi mdi-send-outline"></i> Submit Candidate List
-                </button>
-                <a href="@Url.Action("Dashboard", "IHEPortal")" class="r4-button r4-button-secondary">
-                    <i class="mdi mdi-arrow-left"></i> Cancel
+                <a href="@Url.Action("DownloadCandidateTemplate", "IHEPortal")" class="r4-button r4-button-primary">
+                    <i class="mdi mdi-file-excel"></i> Download Excel Template
                 </a>
             </div>
         </div>
+        <div class="r4-card-body">
+            <div class="required-fields-compact">
+                <p class="required-fields-label"><i class="mdi mdi-format-list-checks"></i> <strong>Required Fields:</strong></p>
+                <div class="field-tags">
+                    <span class="field-tag">First Name</span>
+                    <span class="field-tag">Last Name</span>
+                    <span class="field-tag">DOB</span>
+                    <span class="field-tag">Last 4 SSN</span>
+                    <span class="field-tag">Credential Area</span>
+                    <span class="field-tag">County CDS</span>
+                    <span class="field-tag">LEA CDS</span>
+                    <span class="field-tag">School CDS</span>
+                    <span class="field-tag">LEA POC Name</span>
+                    <span class="field-tag">LEA POC Email</span>
+                    <span class="field-tag">LEA POC Phone</span>
+                    <span class="field-tag field-tag-optional">Race</span>
+                    <span class="field-tag field-tag-optional">Ethnicity</span>
+                    <span class="field-tag field-tag-optional">Gender</span>
+                </div>
+            </div>
+
+            <form id="bulkUploadForm" enctype="multipart/form-data">
+                <input type="hidden" name="iheId" value="@Model.IHEId" />
+                <input type="hidden" name="grantCycleId" value="@Model.GrantCycleId" />
+
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">
+                        <i class="mdi mdi-cloud-upload-outline"></i>
+                    </div>
+                    <h5>Drag and drop your Excel file here</h5>
+                    <p class="text-muted">or click to browse</p>
+                    <input type="file" id="fileInput" name="file" accept=".xlsx,.xls,.csv" style="display: none;" />
+                    <button type="button" class="r4-button r4-button-primary mt-3" onclick="document.getElementById('fileInput').click();">
+                        <i class="mdi mdi-folder-open-outline"></i> Choose File
+                    </button>
+                </div>
+
+                <div id="fileInfo" class="file-info mt-3" style="display: none;">
+                    <div class="alert alert-success">
+                        <i class="mdi mdi-file-check-outline"></i>
+                        <strong>Selected file:</strong> <span id="fileName"></span> (<span id="fileSize"></span>)
+                        <button type="button" class="btn-close" onclick="clearFile()"></button>
+                    </div>
+                </div>
+
+                <div class="form-actions mt-4">
+                    <button type="submit" class="r4-button r4-button-primary" id="uploadButton" disabled>
+                        <i class="mdi mdi-upload"></i> Upload and Process
+                    </button>
+                    <a href="@Url.Action("Dashboard", "IHEPortal", new { iheId = Model.IHEId, grantCycleId = Model.GrantCycleId })" class="r4-button">
+                        <i class="mdi mdi-arrow-left"></i> Cancel
+                    </a>
+                </div>
+            </form>
+
+            <div id="uploadProgress" class="upload-progress mt-4" style="display: none;">
+                <h5>Processing Upload...</h5>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                </div>
+                <p class="text-muted mt-2">Please wait while we process your file...</p>
+            </div>
+
+            <div id="uploadResults" class="upload-results mt-4" style="display: none;">
+                <!-- Results will be displayed here -->
+            </div>
+        </div>
     </div>
-</form>
+</div>
 
 <template id="candidateTemplate">
     <div class="candidate-item">
@@ -156,13 +246,9 @@
             </div>
         </div>
 
-        <div class="form-group">
-            <div class="checkbox-group">
-                <label>
-                    <input type="checkbox" name="Candidates[INDEX].HasMultipleDemographics">
-                    Checks box for more than one demographic category
-                </label>
-            </div>
+        <div class="section-divider">
+            <i class="mdi mdi-certificate-outline"></i>
+            <h6>Credential Information</h6>
         </div>
 
         <div class="form-group">
@@ -175,6 +261,11 @@
                 <option value="Bilingual Authorization">Bilingual Authorization</option>
                 <option value="Administrative Services">Administrative Services</option>
             </select>
+        </div>
+
+        <div class="section-divider">
+            <i class="mdi mdi-school-outline"></i>
+            <h6>School Placement</h6>
         </div>
 
         <div class="form-row form-row-3">
@@ -192,29 +283,72 @@
             </div>
         </div>
 
+        <div class="form-group">
+            <div class="checkbox-group">
+                <label>
+                    <input type="checkbox" class="multiple-placement-toggle" name="Candidates[INDEX].HasMultiplePlacements" onchange="toggleMultiplePlacement(this)">
+                    Check box for more than one placement
+                </label>
+            </div>
+        </div>
+
+        <div class="additional-placement" style="display: none;">
+            <div class="form-row form-row-3">
+                <div class="form-group">
+                    <label>County CDS Code (2nd)</label>
+                    <input type="text" class="form-control" name="Candidates[INDEX].CountyCDSCode2" placeholder="19">
+                </div>
+                <div class="form-group">
+                    <label>LEA CDS Code (2nd)</label>
+                    <input type="text" class="form-control" name="Candidates[INDEX].LEACDSCode2" placeholder="64733">
+                </div>
+                <div class="form-group">
+                    <label>School CDS Code (2nd)</label>
+                    <input type="text" class="form-control" name="Candidates[INDEX].SchoolCDSCode2" placeholder="0000000">
+                </div>
+            </div>
+        </div>
+
         <div class="section-divider">
-            <i class="mdi mdi-account-tie-outline"></i>
-            <h6>LEA Point of Contact</h6>
+            <i class="mdi mdi-domain"></i>
+            <h6>LEA Partner Information</h6>
+        </div>
+
+        <div class="form-group">
+            <label>LEA District <span class="text-danger">*</span></label>
+            <select class="form-control" name="Candidates[INDEX].LEAId" required>
+                <option value="">Select LEA...</option>
+                <option value="los-angeles-unified">Los Angeles Unified School District</option>
+                <option value="san-diego-unified">San Diego Unified School District</option>
+                <option value="fresno-unified">Fresno Unified School District</option>
+                <option value="san-francisco-unified">San Francisco Unified School District</option>
+                <option value="long-beach-unified">Long Beach Unified School District</option>
+                <option value="oakland-unified">Oakland Unified School District</option>
+                <option value="sacramento-city-unified">Sacramento City Unified School District</option>
+                <option value="santa-ana-unified">Santa Ana Unified School District</option>
+                <option value="san-bernardino-city-unified">San Bernardino City Unified School District</option>
+                <option value="stockton-unified">Stockton Unified School District</option>
+            </select>
         </div>
 
         <div class="form-row">
             <div class="form-group">
-                <label>LEA POC First Name <span class="text-danger">*</span></label>
+                <label>POC First Name <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" name="Candidates[INDEX].LEAPOCFirstName" required>
             </div>
             <div class="form-group">
-                <label>LEA POC Last Name <span class="text-danger">*</span></label>
+                <label>POC Last Name <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" name="Candidates[INDEX].LEAPOCLastName" required>
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group">
-                <label>LEA POC Email <span class="text-danger">*</span></label>
+                <label>POC Email <span class="text-danger">*</span></label>
                 <input type="email" class="form-control" name="Candidates[INDEX].LEAPOCEmail" required>
             </div>
             <div class="form-group">
-                <label>LEA POC Phone <span class="text-danger">*</span></label>
+                <label>POC Phone <span class="text-danger">*</span></label>
                 <input type="tel" class="form-control" name="Candidates[INDEX].LEAPOCPhone" placeholder="(555) 123-4567" required>
             </div>
         </div>
@@ -225,6 +359,39 @@
 
 @section Scripts {
     <script>
+        // Multiple Placement Toggle
+        function toggleMultiplePlacement(checkbox) {
+            const candidateItem = checkbox.closest('.candidate-item');
+            const additionalPlacement = candidateItem.querySelector('.additional-placement');
+            if (checkbox.checked) {
+                additionalPlacement.style.display = 'block';
+            } else {
+                additionalPlacement.style.display = 'none';
+            }
+        }
+
+        // Tab Switching
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.submission-tabs button').forEach(btn => {
+                if (btn.dataset.tab === tabName) {
+                    btn.classList.add('r4-button-primary');
+                } else {
+                    btn.classList.remove('r4-button-primary');
+                }
+            });
+
+            // Show/hide tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                if (content.dataset.tabContent === tabName) {
+                    content.style.display = 'block';
+                } else {
+                    content.style.display = 'none';
+                }
+            });
+        }
+
+        // Manual Entry Functions
         let candidateCount = 0;
 
         function addCandidate() {
@@ -282,8 +449,340 @@
             }
         });
 
+        // Bulk Upload Functions
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const uploadButton = document.getElementById('uploadButton');
+        const uploadForm = document.getElementById('bulkUploadForm');
+
+        // Drag and drop handlers
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelect(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        function handleFileSelect(file) {
+            // Validate file type
+            const validTypes = ['.xlsx', '.xls', '.csv'];
+            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+
+            if (!validTypes.includes(fileExtension)) {
+                alert('Please select a valid Excel (.xlsx, .xls) or CSV (.csv) file.');
+                return;
+            }
+
+            // Validate file size (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File size must be less than 10MB.');
+                return;
+            }
+
+            // Display file info
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileInfo.style.display = 'block';
+            uploadButton.disabled = false;
+
+            // Store file in form
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
+        }
+
+        function clearFile() {
+            fileInput.value = '';
+            fileInfo.style.display = 'none';
+            uploadButton.disabled = true;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        // Form submission
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(uploadForm);
+
+            // Show progress
+            document.getElementById('uploadProgress').style.display = 'block';
+            uploadButton.disabled = true;
+
+            // Mock upload process
+            setTimeout(() => {
+                // Simulate processing
+                const progressBar = document.querySelector('.progress-bar');
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 10;
+                    progressBar.style.width = progress + '%';
+
+                    if (progress >= 100) {
+                        clearInterval(interval);
+
+                        // Show mock results
+                        setTimeout(() => {
+                            document.getElementById('uploadProgress').style.display = 'none';
+                            showMockResults();
+                        }, 500);
+                    }
+                }, 200);
+            }, 500);
+        });
+
+        function showMockResults() {
+            const resultsDiv = document.getElementById('uploadResults');
+            resultsDiv.innerHTML = `
+                <div class="alert alert-success">
+                    <i class="mdi mdi-check-circle-outline"></i>
+                    <strong>Upload Successful!</strong> Your candidates have been processed.
+                </div>
+                <div class="upload-summary">
+                    <h5><i class="mdi mdi-chart-box-outline"></i> Upload Summary</h5>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="summary-card summary-success">
+                                <div class="summary-value">25</div>
+                                <div class="summary-label">Candidates Uploaded</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="summary-card summary-success">
+                                <div class="summary-value">23</div>
+                                <div class="summary-label">Successfully Processed</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="summary-card summary-warning">
+                                <div class="summary-value">2</div>
+                                <div class="summary-label">Errors Found</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="summary-card">
+                                <div class="summary-value">5</div>
+                                <div class="summary-label">LEAs Affected</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="error-details mt-4">
+                    <h5><i class="mdi mdi-alert-outline"></i> Errors Found (2)</h5>
+                    <table class="r4-table">
+                        <thead>
+                            <tr>
+                                <th>Row</th>
+                                <th>Field</th>
+                                <th>Error</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>12</td>
+                                <td>LEA CDS Code</td>
+                                <td>Invalid CDS code format. Must be 1-2 digits.</td>
+                            </tr>
+                            <tr>
+                                <td>18</td>
+                                <td>LEA POC Email</td>
+                                <td>Invalid email format.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="mt-3">
+                        <button class="r4-button" onclick="exportErrors()">
+                            <i class="mdi mdi-download"></i> Download Error Report
+                        </button>
+                    </div>
+                </div>
+                <div class="form-actions mt-4">
+                    <a href="@Url.Action("Dashboard", "IHEPortal", new { iheId = Model.IHEId, grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-primary">
+                        <i class="mdi mdi-arrow-left"></i> Return to Dashboard
+                    </a>
+                    <button class="r4-button" onclick="location.reload()">
+                        <i class="mdi mdi-upload"></i> Upload Another File
+                    </button>
+                </div>
+            `;
+            resultsDiv.style.display = 'block';
+        }
+
+        function exportErrors() {
+            alert('Mock: Error report CSV would be downloaded here.');
+        }
+
+        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             addCandidate();
         });
     </script>
+
+    <style>
+        /* Tab Styling */
+        .submission-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            padding: 0.5rem;
+            background: var(--gray-100);
+            border-radius: 8px;
+            width: fit-content;
+        }
+
+        .submission-tabs button {
+            min-width: 150px;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 3px dashed var(--gray-300);
+            border-radius: 8px;
+            padding: 3rem 2rem;
+            text-align: center;
+            background: var(--gray-50);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: var(--ctc-blue);
+            background: var(--gray-200);
+        }
+
+        .upload-area.drag-over {
+            border-color: var(--ctc-blue);
+            background: var(--gray-100);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: var(--gray-600);
+            margin-bottom: 1rem;
+        }
+
+        .upload-area h5 {
+            color: var(--ctc-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Required Fields Compact */
+        .required-fields-compact {
+            margin-bottom: 1.5rem;
+        }
+
+        .required-fields-label {
+            margin-bottom: 0.75rem;
+            color: var(--gray-700);
+        }
+
+        .field-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .field-tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--ctc-blue);
+            color: var(--white);
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .field-tag-optional {
+            background: var(--gray-400);
+        }
+
+        /* Additional Placement */
+        .additional-placement {
+            background: var(--gray-50);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+            border-left: 3px solid var(--ctc-blue);
+        }
+
+        /* Upload Summary */
+        .upload-summary .summary-card {
+            text-align: center;
+            padding: 1.5rem;
+            background: var(--white);
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+        }
+
+        .upload-summary .summary-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--ctc-blue);
+        }
+
+        .upload-summary .summary-label {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .upload-summary .summary-card.summary-success .summary-value {
+            color: var(--success);
+        }
+
+        .upload-summary .summary-card.summary-warning .summary-value {
+            color: var(--warning);
+        }
+
+        /* Error Details */
+        .error-details {
+            background: var(--gray-50);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--gray-300);
+        }
+
+        .error-details h5 {
+            color: var(--danger);
+            margin-bottom: 1rem;
+        }
+
+        /* Progress Bar */
+        .progress {
+            height: 30px;
+            border-radius: 8px;
+        }
+
+        .progress-bar {
+            font-size: 1rem;
+            line-height: 30px;
+        }
+    </style>
 }

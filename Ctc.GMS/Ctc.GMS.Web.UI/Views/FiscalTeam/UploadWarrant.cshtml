@@ -1,0 +1,182 @@
+@{
+    ViewData["Title"] = "Upload Warrant";
+
+    var leaName = ViewBag.LEAName as string;
+    var amount = (decimal)ViewBag.Amount;
+    var studentCount = (int)ViewBag.StudentCount;
+    var id = (int)ViewBag.Id;
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam")">Grants Team</a></li>
+        <li class="breadcrumb-item active">Upload Warrant</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-check-decagram"></i> Upload Warrant Confirmation</h2>
+    <p class="subtitle">@leaName</p>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-information-outline"></i> Disbursement Details</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">LEA District</span>
+                <span class="info-value">@leaName</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Total Amount</span>
+                <span class="info-value info-value-highlight">@amount.ToString("C0")</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Students</span>
+                <span class="info-value">@studentCount</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-file-sign"></i> Warrant Information</h4>
+    </div>
+    <div class="r4-card-body">
+        <form id="uploadWarrantForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="warrantNumber" class="form-label">Warrant Number <span class="required">*</span></label>
+                    <input type="text" id="warrantNumber" name="warrantNumber" class="form-control" placeholder="Enter warrant number" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="warrantDate" class="form-label">Warrant Date <span class="required">*</span></label>
+                    <input type="date" id="warrantDate" name="warrantDate" class="form-control" required />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="notes" class="form-label">Notes (Optional)</label>
+                <textarea id="notes" name="notes" class="form-control" rows="3" placeholder="Add any additional notes about this warrant..."></textarea>
+            </div>
+
+            <div class="form-actions">
+                <a href="@Url.Action("Dashboard", "GrantsTeam")" class="r4-button">
+                    <i class="mdi mdi-arrow-left"></i> Cancel
+                </a>
+                <button type="submit" class="r4-button r4-button-primary">
+                    <i class="mdi mdi-check"></i> Confirm Warrant
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const form = document.getElementById('uploadWarrantForm');
+        const warrantDate = document.getElementById('warrantDate');
+
+        // Set default date to today
+        warrantDate.valueAsDate = new Date();
+
+        // Form submission
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const warrantNum = document.getElementById('warrantNumber').value;
+            const date = document.getElementById('warrantDate').value;
+
+            alert(`Warrant confirmation recorded successfully!\n\nWarrant Number: ${warrantNum}\nWarrant Date: ${date}\n\nThis is a POC demonstration. In production, this would:\n• Record the warrant confirmation in the system\n• Mark the disbursement as complete\n• Notify the LEA of payment completion\n• Generate a confirmation receipt`);
+
+            window.location.href = '@Url.Action("Dashboard", "GrantsTeam")';
+        });
+    </script>
+
+    <style>
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .info-label {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            color: var(--gray-900);
+        }
+
+        .info-value-highlight {
+            font-weight: 600;
+            color: var(--ctc-blue);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .required {
+            color: var(--danger);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--ctc-blue);
+            box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: var(--gray-400);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--gray-200);
+        }
+    </style>
+}

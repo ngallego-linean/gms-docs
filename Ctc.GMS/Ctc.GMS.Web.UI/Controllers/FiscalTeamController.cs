@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Ctc.GMS.AspNetCore.ViewModels;
 using GMS.Business.Services;
 using GMS.Business.DTOs;
+using Ctc.GMS.Web.UI.Services;
 
 namespace Ctc.GMS.Web.UI.Controllers;
 
@@ -9,12 +10,20 @@ namespace Ctc.GMS.Web.UI.Controllers;
 public class FiscalTeamController : Controller
 {
     private readonly IGrantService _grantService;
+    private readonly IDocuSignService _docuSignService;
     private readonly ILogger<FiscalTeamController> _logger;
+    private readonly IWebHostEnvironment _environment;
 
-    public FiscalTeamController(IGrantService grantService, ILogger<FiscalTeamController> logger)
+    public FiscalTeamController(
+        IGrantService grantService,
+        IDocuSignService docuSignService,
+        ILogger<FiscalTeamController> logger,
+        IWebHostEnvironment environment)
     {
         _grantService = grantService;
+        _docuSignService = docuSignService;
         _logger = logger;
+        _environment = environment;
     }
 
     [Route("")]
@@ -222,6 +231,132 @@ public class FiscalTeamController : Controller
             _logger.LogError(ex, "Error loading GAA generation page");
             return View("Error");
         }
+    }
+
+    [HttpPost]
+    [Route("SendGAA/{groupId}")]
+    public async Task<IActionResult> SendGAA(int groupId, int grantCycleId = 1)
+    {
+        try
+        {
+            var grantCycle = _grantService.GetGrantCycle(grantCycleId);
+            if (grantCycle == null)
+            {
+                return NotFound("Grant cycle not found");
+            }
+
+            var allApplications = _grantService.GetApplications();
+
+            // Get the disbursement group data (same logic as GAA action)
+            var disbursementGroups = allApplications
+                .Where(a => a.GrantCycleId == grantCycleId)
+                .SelectMany(a => a.Students.Select(s => new
+                {
+                    Application = a,
+                    Student = s
+                }))
+                .Where(x => x.Student.Status == "CTC_APPROVED")
+                .GroupBy(x => new
+                {
+                    LEA = x.Application.LEA.Name,
+                    Month = x.Student.SubmittedAt?.ToString("yyyy-MM") ?? DateTime.Now.ToString("yyyy-MM")
+                })
+                .Select((g, index) => new
+                {
+                    Id = index + 1,
+                    LEAName = g.Key.LEA,
+                    SubmissionMonth = g.Key.Month,
+                    StudentCount = g.Count(),
+                    TotalAmount = g.Sum(x => x.Student.AwardAmount),
+                    Students = g.Select(x => new GAAStudentInfo
+                    {
+                        StudentName = $"{x.Student.FirstName} {x.Student.LastName}",
+                        SEID = x.Student.SEID,
+                        IHEName = x.Application.IHE.Name,
+                        CredentialArea = x.Student.CredentialArea,
+                        AwardAmount = x.Student.AwardAmount
+                    }).ToList()
+                })
+                .ToList();
+
+            var group = disbursementGroups.FirstOrDefault(g => g.Id == groupId);
+            if (group == null)
+            {
+                return NotFound("Disbursement group not found");
+            }
+
+            // Mock IHE diversification (same as view)
+            var mockIHEs = new[] {
+                "San Diego State University",
+                "UC San Diego",
+                "Cal State San Marcos",
+                "Point Loma Nazarene University",
+                "University of San Diego",
+                "CSU Fullerton"
+            };
+
+            var studentsWithDiversifiedIHEs = group.Students.Select((s, i) => new GAAStudentInfo
+            {
+                StudentName = s.StudentName,
+                SEID = s.SEID,
+                IHEName = mockIHEs[i % mockIHEs.Length],
+                CredentialArea = s.CredentialArea,
+                AwardAmount = s.AwardAmount
+            }).ToList();
+
+            // Build return URL
+            var returnUrl = Url.Action("GAACallback", "FiscalTeam", new { groupId }, Request.Scheme);
+
+            var request = new GAAEnvelopeRequest
+            {
+                GroupId = groupId,
+                LEAName = group.LEAName,
+                GrantNumber = $"STS-{grantCycleId}-{groupId:D4}", // Mock grant number
+                AgreementTermStart = "July 1, 2024",
+                AgreementTermEnd = "June 30, 2025",
+                SubmissionMonth = group.SubmissionMonth,
+                TotalAmount = group.TotalAmount,
+                StudentCount = group.StudentCount,
+                Students = studentsWithDiversifiedIHEs,
+                // For demo, use a test signer - in production, this would be the LEA representative
+                SignerEmail = "noah.gallego@ctc.ca.gov", // Replace with actual signer
+                SignerName = "GAA Signer",
+                ReturnUrl = returnUrl ?? $"{Request.Scheme}://{Request.Host}/FiscalTeam/GAA"
+            };
+
+            var signingUrl = await _docuSignService.SendGAAForSigningAsync(request);
+
+            _logger.LogInformation("DocuSign envelope created for group {GroupId}, redirecting to signing", groupId);
+
+            return Json(new { success = true, signingUrl });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending GAA to DocuSign for group {GroupId}", groupId);
+            return Json(new { success = false, error = ex.Message });
+        }
+    }
+
+    [Route("GAACallback")]
+    public IActionResult GAACallback(int groupId, string @event = "")
+    {
+        // Handle DocuSign callback after signing
+        _logger.LogInformation("DocuSign callback received for group {GroupId} with event: {Event}", groupId, @event);
+
+        if (@event == "signing_complete")
+        {
+            TempData["SuccessMessage"] = $"GAA for group {groupId} has been signed successfully!";
+        }
+        else if (@event == "decline")
+        {
+            TempData["ErrorMessage"] = $"GAA for group {groupId} was declined.";
+        }
+        else if (@event == "cancel")
+        {
+            TempData["WarningMessage"] = $"GAA signing for group {groupId} was cancelled.";
+        }
+
+        return RedirectToAction("GAA");
     }
 
     [Route("Payments")]
@@ -565,5 +700,155 @@ public class FiscalTeamController : Controller
             TotalInvestment = dto.TotalInvestment,
             CostPerSuccessfulTeacher = dto.CostPerSuccessfulTeacher
         };
+    }
+
+    [Route("ViewDocuments/{id}")]
+    public IActionResult ViewDocuments(int id)
+    {
+        // Mock data for POC - maps to disbursement groups from Dashboard
+        var mockGroups = new Dictionary<int, dynamic>
+        {
+            { 1, new { LEA = "Fresno Unified School District", Amount = 67500m, StudentCount = 9,
+                Step1Date = (DateTime?)null, Step2Date = (DateTime?)null, Step3Date = (DateTime?)null,
+                Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, Step6Date = (DateTime?)null }},
+            { 2, new { LEA = "Sacramento City Unified School District", Amount = 48000m, StudentCount = 6,
+                Step1Date = (DateTime?)null, Step2Date = (DateTime?)null, Step3Date = (DateTime?)null,
+                Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, Step6Date = (DateTime?)null }},
+            { 3, new { LEA = "Oakland Unified School District", Amount = 42000m, StudentCount = 5,
+                Step1Date = (DateTime?)null, Step2Date = (DateTime?)null, Step3Date = (DateTime?)null,
+                Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, Step6Date = (DateTime?)null }},
+            { 4, new { LEA = "Los Angeles Unified School District", Amount = 125000m, StudentCount = 15,
+                Step1Date = DateTime.Now.AddDays(-5), Step2Date = DateTime.Now.AddDays(-2), Step3Date = (DateTime?)null,
+                Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, Step6Date = (DateTime?)null }},
+            { 5, new { LEA = "San Diego Unified School District", Amount = 87500m, StudentCount = 10,
+                Step1Date = DateTime.Now.AddDays(-10), Step2Date = DateTime.Now.AddDays(-5), Step3Date = DateTime.Now.AddDays(-1),
+                Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, Step6Date = (DateTime?)null }},
+            { 6, new { LEA = "Long Beach Unified School District", Amount = 52500m, StudentCount = 7,
+                Step1Date = DateTime.Now.AddDays(-15), Step2Date = DateTime.Now.AddDays(-10), Step3Date = DateTime.Now.AddDays(-7),
+                Step4Date = DateTime.Now.AddDays(-3), Step5Date = DateTime.Now.AddDays(-1), Step6Date = (DateTime?)null }}
+        };
+
+        if (!mockGroups.ContainsKey(id))
+        {
+            return NotFound("Disbursement group not found");
+        }
+
+        var group = mockGroups[id];
+
+        ViewBag.GroupId = id;
+        ViewBag.LEAName = group.LEA;
+        ViewBag.Amount = group.Amount;
+        ViewBag.StudentCount = group.StudentCount;
+        ViewBag.Step1Date = group.Step1Date;
+        ViewBag.Step2Date = group.Step2Date;
+        ViewBag.Step3Date = group.Step3Date;
+        ViewBag.Step4Date = group.Step4Date;
+        ViewBag.Step5Date = group.Step5Date;
+        ViewBag.Step6Date = group.Step6Date;
+
+        return View();
+    }
+
+    [Route("UploadPO/{id}")]
+    public IActionResult UploadPO(int id)
+    {
+        // Mock LEA names for POC
+        var leaNames = new Dictionary<int, string>
+        {
+            { 1, "Fresno Unified School District" },
+            { 2, "Sacramento City Unified School District" },
+            { 3, "Oakland Unified School District" },
+            { 4, "Los Angeles Unified School District" },
+            { 5, "San Diego Unified School District" },
+            { 6, "Long Beach Unified School District" }
+        };
+
+        ViewBag.GroupId = id;
+        ViewBag.LEAName = leaNames.ContainsKey(id) ? leaNames[id] : "Unknown District";
+
+        return View();
+    }
+
+    [HttpPost]
+    [Route("UploadPO/{id}")]
+    public IActionResult UploadPO(int id, IFormFile poFile)
+    {
+        // Mock upload processing for POC
+        TempData["SuccessMessage"] = $"Purchase Order uploaded successfully for group {id}.";
+        return RedirectToAction("Dashboard", "GrantsTeam");
+    }
+
+    [Route("DownloadInvoice/{id}")]
+    public IActionResult DownloadInvoice(int id)
+    {
+        // Try to find and download the invoice template
+        var templatePath = Path.Combine(_environment.ContentRootPath, "docs", "Grant_Invoice_Template.docx");
+        var parentTemplatePath = Path.Combine(_environment.ContentRootPath, "..", "docs", "Grant_Invoice_Template.docx");
+
+        if (System.IO.File.Exists(templatePath))
+        {
+            var fileBytes = System.IO.File.ReadAllBytes(templatePath);
+            return File(fileBytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "Grant_Invoice_Template.docx");
+        }
+        else if (System.IO.File.Exists(parentTemplatePath))
+        {
+            var fileBytes = System.IO.File.ReadAllBytes(parentTemplatePath);
+            return File(fileBytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "Grant_Invoice_Template.docx");
+        }
+
+        // If template not found, redirect with message
+        TempData["WarningMessage"] = "Invoice template not found. In production, this would download a pre-filled invoice.";
+        return RedirectToAction("Dashboard", "GrantsTeam");
+    }
+
+    [Route("UploadWarrant/{id}")]
+    public IActionResult UploadWarrant(int id)
+    {
+        // Mock LEA names for POC
+        var leaNames = new Dictionary<int, string>
+        {
+            { 1, "Fresno Unified School District" },
+            { 2, "Sacramento City Unified School District" },
+            { 3, "Oakland Unified School District" },
+            { 4, "Los Angeles Unified School District" },
+            { 5, "San Diego Unified School District" },
+            { 6, "Long Beach Unified School District" }
+        };
+
+        ViewBag.GroupId = id;
+        ViewBag.LEAName = leaNames.ContainsKey(id) ? leaNames[id] : "Unknown District";
+
+        return View();
+    }
+
+    [HttpPost]
+    [Route("UploadWarrant/{id}")]
+    public IActionResult UploadWarrant(int id, string warrantNumber, DateTime warrantDate)
+    {
+        // Mock warrant processing for POC
+        TempData["SuccessMessage"] = $"Warrant #{warrantNumber} confirmed for group {id} (Date: {warrantDate:MM/dd/yyyy}).";
+        return RedirectToAction("Dashboard", "GrantsTeam");
+    }
+
+    [Route("BulkUploadPO")]
+    public IActionResult BulkUploadPO()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [Route("BulkUploadPO")]
+    public IActionResult BulkUploadPO(List<IFormFile> poFiles)
+    {
+        // Mock bulk upload processing for POC
+        var count = poFiles?.Count ?? 0;
+        TempData["SuccessMessage"] = $"{count} Purchase Order(s) uploaded successfully.";
+        return RedirectToAction("Dashboard", "GrantsTeam");
+    }
+
+    [Route("DisbursementQueue")]
+    public IActionResult DisbursementQueue()
+    {
+        return View();
     }
 }

@@ -121,43 +121,23 @@
                                 <td>@candidate.CredentialArea</td>
                                 <td>$@candidate.AwardAmount.ToString("N0")</td>
                                 <td>
-                                    @if (candidate.PaymentStatus == "PAYMENT_COMPLETED")
-                                    {
-                                        <span class="badge badge-success">Paid</span>
+                                    @{
+                                        var paymentBadgeClass = GMS.Business.Helpers.StatusHelper.GetBadgeClass(candidate.PaymentStatus);
+                                        var paymentDisplayText = GMS.Business.Helpers.StatusHelper.GetDisplayText(candidate.PaymentStatus);
                                     }
-                                    else if (candidate.PaymentStatus == "GAA_SIGNED")
-                                    {
-                                        <span class="badge badge-warning">GAA Signed</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge badge-secondary">Pending</span>
-                                    }
+                                    <span class="@paymentBadgeClass badge-status">@paymentDisplayText</span>
                                 </td>
                                 <td>
-                                    @if (candidate.ReportingStatus == "APPROVED")
-                                    {
-                                        <span class="badge badge-success">Approved</span>
-                                    }
-                                    else if (candidate.ReportingStatus == "SUBMITTED")
-                                    {
-                                        <span class="badge badge-primary">Submitted</span>
-                                    }
-                                    else if (candidate.ReportingStatus == "IN_PROGRESS")
-                                    {
-                                        <span class="badge badge-warning">In Progress</span>
-                                    }
-                                    else
-                                    {
-                                        @if (candidate.IsReportOverdue)
+                                    @{
+                                        var reportBadgeClass = GMS.Business.Helpers.StatusHelper.GetBadgeClass(candidate.ReportingStatus);
+                                        var reportDisplayText = GMS.Business.Helpers.StatusHelper.GetDisplayText(candidate.ReportingStatus);
+                                        if (candidate.IsReportOverdue && string.IsNullOrEmpty(candidate.ReportingStatus))
                                         {
-                                            <span class="badge badge-danger">Overdue</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge badge-secondary">Not Started</span>
+                                            reportBadgeClass = "badge badge-danger";
+                                            reportDisplayText = "Overdue";
                                         }
                                     }
+                                    <span class="@reportBadgeClass badge-status">@reportDisplayText</span>
                                 </td>
                                 <td>
                                     @if (candidate.LastReportDate.HasValue)

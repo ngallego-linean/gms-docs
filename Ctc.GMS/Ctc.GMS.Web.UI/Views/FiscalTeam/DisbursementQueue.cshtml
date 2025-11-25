@@ -1,0 +1,383 @@
+@{
+    ViewData["Title"] = "Disbursement Queue";
+
+    // Mock data for all disbursements with various stages
+    var disbursements = new List<dynamic>
+    {
+        new { Id = 1, LEAName = "Los Angeles USD", Amount = 125000m, StudentCount = 25, Stage = "Needs GAA", StageClass = "stage-gaa" },
+        new { Id = 2, LEAName = "San Diego USD", Amount = 85000m, StudentCount = 17, Stage = "Needs PO", StageClass = "stage-po" },
+        new { Id = 3, LEAName = "San Francisco USD", Amount = 60000m, StudentCount = 12, Stage = "Needs PO", StageClass = "stage-po" },
+        new { Id = 4, LEAName = "Sacramento City USD", Amount = 95000m, StudentCount = 19, Stage = "Needs Invoice", StageClass = "stage-invoice" },
+        new { Id = 5, LEAName = "Fresno USD", Amount = 45000m, StudentCount = 9, Stage = "Needs Invoice", StageClass = "stage-invoice" },
+        new { Id = 6, LEAName = "Long Beach USD", Amount = 110000m, StudentCount = 22, Stage = "Needs Warrant", StageClass = "stage-warrant" },
+        new { Id = 7, LEAName = "Oakland USD", Amount = 75000m, StudentCount = 15, Stage = "Needs GAA", StageClass = "stage-gaa" },
+        new { Id = 8, LEAName = "Santa Ana USD", Amount = 55000m, StudentCount = 11, Stage = "Needs PO", StageClass = "stage-po" },
+        new { Id = 9, LEAName = "Anaheim Union HSD", Amount = 40000m, StudentCount = 8, Stage = "Needs Warrant", StageClass = "stage-warrant" },
+        new { Id = 10, LEAName = "Riverside USD", Amount = 70000m, StudentCount = 14, Stage = "Needs Invoice", StageClass = "stage-invoice" },
+    };
+
+    // Stage counts for summary
+    var needsGAA = disbursements.Count(d => d.Stage == "Needs GAA");
+    var needsPO = disbursements.Count(d => d.Stage == "Needs PO");
+    var needsInvoice = disbursements.Count(d => d.Stage == "Needs Invoice");
+    var needsWarrant = disbursements.Count(d => d.Stage == "Needs Warrant");
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam")">Grants Team</a></li>
+        <li class="breadcrumb-item active">Disbursement Queue</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-clipboard-list-outline"></i> Disbursement Queue</h2>
+    <p class="subtitle">Review and process all pending disbursements</p>
+</div>
+
+<div class="summary-cards">
+    <div class="summary-card stage-gaa">
+        <div class="summary-icon">
+            <i class="mdi mdi-file-sign"></i>
+        </div>
+        <div class="summary-content">
+            <span class="summary-count">@needsGAA</span>
+            <span class="summary-label">Needs GAA</span>
+        </div>
+    </div>
+    <div class="summary-card stage-po">
+        <div class="summary-icon">
+            <i class="mdi mdi-file-document-outline"></i>
+        </div>
+        <div class="summary-content">
+            <span class="summary-count">@needsPO</span>
+            <span class="summary-label">Needs PO</span>
+        </div>
+    </div>
+    <div class="summary-card stage-invoice">
+        <div class="summary-icon">
+            <i class="mdi mdi-receipt-text-outline"></i>
+        </div>
+        <div class="summary-content">
+            <span class="summary-count">@needsInvoice</span>
+            <span class="summary-label">Needs Invoice</span>
+        </div>
+    </div>
+    <div class="summary-card stage-warrant">
+        <div class="summary-icon">
+            <i class="mdi mdi-check-decagram"></i>
+        </div>
+        <div class="summary-content">
+            <span class="summary-count">@needsWarrant</span>
+            <span class="summary-label">Needs Warrant</span>
+        </div>
+    </div>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-filter-outline"></i> Filter & Search</h4>
+    </div>
+    <div class="r4-card-body">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label for="stageFilter">Stage</label>
+                <select id="stageFilter" class="form-control" onchange="filterTable()">
+                    <option value="">All Stages</option>
+                    <option value="Needs GAA">Needs GAA</option>
+                    <option value="Needs PO">Needs PO</option>
+                    <option value="Needs Invoice">Needs Invoice</option>
+                    <option value="Needs Warrant">Needs Warrant</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="searchInput">Search LEA</label>
+                <input type="text" id="searchInput" class="form-control" placeholder="Search by LEA name..." onkeyup="filterTable()" />
+            </div>
+            <div class="filter-actions">
+                <button type="button" class="r4-button r4-button-secondary" onclick="clearFilters()">
+                    <i class="mdi mdi-filter-remove-outline"></i> Clear Filters
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-table"></i> Pending Disbursements</h4>
+        <span class="badge">@disbursements.Count items</span>
+    </div>
+    <div class="r4-card-body table-container">
+        <table class="r4-table" id="disbursementTable">
+            <thead>
+                <tr>
+                    <th>LEA District</th>
+                    <th>Amount</th>
+                    <th>Students</th>
+                    <th>Current Stage</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in disbursements)
+                {
+                    <tr data-stage="@item.Stage" data-lea="@item.LEAName.ToLower()">
+                        <td>
+                            <span class="lea-name">@item.LEAName</span>
+                        </td>
+                        <td>
+                            <span class="amount">@item.Amount.ToString("C0")</span>
+                        </td>
+                        <td>@item.StudentCount</td>
+                        <td>
+                            <span class="stage-badge @item.StageClass">@item.Stage</span>
+                        </td>
+                        <td>
+                            @if (item.Stage == "Needs GAA")
+                            {
+                                <a href="@Url.Action("GAA", "FiscalTeam", new { id = item.Id })" class="r4-button r4-button-sm r4-button-primary">
+                                    <i class="mdi mdi-file-sign"></i> Generate GAA
+                                </a>
+                            }
+                            else if (item.Stage == "Needs PO")
+                            {
+                                <a href="@Url.Action("UploadPO", "FiscalTeam", new { id = item.Id })" class="r4-button r4-button-sm r4-button-primary">
+                                    <i class="mdi mdi-upload"></i> Upload PO
+                                </a>
+                            }
+                            else if (item.Stage == "Needs Invoice")
+                            {
+                                <a href="@Url.Action("DownloadInvoice", "FiscalTeam", new { id = item.Id })" class="r4-button r4-button-sm r4-button-primary">
+                                    <i class="mdi mdi-download"></i> Generate Invoice
+                                </a>
+                            }
+                            else if (item.Stage == "Needs Warrant")
+                            {
+                                <a href="@Url.Action("UploadWarrant", "FiscalTeam", new { id = item.Id })" class="r4-button r4-button-sm r4-button-primary">
+                                    <i class="mdi mdi-check-decagram"></i> Upload Warrant
+                                </a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div id="noResults" class="no-results" style="display: none;">
+            <i class="mdi mdi-magnify-close"></i>
+            <p>No disbursements match your filters</p>
+        </div>
+    </div>
+</div>
+
+<div class="form-actions">
+    <a href="@Url.Action("Dashboard", "GrantsTeam")" class="r4-button">
+        <i class="mdi mdi-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
+
+@section Scripts {
+    <script>
+        function filterTable() {
+            const stageFilter = document.getElementById('stageFilter').value;
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#disbursementTable tbody tr');
+            const noResults = document.getElementById('noResults');
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const stage = row.getAttribute('data-stage');
+                const lea = row.getAttribute('data-lea');
+
+                const stageMatch = !stageFilter || stage === stageFilter;
+                const searchMatch = !searchInput || lea.includes(searchInput);
+
+                if (stageMatch && searchMatch) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            noResults.style.display = visibleCount === 0 ? 'flex' : 'none';
+        }
+
+        function clearFilters() {
+            document.getElementById('stageFilter').value = '';
+            document.getElementById('searchInput').value = '';
+            filterTable();
+        }
+    </script>
+
+    <style>
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .summary-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.25rem;
+            border-radius: 8px;
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+        }
+
+        .summary-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .summary-icon i {
+            font-size: 1.5rem;
+            color: var(--white);
+        }
+
+        .summary-card.stage-gaa .summary-icon { background: #6c757d; }
+        .summary-card.stage-po .summary-icon { background: #007bff; }
+        .summary-card.stage-invoice .summary-icon { background: #fd7e14; }
+        .summary-card.stage-warrant .summary-icon { background: #28a745; }
+
+        .summary-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .summary-count {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .summary-label {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            flex: 1;
+            max-width: 250px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--ctc-blue);
+            box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+        }
+
+        .filter-actions {
+            margin-left: auto;
+        }
+
+        .table-container {
+            padding: 0;
+        }
+
+        .r4-table {
+            margin: 0;
+        }
+
+        .lea-name {
+            font-weight: 500;
+            color: var(--gray-900);
+        }
+
+        .amount {
+            font-weight: 600;
+            color: var(--ctc-blue);
+        }
+
+        .stage-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .stage-badge.stage-gaa {
+            background: rgba(108, 117, 125, 0.15);
+            color: #495057;
+        }
+
+        .stage-badge.stage-po {
+            background: rgba(0, 123, 255, 0.15);
+            color: #0056b3;
+        }
+
+        .stage-badge.stage-invoice {
+            background: rgba(253, 126, 20, 0.15);
+            color: #c35a00;
+        }
+
+        .stage-badge.stage-warrant {
+            background: rgba(40, 167, 69, 0.15);
+            color: #1e7e34;
+        }
+
+        .r4-card-header .badge {
+            background: var(--gray-200);
+            color: var(--gray-700);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .no-results {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            color: var(--gray-500);
+        }
+
+        .no-results i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .no-results p {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        .form-actions {
+            margin-top: 1.5rem;
+        }
+    </style>
+}
