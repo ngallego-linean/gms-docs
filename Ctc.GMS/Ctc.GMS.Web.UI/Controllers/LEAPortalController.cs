@@ -483,7 +483,7 @@ public class LEAPortalController : Controller
             {
                 EventDate = createdDate,
                 EventType = "BATCH_CREATED",
-                Description = $"Batch created with {allStudents.Count} candidate(s) from {ihePartners.Count} IHE partner(s)",
+                Description = $"Submission with {allStudents.Count} Candidate(s) from {ihePartners.Count} IHE partner(s)",
                 Actor = batchApplications.OrderBy(a => a.CreatedAt).First().CreatedBy
             });
 
@@ -496,7 +496,7 @@ public class LEAPortalController : Controller
                 {
                     EventDate = leaReviewDate,
                     EventType = "LEA_REVIEW",
-                    Description = "Batch submitted to LEA for review",
+                    Description = "Submission sent to LEA for review",
                     Actor = leaReviewApps.OrderBy(a => a.LastActionDate ?? a.LastModified).FirstOrDefault()?.LastActionBy
                 });
             }
@@ -510,7 +510,7 @@ public class LEAPortalController : Controller
                 {
                     EventDate = ctcSubmitDate,
                     EventType = "CTC_SUBMITTED",
-                    Description = $"Batch submitted to CTC with {allStudents.Count} candidate(s)",
+                    Description = $"Submission sent to CTC with {allStudents.Count} Candidate(s)",
                     Actor = ctcReviewApps.OrderBy(a => a.LastActionDate ?? a.LastModified).FirstOrDefault()?.LastActionBy
                 });
             }

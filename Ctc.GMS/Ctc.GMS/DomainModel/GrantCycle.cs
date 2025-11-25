@@ -1,7 +1,7 @@
 namespace GMS.DomainModel;
 
 /// <summary>
-/// Represents a grant cycle for the Teacher Recruitment Incentive Program
+/// Represents a grant cycle for the Student Teacher Stipend Program
 /// </summary>
 public class GrantCycle
 {

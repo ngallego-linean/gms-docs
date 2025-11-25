@@ -34,7 +34,7 @@ public class MockRepository
             new GrantCycle
             {
                 Id = 1,
-                Name = "Teacher Recruitment Incentive Program (STIPEND) - FY 2025-26",
+                Name = "Student Teacher Stipend Program - FY 2025-26",
                 ProgramType = "STIPEND",
                 ApproprietedAmount = 25000000,
                 StartDate = new DateTime(2025, 7, 1),

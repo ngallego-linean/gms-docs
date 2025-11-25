@@ -83,53 +83,6 @@
     </div>
 </div>
 
-@* Batch Metrics *@
-<div class="r4-card">
-    <div class="r4-card-header">
-        <h4><i class="mdi mdi-chart-timeline-variant"></i> Submission Summary</h4>
-    </div>
-    <div class="r4-card-body">
-        <div class="dashboard-grid">
-            <div class="metric-card">
-                <div class="metric-icon">
-                    <i class="mdi mdi-account-group-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.TotalCandidates</div>
-                    <div class="metric-label">Total Candidates</div>
-                </div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-icon">
-                    <i class="mdi mdi-school-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.IHEPartnerCount</div>
-                    <div class="metric-label">IHE Partners</div>
-                </div>
-            </div>
-            <div class="metric-card metric-approved">
-                <div class="metric-icon">
-                    <i class="mdi mdi-cash-multiple"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.TotalAwardAmount.ToString("C0")</div>
-                    <div class="metric-label">Total Funding</div>
-                </div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-icon">
-                    <i class="mdi mdi-file-multiple-outline"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-value">@Model.ApplicationCount</div>
-                    <div class="metric-label">Source Applications</div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 @* Timeline *@
 @if (Model.TimelineEvents.Any())
 {
