@@ -270,16 +270,25 @@
 
         <div class="form-row form-row-3">
             <div class="form-group">
-                <label>County CDS Code <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" name="Candidates[INDEX].CountyCDSCode" placeholder="19" required>
+                <label>County <span class="text-danger">*</span></label>
+                <select class="form-control ecs-county-select" name="Candidates[INDEX].CountyCode" required>
+                    <option value="">-- Select County --</option>
+                </select>
+                <input type="hidden" name="Candidates[INDEX].CountyCDSCode" class="county-cds-hidden">
             </div>
             <div class="form-group">
-                <label>LEA CDS Code <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" name="Candidates[INDEX].LEACDSCode" placeholder="64733" required>
+                <label>School District <span class="text-danger">*</span></label>
+                <select class="form-control ecs-district-select" name="Candidates[INDEX].DistrictCdsCode" required disabled>
+                    <option value="">-- Select District --</option>
+                </select>
+                <input type="hidden" name="Candidates[INDEX].LEACDSCode" class="district-cds-hidden">
             </div>
             <div class="form-group">
-                <label>School CDS Code <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" name="Candidates[INDEX].SchoolCDSCode" placeholder="0000000" required>
+                <label>School <span class="text-danger">*</span></label>
+                <select class="form-control ecs-school-select" name="Candidates[INDEX].SchoolCdsCode" required disabled>
+                    <option value="">-- Select School --</option>
+                </select>
+                <input type="hidden" name="Candidates[INDEX].SchoolCDSCode" class="school-cds-hidden">
             </div>
         </div>
 
@@ -295,16 +304,22 @@
         <div class="additional-placement" style="display: none;">
             <div class="form-row form-row-3">
                 <div class="form-group">
-                    <label>County CDS Code (2nd)</label>
-                    <input type="text" class="form-control" name="Candidates[INDEX].CountyCDSCode2" placeholder="19">
+                    <label>County (2nd)</label>
+                    <select class="form-control ecs-county-select-2" name="Candidates[INDEX].CountyCode2">
+                        <option value="">-- Select County --</option>
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label>LEA CDS Code (2nd)</label>
-                    <input type="text" class="form-control" name="Candidates[INDEX].LEACDSCode2" placeholder="64733">
+                    <label>School District (2nd)</label>
+                    <select class="form-control ecs-district-select-2" name="Candidates[INDEX].DistrictCdsCode2" disabled>
+                        <option value="">-- Select District --</option>
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label>School CDS Code (2nd)</label>
-                    <input type="text" class="form-control" name="Candidates[INDEX].SchoolCDSCode2" placeholder="0000000">
+                    <label>School (2nd)</label>
+                    <select class="form-control ecs-school-select-2" name="Candidates[INDEX].SchoolCdsCode2" disabled>
+                        <option value="">-- Select School --</option>
+                    </select>
                 </div>
             </div>
         </div>
@@ -314,42 +329,37 @@
             <h6>LEA Partner Information</h6>
         </div>
 
-        <div class="form-group">
-            <label>LEA District <span class="text-danger">*</span></label>
-            <select class="form-control" name="Candidates[INDEX].LEAId" required>
-                <option value="">Select LEA...</option>
-                <option value="los-angeles-unified">Los Angeles Unified School District</option>
-                <option value="san-diego-unified">San Diego Unified School District</option>
-                <option value="fresno-unified">Fresno Unified School District</option>
-                <option value="san-francisco-unified">San Francisco Unified School District</option>
-                <option value="long-beach-unified">Long Beach Unified School District</option>
-                <option value="oakland-unified">Oakland Unified School District</option>
-                <option value="sacramento-city-unified">Sacramento City Unified School District</option>
-                <option value="santa-ana-unified">Santa Ana Unified School District</option>
-                <option value="san-bernardino-city-unified">San Bernardino City Unified School District</option>
-                <option value="stockton-unified">Stockton Unified School District</option>
-            </select>
+        <div class="alert alert-info" style="font-size: 0.9rem; padding: 0.75rem;">
+            <i class="mdi mdi-information-outline"></i>
+            The LEA District is automatically determined by the school district selected above.
+            Select an existing contact or enter new contact information.
         </div>
 
-        <div class="form-row">
-            <div class="form-group">
-                <label>POC First Name <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" name="Candidates[INDEX].LEAPOCFirstName" required>
+        <div class="form-group">
+            <label>LEA District</label>
+            <input type="text" class="form-control lea-district-display" readonly placeholder="(Selected from Clinical Placement above)">
+            <input type="hidden" name="Candidates[INDEX].LEAId" class="lea-district-hidden">
+        </div>
+
+        <div class="form-group">
+            <label>LEA Point of Contact <span class="text-danger">*</span></label>
+            <div class="ecs-contact-selector">
+                <input type="text" class="form-control ecs-contact-input" name="Candidates[INDEX].LEAPOCName"
+                       placeholder="Start typing or click to select from ECS contacts..." required>
+                <small class="form-text text-muted">Select from existing ECS contacts or enter a new contact.</small>
             </div>
-            <div class="form-group">
-                <label>POC Last Name <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" name="Candidates[INDEX].LEAPOCLastName" required>
-            </div>
+            <input type="hidden" name="Candidates[INDEX].LEAPOCFirstName" class="poc-first-name-hidden">
+            <input type="hidden" name="Candidates[INDEX].LEAPOCLastName" class="poc-last-name-hidden">
         </div>
 
         <div class="form-row">
             <div class="form-group">
                 <label>POC Email <span class="text-danger">*</span></label>
-                <input type="email" class="form-control" name="Candidates[INDEX].LEAPOCEmail" required>
+                <input type="email" class="form-control ecs-poc-email" name="Candidates[INDEX].LEAPOCEmail" required>
             </div>
             <div class="form-group">
                 <label>POC Phone <span class="text-danger">*</span></label>
-                <input type="tel" class="form-control" name="Candidates[INDEX].LEAPOCPhone" placeholder="(555) 123-4567" required>
+                <input type="tel" class="form-control ecs-poc-phone" name="Candidates[INDEX].LEAPOCPhone" placeholder="(555) 123-4567" required>
             </div>
         </div>
 
@@ -358,6 +368,7 @@
 </template>
 
 @section Scripts {
+    <script src="~/js/ecs-integration.js" asp-append-version="true"></script>
     <script>
         // Multiple Placement Toggle
         function toggleMultiplePlacement(checkbox) {
@@ -412,7 +423,158 @@
             candidateItem.querySelector('.candidate-number').textContent = candidateCount + 1;
 
             container.appendChild(candidateItem);
+
+            // Initialize ECS cascading dropdowns for this candidate
+            initializeCandidateECS(candidateItem);
+
             candidateCount++;
+        }
+
+        // Initialize ECS integration for a candidate item
+        function initializeCandidateECS(candidateItem) {
+            const countySelect = candidateItem.querySelector('.ecs-county-select');
+            const districtSelect = candidateItem.querySelector('.ecs-district-select');
+            const schoolSelect = candidateItem.querySelector('.ecs-school-select');
+            const leaDistrictDisplay = candidateItem.querySelector('.lea-district-display');
+            const leaDistrictHidden = candidateItem.querySelector('.lea-district-hidden');
+            const contactInput = candidateItem.querySelector('.ecs-contact-input');
+            const pocEmailInput = candidateItem.querySelector('.ecs-poc-email');
+            const pocPhoneInput = candidateItem.querySelector('.ecs-poc-phone');
+            const pocFirstNameHidden = candidateItem.querySelector('.poc-first-name-hidden');
+            const pocLastNameHidden = candidateItem.querySelector('.poc-last-name-hidden');
+
+            // Initialize cascading dropdowns
+            ECS.initCascadingDropdowns(countySelect, districtSelect, schoolSelect, {
+                onChange: (selection) => {
+                    // Update LEA district display when district is selected
+                    if (selection.district) {
+                        const selectedOption = districtSelect.options[districtSelect.selectedIndex];
+                        leaDistrictDisplay.value = selectedOption.textContent;
+                        leaDistrictHidden.value = selection.district;
+
+                        // Enable contact autocomplete for the selected district
+                        initContactAutocomplete(contactInput, selection.district, pocEmailInput, pocPhoneInput, pocFirstNameHidden, pocLastNameHidden);
+                    } else {
+                        leaDistrictDisplay.value = '';
+                        leaDistrictHidden.value = '';
+                    }
+                }
+            });
+
+            // Initialize secondary placement dropdowns if they exist
+            const countySelect2 = candidateItem.querySelector('.ecs-county-select-2');
+            const districtSelect2 = candidateItem.querySelector('.ecs-district-select-2');
+            const schoolSelect2 = candidateItem.querySelector('.ecs-school-select-2');
+
+            if (countySelect2 && districtSelect2 && schoolSelect2) {
+                ECS.initCascadingDropdowns(countySelect2, districtSelect2, schoolSelect2);
+            }
+        }
+
+        // Initialize contact autocomplete for LEA POC
+        function initContactAutocomplete(input, districtCdsCode, emailInput, phoneInput, firstNameHidden, lastNameHidden) {
+            let dropdown = null;
+
+            const showContacts = async () => {
+                try {
+                    const contacts = await ECS.loadContacts(districtCdsCode, 'GMS_CONTACT');
+
+                    // Remove existing dropdown
+                    if (dropdown) dropdown.remove();
+
+                    dropdown = document.createElement('div');
+                    dropdown.className = 'ecs-contact-dropdown';
+                    dropdown.style.cssText = `
+                        position: absolute;
+                        background: white;
+                        border: 1px solid #ccc;
+                        border-radius: 4px;
+                        max-height: 200px;
+                        overflow-y: auto;
+                        width: ${input.offsetWidth}px;
+                        z-index: 1000;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                    `;
+
+                    if (contacts.length > 0) {
+                        contacts.forEach(contact => {
+                            const item = document.createElement('div');
+                            item.className = 'ecs-contact-item';
+                            item.style.cssText = 'padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #eee;';
+                            item.innerHTML = `<strong>${contact.name}</strong><br><small>${contact.email} | ${contact.title || 'Contact'}</small>`;
+                            item.addEventListener('click', () => {
+                                // Populate fields from ECS contact
+                                input.value = contact.name;
+                                emailInput.value = contact.email;
+                                phoneInput.value = contact.phone || '';
+
+                                // Split name for hidden fields
+                                const nameParts = contact.name.split(' ');
+                                firstNameHidden.value = nameParts[0] || '';
+                                lastNameHidden.value = nameParts.slice(1).join(' ') || '';
+
+                                dropdown.remove();
+                                dropdown = null;
+                            });
+                            item.addEventListener('mouseenter', () => item.style.backgroundColor = '#f5f5f5');
+                            item.addEventListener('mouseleave', () => item.style.backgroundColor = '');
+                            dropdown.appendChild(item);
+                        });
+                    } else {
+                        const noResults = document.createElement('div');
+                        noResults.style.cssText = 'padding: 8px 12px; color: #666; font-style: italic;';
+                        noResults.textContent = 'No ECS contacts found for this district';
+                        dropdown.appendChild(noResults);
+                    }
+
+                    // Add "Enter manually" option
+                    const manualOption = document.createElement('div');
+                    manualOption.style.cssText = 'padding: 8px 12px; cursor: pointer; color: #0066cc; font-style: italic; border-top: 1px solid #ddd;';
+                    manualOption.textContent = '+ Enter new contact manually';
+                    manualOption.addEventListener('click', () => {
+                        dropdown.remove();
+                        dropdown = null;
+                        input.focus();
+                        input.select();
+                    });
+                    dropdown.appendChild(manualOption);
+
+                    // Position dropdown
+                    const rect = input.getBoundingClientRect();
+                    dropdown.style.position = 'fixed';
+                    dropdown.style.left = rect.left + 'px';
+                    dropdown.style.top = rect.bottom + 'px';
+
+                    document.body.appendChild(dropdown);
+                } catch (error) {
+                    console.error('Error loading contacts:', error);
+                }
+            };
+
+            // Remove any existing listeners
+            input.removeEventListener('focus', showContacts);
+
+            // Add focus listener
+            input.addEventListener('focus', showContacts);
+
+            // Close on outside click
+            document.addEventListener('click', (e) => {
+                if (dropdown && !dropdown.contains(e.target) && e.target !== input) {
+                    dropdown.remove();
+                    dropdown = null;
+                }
+            });
+
+            // Handle manual name entry - split into first/last
+            input.addEventListener('blur', () => {
+                setTimeout(() => {
+                    if (input.value && !firstNameHidden.value) {
+                        const nameParts = input.value.trim().split(' ');
+                        firstNameHidden.value = nameParts[0] || '';
+                        lastNameHidden.value = nameParts.slice(1).join(' ') || '';
+                    }
+                }, 200);
+            });
         }
 
         function removeCandidate(button) {

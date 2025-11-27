@@ -18,6 +18,9 @@ builder.Services.AddScoped<IGrantService, GrantService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IIHETemplateService, IHETemplateService>();
 
+// Register ECS integration service (simulates external ECS API)
+builder.Services.AddScoped<IECSService, ECSService>();
+
 // Register DocuSign services
 builder.Services.Configure<DocuSignConfig>(options =>
 {
