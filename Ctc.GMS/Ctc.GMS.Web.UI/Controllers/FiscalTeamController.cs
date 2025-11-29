@@ -705,27 +705,30 @@ public class FiscalTeamController : Controller
     [Route("ViewDocuments/{id}")]
     public IActionResult ViewDocuments(int id)
     {
-        // Mock data for POC - maps to disbursement groups from Dashboard
+        // Mock data for POC - maps to disbursement groups from DisbursementQueue.cshtml
         var mockGroups = new Dictionary<int, dynamic>
         {
             { 1, new { LEA = "Fresno Unified School District", Amount = 67500m, StudentCount = 9,
                 Step1Date = (DateTime?)null, Step2Date = (DateTime?)null, Step3Date = (DateTime?)null,
                 Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, Step6Date = (DateTime?)null }},
             { 2, new { LEA = "Sacramento City Unified School District", Amount = 48000m, StudentCount = 6,
-                Step1Date = (DateTime?)null, Step2Date = (DateTime?)null, Step3Date = (DateTime?)null,
+                Step1Date = (DateTime?)DateTime.Now.AddDays(-2), Step2Date = (DateTime?)null, Step3Date = (DateTime?)null,
                 Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, Step6Date = (DateTime?)null }},
             { 3, new { LEA = "Oakland Unified School District", Amount = 42000m, StudentCount = 5,
-                Step1Date = (DateTime?)null, Step2Date = (DateTime?)null, Step3Date = (DateTime?)null,
+                Step1Date = (DateTime?)DateTime.Now.AddDays(-8), Step2Date = (DateTime?)DateTime.Now.AddDays(-3), Step3Date = (DateTime?)null,
                 Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, Step6Date = (DateTime?)null }},
             { 4, new { LEA = "Los Angeles Unified School District", Amount = 125000m, StudentCount = 15,
-                Step1Date = DateTime.Now.AddDays(-5), Step2Date = DateTime.Now.AddDays(-2), Step3Date = (DateTime?)null,
-                Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, Step6Date = (DateTime?)null }},
+                Step1Date = (DateTime?)DateTime.Now.AddDays(-12), Step2Date = (DateTime?)DateTime.Now.AddDays(-8), Step3Date = (DateTime?)DateTime.Now.AddDays(-5),
+                Step4Date = (DateTime?)DateTime.Now.AddDays(-2), Step5Date = (DateTime?)null, Step6Date = (DateTime?)null }},
             { 5, new { LEA = "San Diego Unified School District", Amount = 87500m, StudentCount = 10,
-                Step1Date = DateTime.Now.AddDays(-10), Step2Date = DateTime.Now.AddDays(-5), Step3Date = DateTime.Now.AddDays(-1),
-                Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, Step6Date = (DateTime?)null }},
+                Step1Date = (DateTime?)DateTime.Now.AddDays(-18), Step2Date = (DateTime?)DateTime.Now.AddDays(-14), Step3Date = (DateTime?)DateTime.Now.AddDays(-10),
+                Step4Date = (DateTime?)DateTime.Now.AddDays(-5), Step5Date = (DateTime?)DateTime.Now.AddDays(-2), Step6Date = (DateTime?)DateTime.Now.AddDays(-1) }},
             { 6, new { LEA = "Long Beach Unified School District", Amount = 52500m, StudentCount = 7,
-                Step1Date = DateTime.Now.AddDays(-15), Step2Date = DateTime.Now.AddDays(-10), Step3Date = DateTime.Now.AddDays(-7),
-                Step4Date = DateTime.Now.AddDays(-3), Step5Date = DateTime.Now.AddDays(-1), Step6Date = (DateTime?)null }}
+                Step1Date = (DateTime?)null, Step2Date = (DateTime?)null, Step3Date = (DateTime?)null,
+                Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, Step6Date = (DateTime?)null }},
+            { 7, new { LEA = "Riverside Unified School District", Amount = 95000m, StudentCount = 12,
+                Step1Date = (DateTime?)DateTime.Now.AddDays(-28), Step2Date = (DateTime?)DateTime.Now.AddDays(-24), Step3Date = (DateTime?)DateTime.Now.AddDays(-20),
+                Step4Date = (DateTime?)DateTime.Now.AddDays(-15), Step5Date = (DateTime?)DateTime.Now.AddDays(-10), Step6Date = (DateTime?)DateTime.Now.AddDays(-5) }}
         };
 
         if (!mockGroups.ContainsKey(id))
