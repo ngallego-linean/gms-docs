@@ -13,3 +13,5 @@ IMPORTANT NOTES:
 **IMPORTANT -> READ ME**
 - DO NOT make any changes that are not requested. You must be very strict with this. 
 - THIS IS A PROOF OF CONCEPT SO SOME MOCK DATA IS OKAY, BUT ALWAYS ADHERE TO STANDARDS FOR STYLING, CODING, AND MORE IN [r4/](r4/)
+
+For Tables:
