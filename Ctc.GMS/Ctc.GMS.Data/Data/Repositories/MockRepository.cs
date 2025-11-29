@@ -96,7 +96,7 @@ public class MockRepository
                 Id = 3,
                 GrantCycleId = 1,
                 IHE = _organizations.First(o => o.Id == 3),
-                LEA = _organizations.First(o => o.Id == 7),
+                LEA = _organizations.First(o => o.Id == 8),  // Long Beach Unified - diversify GAA page display
                 Status = "CTC_REVIEW",  // Some students still under review
                 LastActionDate = new DateTime(2025, 10, 28),
                 LastActionBy = "CTC Grants Team",

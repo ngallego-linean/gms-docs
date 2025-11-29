@@ -10,38 +10,22 @@
 }
 
 <div class="page-header">
-    <h2><i class="mdi mdi-file-upload-outline"></i> Bulk Upload Purchase Orders</h2>
-    <p class="subtitle">Upload multiple Purchase Order documents at once</p>
+    <h2><i class="mdi mdi-cloud-upload-outline"></i> Bulk Upload POs</h2>
+    <p class="subtitle">Upload multiple Purchase Order documents</p>
 </div>
 
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-information-outline"></i> Instructions</h4>
+        <h4><i class="mdi mdi-file-multiple-outline"></i> Upload Files</h4>
     </div>
     <div class="r4-card-body">
-        <div class="instructions-content">
-            <p>Use this page to upload multiple Purchase Order files at once. Each file should be named with the LEA district name or ID for automatic matching.</p>
-            <ul>
-                <li>Accepted file formats: PDF, XLSX, XLS, CSV</li>
-                <li>Maximum file size: 10MB per file</li>
-                <li>Files will be matched to disbursements by filename</li>
-                <li>Unmatched files will be flagged for manual review</li>
-            </ul>
-        </div>
-    </div>
-</div>
-
-<div class="r4-card">
-    <div class="r4-card-header">
-        <h4><i class="mdi mdi-cloud-upload-outline"></i> Upload Files</h4>
-    </div>
-    <div class="r4-card-body">
+        <p class="upload-instruction">Name files with LEA district name or ID for automatic matching.</p>
         <form id="bulkUploadForm" enctype="multipart/form-data">
             <div class="file-upload-area" id="dropZone">
                 <i class="mdi mdi-cloud-upload-outline"></i>
                 <p class="upload-title">Drag & drop your files here</p>
                 <p class="upload-subtitle">or</p>
-                <label for="poFiles" class="r4-button r4-button-secondary">
+                <label for="poFiles" class="r4-button r4-button-primary">
                     <i class="mdi mdi-folder-open-outline"></i> Browse Files
                 </label>
                 <input type="file" id="poFiles" name="poFiles" accept=".pdf,.xlsx,.xls,.csv" class="file-input" multiple />
@@ -181,21 +165,10 @@
     </script>
 
     <style>
-        .instructions-content {
-            color: var(--gray-700);
-        }
-
-        .instructions-content p {
-            margin-bottom: 1rem;
-        }
-
-        .instructions-content ul {
-            margin: 0;
-            padding-left: 1.5rem;
-        }
-
-        .instructions-content li {
-            margin-bottom: 0.5rem;
+        .upload-instruction {
+            color: var(--gray-600);
+            font-size: 0.875rem;
+            margin: 0 0 1rem 0;
         }
 
         .file-upload-area {
@@ -217,7 +190,7 @@
             background: rgba(0, 86, 179, 0.05);
         }
 
-        .file-upload-area i {
+        .file-upload-area > i {
             font-size: 4rem;
             color: var(--gray-400);
             margin-bottom: 1rem;

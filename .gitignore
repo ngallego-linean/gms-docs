@@ -18,3 +18,5 @@ obj/
 # Environment secrets
 .env
 *.env
+# Semantic search configuration
+.envrc
