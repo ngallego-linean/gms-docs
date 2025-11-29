@@ -3,8 +3,14 @@ using GMS.Data.Repositories;
 using Ctc.GMS.Web.UI.Configuration;
 using Ctc.GMS.Web.UI.Services;
 using DotNetEnv;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Set default culture to en-US for consistent currency formatting ($)
+var cultureInfo = new CultureInfo("en-US");
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
 // Load .env file
 Env.Load(Path.Combine(builder.Environment.ContentRootPath, ".env"));
