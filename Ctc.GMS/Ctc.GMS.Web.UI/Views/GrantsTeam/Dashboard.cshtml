@@ -78,7 +78,7 @@
                 <i class="mdi mdi-upload-multiple"></i> Bulk Upload PO
             </a>
             <a href="@Url.Action("DisbursementQueue", "FiscalTeam")" class="r4-button r4-button-sm r4-button-primary">
-                <i class="mdi mdi-format-list-checks"></i> Review Queue
+                <i class="mdi mdi-eye-outline"></i> Review Queue
             </a>
         </div>
     </div>
@@ -101,6 +101,12 @@
                 new { SubmissionDate = DateTime.Now.AddDays(-25), LEA = "Long Beach Unified School District", LastAction = "Approved", LastActionDate = DateTime.Now.AddDays(-1), Amount = 52500m, State = "NEEDS_GAA", Id = 6,
                     Step1Date = (DateTime?)null, Step2Date = (DateTime?)null, Step3Date = (DateTime?)null, Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, Step6Date = (DateTime?)null }
             };
+
+            // Filter out completed items (this is an action items table) and sort by date ascending (oldest first)
+            disbursementGroups = disbursementGroups
+                .Where(g => g.State != "COMPLETE")
+                .OrderBy(g => g.SubmissionDate)
+                .ToList();
 
             // Workflow step definitions (6 stages)
             var workflowSteps = new[] {
@@ -142,22 +148,15 @@
                                 </td>
                                 <td>@group.Amount.ToString("C0")</td>
                                 <td onclick="event.stopPropagation();">
-                                    @if (group.Step1Date != null)
-                                    {
-                                        <a href="@Url.Action("ViewDocuments", "FiscalTeam", new { id = group.Id })" class="r4-button r4-button-sm">
-                                            <i class="mdi mdi-folder-open-outline"></i> View Docs
-                                        </a>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">--</span>
-                                    }
+                                    <a href="@Url.Action("ViewDocuments", "FiscalTeam", new { id = group.Id })" class="r4-button r4-button-sm">
+                                        <i class="mdi mdi-folder-open-outline"></i> View Docs
+                                    </a>
                                 </td>
                                 <td onclick="event.stopPropagation();">
                                     @if (group.State == "NEEDS_GAA")
                                     {
                                         <div style="width: 180px; display: block;">
-                                            <a href="@Url.Action("GAA", "FiscalTeam", new { id = group.Id })" class="r4-button r4-button-sm r4-button-primary">
+                                            <a href="@Url.Action("GAA", "FiscalTeam", new { id = group.Id })" class="r4-button r4-button-sm r4-button-primary" style="width: 100%;">
                                                 <i class="mdi mdi-file-sign"></i> Generate GAA
                                             </a>
                                         </div>
@@ -165,7 +164,7 @@
                                     else if (group.State == "NEEDS_PO")
                                     {
                                         <div style="width: 180px; display: block;">
-                                            <a href="@Url.Action("UploadPO", "FiscalTeam", new { id = group.Id })" class="r4-button r4-button-sm r4-button-primary">
+                                            <a href="@Url.Action("UploadPO", "FiscalTeam", new { id = group.Id })" class="r4-button r4-button-sm r4-button-primary" style="width: 100%;">
                                                 <i class="mdi mdi-cloud-upload-outline"></i> Upload PO
                                             </a>
                                         </div>
@@ -173,7 +172,7 @@
                                     else if (group.State == "NEEDS_INVOICE")
                                     {
                                         <div style="width: 180px; display: block;">
-                                            <a href="@Url.Action("DownloadInvoice", "FiscalTeam", new { id = group.Id })" class="r4-button r4-button-sm r4-button-primary">
+                                            <a href="@Url.Action("DownloadInvoice", "FiscalTeam", new { id = group.Id })" class="r4-button r4-button-sm r4-button-primary" style="width: 100%;">
                                                 <i class="mdi mdi-receipt-text-outline"></i> Generate Invoice
                                             </a>
                                         </div>
@@ -181,7 +180,7 @@
                                     else if (group.State == "NEEDS_WARRANT")
                                     {
                                         <div style="width: 180px; display: block;">
-                                            <a href="@Url.Action("UploadWarrant", "FiscalTeam", new { id = group.Id })" class="r4-button r4-button-sm r4-button-primary">
+                                            <a href="@Url.Action("UploadWarrant", "FiscalTeam", new { id = group.Id })" class="r4-button r4-button-sm r4-button-primary" style="width: 100%;">
                                                 <i class="mdi mdi-check-decagram"></i> Upload Warrant
                                             </a>
                                         </div>
@@ -350,6 +349,11 @@
     </script>
 
     <style>
+        /* Consistent action button widths - override r4-styles.css !important rule */
+        .disbursement-table .r4-button-sm {
+            width: 100% !important;
+        }
+
         /* Clickable disbursement rows */
         .disbursement-row {
             cursor: pointer;
@@ -401,7 +405,6 @@
         .timeline-step {
             flex: 1;
             min-width: 100px;
-            max-width: 140px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -414,8 +417,8 @@
             content: '';
             position: absolute;
             top: 15px;
-            left: calc(50% + 18px);
-            width: calc(100% + 35px);
+            left: calc(50% + 16px);
+            width: calc(100% - 32px);
             height: 2px;
             background: var(--gray-300);
         }
