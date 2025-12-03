@@ -470,6 +470,26 @@ public class ReviewCandidatesViewModel
 
     // Existing draft applications to add candidates to
     public List<DraftApplicationOptionViewModel> DraftApplications { get; set; } = new();
+
+    // Application Information (POC/Contact fields - displayed locked by default)
+    public string POCFirstName { get; set; } = string.Empty;
+    public string POCLastName { get; set; } = string.Empty;
+    public string POCEmail { get; set; } = string.Empty;
+    public string POCPhone { get; set; } = string.Empty;
+
+    public string GAASignerName { get; set; } = string.Empty;
+    public string GAASignerTitle { get; set; } = string.Empty;
+    public string GAASignerEmail { get; set; } = string.Empty;
+
+    public string FiscalAgentName { get; set; } = string.Empty;
+    public string FiscalAgentEmail { get; set; } = string.Empty;
+    public string FiscalAgentPhone { get; set; } = string.Empty;
+
+    public string SuperintendentName { get; set; } = string.Empty;
+    public string SuperintendentEmail { get; set; } = string.Empty;
+
+    public string PaymentIntent { get; set; } = string.Empty;
+    public string PaymentSchedule { get; set; } = string.Empty;
 }
 
 /// <summary>

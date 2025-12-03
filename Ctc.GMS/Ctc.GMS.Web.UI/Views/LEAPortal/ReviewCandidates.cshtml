@@ -17,7 +17,11 @@
     <div style="display: flex; gap: 2rem; margin-top: 0.5rem; font-size: 0.9rem; color: var(--gray-600);">
         <div>
             <i class="mdi mdi-calendar-clock-outline" style="color: var(--ctc-blue);"></i>
-            <strong>Batch Period:</strong> @Model.CurrentBatchMonth (Day @Model.CurrentMonthDay of @Model.DaysInMonth)
+            <strong>Submission Period:</strong> @Model.CurrentBatchMonth (Day @Model.CurrentMonthDay of @Model.DaysInMonth)
+            <span class="info-tooltip">
+                <i class="mdi mdi-information-outline"></i>
+                <span class="info-tooltip-text">This grant operates on a monthly submission cadence. Candidates submitted within the current month will be processed together.</span>
+            </span>
         </div>
         <div>
             <i class="mdi mdi-clock-outline" style="color: var(--ctc-blue);"></i>
@@ -39,6 +43,125 @@
         <i class="mdi mdi-alert-circle-outline"></i> @TempData["Error"]
     </div>
 }
+
+@* Application Information Card - Locked by default *@
+<div class="r4-card" id="applicationInfoCard">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-file-document-outline"></i> Application Information</h4>
+        <div class="card-actions">
+            <button type="button" class="r4-button r4-button-sm" id="editInfoBtn" onclick="toggleEditMode()">
+                <i class="mdi mdi-pencil"></i> Edit
+            </button>
+            <button type="button" class="r4-button r4-button-sm r4-button-primary" id="saveInfoBtn" onclick="saveApplicationInfo()" style="display: none;">
+                <i class="mdi mdi-content-save"></i> Save
+            </button>
+        </div>
+    </div>
+    <div class="r4-card-body" id="applicationInfoBody">
+        <div class="info-sections-grid">
+            @* LEA Point of Contact *@
+            <div class="info-section">
+                <div class="info-section-header">
+                    <i class="mdi mdi-account-outline"></i> LEA Point of Contact
+                </div>
+                <div class="info-fields-grid">
+                    <div class="info-field">
+                        <label>First Name</label>
+                        <input type="text" class="form-control info-input" name="POCFirstName" value="@Model.POCFirstName" disabled />
+                    </div>
+                    <div class="info-field">
+                        <label>Last Name</label>
+                        <input type="text" class="form-control info-input" name="POCLastName" value="@Model.POCLastName" disabled />
+                    </div>
+                    <div class="info-field">
+                        <label>Email</label>
+                        <input type="email" class="form-control info-input" name="POCEmail" value="@Model.POCEmail" disabled />
+                    </div>
+                    <div class="info-field">
+                        <label>Phone</label>
+                        <input type="tel" class="form-control info-input" name="POCPhone" value="@Model.POCPhone" disabled />
+                    </div>
+                </div>
+            </div>
+
+            @* GAA Authorized Signer *@
+            <div class="info-section">
+                <div class="info-section-header">
+                    <i class="mdi mdi-pen"></i> GAA Authorized Signer
+                </div>
+                <div class="info-fields-grid">
+                    <div class="info-field">
+                        <label>Full Name</label>
+                        <input type="text" class="form-control info-input" name="GAASignerName" value="@Model.GAASignerName" disabled />
+                    </div>
+                    <div class="info-field">
+                        <label>Title</label>
+                        <input type="text" class="form-control info-input" name="GAASignerTitle" value="@Model.GAASignerTitle" disabled />
+                    </div>
+                    <div class="info-field">
+                        <label>Email</label>
+                        <input type="email" class="form-control info-input" name="GAASignerEmail" value="@Model.GAASignerEmail" disabled />
+                    </div>
+                </div>
+            </div>
+
+            @* Fiscal Agent *@
+            <div class="info-section">
+                <div class="info-section-header">
+                    <i class="mdi mdi-cash-multiple"></i> Fiscal Agent
+                </div>
+                <div class="info-fields-grid">
+                    <div class="info-field">
+                        <label>Name</label>
+                        <input type="text" class="form-control info-input" name="FiscalAgentName" value="@Model.FiscalAgentName" disabled />
+                    </div>
+                    <div class="info-field">
+                        <label>Email</label>
+                        <input type="email" class="form-control info-input" name="FiscalAgentEmail" value="@Model.FiscalAgentEmail" disabled />
+                    </div>
+                    <div class="info-field">
+                        <label>Phone</label>
+                        <input type="tel" class="form-control info-input" name="FiscalAgentPhone" value="@Model.FiscalAgentPhone" disabled />
+                    </div>
+                </div>
+            </div>
+
+            @* Superintendent *@
+            <div class="info-section">
+                <div class="info-section-header">
+                    <i class="mdi mdi-account-tie"></i> Superintendent
+                </div>
+                <div class="info-fields-grid">
+                    <div class="info-field">
+                        <label>Name</label>
+                        <input type="text" class="form-control info-input" name="SuperintendentName" value="@Model.SuperintendentName" disabled />
+                    </div>
+                    <div class="info-field">
+                        <label>Email</label>
+                        <input type="email" class="form-control info-input" name="SuperintendentEmail" value="@Model.SuperintendentEmail" disabled />
+                    </div>
+                </div>
+            </div>
+
+            @* Payment Information *@
+            <div class="info-section">
+                <div class="info-section-header">
+                    <i class="mdi mdi-credit-card-outline"></i> Payment Information
+                </div>
+                <div class="info-fields-grid">
+                    <div class="info-field">
+                        <label>Payment Intent</label>
+                        <input type="text" class="form-control info-input" name="PaymentIntent" value="@Model.PaymentIntent" disabled />
+                    </div>
+                    <div class="info-field">
+                        <label>Payment Schedule</label>
+                        <input type="text" class="form-control info-input" name="PaymentSchedule" value="@Model.PaymentSchedule" disabled />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <form method="post" action="@Url.Action("ProcessCandidates", "LEAPortal")" id="reviewForm">
     <input type="hidden" name="LEAId" value="@Model.LEAId" />
@@ -80,9 +203,6 @@
                     <div class="filter-actions">
                         <button type="button" class="r4-button r4-button-sm" onclick="selectAll()">
                             <i class="mdi mdi-checkbox-multiple-marked-outline"></i> Select All
-                        </button>
-                        <button type="button" class="r4-button r4-button-sm r4-button-secondary" onclick="deselectAll()">
-                            <i class="mdi mdi-checkbox-multiple-blank-outline"></i> Deselect All
                         </button>
                     </div>
                 </div>
@@ -126,53 +246,12 @@
                     </table>
                 </div>
 
-                <div class="processing-options">
-                    <h5 class="processing-options-title">
-                        <i class="mdi mdi-file-document-edit-outline"></i> Processing Options
-                    </h5>
-                    <p class="processing-options-count">
-                        <span id="selectedCount">@Model.TotalCandidates</span> candidate(s) selected
-                    </p>
-
-                    <div style="display: flex; flex-direction: column; gap: 1rem;">
-                        <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 0.75rem; border-radius: var(--border-radius-sm); border: 2px solid var(--gray-300); background: white;">
-                            <input type="radio" name="Action" value="create_new" checked style="margin: 0;" />
-                            <div>
-                                <strong>Create New Application</strong>
-                                <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--gray-600);">
-                                    Start a new batch application for the current month
-                                </p>
-                            </div>
-                        </label>
-
-                        @if (Model.DraftApplications.Any())
-                        {
-                            <label style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer; padding: 0.75rem; border-radius: var(--border-radius-sm); border: 2px solid var(--gray-300); background: white;">
-                                <input type="radio" name="Action" value="add_to_existing" style="margin-top: 0.25rem;" />
-                                <div style="flex: 1;">
-                                    <strong>Add to Existing Application</strong>
-                                    <p style="margin: 0.25rem 0 0.5rem 0; font-size: 0.85rem; color: var(--gray-600);">
-                                        Add candidates to a draft application
-                                    </p>
-                                    <select name="ExistingApplicationId" class="form-control" style="margin-top: 0.5rem;" disabled id="existingAppSelect">
-                                        <option value="">Select an application...</option>
-                                        @foreach (var draft in Model.DraftApplications)
-                                        {
-                                            <option value="@draft.ApplicationId">@draft.DisplayText</option>
-                                        }
-                                    </select>
-                                </div>
-                            </label>
-                        }
-                    </div>
-                </div>
-
                 <div class="form-actions">
                     <a href="@Url.Action("Dashboard", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-secondary">
                         <i class="mdi mdi-arrow-left"></i> Cancel
                     </a>
                     <button type="submit" class="r4-button r4-button-primary" onclick="return validateForm()">
-                        <i class="mdi mdi-check"></i> Process Selected Candidates
+                        <i class="mdi mdi-plus"></i> Add to Submission
                     </button>
                 </div>
             }
@@ -205,30 +284,7 @@
                         row.style.display = 'none';
                     }
                 }
-
-                updateSelectedCount();
             });
-
-            // Radio button handling
-            const radioButtons = document.getElementsByName('Action');
-            const existingAppSelect = document.getElementById('existingAppSelect');
-
-            radioButtons.forEach(radio => {
-                radio.addEventListener('change', function() {
-                    if (existingAppSelect) {
-                        existingAppSelect.disabled = this.value !== 'add_to_existing';
-                        if (this.value === 'add_to_existing') {
-                            existingAppSelect.focus();
-                        }
-                    }
-                });
-            });
-
-            // Update count when checkboxes change
-            const checkboxes = document.getElementsByClassName('candidate-checkbox');
-            for (let i = 0; i < checkboxes.length; i++) {
-                checkboxes[i].addEventListener('change', updateSelectedCount);
-            }
         });
 
         function selectAll() {
@@ -242,61 +298,114 @@
             }
 
             document.getElementById('selectAllCheckbox').checked = true;
-            updateSelectedCount();
-        }
-
-        function deselectAll() {
-            const checkboxes = document.getElementsByClassName('candidate-checkbox');
-            for (let i = 0; i < checkboxes.length; i++) {
-                checkboxes[i].checked = false;
-            }
-            document.getElementById('selectAllCheckbox').checked = false;
-            updateSelectedCount();
         }
 
         function toggleAll(checkbox) {
-            if (checkbox.checked) {
-                selectAll();
-            } else {
-                deselectAll();
-            }
-        }
-
-        function updateSelectedCount() {
             const checkboxes = document.getElementsByClassName('candidate-checkbox');
-            const rows = document.getElementById('candidatesTable').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
-            let count = 0;
-
             for (let i = 0; i < checkboxes.length; i++) {
-                if (checkboxes[i].checked && rows[i].style.display !== 'none') {
-                    count++;
-                }
+                checkboxes[i].checked = checkbox.checked;
             }
-
-            document.getElementById('selectedCount').textContent = count;
         }
 
         function validateForm() {
             const checkedBoxes = document.querySelectorAll('.candidate-checkbox:checked');
             if (checkedBoxes.length === 0) {
-                alert('Please select at least one candidate to process.');
+                alert('Please select at least one candidate to add.');
                 return false;
             }
-
-            const action = document.querySelector('input[name="Action"]:checked').value;
-            if (action === 'add_to_existing') {
-                const existingAppId = document.getElementById('existingAppSelect').value;
-                if (!existingAppId) {
-                    alert('Please select an existing application to add candidates to.');
-                    return false;
-                }
-            }
-
             return true;
+        }
+
+        // Application Information Edit/Lock Toggle
+        let originalValues = {};
+
+        function toggleEditMode() {
+            const inputs = document.querySelectorAll('.info-input');
+            const card = document.getElementById('applicationInfoCard');
+
+            // Store original values
+            inputs.forEach(input => {
+                originalValues[input.name] = input.value;
+                input.disabled = false;
+            });
+
+            // Toggle button visibility
+            document.getElementById('editInfoBtn').style.display = 'none';
+            document.getElementById('saveInfoBtn').style.display = 'inline-flex';
+
+            // Update card styling
+            card.classList.add('editing');
+        }
+
+
+        function saveApplicationInfo() {
+            const inputs = document.querySelectorAll('.info-input');
+            const card = document.getElementById('applicationInfoCard');
+
+            // Lock all inputs
+            inputs.forEach(input => {
+                input.disabled = true;
+            });
+
+            // Toggle button visibility
+            document.getElementById('editInfoBtn').style.display = 'inline-flex';
+            document.getElementById('saveInfoBtn').style.display = 'none';
+
+            // Update card styling
+            card.classList.remove('editing');
+
+            // Show success message (for demo purposes)
+            alert('Application information saved successfully!');
         }
     </script>
 
     <style>
+        /* Info Tooltip */
+        .info-tooltip {
+            position: relative;
+            display: inline-block;
+            color: var(--ctc-blue);
+            cursor: help;
+            margin-left: 0.25rem;
+        }
+
+        .info-tooltip-text {
+            visibility: hidden;
+            opacity: 0;
+            width: 280px;
+            background-color: var(--gray-900);
+            color: white;
+            text-align: left;
+            border-radius: var(--border-radius-sm);
+            padding: 0.75rem;
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.85rem;
+            font-weight: normal;
+            line-height: 1.4;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transition: opacity 0.2s, visibility 0.2s;
+        }
+
+        .info-tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--gray-900) transparent transparent transparent;
+        }
+
+        .info-tooltip:hover .info-tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
         /* Filter Controls */
         .filter-controls {
             display: flex;
@@ -309,8 +418,8 @@
         }
 
         .filter-group {
-            flex: 1;
             min-width: 250px;
+            max-width: 400px;
         }
 
         .filter-label {
@@ -322,26 +431,7 @@
         .filter-actions {
             display: flex;
             gap: 0.5rem;
-        }
-
-        /* Processing Options */
-        .processing-options {
-            margin-top: 1.5rem;
-            padding: 1.5rem;
-            background: var(--gray-50);
-            border-radius: var(--border-radius-md);
-            border: 1px solid var(--gray-200);
-        }
-
-        .processing-options-title {
-            margin: 0 0 1rem 0;
-            font-weight: 600;
-        }
-
-        .processing-options-count {
-            color: var(--gray-600);
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
+            margin-left: auto;
         }
 
         /* Form Actions */
@@ -352,6 +442,125 @@
             margin-top: 1.5rem;
             padding-top: 1.5rem;
             border-top: 1px solid var(--gray-200);
+        }
+
+        /* Application Information Card */
+        #applicationInfoCard {
+            margin-bottom: 1.5rem;
+        }
+
+        #applicationInfoCard .card-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-right: -0.5rem;  /* Pull buttons closer to right edge */
+        }
+
+        .info-sections-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            align-items: stretch;
+        }
+
+        .info-section {
+            border: 1px solid var(--gray-200);
+            border-radius: var(--border-radius-md);
+            padding: 1rem;
+            background: var(--gray-50);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-section-header {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--ctc-blue);
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .info-section-header i {
+            margin-right: 0.35rem;
+        }
+
+        .info-fields-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            flex: 1;
+        }
+
+        .info-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .info-field label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .info-input {
+            width: 100%;
+            background-color: var(--gray-100) !important;
+            color: var(--gray-700) !important;
+            border-color: var(--gray-200) !important;
+            cursor: not-allowed;
+        }
+
+        .info-input:disabled {
+            opacity: 0.8;
+        }
+
+        /* Bottom row - span 2 columns for Superintendent, Payment fills remaining */
+        .info-sections-grid .info-section:nth-child(4) {
+            grid-column: span 1;
+        }
+
+        .info-sections-grid .info-section:nth-child(5) {
+            grid-column: span 2;
+        }
+
+        @@media (max-width: 992px) {
+            .info-sections-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .info-sections-grid .info-section:nth-child(5) {
+                grid-column: span 1;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .info-sections-grid {
+                grid-template-columns: 1fr;
+            }
+            .info-sections-grid .info-section:nth-child(5) {
+                grid-column: span 1;
+            }
+        }
+
+        /* Edit Mode Styling */
+        #applicationInfoCard.editing .info-section {
+            background: var(--white);
+            border-color: var(--ctc-blue);
+        }
+
+        #applicationInfoCard.editing .info-input {
+            background-color: var(--white) !important;
+            color: var(--gray-900) !important;
+            border-color: var(--gray-300) !important;
+            cursor: text;
+        }
+
+        #applicationInfoCard.editing .info-input:focus {
+            border-color: var(--ctc-blue) !important;
+            box-shadow: 0 0 0 2px rgba(0, 82, 147, 0.1);
         }
     </style>
 }
