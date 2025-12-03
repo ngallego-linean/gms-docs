@@ -16,9 +16,14 @@
     <p class="subtitle">@Model.GrantCycleName</p>
 </div>
 
-<div class="alert alert-info">
+<div class="alert alert-info" id="infoBanner">
     <i class="mdi mdi-information-outline"></i>
     Submit your list of student teacher candidates for this grant cycle. After submission, the LEA will receive an email notification to complete the application.
+</div>
+
+<div class="alert alert-success" id="successBanner" style="display: none;">
+    <i class="mdi mdi-check-circle-outline"></i>
+    <strong>Candidates submitted to LEAs!</strong> You can view your submissions on the <a href="@Url.Action("Applications", "IHEPortal", new { iheId = Model.IHEId, grantCycleId = Model.GrantCycleId })">Applications page</a>.
 </div>
 
 @* Submission Method Tabs *@
@@ -111,7 +116,6 @@
                     <span class="field-tag">First Name</span>
                     <span class="field-tag">Last Name</span>
                     <span class="field-tag">DOB</span>
-                    <span class="field-tag">Last 4 SSN</span>
                     <span class="field-tag">Credential Area</span>
                     <span class="field-tag">County CDS</span>
                     <span class="field-tag">LEA CDS</span>
@@ -130,13 +134,13 @@
                 <input type="hidden" name="grantCycleId" value="@Model.GrantCycleId" />
 
                 <div class="upload-area" id="uploadArea">
-                    <div class="upload-icon">
+                    <div class="upload-icon" id="uploadIcon">
                         <i class="mdi mdi-cloud-upload-outline"></i>
                     </div>
-                    <h5>Drag and drop your Excel file here</h5>
-                    <p class="text-muted">or click to browse</p>
+                    <h5 id="uploadTitle">Drag and drop your Excel file here</h5>
+                    <p class="text-muted" id="uploadSubtitle">or click to browse</p>
                     <input type="file" id="fileInput" name="file" accept=".xlsx,.xls,.csv" style="display: none;" />
-                    <button type="button" class="r4-button r4-button-primary mt-3" onclick="document.getElementById('fileInput').click();">
+                    <button type="button" class="r4-button r4-button-primary mt-3" id="chooseFileBtn" onclick="simulateFileUpload()">
                         <i class="mdi mdi-folder-open-outline"></i> Choose File
                     </button>
                 </div>
@@ -145,13 +149,12 @@
                     <div class="alert alert-success">
                         <i class="mdi mdi-file-check-outline"></i>
                         <strong>Selected file:</strong> <span id="fileName"></span> (<span id="fileSize"></span>)
-                        <button type="button" class="btn-close" onclick="clearFile()"></button>
                     </div>
                 </div>
 
-                <div class="form-actions mt-4">
+                <div class="form-actions mt-4" id="uploadActions">
                     <button type="submit" class="r4-button r4-button-primary" id="uploadButton" disabled>
-                        <i class="mdi mdi-upload"></i> Upload and Process
+                        <i class="mdi mdi-upload"></i> Submit Candidates
                     </button>
                     <a href="@Url.Action("Dashboard", "IHEPortal", new { iheId = Model.IHEId, grantCycleId = Model.GrantCycleId })" class="r4-button">
                         <i class="mdi mdi-arrow-left"></i> Cancel
@@ -170,6 +173,252 @@
             <div id="uploadResults" class="upload-results mt-4" style="display: none;">
                 <!-- Results will be displayed here -->
             </div>
+        </div>
+    </div>
+
+    <!-- Student Data Table (shown after file processing) -->
+    <div class="r4-card" id="studentTableCard" style="display: none;">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-account-group-outline"></i> Uploaded Candidates</h4>
+            <div class="card-header-actions">
+                <span class="badge badge-success" id="validCount">4 Valid</span>
+                <span class="badge badge-danger" id="errorCount">1 Error</span>
+            </div>
+        </div>
+        <div class="r4-card-body">
+            <div class="table-responsive">
+                <table class="r4-table" id="studentTable">
+                    <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Date of Birth</th>
+                            <th scope="col">Credential Area</th>
+                            <th scope="col">LEA</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTableBody">
+                        <!-- Mock data will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Student Modal -->
+<div class="modal-backdrop" id="editModalBackdrop" style="display: none;" onclick="closeEditModal()"></div>
+<div class="edit-modal" id="editModal" style="display: none;">
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <div>
+                <h4><i class="mdi mdi-account-edit-outline"></i> Edit Student</h4>
+                <p class="modal-subtitle" id="editStudentName"></p>
+            </div>
+            <button type="button" class="modal-close-btn" onclick="closeEditModal()">
+                <i class="mdi mdi-close"></i>
+            </button>
+        </div>
+        <div class="r4-card-body">
+            <!-- Error Alert (shown only for error rows) -->
+            <div class="alert alert-danger" id="editErrorAlert" style="display: none;">
+                <i class="mdi mdi-alert-circle-outline"></i>
+                <strong>Error:</strong> <span id="editErrorMessage"></span>
+            </div>
+
+            <form id="editStudentForm">
+                <input type="hidden" id="editStudentId" />
+
+                <!-- Basic Info -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editFirstName">First Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="editFirstName" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="editLastName">Last Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="editLastName" required />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="editDOB">Date of Birth <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control" id="editDOB" required />
+                </div>
+
+                <!-- Demographic Information -->
+                <div class="section-divider">
+                    <i class="mdi mdi-account-details-outline"></i>
+                    <h6>Demographic Information</h6>
+                </div>
+
+                <div class="form-row form-row-3">
+                    <div class="form-group">
+                        <label for="editRace">Race</label>
+                        <select class="form-control" id="editRace">
+                            <option value="">Select...</option>
+                            <option value="American Indian or Alaska Native">American Indian or Alaska Native</option>
+                            <option value="Asian">Asian</option>
+                            <option value="Black or African American">Black or African American</option>
+                            <option value="Native Hawaiian or Pacific Islander">Native Hawaiian or Pacific Islander</option>
+                            <option value="White">White</option>
+                            <option value="Two or More Races">Two or More Races</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEthnicity">Ethnicity</label>
+                        <select class="form-control" id="editEthnicity">
+                            <option value="">Select...</option>
+                            <option value="Hispanic or Latino">Hispanic or Latino</option>
+                            <option value="Not Hispanic or Latino">Not Hispanic or Latino</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editGender">Gender</label>
+                        <select class="form-control" id="editGender">
+                            <option value="">Select...</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Non-binary">Non-binary</option>
+                            <option value="Prefer not to say">Prefer not to say</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Credential Information -->
+                <div class="section-divider">
+                    <i class="mdi mdi-certificate-outline"></i>
+                    <h6>Credential Information</h6>
+                </div>
+
+                <div class="form-group">
+                    <label for="editCredential">Credential Area <span class="text-danger">*</span></label>
+                    <select class="form-control" id="editCredential" required>
+                        <option value="">Select credential area...</option>
+                        <option value="Multiple Subject">Multiple Subject</option>
+                        <option value="Single Subject">Single Subject</option>
+                        <option value="Education Specialist">Education Specialist</option>
+                        <option value="Bilingual Authorization">Bilingual Authorization</option>
+                        <option value="Administrative Services">Administrative Services</option>
+                    </select>
+                </div>
+
+                <!-- Clinical Placement -->
+                <div class="section-divider">
+                    <i class="mdi mdi-school-outline"></i>
+                    <h6>Clinical Placement</h6>
+                </div>
+
+                <div class="form-row form-row-3">
+                    <div class="form-group">
+                        <label for="editCounty">County <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="editCounty" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="editDistrict">School District <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="editDistrict" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="editSchool">School <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="editSchool" required />
+                    </div>
+                </div>
+
+                <!-- LEA Partner Information -->
+                <div class="section-divider">
+                    <i class="mdi mdi-domain"></i>
+                    <h6>LEA Partner Information</h6>
+                </div>
+
+                <div class="form-group">
+                    <label for="editLeaDistrict">LEA District</label>
+                    <input type="text" class="form-control" id="editLeaDistrict" readonly />
+                </div>
+
+                <div class="form-group">
+                    <label for="editPocName">LEA Point of Contact <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="editPocName" required />
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editPocEmail">POC Email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="editPocEmail" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="editPocPhone">POC Phone <span class="text-danger">*</span></label>
+                        <input type="tel" class="form-control" id="editPocPhone" placeholder="(555) 123-4567" required />
+                    </div>
+                </div>
+
+                <!-- Multiple Placement Checkbox -->
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" id="editMultiplePlacement" onchange="toggleEditMultiplePlacement(this)">
+                            Check box for more than one placement
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Second Placement (hidden by default) -->
+                <div id="editAdditionalPlacement" style="display: none;">
+                    <div class="section-divider">
+                        <i class="mdi mdi-school-outline"></i>
+                        <h6>Clinical Placement (2nd)</h6>
+                    </div>
+
+                    <div class="form-row form-row-3">
+                        <div class="form-group">
+                            <label for="editCounty2">County (2nd)</label>
+                            <input type="text" class="form-control" id="editCounty2" />
+                        </div>
+                        <div class="form-group">
+                            <label for="editDistrict2">School District (2nd)</label>
+                            <input type="text" class="form-control" id="editDistrict2" />
+                        </div>
+                        <div class="form-group">
+                            <label for="editSchool2">School (2nd)</label>
+                            <input type="text" class="form-control" id="editSchool2" />
+                        </div>
+                    </div>
+
+                    <div class="section-divider">
+                        <i class="mdi mdi-domain"></i>
+                        <h6>LEA Partner Information (2nd Placement)</h6>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editLeaDistrict2">LEA District (2nd)</label>
+                        <input type="text" class="form-control" id="editLeaDistrict2" readonly />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editPocName2">LEA Point of Contact (2nd)</label>
+                        <input type="text" class="form-control" id="editPocName2" />
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editPocEmail2">POC Email (2nd)</label>
+                            <input type="email" class="form-control" id="editPocEmail2" />
+                        </div>
+                        <div class="form-group">
+                            <label for="editPocPhone2">POC Phone (2nd)</label>
+                            <input type="tel" class="form-control" id="editPocPhone2" placeholder="(555) 123-4567" />
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="r4-card-footer">
+            <button type="button" class="r4-button r4-button-primary" onclick="saveStudent()">
+                <i class="mdi mdi-content-save"></i> Save
+            </button>
+            <button type="button" class="r4-button" onclick="closeEditModal()">
+                <i class="mdi mdi-close"></i> Cancel
+            </button>
         </div>
     </div>
 </div>
@@ -197,15 +446,9 @@
             </div>
         </div>
 
-        <div class="form-row">
-            <div class="form-group">
-                <label>Date of Birth <span class="text-danger">*</span></label>
-                <input type="date" class="form-control" name="Candidates[INDEX].DateOfBirth" required>
-            </div>
-            <div class="form-group">
-                <label>Last 4 of SSN/ITIN <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" name="Candidates[INDEX].Last4SSN" maxlength="4" pattern="[0-9]{4}" placeholder="1234" required>
-            </div>
+        <div class="form-group">
+            <label>Date of Birth <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" name="Candidates[INDEX].DateOfBirth" required>
         </div>
 
         <div class="section-divider">
@@ -292,38 +535,6 @@
             </div>
         </div>
 
-        <div class="form-group">
-            <div class="checkbox-group">
-                <label>
-                    <input type="checkbox" class="multiple-placement-toggle" name="Candidates[INDEX].HasMultiplePlacements" onchange="toggleMultiplePlacement(this)">
-                    Check box for more than one placement
-                </label>
-            </div>
-        </div>
-
-        <div class="additional-placement" style="display: none;">
-            <div class="form-row form-row-3">
-                <div class="form-group">
-                    <label>County (2nd)</label>
-                    <select class="form-control ecs-county-select-2" name="Candidates[INDEX].CountyCode2">
-                        <option value="">-- Select County --</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>School District (2nd)</label>
-                    <select class="form-control ecs-district-select-2" name="Candidates[INDEX].DistrictCdsCode2" disabled>
-                        <option value="">-- Select District --</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>School (2nd)</label>
-                    <select class="form-control ecs-school-select-2" name="Candidates[INDEX].SchoolCdsCode2" disabled>
-                        <option value="">-- Select School --</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
         <div class="section-divider">
             <i class="mdi mdi-domain"></i>
             <h6>LEA Partner Information</h6>
@@ -360,6 +571,68 @@
             <div class="form-group">
                 <label>POC Phone <span class="text-danger">*</span></label>
                 <input type="tel" class="form-control ecs-poc-phone" name="Candidates[INDEX].LEAPOCPhone" placeholder="(555) 123-4567" required>
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 1rem; padding: 0.75rem; background: var(--gray-50); border-radius: 6px; border-left: 3px solid var(--primary);">
+            <label style="display: flex; align-items: center; gap: 0.5rem; margin: 0; cursor: pointer;">
+                <input type="checkbox" class="multiple-placement-toggle" name="Candidates[INDEX].HasMultiplePlacements" onchange="toggleMultiplePlacement(this)" style="width: 18px; height: 18px;">
+                <span>Check box for more than one placement</span>
+            </label>
+        </div>
+
+        <div class="additional-placement" style="display: none; margin-top: 0; padding-top: 0;">
+            <div class="section-divider" style="margin-top: 1rem;">
+                <i class="mdi mdi-school-outline"></i>
+                <h6>Clinical Placement (2nd)</h6>
+            </div>
+
+            <div class="form-row form-row-3">
+                <div class="form-group">
+                    <label>County (2nd)</label>
+                    <select class="form-control ecs-county-select-2" name="Candidates[INDEX].CountyCode2">
+                        <option value="">-- Select County --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>School District (2nd)</label>
+                    <select class="form-control ecs-district-select-2" name="Candidates[INDEX].DistrictCdsCode2" disabled>
+                        <option value="">-- Select District --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>School (2nd)</label>
+                    <select class="form-control ecs-school-select-2" name="Candidates[INDEX].SchoolCdsCode2" disabled>
+                        <option value="">-- Select School --</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="section-divider">
+                <i class="mdi mdi-domain"></i>
+                <h6>LEA Partner Information (2nd Placement)</h6>
+            </div>
+
+            <div class="form-group">
+                <label>LEA District (2nd)</label>
+                <input type="text" class="form-control lea-district-display-2" readonly placeholder="(Selected from 2nd Clinical Placement above)">
+                <input type="hidden" name="Candidates[INDEX].LEAId2" class="lea-district-hidden-2">
+            </div>
+
+            <div class="form-group">
+                <label>LEA Point of Contact (2nd) <span class="text-danger">*</span></label>
+                <input type="text" class="form-control ecs-contact-input-2" name="Candidates[INDEX].LEAPOCName2" placeholder="Start typing or click to select from ECS contacts...">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>POC Email (2nd) <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control ecs-poc-email-2" name="Candidates[INDEX].LEAPOCEmail2">
+                </div>
+                <div class="form-group">
+                    <label>POC Phone (2nd) <span class="text-danger">*</span></label>
+                    <input type="tel" class="form-control ecs-poc-phone-2" name="Candidates[INDEX].LEAPOCPhone2" placeholder="(555) 123-4567">
+                </div>
             </div>
         </div>
 
@@ -619,11 +892,42 @@
         const fileSize = document.getElementById('fileSize');
         const uploadButton = document.getElementById('uploadButton');
         const uploadForm = document.getElementById('bulkUploadForm');
+        const uploadIcon = document.getElementById('uploadIcon');
+        const uploadTitle = document.getElementById('uploadTitle');
+        const uploadSubtitle = document.getElementById('uploadSubtitle');
+        const chooseFileBtn = document.getElementById('chooseFileBtn');
+        const studentTableCard = document.getElementById('studentTableCard');
+
+        // Simulate file upload (no file picker)
+        function simulateFileUpload() {
+            // Hide success banner, show info banner
+            document.getElementById('successBanner').style.display = 'none';
+            document.getElementById('infoBanner').style.display = 'block';
+
+            showLoadingState();
+
+            setTimeout(() => {
+                hideLoadingState({ name: 'candidates_batch_2024.xlsx', size: 45056 });
+                showStudentTable();
+                uploadButton.disabled = false;
+            }, 1500);
+        }
+
+        // Mock student data with all required fields
+        const mockStudents = [
+            { id: 1, firstName: 'Maria', lastName: 'Garcia', dob: '1998-03-15', credential: 'Multiple Subject', county: 'Los Angeles', district: 'Los Angeles USD', school: 'Jefferson Elementary', lea: 'Los Angeles USD', pocName: 'Robert Martinez', pocEmail: 'rmartinez@lausd.net', pocPhone: '(213) 555-0142', race: 'White', ethnicity: 'Hispanic or Latino', gender: 'Female', status: 'valid', errorMessage: '' },
+            { id: 2, firstName: 'James', lastName: 'Wilson', dob: '1999-07-22', credential: 'Single Subject', county: 'San Diego', district: 'San Diego USD', school: 'Lincoln High', lea: 'San Diego USD', pocName: 'Patricia Lee', pocEmail: 'plee@sdusd.edu', pocPhone: '(619) 555-0198', race: 'Black or African American', ethnicity: 'Not Hispanic or Latino', gender: 'Male', status: 'valid', errorMessage: '' },
+            { id: 3, firstName: 'Sarah', lastName: 'Chen', dob: '1997-11-08', credential: 'Education Specialist', county: 'Fresno', district: 'Fresno USD', school: 'Roosevelt Middle', lea: 'Fresno USD', pocName: 'David Kim', pocEmail: 'dkim@fresnousd.org', pocPhone: '(559) 555-0167', race: 'Asian', ethnicity: 'Not Hispanic or Latino', gender: 'Female', status: 'error', errorMessage: 'Invalid School CDS Code - School not found in Fresno USD district' },
+            { id: 4, firstName: 'Michael', lastName: 'Brown', dob: '2000-05-30', credential: 'Multiple Subject', county: 'Sacramento', district: 'Sacramento City USD', school: 'Washington Elementary', lea: 'Sacramento City USD', pocName: 'Jennifer Adams', pocEmail: 'jadams@scusd.edu', pocPhone: '(916) 555-0134', race: 'Two or More Races', ethnicity: 'Not Hispanic or Latino', gender: 'Male', status: 'valid', errorMessage: '' },
+            { id: 5, firstName: 'Emily', lastName: 'Johnson', dob: '1998-09-12', credential: 'Bilingual Authorization', county: 'Alameda', district: 'Oakland USD', school: 'MLK Jr. High', lea: 'Oakland USD', pocName: 'Michelle Torres', pocEmail: 'mtorres@ousd.org', pocPhone: '(510) 555-0189', race: 'White', ethnicity: 'Not Hispanic or Latino', gender: 'Female', status: 'valid', errorMessage: '' }
+        ];
 
         // Drag and drop handlers
         uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
-            uploadArea.classList.add('drag-over');
+            if (!uploadArea.classList.contains('is-loading')) {
+                uploadArea.classList.add('drag-over');
+            }
         });
 
         uploadArea.addEventListener('dragleave', () => {
@@ -634,9 +938,11 @@
             e.preventDefault();
             uploadArea.classList.remove('drag-over');
 
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                handleFileSelect(files[0]);
+            if (!uploadArea.classList.contains('is-loading')) {
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFileSelect(files[0]);
+                }
             }
         });
 
@@ -662,22 +968,195 @@
                 return;
             }
 
-            // Display file info
-            fileName.textContent = file.name;
-            fileSize.textContent = formatFileSize(file.size);
-            fileInfo.style.display = 'block';
-            uploadButton.disabled = false;
+            // Show loading state
+            showLoadingState();
 
             // Store file in form
             const dataTransfer = new DataTransfer();
             dataTransfer.items.add(file);
             fileInput.files = dataTransfer.files;
+
+            // Simulate processing delay
+            setTimeout(() => {
+                hideLoadingState(file);
+                showStudentTable();
+                uploadButton.disabled = false;
+            }, 1500);
         }
+
+        function showLoadingState() {
+            uploadArea.classList.add('is-loading');
+            uploadIcon.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i>';
+            uploadTitle.textContent = 'Processing file...';
+            uploadSubtitle.textContent = 'Please wait while we validate your data';
+            chooseFileBtn.style.display = 'none';
+            fileInfo.style.display = 'none';
+        }
+
+        function hideLoadingState(file) {
+            uploadArea.classList.remove('is-loading');
+            uploadIcon.innerHTML = '<i class="mdi mdi-file-check-outline"></i>';
+            uploadTitle.textContent = 'File processed successfully';
+            uploadSubtitle.textContent = 'Review the candidates below';
+            chooseFileBtn.style.display = 'none';
+
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileInfo.style.display = 'block';
+        }
+
+        function showStudentTable() {
+            const tbody = document.getElementById('studentTableBody');
+            tbody.innerHTML = '';
+
+            // Sort students with errors at the top
+            const sortedStudents = [...mockStudents].sort((a, b) => {
+                if (a.status === 'error' && b.status !== 'error') return -1;
+                if (a.status !== 'error' && b.status === 'error') return 1;
+                return 0;
+            });
+
+            sortedStudents.forEach(student => {
+                const row = document.createElement('tr');
+                if (student.status === 'error') {
+                    row.classList.add('has-error');
+                }
+
+                const formattedDob = new Date(student.dob).toLocaleDateString('en-US', {
+                    month: '2-digit',
+                    day: '2-digit',
+                    year: 'numeric'
+                });
+
+                const statusBadge = student.status === 'valid'
+                    ? '<span class="badge badge-success">Valid</span>'
+                    : '<span class="badge badge-danger">Error</span>';
+
+                row.innerHTML = `
+                    <td>${student.firstName} ${student.lastName}</td>
+                    <td>${formattedDob}</td>
+                    <td>${student.credential}</td>
+                    <td>${student.lea}</td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        <button type="button" class="edit-btn" onclick="openEditModal(${student.id})" title="Edit student">
+                            <i class="mdi mdi-pencil"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            studentTableCard.style.display = 'block';
+            studentTableCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function openEditModal(studentId) {
+            const student = mockStudents.find(s => s.id === studentId);
+            if (!student) return;
+
+            // Set student name subtitle
+            document.getElementById('editStudentName').textContent = `${student.firstName} ${student.lastName}`;
+
+            // Show/hide error alert
+            const errorAlert = document.getElementById('editErrorAlert');
+            const errorMessage = document.getElementById('editErrorMessage');
+            if (student.status === 'error' && student.errorMessage) {
+                errorMessage.textContent = student.errorMessage;
+                errorAlert.style.display = 'block';
+            } else {
+                errorAlert.style.display = 'none';
+            }
+
+            // Populate all fields
+            document.getElementById('editStudentId').value = student.id;
+            document.getElementById('editFirstName').value = student.firstName;
+            document.getElementById('editLastName').value = student.lastName;
+            document.getElementById('editDOB').value = student.dob;
+            document.getElementById('editRace').value = student.race;
+            document.getElementById('editEthnicity').value = student.ethnicity;
+            document.getElementById('editGender').value = student.gender;
+            document.getElementById('editCredential').value = student.credential;
+            document.getElementById('editCounty').value = student.county;
+            document.getElementById('editDistrict').value = student.district;
+            document.getElementById('editSchool').value = student.school;
+            document.getElementById('editLeaDistrict').value = student.lea;
+            document.getElementById('editPocName').value = student.pocName;
+            document.getElementById('editPocEmail').value = student.pocEmail;
+            document.getElementById('editPocPhone').value = student.pocPhone;
+
+            // Reset multiple placement checkbox
+            document.getElementById('editMultiplePlacement').checked = false;
+            document.getElementById('editAdditionalPlacement').style.display = 'none';
+
+            document.getElementById('editModalBackdrop').style.display = 'block';
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModalBackdrop').style.display = 'none';
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        function toggleEditMultiplePlacement(checkbox) {
+            const additionalPlacement = document.getElementById('editAdditionalPlacement');
+            if (checkbox.checked) {
+                additionalPlacement.style.display = 'block';
+            } else {
+                additionalPlacement.style.display = 'none';
+            }
+        }
+
+        function saveStudent() {
+            const studentId = parseInt(document.getElementById('editStudentId').value);
+            const student = mockStudents.find(s => s.id === studentId);
+
+            if (student) {
+                // Update all fields
+                student.firstName = document.getElementById('editFirstName').value;
+                student.lastName = document.getElementById('editLastName').value;
+                student.dob = document.getElementById('editDOB').value;
+                student.race = document.getElementById('editRace').value;
+                student.ethnicity = document.getElementById('editEthnicity').value;
+                student.gender = document.getElementById('editGender').value;
+                student.credential = document.getElementById('editCredential').value;
+                student.county = document.getElementById('editCounty').value;
+                student.district = document.getElementById('editDistrict').value;
+                student.school = document.getElementById('editSchool').value;
+                student.pocName = document.getElementById('editPocName').value;
+                student.pocEmail = document.getElementById('editPocEmail').value;
+                student.pocPhone = document.getElementById('editPocPhone').value;
+
+                if (student.status === 'error') {
+                    student.status = 'valid';
+                    student.errorMessage = '';
+                    document.getElementById('validCount').textContent = '5 Valid';
+                    document.getElementById('errorCount').textContent = '0 Errors';
+                }
+
+                showStudentTable();
+            }
+
+            closeEditModal();
+            alert('Student information updated successfully.');
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeEditModal();
+            }
+        });
 
         function clearFile() {
             fileInput.value = '';
             fileInfo.style.display = 'none';
             uploadButton.disabled = true;
+            studentTableCard.style.display = 'none';
+            uploadIcon.innerHTML = '<i class="mdi mdi-cloud-upload-outline"></i>';
+            uploadTitle.textContent = 'Drag and drop your Excel file here';
+            uploadSubtitle.textContent = 'or click to browse';
+            chooseFileBtn.style.display = 'inline-block';
         }
 
         function formatFileSize(bytes) {
@@ -692,109 +1171,35 @@
         uploadForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const formData = new FormData(uploadForm);
-
-            // Show progress
-            document.getElementById('uploadProgress').style.display = 'block';
+            // Show loading state on button
             uploadButton.disabled = true;
+            uploadButton.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Submitting...';
 
-            // Mock upload process
+            // Simulate submission delay
             setTimeout(() => {
-                // Simulate processing
-                const progressBar = document.querySelector('.progress-bar');
-                let progress = 0;
-                const interval = setInterval(() => {
-                    progress += 10;
-                    progressBar.style.width = progress + '%';
+                // Hide the student table
+                studentTableCard.style.display = 'none';
 
-                    if (progress >= 100) {
-                        clearInterval(interval);
+                // Hide info banner, show success banner
+                document.getElementById('infoBanner').style.display = 'none';
+                document.getElementById('successBanner').style.display = 'block';
 
-                        // Show mock results
-                        setTimeout(() => {
-                            document.getElementById('uploadProgress').style.display = 'none';
-                            showMockResults();
-                        }, 500);
-                    }
-                }, 200);
-            }, 500);
+                // Reset upload area so user can upload again
+                resetUploadArea();
+
+                // Reset button text
+                uploadButton.innerHTML = '<i class="mdi mdi-upload"></i> Submit Candidates';
+            }, 1000);
         });
 
-        function showMockResults() {
-            const resultsDiv = document.getElementById('uploadResults');
-            resultsDiv.innerHTML = `
-                <div class="alert alert-success">
-                    <i class="mdi mdi-check-circle-outline"></i>
-                    <strong>Upload Successful!</strong> Your candidates have been processed.
-                </div>
-                <div class="upload-summary">
-                    <h5><i class="mdi mdi-chart-box-outline"></i> Upload Summary</h5>
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="summary-card summary-success">
-                                <div class="summary-value">25</div>
-                                <div class="summary-label">Candidates Uploaded</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="summary-card summary-success">
-                                <div class="summary-value">23</div>
-                                <div class="summary-label">Successfully Processed</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="summary-card summary-warning">
-                                <div class="summary-value">2</div>
-                                <div class="summary-label">Errors Found</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="summary-card">
-                                <div class="summary-value">5</div>
-                                <div class="summary-label">LEAs Affected</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="error-details mt-4">
-                    <h5><i class="mdi mdi-alert-outline"></i> Errors Found (2)</h5>
-                    <table class="r4-table">
-                        <thead>
-                            <tr>
-                                <th>Row</th>
-                                <th>Field</th>
-                                <th>Error</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>12</td>
-                                <td>LEA CDS Code</td>
-                                <td>Invalid CDS code format. Must be 1-2 digits.</td>
-                            </tr>
-                            <tr>
-                                <td>18</td>
-                                <td>LEA POC Email</td>
-                                <td>Invalid email format.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div class="mt-3">
-                        <button class="r4-button" onclick="exportErrors()">
-                            <i class="mdi mdi-download"></i> Download Error Report
-                        </button>
-                    </div>
-                </div>
-                <div class="form-actions mt-4">
-                    <a href="@Url.Action("Dashboard", "IHEPortal", new { iheId = Model.IHEId, grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-primary">
-                        <i class="mdi mdi-arrow-left"></i> Return to Dashboard
-                    </a>
-                    <button class="r4-button" onclick="location.reload()">
-                        <i class="mdi mdi-upload"></i> Upload Another File
-                    </button>
-                </div>
-            `;
-            resultsDiv.style.display = 'block';
+        function resetUploadArea() {
+            uploadIcon.innerHTML = '<i class="mdi mdi-cloud-upload-outline"></i>';
+            uploadTitle.textContent = 'Drag and drop your Excel file here';
+            uploadSubtitle.textContent = 'or click to browse';
+            chooseFileBtn.style.display = 'inline-block';
+            fileInfo.style.display = 'none';
+            uploadButton.disabled = true;
+            fileInput.value = '';
         }
 
         function exportErrors() {
@@ -844,10 +1249,20 @@
             background: var(--gray-100);
         }
 
+        .upload-area.is-loading {
+            pointer-events: none;
+            border-color: var(--ctc-blue);
+            background: var(--gray-100);
+        }
+
         .upload-icon {
             font-size: 4rem;
             color: var(--gray-600);
             margin-bottom: 1rem;
+        }
+
+        .upload-area.is-loading .upload-icon {
+            color: var(--ctc-blue);
         }
 
         .upload-area h5 {
@@ -945,6 +1360,167 @@
         .progress-bar {
             font-size: 1rem;
             line-height: 30px;
+        }
+
+        /* Card header actions */
+        .card-header-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Student table styles */
+        #studentTable tr.has-error {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
+        #studentTable tr.has-error:hover {
+            background-color: rgba(220, 53, 69, 0.15);
+        }
+
+        .edit-btn {
+            background: none;
+            border: none;
+            color: var(--ctc-blue);
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .edit-btn:hover {
+            background-color: var(--gray-100);
+            color: var(--ctc-blue-dark, #003366);
+        }
+
+        /* Modal styles */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .edit-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1001;
+            width: 900px;
+            max-width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .edit-modal .r4-card {
+            margin: 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .edit-modal .r4-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .edit-modal .r4-card-header h4 {
+            margin-bottom: 0.25rem;
+        }
+
+        .modal-subtitle {
+            color: var(--gray-500);
+            font-size: 0.9rem;
+            margin: 0;
+            font-weight: normal;
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--gray-600);
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .modal-close-btn:hover {
+            color: var(--gray-900);
+        }
+
+        .r4-card-footer {
+            padding: 1rem 1.5rem;
+            background: var(--gray-50);
+            border-top: 1px solid var(--gray-200);
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+
+        /* Form grid layouts */
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .form-row-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .edit-modal .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .edit-modal .form-group label {
+            display: block;
+            margin-bottom: 0.35rem;
+            font-weight: 500;
+            color: var(--gray-700);
+            font-size: 0.85rem;
+        }
+
+        .edit-modal .form-control {
+            font-size: 0.9rem;
+            padding: 0.5rem 0.75rem;
+        }
+
+        #editErrorAlert {
+            margin-bottom: 1rem;
+        }
+
+        /* Section dividers for modal */
+        .edit-modal .section-divider {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 1.25rem 0 0.75rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .edit-modal .section-divider i {
+            color: var(--ctc-blue);
+            font-size: 1.1rem;
+        }
+
+        .edit-modal .section-divider h6 {
+            margin: 0;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        /* Form row for 2 columns */
+        .edit-modal .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
         }
     </style>
 }
