@@ -239,53 +239,20 @@ public class FiscalTeamController : Controller
     {
         try
         {
-            var grantCycle = _grantService.GetGrantCycle(grantCycleId);
-            if (grantCycle == null)
+            // Mock LEA names matching Dashboard mock data
+            var mockLEAs = new Dictionary<int, string>
             {
-                return NotFound("Grant cycle not found");
-            }
+                { 1, "Fresno Unified School District" },
+                { 2, "Sacramento City Unified School District" },
+                { 3, "Oakland Unified School District" },
+                { 4, "Los Angeles Unified School District" },
+                { 5, "San Diego Unified School District" },
+                { 6, "Long Beach Unified School District" }
+            };
 
-            var allApplications = _grantService.GetApplications();
+            var leaName = mockLEAs.GetValueOrDefault(groupId, $"District {groupId}");
 
-            // Get the disbursement group data (same logic as GAA action)
-            var disbursementGroups = allApplications
-                .Where(a => a.GrantCycleId == grantCycleId)
-                .SelectMany(a => a.Students.Select(s => new
-                {
-                    Application = a,
-                    Student = s
-                }))
-                .Where(x => x.Student.Status == "CTC_APPROVED")
-                .GroupBy(x => new
-                {
-                    LEA = x.Application.LEA.Name,
-                    Month = x.Student.SubmittedAt?.ToString("yyyy-MM") ?? DateTime.Now.ToString("yyyy-MM")
-                })
-                .Select((g, index) => new
-                {
-                    Id = index + 1,
-                    LEAName = g.Key.LEA,
-                    SubmissionMonth = g.Key.Month,
-                    StudentCount = g.Count(),
-                    TotalAmount = g.Sum(x => x.Student.AwardAmount),
-                    Students = g.Select(x => new GAAStudentInfo
-                    {
-                        StudentName = $"{x.Student.FirstName} {x.Student.LastName}",
-                        SEID = x.Student.SEID,
-                        IHEName = x.Application.IHE.Name,
-                        CredentialArea = x.Student.CredentialArea,
-                        AwardAmount = x.Student.AwardAmount
-                    }).ToList()
-                })
-                .ToList();
-
-            var group = disbursementGroups.FirstOrDefault(g => g.Id == groupId);
-            if (group == null)
-            {
-                return NotFound("Disbursement group not found");
-            }
-
-            // Mock IHE diversification (same as view)
+            // Mock IHE diversification
             var mockIHEs = new[] {
                 "San Diego State University",
                 "UC San Diego",
@@ -295,13 +262,14 @@ public class FiscalTeamController : Controller
                 "CSU Fullerton"
             };
 
-            var studentsWithDiversifiedIHEs = group.Students.Select((s, i) => new GAAStudentInfo
+            // Generate mock students for this group
+            var mockStudents = Enumerable.Range(1, 5).Select(i => new GAAStudentInfo
             {
-                StudentName = s.StudentName,
-                SEID = s.SEID,
-                IHEName = mockIHEs[i % mockIHEs.Length],
-                CredentialArea = s.CredentialArea,
-                AwardAmount = s.AwardAmount
+                StudentName = $"Student {i}",
+                SEID = $"SEID{groupId:D2}{i:D3}",
+                IHEName = mockIHEs[(i - 1) % mockIHEs.Length],
+                CredentialArea = i % 2 == 0 ? "Multiple Subject" : "Single Subject",
+                AwardAmount = 10000m
             }).ToList();
 
             // Build return URL
@@ -310,14 +278,14 @@ public class FiscalTeamController : Controller
             var request = new GAAEnvelopeRequest
             {
                 GroupId = groupId,
-                LEAName = group.LEAName,
+                LEAName = leaName,
                 GrantNumber = $"STS-{grantCycleId}-{groupId:D4}", // Mock grant number
                 AgreementTermStart = "July 1, 2024",
                 AgreementTermEnd = "June 30, 2025",
-                SubmissionMonth = group.SubmissionMonth,
-                TotalAmount = group.TotalAmount,
-                StudentCount = group.StudentCount,
-                Students = studentsWithDiversifiedIHEs,
+                SubmissionMonth = DateTime.Now.ToString("MMMM yyyy"),
+                TotalAmount = mockStudents.Sum(s => s.AwardAmount),
+                StudentCount = mockStudents.Count,
+                Students = mockStudents,
                 // For demo, use a test signer - in production, this would be the LEA representative
                 SignerEmail = "noah.gallego@ctc.ca.gov", // Replace with actual signer
                 SignerName = "GAA Signer",
