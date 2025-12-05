@@ -321,6 +321,66 @@ public class LEAPortalController : Controller
         }
     }
 
+    [Route("AllCandidates")]
+    public IActionResult AllCandidates(int leaId = 5, int grantCycleId = 1, string? status = null)
+    {
+        try
+        {
+            var grantCycle = _grantService.GetGrantCycle(grantCycleId);
+            if (grantCycle == null)
+            {
+                return NotFound("Grant cycle not found");
+            }
+
+            var allApplications = _grantService.GetApplications();
+            var leaApplications = allApplications
+                .Where(a => a.LEA.Id == leaId && a.GrantCycleId == grantCycleId)
+                .ToList();
+
+            // Get ALL students across ALL months
+            var allCandidates = leaApplications
+                .SelectMany(a => a.Students.Select(s => new LEACandidateViewModel
+                {
+                    StudentId = s.Id,
+                    FullName = $"{s.FirstName} {s.LastName}",
+                    SEID = s.SEID,
+                    IHEName = a.IHE.Name,
+                    CredentialArea = s.CredentialArea,
+                    AwardAmount = s.AwardAmount,
+                    SubmissionMonth = a.CreatedAt.ToString("MMMM yyyy"),
+                    SubmissionDate = a.CreatedAt,
+                    Status = s.Status
+                }))
+                .OrderByDescending(c => c.SubmissionDate)
+                .ThenBy(c => c.FullName)
+                .ToList();
+
+            // Get distinct filter options
+            var ihePartners = allCandidates.Select(c => c.IHEName).Distinct().OrderBy(n => n).ToList();
+            var credentialAreas = allCandidates.Select(c => c.CredentialArea).Distinct().OrderBy(n => n).ToList();
+            var submissionMonths = allCandidates.Select(c => c.SubmissionMonth).Distinct().ToList();
+
+            var model = new LEAAllCandidatesViewModel
+            {
+                LEAId = leaId,
+                LEAName = leaApplications.FirstOrDefault()?.LEA.Name ?? "District",
+                GrantCycleId = grantCycleId,
+                GrantCycleName = grantCycle.Name,
+                Candidates = allCandidates,
+                IHEPartners = ihePartners,
+                CredentialAreas = credentialAreas,
+                SubmissionMonths = submissionMonths
+            };
+
+            return View(model);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading all candidates");
+            return View("Error");
+        }
+    }
+
     [Route("ReviewCandidates")]
     public IActionResult ReviewCandidates(int leaId = 5, int grantCycleId = 1)
     {
