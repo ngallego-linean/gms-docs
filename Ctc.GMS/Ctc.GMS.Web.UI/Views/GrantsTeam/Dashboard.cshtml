@@ -83,17 +83,17 @@
             var disbursementGroups = new List<dynamic>
             {
                 new { SubmissionDate = new DateTime(2025, 11, 1), LEA = "Fresno Unified School District", LastAction = "Approved", LastActionDate = DateTime.Now.AddDays(-1), Amount = 67500m, State = "NEEDS_GAA", Id = 1,
-                    Step1Date = (DateTime?)null, Step2Date = (DateTime?)null, Step3Date = (DateTime?)null, Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, Step6Date = (DateTime?)null },
+                    Step1Date = (DateTime?)null, Step2Date = (DateTime?)null, Step3Date = (DateTime?)null, Step4Date = (DateTime?)null, Step5Date = (DateTime?)null },
                 new { SubmissionDate = new DateTime(2025, 11, 1), LEA = "Sacramento City Unified School District", LastAction = "GAA Signed", LastActionDate = DateTime.Now.AddDays(-2), Amount = 48000m, State = "NEEDS_PO", Id = 2,
-                    Step1Date = DateTime.Now.AddDays(-2), Step2Date = (DateTime?)null, Step3Date = (DateTime?)null, Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, Step6Date = (DateTime?)null },
+                    Step1Date = DateTime.Now.AddDays(-2), Step2Date = (DateTime?)null, Step3Date = (DateTime?)null, Step4Date = (DateTime?)null, Step5Date = (DateTime?)null },
                 new { SubmissionDate = new DateTime(2025, 10, 1), LEA = "Oakland Unified School District", LastAction = "PO Uploaded", LastActionDate = DateTime.Now.AddDays(-3), Amount = 42000m, State = "NEEDS_INVOICE", Id = 3,
-                    Step1Date = DateTime.Now.AddDays(-8), Step2Date = DateTime.Now.AddDays(-3), Step3Date = (DateTime?)null, Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, Step6Date = (DateTime?)null },
-                new { SubmissionDate = new DateTime(2025, 10, 1), LEA = "Los Angeles Unified School District", LastAction = "Invoice Sent", LastActionDate = DateTime.Now.AddDays(-2), Amount = 125000m, State = "NEEDS_WARRANT", Id = 4,
-                    Step1Date = DateTime.Now.AddDays(-12), Step2Date = DateTime.Now.AddDays(-8), Step3Date = DateTime.Now.AddDays(-5), Step4Date = DateTime.Now.AddDays(-2), Step5Date = (DateTime?)null, Step6Date = (DateTime?)null },
-                new { SubmissionDate = new DateTime(2025, 9, 1), LEA = "San Diego Unified School District", LastAction = "Warrant Confirmed", LastActionDate = DateTime.Now.AddDays(-1), Amount = 87500m, State = "COMPLETE", Id = 5,
-                    Step1Date = DateTime.Now.AddDays(-18), Step2Date = DateTime.Now.AddDays(-14), Step3Date = DateTime.Now.AddDays(-10), Step4Date = DateTime.Now.AddDays(-5), Step5Date = DateTime.Now.AddDays(-2), Step6Date = DateTime.Now.AddDays(-1) },
+                    Step1Date = DateTime.Now.AddDays(-8), Step2Date = DateTime.Now.AddDays(-3), Step3Date = (DateTime?)null, Step4Date = (DateTime?)null, Step5Date = (DateTime?)null },
+                new { SubmissionDate = new DateTime(2025, 10, 1), LEA = "Los Angeles Unified School District", LastAction = "Invoice Generated", LastActionDate = DateTime.Now.AddDays(-2), Amount = 125000m, State = "NEEDS_WARRANT", Id = 4,
+                    Step1Date = DateTime.Now.AddDays(-12), Step2Date = DateTime.Now.AddDays(-8), Step3Date = DateTime.Now.AddDays(-5), Step4Date = (DateTime?)null, Step5Date = (DateTime?)null },
+                new { SubmissionDate = new DateTime(2025, 9, 1), LEA = "San Diego Unified School District", LastAction = "Completed", LastActionDate = DateTime.Now.AddDays(-1), Amount = 87500m, State = "COMPLETE", Id = 5,
+                    Step1Date = DateTime.Now.AddDays(-18), Step2Date = DateTime.Now.AddDays(-14), Step3Date = DateTime.Now.AddDays(-10), Step4Date = DateTime.Now.AddDays(-5), Step5Date = DateTime.Now.AddDays(-1) },
                 new { SubmissionDate = new DateTime(2025, 9, 1), LEA = "Long Beach Unified School District", LastAction = "Approved", LastActionDate = DateTime.Now.AddDays(-1), Amount = 52500m, State = "NEEDS_GAA", Id = 6,
-                    Step1Date = (DateTime?)null, Step2Date = (DateTime?)null, Step3Date = (DateTime?)null, Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, Step6Date = (DateTime?)null }
+                    Step1Date = (DateTime?)null, Step2Date = (DateTime?)null, Step3Date = (DateTime?)null, Step4Date = (DateTime?)null, Step5Date = (DateTime?)null }
             };
 
             // Filter out completed items (this is an action items table) and sort by date ascending (oldest first)
@@ -102,14 +102,13 @@
                 .OrderBy(g => g.SubmissionDate)
                 .ToList();
 
-            // Workflow step definitions (6 stages)
+            // Workflow step definitions (5 stages)
             var workflowSteps = new[] {
                 new { Step = 1, Name = "GAA Signed", FullName = "GAA Signed", Icon = "mdi-file-sign" },
-                new { Step = 2, Name = "PO Generated", FullName = "PO Generated", Icon = "mdi-file-document-outline" },
-                new { Step = 3, Name = "PO Uploaded", FullName = "PO Uploaded", Icon = "mdi-cloud-upload-outline" },
-                new { Step = 4, Name = "Invoice", FullName = "Invoice Generated", Icon = "mdi-receipt-text-outline" },
-                new { Step = 5, Name = "Sent", FullName = "Invoice Sent to Accounting", Icon = "mdi-send-outline" },
-                new { Step = 6, Name = "Warrant", FullName = "Warrant Confirmed", Icon = "mdi-check-decagram" }
+                new { Step = 2, Name = "Upload PO", FullName = "Upload PO", Icon = "mdi-cloud-upload-outline" },
+                new { Step = 3, Name = "Generate Invoice", FullName = "Generate Invoice", Icon = "mdi-receipt-text-outline" },
+                new { Step = 4, Name = "Upload Warrant", FullName = "Upload Warrant", Icon = "mdi-check-decagram" },
+                new { Step = 5, Name = "Completed", FullName = "Completed", Icon = "mdi-check-all" }
             };
         }
 
@@ -195,7 +194,7 @@
                                             @{
                                                 var stepDates = new DateTime?[] {
                                                     group.Step1Date, group.Step2Date, group.Step3Date,
-                                                    group.Step4Date, group.Step5Date, group.Step6Date
+                                                    group.Step4Date, group.Step5Date
                                                 };
                                             }
                                             @foreach (var step in workflowSteps)
