@@ -608,7 +608,7 @@ public class LEAPortalController : Controller
                     Status = s.Status,
                     AwardAmount = s.AwardAmount,
                     CreatedAt = s.CreatedAt,
-                    SubmittedAt = s.SubmittedAt
+                    SubmittedAt = new DateTime(year, month, 1) // All students in batch have same submission month
                 }).ToList(),
                 ApplicationIds = batchApplications.Select(a => a.Id).ToList(),
                 ApplicationCount = batchApplications.Count,
