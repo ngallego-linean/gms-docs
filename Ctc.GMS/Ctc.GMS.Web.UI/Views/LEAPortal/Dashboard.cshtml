@@ -66,57 +66,69 @@
     </div>
     <div class="r4-card-body">
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
-            <div style="border: 1px solid var(--gray-300); border-radius: 4px; padding: 1.5rem; background-color: var(--white);">
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <div style="width: 48px; height: 48px; background-color: var(--ctc-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                        <i class="mdi mdi-account-multiple" style="font-size: 24px; color: var(--white);"></i>
-                    </div>
-                    <div>
-                        <div style="font-size: 2rem; font-weight: bold; color: var(--ctc-blue);">@Model.TotalStudents</div>
-                        <div style="color: var(--ctc-blue); font-size: 0.9rem; font-weight: 600;">Total Candidates</div>
-                        <small style="color: var(--gray-500);">Candidates submitted</small>
+            @* Total Candidates *@
+            <a href="@Url.Action("AllCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="metric-card-link">
+                <div class="metric-card">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 48px; height: 48px; background-color: var(--ctc-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="mdi mdi-account-multiple" style="font-size: 24px; color: var(--white);"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 2rem; font-weight: bold; color: var(--ctc-blue);">@Model.TotalStudents</div>
+                            <div style="color: var(--ctc-blue); font-size: 0.9rem; font-weight: 600;">Total Candidates</div>
+                            <small style="color: var(--gray-500);">Candidates submitted</small>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </a>
 
-            <div style="border: 1px solid var(--gray-300); border-radius: 4px; padding: 1.5rem; background-color: var(--white);">
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <div style="width: 48px; height: 48px; background-color: var(--gray-100); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                        <i class="mdi mdi-clock-outline" style="font-size: 24px; color: var(--gray-600);"></i>
-                    </div>
-                    <div>
-                        <div style="font-size: 2rem; font-weight: bold; color: var(--gray-900);">@Model.PendingCompletionCount</div>
-                        <div style="color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Under Review</div>
-                        <small style="color: var(--gray-500);">Awaiting CTC approval</small>
+            @* Under Review *@
+            <a href="@Url.Action("AllCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId, status = "UNDER_REVIEW" })" class="metric-card-link">
+                <div class="metric-card">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 48px; height: 48px; background-color: var(--gray-100); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="mdi mdi-clock-outline" style="font-size: 24px; color: var(--gray-600);"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 2rem; font-weight: bold; color: var(--gray-900);">@Model.PendingCompletionCount</div>
+                            <div style="color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Under Review</div>
+                            <small style="color: var(--gray-500);">Awaiting CTC approval</small>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </a>
 
-            <div style="border: 1px solid var(--gray-300); border-radius: 4px; padding: 1.5rem; background-color: var(--white);">
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <div style="width: 48px; height: 48px; background-color: var(--gray-100); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                        <i class="mdi mdi-check-circle" style="font-size: 24px; color: var(--gray-600);"></i>
-                    </div>
-                    <div>
-                        <div style="font-size: 2rem; font-weight: bold; color: var(--gray-900);">@Model.ApprovedCount</div>
-                        <div style="color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Approved</div>
-                        <small style="color: var(--gray-500);">Eligible for payment</small>
+            @* Approved *@
+            <a href="@Url.Action("AllCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId, status = "APPROVED" })" class="metric-card-link">
+                <div class="metric-card">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 48px; height: 48px; background-color: var(--gray-100); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="mdi mdi-check-circle" style="font-size: 24px; color: var(--gray-600);"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 2rem; font-weight: bold; color: var(--gray-900);">@Model.ApprovedCount</div>
+                            <div style="color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Approved</div>
+                            <small style="color: var(--gray-500);">Eligible for payment</small>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </a>
 
-            <div style="border: 1px solid var(--gray-300); border-radius: 4px; padding: 1.5rem; background-color: var(--white);">
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <div style="width: 48px; height: 48px; background-color: var(--gray-100); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                        <i class="mdi mdi-cash-check" style="font-size: 24px; color: var(--gray-600);"></i>
-                    </div>
-                    <div>
-                        <div style="font-size: 2rem; font-weight: bold; color: var(--gray-900);">@Model.TotalFundedStudents</div>
-                        <div style="color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Paid</div>
-                        <small style="color: var(--gray-500);">Payment complete</small>
+            @* Paid *@
+            <a href="@Url.Action("AllCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId, status = "PAID" })" class="metric-card-link">
+                <div class="metric-card">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 48px; height: 48px; background-color: var(--gray-100); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="mdi mdi-cash-check" style="font-size: 24px; color: var(--gray-600);"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 2rem; font-weight: bold; color: var(--gray-900);">@Model.TotalFundedStudents</div>
+                            <div style="color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Paid</div>
+                            <small style="color: var(--gray-500);">Payment complete</small>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 </div>
@@ -294,6 +306,37 @@
     </script>
 
     <style>
+        /* Clickable Metric Card Links */
+        .metric-card-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .metric-card {
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            padding: 1.5rem;
+            background-color: var(--white);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .metric-card-link:hover .metric-card {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .metric-card-link:hover .metric-card::after {
+            content: "View →";
+            position: absolute;
+            bottom: 0.75rem;
+            right: 1rem;
+            font-size: 0.75rem;
+            color: var(--ctc-blue);
+            font-weight: 600;
+        }
 
         /* Action Items Styling */
         .action-item {
