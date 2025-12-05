@@ -534,3 +534,34 @@ public class ProcessCandidatesViewModel
     public string Action { get; set; } = string.Empty; // "create_new" or "add_to_existing"
     public int? ExistingApplicationId { get; set; } // For adding to existing application
 }
+
+/// <summary>
+/// View model for LEA All Candidates page (year view - all students across all months)
+/// </summary>
+public class LEAAllCandidatesViewModel
+{
+    public int LEAId { get; set; }
+    public string LEAName { get; set; } = string.Empty;
+    public int GrantCycleId { get; set; }
+    public string GrantCycleName { get; set; } = string.Empty;
+    public List<LEACandidateViewModel> Candidates { get; set; } = new();
+    public List<string> IHEPartners { get; set; } = new();
+    public List<string> CredentialAreas { get; set; } = new();
+    public List<string> SubmissionMonths { get; set; } = new();
+}
+
+/// <summary>
+/// Individual candidate for LEA All Candidates view
+/// </summary>
+public class LEACandidateViewModel
+{
+    public int StudentId { get; set; }
+    public string FullName { get; set; } = string.Empty;
+    public string SEID { get; set; } = string.Empty;
+    public string IHEName { get; set; } = string.Empty;
+    public string CredentialArea { get; set; } = string.Empty;
+    public decimal AwardAmount { get; set; }
+    public string SubmissionMonth { get; set; } = string.Empty;
+    public DateTime SubmissionDate { get; set; }
+    public string Status { get; set; } = string.Empty;
+}
