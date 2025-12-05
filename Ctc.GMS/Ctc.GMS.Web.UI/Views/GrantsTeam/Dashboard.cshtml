@@ -34,9 +34,7 @@
                         <tr>
                             <th>Submission Month</th>
                             <th>LEA District</th>
-                            <th>Total Students</th>
                             <th>Pending</th>
-                            <th>Approved</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -46,12 +44,8 @@
                             <tr>
                                 <td>@app.LastModified.ToString("MMMM yyyy")</td>
                                 <td>@app.LEAName</td>
-                                <td>@app.TotalStudents</td>
                                 <td>
                                     <span class="badge badge-warning badge-status">@app.PendingCount Pending</span>
-                                </td>
-                                <td>
-                                    <span class="badge badge-success badge-status">@app.ApprovedCount Approved</span>
                                 </td>
                                 <td>
                                     <div style="width: 160px; display: block;">
