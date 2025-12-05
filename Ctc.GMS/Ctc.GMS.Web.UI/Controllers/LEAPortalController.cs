@@ -390,7 +390,27 @@ public class LEAPortalController : Controller
                 Candidates = candidatesForReview,
                 TotalCandidates = candidatesForReview.Count,
                 IHESourceCount = candidatesForReview.Select(c => c.IHEName).Distinct().Count(),
-                DraftApplications = draftApplications
+                DraftApplications = draftApplications,
+
+                // Application Information (dummy data - displayed locked by default)
+                POCFirstName = "Jane",
+                POCLastName = "Doe",
+                POCEmail = "jane.doe@lausd.org",
+                POCPhone = "(555) 123-4567",
+
+                GAASignerName = "Dr. Robert Johnson",
+                GAASignerTitle = "Superintendent",
+                GAASignerEmail = "superintendent@lausd.org",
+
+                FiscalAgentName = "Maria Garcia",
+                FiscalAgentEmail = "fiscal@lausd.org",
+                FiscalAgentPhone = "(555) 987-6543",
+
+                SuperintendentName = "Dr. Robert Johnson",
+                SuperintendentEmail = "superintendent@lausd.org",
+
+                PaymentIntent = "Stipend to Student Teacher",
+                PaymentSchedule = "Lump Sum"
             };
 
             return View(model);

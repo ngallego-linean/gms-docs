@@ -48,7 +48,7 @@
                         }
                         else
                         {
-                            <a href="@Url.Action("CompleteApplication", "LEAPortal", new { id = Model.Applications.FirstOrDefault()?.Id ?? 0 })" class="r4-button r4-button-primary">
+                            <a href="@Url.Action("ReviewCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-primary">
                                 <i class="mdi mdi-arrow-right"></i> Review
                             </a>
                         }
@@ -104,7 +104,101 @@
                     </div>
                 </div>
             </div>
+
+            <div style="border: 1px solid var(--gray-300); border-radius: 4px; padding: 1.5rem; background-color: var(--white);">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div style="width: 48px; height: 48px; background-color: var(--gray-100); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="mdi mdi-cash-check" style="font-size: 24px; color: var(--gray-600);"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--gray-900);">@Model.TotalFundedStudents</div>
+                        <div style="color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Paid</div>
+                        <small style="color: var(--gray-500);">Payment complete</small>
+                    </div>
+                </div>
+            </div>
         </div>
+    </div>
+</div>
+
+@* Your Submissions *@
+<div class="r4-card" id="submissions">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-file-multiple-outline"></i> Your Submissions to CTC</h4>
+        @if (Model.BatchSubmissions.Any())
+        {
+            <div class="card-actions">
+                <a href="@Url.Action("Applications", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button">
+                    View All Submissions
+                </a>
+            </div>
+        }
+    </div>
+    <div class="r4-card-body">
+        @if (Model.BatchSubmissions.Any())
+        {
+            <div class="table-wrapper">
+                <table class="r4-table">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Total Candidates</th>
+                            <th>IHE Partners</th>
+                            <th>Status</th>
+                            <th>Submission Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var batch in Model.BatchSubmissions)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@batch.BatchMonth</strong>
+                                </td>
+                                <td>@batch.TotalCandidates</td>
+                                <td>
+                                    @batch.IHEPartnerCount IHE@(batch.IHEPartnerCount != 1 ? "s" : "")
+                                    <small style="display: block; color: var(--gray-600); margin-top: 0.25rem;">
+                                        @string.Join(", ", batch.IHEPartnerNames.Take(2))@(batch.IHEPartnerNames.Count > 2 ? $", +{batch.IHEPartnerNames.Count - 2} more" : "")
+                                    </small>
+                                </td>
+                                <td>
+                                    @{
+                                        var badgeClass = GMS.Business.Helpers.StatusHelper.GetBadgeClass(batch.Status);
+                                        var displayText = GMS.Business.Helpers.StatusHelper.GetDisplayText(batch.Status);
+                                    }
+                                    <span class="@badgeClass badge-status">@displayText</span>
+                                </td>
+                                <td>
+                                    @if (batch.SubmissionDate.HasValue)
+                                    {
+                                        @batch.SubmissionDate.Value.ToString("MM/dd/yyyy")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Not submitted</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a href="@Url.Action("BatchDetails", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId, year = batch.Year, month = batch.Month })" class="r4-button r4-button-sm">
+                                        <i class="mdi mdi-eye-outline"></i> View Details
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div style="text-align: center; padding: 3rem; color: var(--gray-500);">
+                <i class="mdi mdi-file-document-outline" style="font-size: 4rem; display: block; margin-bottom: 1rem; opacity: 0.3;"></i>
+                <p style="font-size: 1.1rem; margin: 0; color: var(--gray-700);">No submissions yet</p>
+                <small style="color: var(--gray-500);">Complete applications from your IHE partners to create submissions to CTC.</small>
+            </div>
+        }
     </div>
 </div>
 
@@ -191,87 +285,6 @@
         </div>
     </div>
 }
-
-@* Your Submissions *@
-<div class="r4-card" id="submissions">
-    <div class="r4-card-header">
-        <h4><i class="mdi mdi-file-multiple-outline"></i> Your Submissions to CTC</h4>
-        @if (Model.BatchSubmissions.Any())
-        {
-            <div class="card-actions">
-                <a href="@Url.Action("Applications", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="r4-button">
-                    View All Applications
-                </a>
-            </div>
-        }
-    </div>
-    <div class="r4-card-body">
-        @if (Model.BatchSubmissions.Any())
-        {
-            <div class="table-wrapper">
-                <table class="r4-table">
-                    <thead>
-                        <tr>
-                            <th>Month</th>
-                            <th>Total Candidates</th>
-                            <th>IHE Partners</th>
-                            <th>Status</th>
-                            <th>Submission Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var batch in Model.BatchSubmissions)
-                        {
-                            <tr>
-                                <td>
-                                    <strong>@batch.BatchMonth</strong>
-                                </td>
-                                <td>@batch.TotalCandidates</td>
-                                <td>
-                                    @batch.IHEPartnerCount IHE@(batch.IHEPartnerCount != 1 ? "s" : "")
-                                    <small style="display: block; color: var(--gray-600); margin-top: 0.25rem;">
-                                        @string.Join(", ", batch.IHEPartnerNames.Take(2))@(batch.IHEPartnerNames.Count > 2 ? $", +{batch.IHEPartnerNames.Count - 2} more" : "")
-                                    </small>
-                                </td>
-                                <td>
-                                    @{
-                                        var badgeClass = GMS.Business.Helpers.StatusHelper.GetBadgeClass(batch.Status);
-                                        var displayText = GMS.Business.Helpers.StatusHelper.GetDisplayText(batch.Status);
-                                    }
-                                    <span class="@badgeClass badge-status">@displayText</span>
-                                </td>
-                                <td>
-                                    @if (batch.SubmissionDate.HasValue)
-                                    {
-                                        @batch.SubmissionDate.Value.ToString("MM/dd/yyyy")
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">Not submitted</span>
-                                    }
-                                </td>
-                                <td>
-                                    <a href="@Url.Action("BatchDetails", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId, year = batch.Year, month = batch.Month })" class="r4-button r4-button-sm">
-                                        <i class="mdi mdi-eye-outline"></i> View Details
-                                    </a>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-        else
-        {
-            <div style="text-align: center; padding: 3rem; color: var(--gray-500);">
-                <i class="mdi mdi-file-document-outline" style="font-size: 4rem; display: block; margin-bottom: 1rem; opacity: 0.3;"></i>
-                <p style="font-size: 1.1rem; margin: 0; color: var(--gray-700);">No submissions yet</p>
-                <small style="color: var(--gray-500);">Complete applications from your IHE partners to create submissions to CTC.</small>
-            </div>
-        }
-    </div>
-</div>
 
 @section Scripts {
     <script>
