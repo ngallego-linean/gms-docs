@@ -1,18 +1,18 @@
 @model LEAAllCandidatesViewModel
 
 @{
-    ViewData["Title"] = "All Candidates";
+    ViewData["Title"] = "Application Details";
 }
 
 @section Breadcrumbs {
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })">LEA Portal</a></li>
-        <li class="breadcrumb-item active">All Candidates</li>
+        <li class="breadcrumb-item active">Application Details</li>
     </ol>
 }
 
 <div class="page-header">
-    <h2><i class="mdi mdi-account-group-outline"></i> All Candidates</h2>
+    <h2><i class="mdi mdi-account-group-outline"></i> Application Details</h2>
     <p class="subtitle">@Model.LEAName - @Model.GrantCycleName</p>
 </div>
 
@@ -65,7 +65,7 @@
                         <option value="PAID">Paid</option>
                     </select>
                 </div>
-                <div style="min-width: 150px;">
+                <div style="min-width: 180px;">
                     <label for="filterMonth" style="display: block; font-weight: 600; margin-bottom: var(--spacing-sm);">
                         <i class="mdi mdi-filter-outline"></i> Submission Month
                     </label>
@@ -88,8 +88,8 @@
                             <th>IHE Partner</th>
                             <th>Credential Area</th>
                             <th style="text-align: right;">Award Amount</th>
-                            <th>Submission Month</th>
                             <th>Status</th>
+                            <th>Submission Month</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -106,7 +106,6 @@
                                 <td>@candidate.IHEName</td>
                                 <td>@candidate.CredentialArea</td>
                                 <td style="text-align: right;">@candidate.AwardAmount.ToString("C")</td>
-                                <td>@candidate.SubmissionMonth</td>
                                 <td>
                                     @{
                                         var badgeClass = GMS.Business.Helpers.StatusHelper.GetBadgeClass(candidate.Status);
@@ -114,6 +113,7 @@
                                     }
                                     <span class="@badgeClass badge-status">@displayText</span>
                                 </td>
+                                <td>@candidate.SubmissionMonth</td>
                             </tr>
                         }
                     </tbody>
