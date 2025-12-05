@@ -1,0 +1,189 @@
+@model LEAAllCandidatesViewModel
+
+@{
+    ViewData["Title"] = "All Candidates";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })">LEA Portal</a></li>
+        <li class="breadcrumb-item active">All Candidates</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-account-group-outline"></i> All Candidates</h2>
+    <p class="subtitle">@Model.LEAName - @Model.GrantCycleName</p>
+</div>
+
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-account-multiple-outline"></i> Candidates (@Model.Candidates.Count)</h4>
+    </div>
+    <div class="r4-card-body">
+        @if (Model.Candidates.Any())
+        {
+            <div style="display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-xl); align-items: flex-end; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 200px;">
+                    <label for="searchCandidates" style="display: block; font-weight: 600; margin-bottom: var(--spacing-sm);">
+                        <i class="mdi mdi-magnify"></i> Search
+                    </label>
+                    <input type="text" id="searchCandidates" class="form-control" placeholder="Search by name or SEID..." />
+                </div>
+                <div style="min-width: 200px;">
+                    <label for="filterIHE" style="display: block; font-weight: 600; margin-bottom: var(--spacing-sm);">
+                        <i class="mdi mdi-filter-outline"></i> IHE Partner
+                    </label>
+                    <select id="filterIHE" class="form-control">
+                        <option value="">All IHE Partners</option>
+                        @foreach (var ihe in Model.IHEPartners)
+                        {
+                            <option value="@ihe">@ihe</option>
+                        }
+                    </select>
+                </div>
+                <div style="min-width: 180px;">
+                    <label for="filterCredential" style="display: block; font-weight: 600; margin-bottom: var(--spacing-sm);">
+                        <i class="mdi mdi-filter-outline"></i> Credential Area
+                    </label>
+                    <select id="filterCredential" class="form-control">
+                        <option value="">All Credential Areas</option>
+                        @foreach (var credential in Model.CredentialAreas)
+                        {
+                            <option value="@credential">@credential</option>
+                        }
+                    </select>
+                </div>
+                <div style="min-width: 150px;">
+                    <label for="filterStatus" style="display: block; font-weight: 600; margin-bottom: var(--spacing-sm);">
+                        <i class="mdi mdi-filter-outline"></i> Status
+                    </label>
+                    <select id="filterStatus" class="form-control">
+                        <option value="">All Statuses</option>
+                        <option value="UNDER_REVIEW">Under Review</option>
+                        <option value="APPROVED">Approved</option>
+                        <option value="PAID">Paid</option>
+                    </select>
+                </div>
+                <div style="min-width: 150px;">
+                    <label for="filterMonth" style="display: block; font-weight: 600; margin-bottom: var(--spacing-sm);">
+                        <i class="mdi mdi-filter-outline"></i> Submission Month
+                    </label>
+                    <select id="filterMonth" class="form-control">
+                        <option value="">All Months</option>
+                        @foreach (var month in Model.SubmissionMonths)
+                        {
+                            <option value="@month">@month</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="r4-table" id="candidatesTable">
+                    <thead>
+                        <tr>
+                            <th>Candidate Name</th>
+                            <th>SEID</th>
+                            <th>IHE Partner</th>
+                            <th>Credential Area</th>
+                            <th style="text-align: right;">Award Amount</th>
+                            <th>Submission Month</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var candidate in Model.Candidates)
+                        {
+                            <tr data-name="@candidate.FullName.ToLower()"
+                                data-seid="@candidate.SEID.ToLower()"
+                                data-ihe="@candidate.IHEName"
+                                data-credential="@candidate.CredentialArea"
+                                data-status="@candidate.Status"
+                                data-month="@candidate.SubmissionMonth">
+                                <td><strong>@candidate.FullName</strong></td>
+                                <td>@candidate.SEID</td>
+                                <td>@candidate.IHEName</td>
+                                <td>@candidate.CredentialArea</td>
+                                <td style="text-align: right;">@candidate.AwardAmount.ToString("C")</td>
+                                <td>@candidate.SubmissionMonth</td>
+                                <td>
+                                    @{
+                                        var badgeClass = GMS.Business.Helpers.StatusHelper.GetBadgeClass(candidate.Status);
+                                        var displayText = GMS.Business.Helpers.StatusHelper.GetDisplayText(candidate.Status);
+                                    }
+                                    <span class="@badgeClass badge-status">@displayText</span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="mdi mdi-information-outline"></i>
+                No candidates found for this grant cycle.
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchCandidates');
+            const filterIHE = document.getElementById('filterIHE');
+            const filterCredential = document.getElementById('filterCredential');
+            const filterStatus = document.getElementById('filterStatus');
+            const filterMonth = document.getElementById('filterMonth');
+            const tableRows = document.querySelectorAll('#candidatesTable tbody tr');
+
+            // Read status from URL query parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const statusParam = urlParams.get('status');
+            if (statusParam && filterStatus) {
+                filterStatus.value = statusParam;
+            }
+
+            function filterTable() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const selectedIHE = filterIHE.value;
+                const selectedCredential = filterCredential.value;
+                const selectedStatus = filterStatus.value;
+                const selectedMonth = filterMonth.value;
+
+                tableRows.forEach(row => {
+                    const name = row.getAttribute('data-name');
+                    const seid = row.getAttribute('data-seid');
+                    const ihe = row.getAttribute('data-ihe');
+                    const credential = row.getAttribute('data-credential');
+                    const status = row.getAttribute('data-status');
+                    const month = row.getAttribute('data-month');
+
+                    const matchesSearch = !searchTerm || name.includes(searchTerm) || seid.includes(searchTerm);
+                    const matchesIHE = !selectedIHE || ihe === selectedIHE;
+                    const matchesCredential = !selectedCredential || credential === selectedCredential;
+                    const matchesStatus = !selectedStatus || status === selectedStatus;
+                    const matchesMonth = !selectedMonth || month === selectedMonth;
+
+                    if (matchesSearch && matchesIHE && matchesCredential && matchesStatus && matchesMonth) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+
+            searchInput.addEventListener('input', filterTable);
+            filterIHE.addEventListener('change', filterTable);
+            filterCredential.addEventListener('change', filterTable);
+            filterStatus.addEventListener('change', filterTable);
+            filterMonth.addEventListener('change', filterTable);
+
+            // Run filter on page load to apply URL parameter
+            filterTable();
+        });
+    </script>
+}
