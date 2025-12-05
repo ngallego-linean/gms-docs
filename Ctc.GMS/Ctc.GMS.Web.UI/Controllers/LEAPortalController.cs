@@ -35,10 +35,13 @@ public class LEAPortalController : Controller
                 .Where(a => a.LEA.Id == leaId && a.GrantCycleId == grantCycleId)
                 .ToList();
 
-            var totalStudents = leaApplications.SelectMany(a => a.Students).Count();
-            var draftStudents = leaApplications.SelectMany(a => a.Students).Count(s => s.Status == "DRAFT" || s.Status == "PENDING_LEA");
-            var submittedStudents = leaApplications.SelectMany(a => a.Students).Count(s => s.Status == "SUBMITTED");
-            var approvedStudents = leaApplications.SelectMany(a => a.Students).Count(s => s.Status == "APPROVED");
+            var allStudents = leaApplications.SelectMany(a => a.Students).ToList();
+            var totalStudents = allStudents.Count;
+
+            // Count students by mapped LEA statuses (UNDER_REVIEW, APPROVED, PAID)
+            var underReviewCount = allStudents.Count(s => MapToLEAStatus(s.Status) == "UNDER_REVIEW");
+            var approvedCount = allStudents.Count(s => MapToLEAStatus(s.Status) == "APPROVED");
+            var paidCount = allStudents.Count(s => MapToLEAStatus(s.Status) == "PAID");
 
             // Calculate batch context (month/day information)
             var currentDate = DateTime.Now;
@@ -46,8 +49,8 @@ public class LEAPortalController : Controller
             var daysRemaining = daysInMonth - currentDate.Day;
             var currentBatchMonth = currentDate.ToString("MMMM yyyy");
 
-            // Calculate action item counts
-            var candidatesReadyForApplication = draftStudents;
+            // Calculate action item counts (candidates pending LEA review)
+            var candidatesReadyForApplication = allStudents.Count(s => s.Status == "PENDING_LEA" || s.Status == "DRAFT");
             var applicationsWithErrors = leaApplications.Count(a =>
                 a.Status == "VALIDATION_ERROR" || a.Status == "REJECTED");
 
@@ -178,9 +181,9 @@ public class LEAPortalController : Controller
                 GrantCycleName = grantCycle.Name,
                 TotalApplications = leaApplications.Count,
                 TotalStudents = totalStudents,
-                PendingCompletionCount = draftStudents,
-                SubmittedCount = submittedStudents,
-                ApprovedCount = approvedStudents,
+                PendingCompletionCount = underReviewCount,
+                SubmittedCount = 0, // Not used in dashboard
+                ApprovedCount = approvedCount,
 
                 // Enhanced Action Items
                 CandidatesReadyForApplication = candidatesReadyForApplication,
@@ -213,8 +216,8 @@ public class LEAPortalController : Controller
                 }).ToList(),
                 ActionItems = actionItems,
 
-                // Reporting metrics
-                TotalFundedStudents = totalFunded,
+                // Reporting metrics (TotalFundedStudents = paid count for LEA status cards)
+                TotalFundedStudents = paidCount,
                 ReportsSubmitted = reportsSubmitted,
                 ReportsPending = reportsPending,
                 ReportsOverdue = reportsOverdue,
@@ -321,6 +324,28 @@ public class LEAPortalController : Controller
         }
     }
 
+    // Maps detailed workflow statuses to simplified LEA view statuses
+    private string MapToLEAStatus(string detailedStatus)
+    {
+        return detailedStatus switch
+        {
+            // Under Review - still being processed
+            "DRAFT" or "PENDING_LEA" or "SUBMITTED" or "LEA_REVIEW" or
+            "CTC_SUBMITTED" or "CTC_REVIEWING" => "UNDER_REVIEW",
+
+            // Approved - CTC has approved, in GAA/disbursement prep stages
+            "CTC_APPROVED" or "APPROVED" or "GAA_PENDING" or "GAA_GENERATED" or "GAA_SIGNED" => "APPROVED",
+
+            // Paid - payment has been processed
+            "INVOICE_GENERATED" or "PAYMENT_AUTHORIZED" or "WARRANT_ISSUED" or
+            "PAYMENT_COMPLETE" or "REPORTING_PENDING" or "REPORTING_PARTIAL" or
+            "REPORTING_COMPLETE" or "REPORTS_APPROVED" or "COMPLETE" => "PAID",
+
+            // Default fallback
+            _ => "UNDER_REVIEW"
+        };
+    }
+
     [Route("AllCandidates")]
     public IActionResult AllCandidates(int leaId = 5, int grantCycleId = 1, string? status = null)
     {
@@ -337,7 +362,7 @@ public class LEAPortalController : Controller
                 .Where(a => a.LEA.Id == leaId && a.GrantCycleId == grantCycleId)
                 .ToList();
 
-            // Get ALL students across ALL months
+            // Get ALL students across ALL months with mapped statuses
             var allCandidates = leaApplications
                 .SelectMany(a => a.Students.Select(s => new LEACandidateViewModel
                 {
@@ -349,7 +374,7 @@ public class LEAPortalController : Controller
                     AwardAmount = s.AwardAmount,
                     SubmissionMonth = a.CreatedAt.ToString("MMMM yyyy"),
                     SubmissionDate = a.CreatedAt,
-                    Status = s.Status
+                    Status = MapToLEAStatus(s.Status)
                 }))
                 .OrderByDescending(c => c.SubmissionDate)
                 .ThenBy(c => c.FullName)
