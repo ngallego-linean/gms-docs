@@ -23,20 +23,20 @@
     <div class="r4-card-body">
         @{
             // MOCK DATA: Full student queue submitted by IHE
-            // Using CTC Status System: SUBMITTED, PENDING, UNDER_REVIEW, WAITLIST, APPROVED, PAYMENT_IN_PROCESS, PAID
+            // Using CTC Status System: PENDING, UNDER_REVIEW, APPROVED
             var allStudents = new List<dynamic>
             {
                 new { StudentName = "John Martinez", LEAPartner = "Los Angeles Unified School District", DOB = "05/12/1998", CredentialArea = "Multiple Subject", CountyCDS = "19", LEACDS = "64733", SchoolCDS = "1933021", Status = "APPROVED", LastModified = DateTime.Now.AddDays(-2) },
-                new { StudentName = "Emily Rodriguez", LEAPartner = "San Diego Unified School District", DOB = "08/24/1997", CredentialArea = "Single Subject - Mathematics", CountyCDS = "37", LEACDS = "68338", SchoolCDS = "3768338", Status = "SUBMITTED", LastModified = DateTime.Now.AddDays(-4) },
+                new { StudentName = "Emily Rodriguez", LEAPartner = "San Diego Unified School District", DOB = "08/24/1997", CredentialArea = "Single Subject - Mathematics", CountyCDS = "37", LEACDS = "68338", SchoolCDS = "3768338", Status = "PENDING", LastModified = DateTime.Now.AddDays(-4) },
                 new { StudentName = "Michael Chen", LEAPartner = "Fresno Unified School District", DOB = "11/03/1999", CredentialArea = "Education Specialist", CountyCDS = "10", LEACDS = "62331", SchoolCDS = "1062331", Status = "PENDING", LastModified = DateTime.Now.AddDays(-6) },
-                new { StudentName = "Sarah Thompson", LEAPartner = "Los Angeles Unified School District", DOB = "02/18/1996", CredentialArea = "Multiple Subject", CountyCDS = "19", LEACDS = "64733", SchoolCDS = "1933045", Status = "PAID", LastModified = DateTime.Now.AddDays(-8) },
+                new { StudentName = "Sarah Thompson", LEAPartner = "Los Angeles Unified School District", DOB = "02/18/1996", CredentialArea = "Multiple Subject", CountyCDS = "19", LEACDS = "64733", SchoolCDS = "1933045", Status = "APPROVED", LastModified = DateTime.Now.AddDays(-8) },
                 new { StudentName = "David Kim", LEAPartner = "San Francisco Unified School District", DOB = "07/22/1998", CredentialArea = "Single Subject - English", CountyCDS = "38", LEACDS = "68478", SchoolCDS = "3868478", Status = "UNDER_REVIEW", LastModified = DateTime.Now.AddDays(-10) },
-                new { StudentName = "Jessica Nguyen", LEAPartner = "Oakland Unified School District", DOB = "09/14/1997", CredentialArea = "Education Specialist", CountyCDS = "01", LEACDS = "61259", SchoolCDS = "0161259", Status = "PAYMENT_IN_PROCESS", LastModified = DateTime.Now.AddDays(-11) },
+                new { StudentName = "Jessica Nguyen", LEAPartner = "Oakland Unified School District", DOB = "09/14/1997", CredentialArea = "Education Specialist", CountyCDS = "01", LEACDS = "61259", SchoolCDS = "0161259", Status = "APPROVED", LastModified = DateTime.Now.AddDays(-11) },
                 new { StudentName = "Robert Johnson", LEAPartner = "San Diego Unified School District", DOB = "12/05/1999", CredentialArea = "Multiple Subject", CountyCDS = "37", LEACDS = "68338", SchoolCDS = "3768392", Status = "APPROVED", LastModified = DateTime.Now.AddDays(-13) },
-                new { StudentName = "Amanda Lee", LEAPartner = "Fresno Unified School District", DOB = "03/28/1998", CredentialArea = "Single Subject - Science", CountyCDS = "10", LEACDS = "62331", SchoolCDS = "1062398", Status = "SUBMITTED", LastModified = DateTime.Now.AddDays(-15) },
-                new { StudentName = "Christopher Brown", LEAPartner = "Los Angeles Unified School District", DOB = "06/09/1997", CredentialArea = "Single Subject - History", CountyCDS = "19", LEACDS = "64733", SchoolCDS = "1933067", Status = "WAITLIST", LastModified = DateTime.Now.AddDays(-17) },
+                new { StudentName = "Amanda Lee", LEAPartner = "Fresno Unified School District", DOB = "03/28/1998", CredentialArea = "Single Subject - Science", CountyCDS = "10", LEACDS = "62331", SchoolCDS = "1062398", Status = "UNDER_REVIEW", LastModified = DateTime.Now.AddDays(-15) },
+                new { StudentName = "Christopher Brown", LEAPartner = "Los Angeles Unified School District", DOB = "06/09/1997", CredentialArea = "Single Subject - History", CountyCDS = "19", LEACDS = "64733", SchoolCDS = "1933067", Status = "PENDING", LastModified = DateTime.Now.AddDays(-17) },
                 new { StudentName = "Maria Garcia", LEAPartner = "Sacramento City Unified School District", DOB = "10/11/1999", CredentialArea = "Multiple Subject", CountyCDS = "34", LEACDS = "67439", SchoolCDS = "3467439", Status = "PENDING", LastModified = DateTime.Now.AddDays(-19) },
-                new { StudentName = "Daniel White", LEAPartner = "San Francisco Unified School District", DOB = "04/17/1996", CredentialArea = "Education Specialist", CountyCDS = "38", LEACDS = "68478", SchoolCDS = "3868512", Status = "PAID", LastModified = DateTime.Now.AddDays(-21) },
+                new { StudentName = "Daniel White", LEAPartner = "San Francisco Unified School District", DOB = "04/17/1996", CredentialArea = "Education Specialist", CountyCDS = "38", LEACDS = "68478", SchoolCDS = "3868512", Status = "APPROVED", LastModified = DateTime.Now.AddDays(-21) },
                 new { StudentName = "Jennifer Lopez", LEAPartner = "Oakland Unified School District", DOB = "08/30/1998", CredentialArea = "Single Subject - Mathematics", CountyCDS = "01", LEACDS = "61259", SchoolCDS = "0161287", Status = "UNDER_REVIEW", LastModified = DateTime.Now.AddDays(-23) }
             };
         }
@@ -64,6 +64,17 @@
                         <option value="scusd">Sacramento City Unified School District</option>
                     </select>
                 </div>
+                <div style="min-width: 200px;">
+                    <label for="filterStatus" style="display: block; font-weight: 600; margin-bottom: var(--spacing-sm);">
+                        <i class="mdi mdi-filter-outline"></i> Filter by Status
+                    </label>
+                    <select id="filterStatus" class="form-control">
+                        <option value="">All Statuses</option>
+                        <option value="PENDING">Pending</option>
+                        <option value="UNDER_REVIEW">Under Review</option>
+                        <option value="APPROVED">Approved</option>
+                    </select>
+                </div>
             </div>
 
             <div class="table-wrapper">
@@ -84,7 +95,7 @@
                     <tbody>
                         @foreach (var student in allStudents)
                         {
-                            <tr data-student-name="@student.StudentName.ToLower()" data-lea="@student.LEAPartner">
+                            <tr data-student-name="@student.StudentName.ToLower()" data-lea="@student.LEAPartner" data-status="@student.Status">
                                 <td>
                                     <strong>@student.StudentName</strong>
                                 </td>
@@ -122,16 +133,26 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('searchStudents');
-            const filterSelect = document.getElementById('filterLEA');
+            const filterLEA = document.getElementById('filterLEA');
+            const filterStatus = document.getElementById('filterStatus');
             const tableRows = document.querySelectorAll('#studentsTable tbody tr');
+
+            // Read status from URL query parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const statusParam = urlParams.get('status');
+            if (statusParam && filterStatus) {
+                filterStatus.value = statusParam;
+            }
 
             function filterTable() {
                 const searchTerm = searchInput.value.toLowerCase();
-                const selectedLEA = filterSelect.value;
+                const selectedLEA = filterLEA.value;
+                const selectedStatus = filterStatus.value;
 
                 tableRows.forEach(row => {
                     const studentName = row.getAttribute('data-student-name');
                     const leaPartner = row.getAttribute('data-lea');
+                    const rowStatus = row.getAttribute('data-status');
 
                     const matchesSearch = studentName.includes(searchTerm);
                     const matchesLEA = !selectedLEA ||
@@ -141,8 +162,9 @@
                         (selectedLEA === 'sfusd' && leaPartner.includes('San Francisco')) ||
                         (selectedLEA === 'ousd' && leaPartner.includes('Oakland')) ||
                         (selectedLEA === 'scusd' && leaPartner.includes('Sacramento'));
+                    const matchesStatus = !selectedStatus || rowStatus === selectedStatus;
 
-                    if (matchesSearch && matchesLEA) {
+                    if (matchesSearch && matchesLEA && matchesStatus) {
                         row.style.display = '';
                     } else {
                         row.style.display = 'none';
@@ -151,7 +173,11 @@
             }
 
             searchInput.addEventListener('input', filterTable);
-            filterSelect.addEventListener('change', filterTable);
+            filterLEA.addEventListener('change', filterTable);
+            filterStatus.addEventListener('change', filterTable);
+
+            // Run filter on page load to apply URL parameter
+            filterTable();
         });
     </script>
 }
