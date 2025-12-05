@@ -61,7 +61,20 @@
             </div>
             <div class="info-item">
                 <span class="info-label">Total Students</span>
-                <span class="info-value info-value-highlight">@Model.Students.Count</span>
+                <span class="info-value info-value-highlight">@totalStudents</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Pending Review</span>
+                <span class="info-value">
+                    @if (reviewCount > 0)
+                    {
+                        <span class="badge badge-warning">@reviewCount Pending</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">0</span>
+                    }
+                </span>
             </div>
             <div class="info-item">
                 <span class="info-label">Created Date</span>
@@ -144,13 +157,34 @@
                 </tbody>
             </table>
             </div>
+
+            @* Pagination Controls *@
+            <div class="pagination-controls" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
+                <div class="pagination-info">
+                    Showing <span id="showingStart">1</span>-<span id="showingEnd">10</span> of <span id="totalRecords">@Model.Students.Count</span> students
+                </div>
+                <div class="pagination-buttons" style="display: flex; gap: 0.5rem; align-items: center;">
+                    <button type="button" class="r4-button r4-button-sm" id="prevPage" onclick="changePage(-1)">
+                        <i class="mdi mdi-chevron-left"></i> Previous
+                    </button>
+                    <span style="padding: 0 0.75rem;">Page <span id="currentPage">1</span> of <span id="totalPages">1</span></span>
+                    <button type="button" class="r4-button r4-button-sm" id="nextPage" onclick="changePage(1)">
+                        Next <i class="mdi mdi-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
         }
     </div>
 </div>
 
 @section Scripts {
     <script>
-        // Student table filtering
+        // Pagination and filtering
+        const ROWS_PER_PAGE = 10;
+        let currentPage = 1;
+        let allRows = [];
+        let filteredRows = [];
+
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('studentSearch');
             const credentialFilter = document.getElementById('credentialFilter');
@@ -159,46 +193,85 @@
 
             if (!tbody) return;
 
-            const rows = tbody.getElementsByTagName('tr');
+            // Store all rows
+            allRows = Array.from(tbody.getElementsByTagName('tr'));
+            filteredRows = [...allRows];
+
+            // Initial pagination setup
+            updatePagination();
+            showPage(1);
 
             function filterTable() {
                 const searchTerm = searchInput.value.toLowerCase();
                 const credentialValue = credentialFilter.value;
 
-                for (let i = 0; i < rows.length; i++) {
-                    const row = rows[i];
+                filteredRows = allRows.filter(row => {
                     const cells = row.getElementsByTagName('td');
+                    if (cells.length === 0) return false;
 
-                    if (cells.length > 0) {
-                        const seid = cells[0].textContent.toLowerCase();
-                        const firstName = cells[1].textContent.toLowerCase();
-                        const lastName = cells[2].textContent.toLowerCase();
-                        const credentialArea = cells[3].textContent;
+                    const seid = cells[0].textContent.toLowerCase();
+                    const firstName = cells[1].textContent.toLowerCase();
+                    const lastName = cells[2].textContent.toLowerCase();
+                    const credentialArea = cells[3].textContent;
 
-                        // Check search term
-                        const matchesSearch = searchTerm === '' ||
-                            seid.includes(searchTerm) ||
-                            firstName.includes(searchTerm) ||
-                            lastName.includes(searchTerm) ||
-                            credentialArea.toLowerCase().includes(searchTerm);
+                    const matchesSearch = searchTerm === '' ||
+                        seid.includes(searchTerm) ||
+                        firstName.includes(searchTerm) ||
+                        lastName.includes(searchTerm) ||
+                        credentialArea.toLowerCase().includes(searchTerm);
 
-                        // Check credential filter
-                        const matchesCredential = credentialValue === '' || credentialArea === credentialValue;
+                    const matchesCredential = credentialValue === '' || credentialArea === credentialValue;
 
-                        // Show/hide row based on all filters
-                        if (matchesSearch && matchesCredential) {
-                            row.style.display = '';
-                        } else {
-                            row.style.display = 'none';
-                        }
-                    }
-                }
+                    return matchesSearch && matchesCredential;
+                });
+
+                currentPage = 1;
+                updatePagination();
+                showPage(1);
             }
 
             // Add event listeners
             searchInput.addEventListener('keyup', filterTable);
             credentialFilter.addEventListener('change', filterTable);
         });
+
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredRows.length / ROWS_PER_PAGE) || 1;
+            document.getElementById('totalPages').textContent = totalPages;
+            document.getElementById('totalRecords').textContent = filteredRows.length;
+            document.getElementById('prevPage').disabled = currentPage <= 1;
+            document.getElementById('nextPage').disabled = currentPage >= totalPages;
+        }
+
+        function showPage(page) {
+            currentPage = page;
+            const startIndex = (page - 1) * ROWS_PER_PAGE;
+            const endIndex = startIndex + ROWS_PER_PAGE;
+
+            // Hide all rows first
+            allRows.forEach(row => row.style.display = 'none');
+
+            // Show only filtered rows for current page
+            filteredRows.forEach((row, index) => {
+                if (index >= startIndex && index < endIndex) {
+                    row.style.display = '';
+                }
+            });
+
+            // Update pagination info
+            document.getElementById('currentPage').textContent = page;
+            document.getElementById('showingStart').textContent = filteredRows.length > 0 ? startIndex + 1 : 0;
+            document.getElementById('showingEnd').textContent = Math.min(endIndex, filteredRows.length);
+            updatePagination();
+        }
+
+        function changePage(delta) {
+            const totalPages = Math.ceil(filteredRows.length / ROWS_PER_PAGE) || 1;
+            const newPage = currentPage + delta;
+            if (newPage >= 1 && newPage <= totalPages) {
+                showPage(newPage);
+            }
+        }
     </script>
 
     <style>
