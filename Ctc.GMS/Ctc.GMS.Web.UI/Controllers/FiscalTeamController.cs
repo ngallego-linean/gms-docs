@@ -801,22 +801,6 @@ public class FiscalTeamController : Controller
         return RedirectToAction("Dashboard", "GrantsTeam");
     }
 
-    [Route("BulkUploadPO")]
-    public IActionResult BulkUploadPO()
-    {
-        return View();
-    }
-
-    [HttpPost]
-    [Route("BulkUploadPO")]
-    public IActionResult BulkUploadPO(List<IFormFile> poFiles)
-    {
-        // Mock bulk upload processing for POC
-        var count = poFiles?.Count ?? 0;
-        TempData["SuccessMessage"] = $"{count} Purchase Order(s) uploaded successfully.";
-        return RedirectToAction("Dashboard", "GrantsTeam");
-    }
-
     [Route("DisbursementQueue")]
     public IActionResult DisbursementQueue()
     {
