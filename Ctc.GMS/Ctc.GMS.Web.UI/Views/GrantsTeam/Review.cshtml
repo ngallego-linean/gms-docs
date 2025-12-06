@@ -35,7 +35,8 @@ else
             <h4><i class="mdi mdi-folder-open-outline"></i> Disbursement Groups Requiring Review</h4>
         </div>
         <div class="r4-card-body">
-            <table class="r4-table">
+            <div class="table-wrapper">
+            <table class="r4-table" style="width: 100%;">
                 <thead>
                     <tr>
                         <th>Submission Month</th>
@@ -64,6 +65,7 @@ else
                     }
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 }
@@ -75,4 +77,14 @@ else
             console.log('Disbursement group review queue ready');
         });
     </script>
+
+    <style>
+        .r4-table {
+            width: 100% !important;
+        }
+
+        .table-wrapper {
+            width: 100% !important;
+        }
+    </style>
 }
