@@ -119,6 +119,22 @@
                     </tbody>
                 </table>
             </div>
+
+            @* Pagination Controls *@
+            <div class="pagination-controls" id="paginationControls" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
+                <div class="pagination-info">
+                    Showing <span id="showingStart">1</span>-<span id="showingEnd">@Math.Min(10, Model.Candidates.Count)</span> of <span id="totalRecords">@Model.Candidates.Count</span> candidates
+                </div>
+                <div class="pagination-buttons" style="display: flex; gap: 0.5rem; align-items: center;">
+                    <button type="button" class="r4-button r4-button-sm" id="prevPage" onclick="changePage(-1)">
+                        <i class="mdi mdi-chevron-left"></i> Previous
+                    </button>
+                    <span style="padding: 0 0.75rem;">Page <span id="currentPage">1</span> of <span id="totalPages">@Math.Max(1, (int)Math.Ceiling(Model.Candidates.Count / 10.0))</span></span>
+                    <button type="button" class="r4-button r4-button-sm" id="nextPage" onclick="changePage(1)">
+                        Next <i class="mdi mdi-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
         }
         else
         {
@@ -132,13 +148,24 @@
 
 @section Scripts {
     <script>
+        const ROWS_PER_PAGE = 10;
+        let currentPage = 1;
+        let allRows = [];
+        let filteredRows = [];
+
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('searchCandidates');
             const filterIHE = document.getElementById('filterIHE');
             const filterCredential = document.getElementById('filterCredential');
             const filterStatus = document.getElementById('filterStatus');
             const filterMonth = document.getElementById('filterMonth');
-            const tableRows = document.querySelectorAll('#candidatesTable tbody tr');
+            const table = document.getElementById('candidatesTable');
+            const tbody = table ? table.getElementsByTagName('tbody')[0] : null;
+
+            if (tbody) {
+                allRows = Array.from(tbody.getElementsByTagName('tr'));
+                filteredRows = [...allRows];
+            }
 
             // Read status from URL query parameter
             const urlParams = new URLSearchParams(window.location.search);
@@ -154,7 +181,7 @@
                 const selectedStatus = filterStatus.value;
                 const selectedMonth = filterMonth.value;
 
-                tableRows.forEach(row => {
+                filteredRows = allRows.filter(row => {
                     const name = row.getAttribute('data-name');
                     const seid = row.getAttribute('data-seid');
                     const ihe = row.getAttribute('data-ihe');
@@ -168,12 +195,12 @@
                     const matchesStatus = !selectedStatus || status === selectedStatus;
                     const matchesMonth = !selectedMonth || month === selectedMonth;
 
-                    if (matchesSearch && matchesIHE && matchesCredential && matchesStatus && matchesMonth) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
+                    return matchesSearch && matchesIHE && matchesCredential && matchesStatus && matchesMonth;
                 });
+
+                currentPage = 1;
+                updatePagination();
+                showPage(1);
             }
 
             searchInput.addEventListener('input', filterTable);
@@ -182,8 +209,47 @@
             filterStatus.addEventListener('change', filterTable);
             filterMonth.addEventListener('change', filterTable);
 
-            // Run filter on page load to apply URL parameter
+            // Initialize pagination and run filter on page load
+            updatePagination();
+            showPage(1);
             filterTable();
         });
+
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredRows.length / ROWS_PER_PAGE) || 1;
+            document.getElementById('totalPages').textContent = totalPages;
+            document.getElementById('totalRecords').textContent = filteredRows.length;
+            document.getElementById('prevPage').disabled = currentPage <= 1;
+            document.getElementById('nextPage').disabled = currentPage >= totalPages;
+        }
+
+        function showPage(page) {
+            currentPage = page;
+            const startIndex = (page - 1) * ROWS_PER_PAGE;
+            const endIndex = startIndex + ROWS_PER_PAGE;
+
+            // Hide all rows first
+            allRows.forEach(row => row.style.display = 'none');
+
+            // Show only filtered rows for current page
+            filteredRows.forEach((row, index) => {
+                if (index >= startIndex && index < endIndex) {
+                    row.style.display = '';
+                }
+            });
+
+            document.getElementById('currentPage').textContent = page;
+            document.getElementById('showingStart').textContent = filteredRows.length > 0 ? startIndex + 1 : 0;
+            document.getElementById('showingEnd').textContent = Math.min(endIndex, filteredRows.length);
+            updatePagination();
+        }
+
+        function changePage(delta) {
+            const totalPages = Math.ceil(filteredRows.length / ROWS_PER_PAGE) || 1;
+            const newPage = currentPage + delta;
+            if (newPage >= 1 && newPage <= totalPages) {
+                showPage(newPage);
+            }
+        }
     </script>
 }
