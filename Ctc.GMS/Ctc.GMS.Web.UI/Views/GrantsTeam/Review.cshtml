@@ -38,48 +38,27 @@ else
             <table class="r4-table">
                 <thead>
                     <tr>
-                        <th>Submission Date</th>
+                        <th>Submission Month</th>
                         <th>LEA District</th>
-                        <th>Total Students</th>
-                        <th>Pending Review</th>
-                        <th>Already Approved</th>
+                        <th>Pending</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var app in Model.Applications)
                     {
-                        var daysSinceSubmission = (DateTime.Now - app.LastModified).Days;
-
                         <tr>
-                            <td>
-                                @app.LastModified.ToString("MM/dd/yyyy")
-                                @if (daysSinceSubmission > 0)
-                                {
-                                    <small class="text-muted">(@daysSinceSubmission day(s) ago)</small>
-                                }
-                            </td>
+                            <td>@app.LastModified.ToString("MMMM yyyy")</td>
                             <td>@app.LEAName</td>
                             <td>
-                                <span class="badge badge-secondary">@app.TotalStudents</span>
+                                <span class="badge badge-warning badge-status">@app.PendingCount Pending</span>
                             </td>
                             <td>
-                                <span class="badge badge-warning">@app.PendingCount</span>
-                            </td>
-                            <td>
-                                @if (app.ApprovedCount > 0)
-                                {
-                                    <span class="badge badge-success">@app.ApprovedCount</span>
-                                }
-                                else
-                                {
-                                    <span class="text-muted">None</span>
-                                }
-                            </td>
-                            <td>
-                                <a href="@Url.Action("Details", "Application", new { id = app.Id })" class="r4-button r4-button-primary r4-button-sm">
-                                    <i class="mdi mdi-eye-outline"></i> Review Students
-                                </a>
+                                <div style="width: 180px; display: block;">
+                                    <a href="@Url.Action("Details", "Application", new { id = app.Id })" class="r4-button r4-button-sm">
+                                        <i class="mdi mdi-eye-outline"></i> Review Submission
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     }
