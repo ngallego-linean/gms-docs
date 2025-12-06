@@ -62,17 +62,13 @@
     </div>
     <div class="r4-card-body">
         <div class="table-wrapper">
-            <table class="r4-table">
+            <table class="r4-table" style="width: 100%;">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>IHE Institution</th>
+                        <th>Submission Month</th>
                         <th>LEA District</th>
-                        <th>Students</th>
-                        <th>Approved</th>
                         <th>Pending</th>
                         <th>Status</th>
-                        <th>Last Modified</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -80,7 +76,7 @@
                     @if (!Model.Applications.Any())
                     {
                         <tr>
-                            <td colspan="9" class="text-center">No applications found</td>
+                            <td colspan="5" class="text-center">No applications found</td>
                         </tr>
                     }
                     else
@@ -88,12 +84,11 @@
                         @foreach (var app in Model.Applications)
                         {
                             <tr>
-                                <td><a asp-controller="Application" asp-action="Details" asp-route-id="@app.Id">@app.Id</a></td>
-                                <td>@app.IHEName</td>
+                                <td>@app.LastModified.ToString("MMMM yyyy")</td>
                                 <td>@app.LEAName</td>
-                                <td>@app.TotalStudents</td>
-                                <td>@app.ApprovedCount</td>
-                                <td>@app.PendingCount</td>
+                                <td>
+                                    <span class="badge badge-warning badge-status">@app.PendingCount Pending</span>
+                                </td>
                                 <td>
                                     @{
                                         var badgeClass = app.Status switch
@@ -109,10 +104,9 @@
                                     }
                                     <span class="badge @badgeClass">@app.Status</span>
                                 </td>
-                                <td>@app.LastModified.ToString("MM/dd/yyyy")</td>
                                 <td>
-                                    <a asp-controller="Application" asp-action="Details" asp-route-id="@app.Id" class="r4-button r4-button-primary r4-button-sm" style="display: inline-block !important; min-width: 100px !important; text-align: center !important; padding: 0.5rem 1rem !important; color: var(--white) !important;">
-                                        <i class="mdi mdi-eye" style="margin-right: 0.5rem; color: var(--white) !important;"></i><span style="display: inline !important; color: var(--white) !important; visibility: visible !important;">View</span>
+                                    <a asp-controller="Application" asp-action="Details" asp-route-id="@app.Id" class="r4-button r4-button-sm">
+                                        <i class="mdi mdi-eye-outline"></i> Review Submission
                                     </a>
                                 </td>
                             </tr>
