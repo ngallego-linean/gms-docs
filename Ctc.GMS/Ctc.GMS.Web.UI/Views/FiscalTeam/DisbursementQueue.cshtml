@@ -79,7 +79,7 @@
             <h4><i class="mdi mdi-folder-open-outline"></i> Pending Disbursements</h4>
         </div>
         <div class="r4-card-body">
-            <table class="r4-table disbursement-table">
+            <table class="r4-table disbursement-table" id="pendingTable">
                 <thead>
                     <tr>
                         <th style="width: 30px;"></th>
@@ -186,6 +186,25 @@
                     }
                 </tbody>
             </table>
+
+            @* Pagination Controls - Only shown if more than 10 items *@
+            @if (pendingGroups.Count > 10)
+            {
+                <div class="pagination-controls" id="pendingPagination" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
+                    <div class="pagination-info">
+                        Showing <span id="pendingShowingStart">1</span>-<span id="pendingShowingEnd">10</span> of <span id="pendingTotalRecords">@pendingGroups.Count</span> groups
+                    </div>
+                    <div class="pagination-buttons" style="display: flex; gap: 0.5rem; align-items: center;">
+                        <button type="button" class="r4-button r4-button-sm" id="pendingPrevPage" onclick="changePendingPage(-1)">
+                            <i class="mdi mdi-chevron-left"></i> Previous
+                        </button>
+                        <span style="padding: 0 0.75rem;">Page <span id="pendingCurrentPage">1</span> of <span id="pendingTotalPages">1</span></span>
+                        <button type="button" class="r4-button r4-button-sm" id="pendingNextPage" onclick="changePendingPage(1)">
+                            Next <i class="mdi mdi-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            }
         </div>
     </div>
 }
@@ -205,7 +224,7 @@ else
             <h4><i class="mdi mdi-check-circle-outline"></i> Completed Disbursements</h4>
         </div>
         <div class="r4-card-body">
-            <table class="r4-table disbursement-table">
+            <table class="r4-table disbursement-table" id="completedTable">
                 <thead>
                     <tr>
                         <th style="width: 30px;"></th>
@@ -275,12 +294,165 @@ else
                     }
                 </tbody>
             </table>
+
+            @* Pagination Controls - Only shown if more than 10 items *@
+            @if (completedGroups.Count > 10)
+            {
+                <div class="pagination-controls" id="completedPagination" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
+                    <div class="pagination-info">
+                        Showing <span id="completedShowingStart">1</span>-<span id="completedShowingEnd">10</span> of <span id="completedTotalRecords">@completedGroups.Count</span> disbursements
+                    </div>
+                    <div class="pagination-buttons" style="display: flex; gap: 0.5rem; align-items: center;">
+                        <button type="button" class="r4-button r4-button-sm" id="completedPrevPage" onclick="changeCompletedPage(-1)">
+                            <i class="mdi mdi-chevron-left"></i> Previous
+                        </button>
+                        <span style="padding: 0 0.75rem;">Page <span id="completedCurrentPage">1</span> of <span id="completedTotalPages">1</span></span>
+                        <button type="button" class="r4-button r4-button-sm" id="completedNextPage" onclick="changeCompletedPage(1)">
+                            Next <i class="mdi mdi-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            }
         </div>
     </div>
 }
 
 @section Scripts {
     <script>
+        const ROWS_PER_PAGE = 10;
+
+        // Pending table pagination
+        let pendingCurrentPage = 1;
+        let pendingMainRows = [];
+
+        // Completed table pagination
+        let completedCurrentPage = 1;
+        let completedMainRows = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize pending table pagination
+            const pendingTable = document.getElementById('pendingTable');
+            if (pendingTable) {
+                const pendingTbody = pendingTable.getElementsByTagName('tbody')[0];
+                if (pendingTbody) {
+                    // Get only main rows (not timeline sub-rows)
+                    pendingMainRows = Array.from(pendingTbody.querySelectorAll('tr.disbursement-row'));
+                    if (pendingMainRows.length > ROWS_PER_PAGE) {
+                        updatePendingPagination();
+                        showPendingPage(1);
+                    }
+                }
+            }
+
+            // Initialize completed table pagination
+            const completedTable = document.getElementById('completedTable');
+            if (completedTable) {
+                const completedTbody = completedTable.getElementsByTagName('tbody')[0];
+                if (completedTbody) {
+                    // Get only main rows (not timeline sub-rows)
+                    completedMainRows = Array.from(completedTbody.querySelectorAll('tr.disbursement-row'));
+                    if (completedMainRows.length > ROWS_PER_PAGE) {
+                        updateCompletedPagination();
+                        showCompletedPage(1);
+                    }
+                }
+            }
+        });
+
+        // Pending table functions
+        function updatePendingPagination() {
+            const totalPages = Math.ceil(pendingMainRows.length / ROWS_PER_PAGE) || 1;
+            document.getElementById('pendingTotalPages').textContent = totalPages;
+            document.getElementById('pendingTotalRecords').textContent = pendingMainRows.length;
+            document.getElementById('pendingPrevPage').disabled = pendingCurrentPage <= 1;
+            document.getElementById('pendingNextPage').disabled = pendingCurrentPage >= totalPages;
+        }
+
+        function showPendingPage(page) {
+            pendingCurrentPage = page;
+            const startIndex = (page - 1) * ROWS_PER_PAGE;
+            const endIndex = startIndex + ROWS_PER_PAGE;
+
+            pendingMainRows.forEach((row, index) => {
+                const groupId = row.getAttribute('data-group-id');
+                const timelineRow = document.getElementById('timeline-' + groupId);
+                const isVisible = (index >= startIndex && index < endIndex);
+
+                row.style.display = isVisible ? '' : 'none';
+                if (timelineRow) {
+                    // Hide timeline row when paginating, user can expand again
+                    timelineRow.classList.remove('show');
+                    timelineRow.style.display = isVisible ? '' : 'none';
+                    row.classList.remove('expanded');
+                    const icon = row.querySelector('.expand-icon');
+                    if (icon) {
+                        icon.classList.remove('mdi-chevron-down');
+                        icon.classList.add('mdi-chevron-right');
+                    }
+                }
+            });
+
+            document.getElementById('pendingCurrentPage').textContent = page;
+            document.getElementById('pendingShowingStart').textContent = pendingMainRows.length > 0 ? startIndex + 1 : 0;
+            document.getElementById('pendingShowingEnd').textContent = Math.min(endIndex, pendingMainRows.length);
+            updatePendingPagination();
+        }
+
+        function changePendingPage(delta) {
+            const totalPages = Math.ceil(pendingMainRows.length / ROWS_PER_PAGE) || 1;
+            const newPage = pendingCurrentPage + delta;
+            if (newPage >= 1 && newPage <= totalPages) {
+                showPendingPage(newPage);
+            }
+        }
+
+        // Completed table functions
+        function updateCompletedPagination() {
+            const totalPages = Math.ceil(completedMainRows.length / ROWS_PER_PAGE) || 1;
+            document.getElementById('completedTotalPages').textContent = totalPages;
+            document.getElementById('completedTotalRecords').textContent = completedMainRows.length;
+            document.getElementById('completedPrevPage').disabled = completedCurrentPage <= 1;
+            document.getElementById('completedNextPage').disabled = completedCurrentPage >= totalPages;
+        }
+
+        function showCompletedPage(page) {
+            completedCurrentPage = page;
+            const startIndex = (page - 1) * ROWS_PER_PAGE;
+            const endIndex = startIndex + ROWS_PER_PAGE;
+
+            completedMainRows.forEach((row, index) => {
+                const groupId = row.getAttribute('data-group-id');
+                const timelineRow = document.getElementById('timeline-' + groupId);
+                const isVisible = (index >= startIndex && index < endIndex);
+
+                row.style.display = isVisible ? '' : 'none';
+                if (timelineRow) {
+                    // Hide timeline row when paginating, user can expand again
+                    timelineRow.classList.remove('show');
+                    timelineRow.style.display = isVisible ? '' : 'none';
+                    row.classList.remove('expanded');
+                    const icon = row.querySelector('.expand-icon');
+                    if (icon) {
+                        icon.classList.remove('mdi-chevron-down');
+                        icon.classList.add('mdi-chevron-right');
+                    }
+                }
+            });
+
+            document.getElementById('completedCurrentPage').textContent = page;
+            document.getElementById('completedShowingStart').textContent = completedMainRows.length > 0 ? startIndex + 1 : 0;
+            document.getElementById('completedShowingEnd').textContent = Math.min(endIndex, completedMainRows.length);
+            updateCompletedPagination();
+        }
+
+        function changeCompletedPage(delta) {
+            const totalPages = Math.ceil(completedMainRows.length / ROWS_PER_PAGE) || 1;
+            const newPage = completedCurrentPage + delta;
+            if (newPage >= 1 && newPage <= totalPages) {
+                showCompletedPage(newPage);
+            }
+        }
+
         function toggleTimelineRow(groupId) {
             const timelineRow = document.getElementById('timeline-' + groupId);
             const mainRow = document.querySelector(`tr[data-group-id="${groupId}"]`);

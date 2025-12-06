@@ -62,7 +62,7 @@
     </div>
     <div class="r4-card-body">
         <div class="table-wrapper">
-            <table class="r4-table" style="width: 100%;">
+            <table class="r4-table" id="applicationsTable" style="width: 100%;">
                 <thead>
                     <tr>
                         <th>Submission Month</th>
@@ -117,5 +117,77 @@
                 </tbody>
             </table>
         </div>
+
+        @* Pagination Controls - Only shown if more than 10 items *@
+        @if (Model.Applications.Count > 10)
+        {
+            <div class="pagination-controls" id="applicationsPagination" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
+                <div class="pagination-info">
+                    Showing <span id="showingStart">1</span>-<span id="showingEnd">10</span> of <span id="totalRecords">@Model.Applications.Count</span> applications
+                </div>
+                <div class="pagination-buttons" style="display: flex; gap: 0.5rem; align-items: center;">
+                    <button type="button" class="r4-button r4-button-sm" id="prevPage" onclick="changePage(-1)">
+                        <i class="mdi mdi-chevron-left"></i> Previous
+                    </button>
+                    <span style="padding: 0 0.75rem;">Page <span id="currentPage">1</span> of <span id="totalPages">1</span></span>
+                    <button type="button" class="r4-button r4-button-sm" id="nextPage" onclick="changePage(1)">
+                        Next <i class="mdi mdi-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        }
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        const ROWS_PER_PAGE = 10;
+        let currentPage = 1;
+        let allRows = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const table = document.getElementById('applicationsTable');
+            if (table) {
+                const tbody = table.getElementsByTagName('tbody')[0];
+                if (tbody) {
+                    allRows = Array.from(tbody.getElementsByTagName('tr'));
+                    if (allRows.length > ROWS_PER_PAGE) {
+                        updatePagination();
+                        showPage(1);
+                    }
+                }
+            }
+        });
+
+        function updatePagination() {
+            const totalPages = Math.ceil(allRows.length / ROWS_PER_PAGE) || 1;
+            document.getElementById('totalPages').textContent = totalPages;
+            document.getElementById('totalRecords').textContent = allRows.length;
+            document.getElementById('prevPage').disabled = currentPage <= 1;
+            document.getElementById('nextPage').disabled = currentPage >= totalPages;
+        }
+
+        function showPage(page) {
+            currentPage = page;
+            const startIndex = (page - 1) * ROWS_PER_PAGE;
+            const endIndex = startIndex + ROWS_PER_PAGE;
+
+            allRows.forEach((row, index) => {
+                row.style.display = (index >= startIndex && index < endIndex) ? '' : 'none';
+            });
+
+            document.getElementById('currentPage').textContent = page;
+            document.getElementById('showingStart').textContent = allRows.length > 0 ? startIndex + 1 : 0;
+            document.getElementById('showingEnd').textContent = Math.min(endIndex, allRows.length);
+            updatePagination();
+        }
+
+        function changePage(delta) {
+            const totalPages = Math.ceil(allRows.length / ROWS_PER_PAGE) || 1;
+            const newPage = currentPage + delta;
+            if (newPage >= 1 && newPage <= totalPages) {
+                showPage(newPage);
+            }
+        }
+    </script>
+}

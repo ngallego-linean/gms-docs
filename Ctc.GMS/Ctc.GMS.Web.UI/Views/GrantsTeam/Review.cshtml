@@ -52,7 +52,7 @@ else
         </div>
         <div class="r4-card-body">
             <div class="table-wrapper">
-            <table class="r4-table" style="width: 100%;">
+            <table class="r4-table" id="pendingTable" style="width: 100%;">
                 <thead>
                     <tr>
                         <th>Submission Month</th>
@@ -80,6 +80,25 @@ else
                 </tbody>
             </table>
             </div>
+
+            @* Pagination Controls - Only shown if more than 10 items *@
+            @if (Model.Applications.Count > 10)
+            {
+                <div class="pagination-controls" id="pendingPagination" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
+                    <div class="pagination-info">
+                        Showing <span id="pendingShowingStart">1</span>-<span id="pendingShowingEnd">10</span> of <span id="pendingTotalRecords">@Model.Applications.Count</span> groups
+                    </div>
+                    <div class="pagination-buttons" style="display: flex; gap: 0.5rem; align-items: center;">
+                        <button type="button" class="r4-button r4-button-sm" id="pendingPrevPage" onclick="changePendingPage(-1)">
+                            <i class="mdi mdi-chevron-left"></i> Previous
+                        </button>
+                        <span style="padding: 0 0.75rem;">Page <span id="pendingCurrentPage">1</span> of <span id="pendingTotalPages">1</span></span>
+                        <button type="button" class="r4-button r4-button-sm" id="pendingNextPage" onclick="changePendingPage(1)">
+                            Next <i class="mdi mdi-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            }
         </div>
     </div>
 }
@@ -93,7 +112,7 @@ else
         </div>
         <div class="r4-card-body">
             <div class="table-wrapper">
-                <table class="r4-table" style="width: 100%;">
+                <table class="r4-table" id="completedTable" style="width: 100%;">
                     <thead>
                         <tr>
                             <th>Submission Month</th>
@@ -121,16 +140,132 @@ else
                     </tbody>
                 </table>
             </div>
+
+            @* Pagination Controls - Only shown if more than 10 items *@
+            @if (completedSubmissions.Count > 10)
+            {
+                <div class="pagination-controls" id="completedPagination" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
+                    <div class="pagination-info">
+                        Showing <span id="completedShowingStart">1</span>-<span id="completedShowingEnd">10</span> of <span id="completedTotalRecords">@completedSubmissions.Count</span> reviews
+                    </div>
+                    <div class="pagination-buttons" style="display: flex; gap: 0.5rem; align-items: center;">
+                        <button type="button" class="r4-button r4-button-sm" id="completedPrevPage" onclick="changeCompletedPage(-1)">
+                            <i class="mdi mdi-chevron-left"></i> Previous
+                        </button>
+                        <span style="padding: 0 0.75rem;">Page <span id="completedCurrentPage">1</span> of <span id="completedTotalPages">1</span></span>
+                        <button type="button" class="r4-button r4-button-sm" id="completedNextPage" onclick="changeCompletedPage(1)">
+                            Next <i class="mdi mdi-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            }
         </div>
     </div>
 }
 
 @section Scripts {
     <script>
+        const ROWS_PER_PAGE = 10;
+
+        // Pending table pagination
+        let pendingCurrentPage = 1;
+        let pendingAllRows = [];
+
+        // Completed table pagination
+        let completedCurrentPage = 1;
+        let completedAllRows = [];
+
         document.addEventListener('DOMContentLoaded', function() {
-            // Disbursement group review queue loaded
-            console.log('Disbursement group review queue ready');
+            // Initialize pending table pagination
+            const pendingTable = document.getElementById('pendingTable');
+            if (pendingTable) {
+                const pendingTbody = pendingTable.getElementsByTagName('tbody')[0];
+                if (pendingTbody) {
+                    pendingAllRows = Array.from(pendingTbody.getElementsByTagName('tr'));
+                    if (pendingAllRows.length > ROWS_PER_PAGE) {
+                        updatePendingPagination();
+                        showPendingPage(1);
+                    }
+                }
+            }
+
+            // Initialize completed table pagination
+            const completedTable = document.getElementById('completedTable');
+            if (completedTable) {
+                const completedTbody = completedTable.getElementsByTagName('tbody')[0];
+                if (completedTbody) {
+                    completedAllRows = Array.from(completedTbody.getElementsByTagName('tr'));
+                    if (completedAllRows.length > ROWS_PER_PAGE) {
+                        updateCompletedPagination();
+                        showCompletedPage(1);
+                    }
+                }
+            }
         });
+
+        // Pending table functions
+        function updatePendingPagination() {
+            const totalPages = Math.ceil(pendingAllRows.length / ROWS_PER_PAGE) || 1;
+            document.getElementById('pendingTotalPages').textContent = totalPages;
+            document.getElementById('pendingTotalRecords').textContent = pendingAllRows.length;
+            document.getElementById('pendingPrevPage').disabled = pendingCurrentPage <= 1;
+            document.getElementById('pendingNextPage').disabled = pendingCurrentPage >= totalPages;
+        }
+
+        function showPendingPage(page) {
+            pendingCurrentPage = page;
+            const startIndex = (page - 1) * ROWS_PER_PAGE;
+            const endIndex = startIndex + ROWS_PER_PAGE;
+
+            pendingAllRows.forEach((row, index) => {
+                row.style.display = (index >= startIndex && index < endIndex) ? '' : 'none';
+            });
+
+            document.getElementById('pendingCurrentPage').textContent = page;
+            document.getElementById('pendingShowingStart').textContent = pendingAllRows.length > 0 ? startIndex + 1 : 0;
+            document.getElementById('pendingShowingEnd').textContent = Math.min(endIndex, pendingAllRows.length);
+            updatePendingPagination();
+        }
+
+        function changePendingPage(delta) {
+            const totalPages = Math.ceil(pendingAllRows.length / ROWS_PER_PAGE) || 1;
+            const newPage = pendingCurrentPage + delta;
+            if (newPage >= 1 && newPage <= totalPages) {
+                showPendingPage(newPage);
+            }
+        }
+
+        // Completed table functions
+        function updateCompletedPagination() {
+            const totalPages = Math.ceil(completedAllRows.length / ROWS_PER_PAGE) || 1;
+            document.getElementById('completedTotalPages').textContent = totalPages;
+            document.getElementById('completedTotalRecords').textContent = completedAllRows.length;
+            document.getElementById('completedPrevPage').disabled = completedCurrentPage <= 1;
+            document.getElementById('completedNextPage').disabled = completedCurrentPage >= totalPages;
+        }
+
+        function showCompletedPage(page) {
+            completedCurrentPage = page;
+            const startIndex = (page - 1) * ROWS_PER_PAGE;
+            const endIndex = startIndex + ROWS_PER_PAGE;
+
+            completedAllRows.forEach((row, index) => {
+                row.style.display = (index >= startIndex && index < endIndex) ? '' : 'none';
+            });
+
+            document.getElementById('completedCurrentPage').textContent = page;
+            document.getElementById('completedShowingStart').textContent = completedAllRows.length > 0 ? startIndex + 1 : 0;
+            document.getElementById('completedShowingEnd').textContent = Math.min(endIndex, completedAllRows.length);
+            updateCompletedPagination();
+        }
+
+        function changeCompletedPage(delta) {
+            const totalPages = Math.ceil(completedAllRows.length / ROWS_PER_PAGE) || 1;
+            const newPage = completedCurrentPage + delta;
+            if (newPage >= 1 && newPage <= totalPages) {
+                showCompletedPage(newPage);
+            }
+        }
     </script>
 
     <style>
