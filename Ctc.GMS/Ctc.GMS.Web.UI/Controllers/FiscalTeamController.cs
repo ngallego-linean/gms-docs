@@ -476,7 +476,7 @@ public class FiscalTeamController : Controller
                 StudentName = studentNames[i % studentNames.Length],
                 SEID = seids[i % seids.Length],
                 CredentialArea = credentials[i % credentials.Length],
-                AwardAmount = 4000m
+                AwardAmount = 10000m
             });
         }
 
