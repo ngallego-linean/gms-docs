@@ -27,9 +27,9 @@
 
 @* Action Buttons *@
 <div class="page-actions" style="display: flex; gap: 1rem;">
-    <a asp-controller="Application" asp-action="Index" class="r4-button r4-button-secondary">
-        <i class="mdi mdi-arrow-left"></i> Back to Submissions
-    </a>
+    <button type="button" class="r4-button r4-button-secondary" onclick="history.back()">
+        <i class="mdi mdi-arrow-left"></i> Back
+    </button>
     <button type="button" class="r4-button r4-button-success" onclick="approveSubmission(@Model.Id)">
         <i class="mdi mdi-check-circle-outline"></i> Approve LEA Submission
     </button>
