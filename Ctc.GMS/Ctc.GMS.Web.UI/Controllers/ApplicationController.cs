@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Ctc.GMS.AspNetCore.ViewModels;
 using GMS.Business.Services;
+using GMS.Business.Helpers;
 
 namespace Ctc.GMS.Web.UI.Controllers;
 
@@ -31,8 +32,12 @@ public class ApplicationController : Controller
                 IHEName = a.IHE?.Name ?? "Unknown",
                 LEAName = a.LEA?.Name ?? "Unknown",
                 TotalStudents = a.Students?.Count ?? 0,
-                ApprovedCount = a.Students?.Count(s => s.Status == "APPROVED") ?? 0,
-                PendingCount = a.Students?.Count(s => s.Status == "SUBMITTED") ?? 0,
+                ApprovedCount = a.Students?.Count(s =>
+                    StatusHelper.GetWorkflowStage(s.Status) == StatusHelper.WorkflowStage.Disbursement ||
+                    StatusHelper.GetWorkflowStage(s.Status) == StatusHelper.WorkflowStage.Reporting ||
+                    StatusHelper.GetWorkflowStage(s.Status) == StatusHelper.WorkflowStage.Complete) ?? 0,
+                PendingCount = a.Students?.Count(s =>
+                    StatusHelper.GetWorkflowStage(s.Status) == StatusHelper.WorkflowStage.Review) ?? 0,
                 Status = a.Status,
                 LastModified = a.LastModified
             }).ToList()
@@ -112,8 +117,12 @@ public class ApplicationController : Controller
                 IHEName = a.IHE.Name,
                 LEAName = a.LEA.Name,
                 TotalStudents = a.Students.Count,
-                ApprovedCount = a.Students.Count(s => s.Status == "APPROVED"),
-                PendingCount = a.Students.Count(s => s.Status == "SUBMITTED"),
+                ApprovedCount = a.Students.Count(s =>
+                    StatusHelper.GetWorkflowStage(s.Status) == StatusHelper.WorkflowStage.Disbursement ||
+                    StatusHelper.GetWorkflowStage(s.Status) == StatusHelper.WorkflowStage.Reporting ||
+                    StatusHelper.GetWorkflowStage(s.Status) == StatusHelper.WorkflowStage.Complete),
+                PendingCount = a.Students.Count(s =>
+                    StatusHelper.GetWorkflowStage(s.Status) == StatusHelper.WorkflowStage.Review),
                 Status = a.Status,
                 LastModified = a.LastModified
             })
