@@ -25,11 +25,14 @@
     <p class="subtitle">@Model.IHE.Name → @Model.LEA.Name</p>
 </div>
 
-@* Action Button *@
-<div class="page-actions">
+@* Action Buttons *@
+<div class="page-actions" style="display: flex; gap: 1rem;">
     <a asp-controller="Application" asp-action="Index" class="r4-button r4-button-secondary">
         <i class="mdi mdi-arrow-left"></i> Back to Submissions
     </a>
+    <button type="button" class="r4-button r4-button-success" onclick="approveSubmission(@Model.Id)">
+        <i class="mdi mdi-check-circle-outline"></i> Approve LEA Submission
+    </button>
 </div>
 
 @* Submission Information Card *@
@@ -52,20 +55,9 @@
                 <span class="info-value">@Model.LEA.Name</span>
             </div>
             <div class="info-item">
-                <span class="info-label">Total Students</span>
-                <span class="info-value info-value-highlight">@totalStudents</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Pending Review</span>
+                <span class="info-label">Pending Students</span>
                 <span class="info-value">
-                    @if (reviewCount > 0)
-                    {
-                        <span class="badge badge-warning">@reviewCount Pending</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">0</span>
-                    }
+                    <span class="badge badge-warning">@reviewCount Pending</span>
                 </span>
             </div>
         </div>
@@ -253,6 +245,25 @@
             if (newPage >= 1 && newPage <= totalPages) {
                 showPage(newPage);
             }
+        }
+
+        function approveSubmission(submissionId) {
+            if (!confirm('Are you sure you want to approve this LEA submission? This will move all pending students to the approved status.')) {
+                return;
+            }
+
+            const button = event.target.closest('button');
+            const originalText = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Approving...';
+
+            // Simulate API call for POC
+            setTimeout(() => {
+                button.innerHTML = '<i class="mdi mdi-check"></i> Approved';
+                alert('LEA Submission has been approved successfully!');
+                // In production, would redirect or refresh
+                window.location.href = '/GrantsTeam/Dashboard';
+            }, 1500);
         }
     </script>
 
