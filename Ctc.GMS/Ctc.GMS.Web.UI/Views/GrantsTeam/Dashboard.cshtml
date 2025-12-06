@@ -15,6 +15,35 @@
     <p class="subtitle">Student Teacher Stipend Program - FY 2025-26</p>
 </div>
 
+@* Funding Alert - Shows when there are candidates on waitlist *@
+@{
+    // MOCK DATA: Waitlist candidates count and funding status
+    var waitlistCount = 5;
+    var waitlistAmount = waitlistCount * 10000m;
+    var remainingFunding = 2300000m; // Amount remaining in budget
+    var fundingPercent = 90.8m; // Percent of funding allocated
+}
+@if (waitlistCount > 0)
+{
+    <div class="alert alert-warning funding-alert" style="display: flex; align-items: center; gap: 1rem; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; border: 2px solid var(--ctc-gold); background: linear-gradient(90deg, rgba(197, 172, 102, 0.1), rgba(197, 172, 102, 0.05));">
+        <div style="width: 48px; height: 48px; background-color: var(--ctc-gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <i class="mdi mdi-alert-outline" style="font-size: 24px; color: var(--white);"></i>
+        </div>
+        <div style="flex: 1;">
+            <h5 style="margin: 0 0 0.25rem 0; color: var(--ctc-gold); font-weight: 700;">Funding Alert: @waitlistCount Candidates on Waitlist</h5>
+            <p style="margin: 0; color: var(--gray-700);">
+                @fundingPercent% of FY 2025-26 funding has been allocated. <strong>@waitlistCount approved candidates</strong> totaling
+                <strong>@waitlistAmount.ToString("C0")</strong> are awaiting funding availability.
+            </p>
+        </div>
+        <div style="flex-shrink: 0;">
+            <a href="@Url.Action("Waitlist", "GrantsTeam", new { grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-secondary">
+                <i class="mdi mdi-account-clock-outline"></i> View Waitlist
+            </a>
+        </div>
+    </div>
+}
+
 @* GRANTS TEAM - Disbursement Groups Awaiting Review *@
 @if (Model.ApplicationsWithPendingStudents.Any())
 {

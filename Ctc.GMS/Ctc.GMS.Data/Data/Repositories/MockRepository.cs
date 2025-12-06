@@ -543,6 +543,106 @@ public class MockRepository
             }
         });
 
+        // Add WAITLIST students - Approved but awaiting funding
+        // These are candidates who have been approved but the program is at/near capacity
+        applications[0].Students.AddRange(new[]
+        {
+            new Student
+            {
+                Id = additionalStudentId++,
+                ApplicationId = 1,
+                FirstName = "Emma",
+                LastName = "Richardson",
+                SEID = "98765432",
+                CredentialArea = "Single Subject - Science",
+                Status = "WAITLIST",
+                AwardAmount = 10000,
+                LastActionDate = new DateTime(2025, 11, 10),
+                LastActionBy = "CTC Grants Team",
+                CreatedAt = new DateTime(2025, 10, 15, 9, 0, 0),
+                SubmittedAt = new DateTime(2025, 10, 20, 14, 30, 0),
+                ApprovedAt = new DateTime(2025, 11, 1, 10, 0, 0),
+                WaitlistDate = new DateTime(2025, 11, 10),
+                WaitlistPosition = 1
+            },
+            new Student
+            {
+                Id = additionalStudentId++,
+                ApplicationId = 1,
+                FirstName = "Carlos",
+                LastName = "Mendez",
+                SEID = "98765433",
+                CredentialArea = "Multiple Subject",
+                Status = "WAITLIST",
+                AwardAmount = 10000,
+                LastActionDate = new DateTime(2025, 11, 10),
+                LastActionBy = "CTC Grants Team",
+                CreatedAt = new DateTime(2025, 10, 16, 11, 30, 0),
+                SubmittedAt = new DateTime(2025, 10, 21, 9, 15, 0),
+                ApprovedAt = new DateTime(2025, 11, 2, 14, 45, 0),
+                WaitlistDate = new DateTime(2025, 11, 10),
+                WaitlistPosition = 2
+            },
+            new Student
+            {
+                Id = additionalStudentId++,
+                ApplicationId = 1,
+                FirstName = "Ashley",
+                LastName = "Patel",
+                SEID = "98765434",
+                CredentialArea = "Education Specialist - Moderate/Severe",
+                Status = "WAITLIST",
+                AwardAmount = 10000,
+                LastActionDate = new DateTime(2025, 11, 11),
+                LastActionBy = "CTC Grants Team",
+                CreatedAt = new DateTime(2025, 10, 18, 8, 45, 0),
+                SubmittedAt = new DateTime(2025, 10, 23, 16, 0, 0),
+                ApprovedAt = new DateTime(2025, 11, 5, 11, 30, 0),
+                WaitlistDate = new DateTime(2025, 11, 11),
+                WaitlistPosition = 3
+            }
+        });
+
+        applications[1].Students.AddRange(new[]
+        {
+            new Student
+            {
+                Id = additionalStudentId++,
+                ApplicationId = 2,
+                FirstName = "Nathan",
+                LastName = "Foster",
+                SEID = "98765435",
+                CredentialArea = "Single Subject - Mathematics",
+                Status = "WAITLIST",
+                AwardAmount = 10000,
+                LastActionDate = new DateTime(2025, 11, 12),
+                LastActionBy = "CTC Grants Team",
+                CreatedAt = new DateTime(2025, 10, 20, 10, 0, 0),
+                SubmittedAt = new DateTime(2025, 10, 25, 13, 45, 0),
+                ApprovedAt = new DateTime(2025, 11, 8, 9, 15, 0),
+                WaitlistDate = new DateTime(2025, 11, 12),
+                WaitlistPosition = 4
+            },
+            new Student
+            {
+                Id = additionalStudentId++,
+                ApplicationId = 2,
+                FirstName = "Grace",
+                LastName = "Wong",
+                SEID = "98765436",
+                CredentialArea = "Single Subject - English",
+                Status = "WAITLIST",
+                AwardAmount = 10000,
+                LastActionDate = new DateTime(2025, 11, 12),
+                LastActionBy = "CTC Grants Team",
+                CreatedAt = new DateTime(2025, 10, 22, 14, 30, 0),
+                SubmittedAt = new DateTime(2025, 10, 27, 11, 0, 0),
+                ApprovedAt = new DateTime(2025, 11, 9, 15, 30, 0),
+                WaitlistDate = new DateTime(2025, 11, 12),
+                WaitlistPosition = 5
+            }
+        });
+
         return applications;
     }
 

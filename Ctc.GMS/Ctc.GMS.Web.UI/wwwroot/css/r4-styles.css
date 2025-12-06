@@ -836,6 +836,10 @@ body {
     border-left: 4px solid var(--gray-600);
 }
 
+.metric-card.metric-waitlist {
+    border-left: 4px solid var(--ctc-gold);
+}
+
 .metric-card.metric-rejected {
     border-left: 4px solid var(--gray-700);
 }
@@ -2068,13 +2072,15 @@ body {
     font-size: 1rem;
 }
 
-.r4-button-secondary {
+.hero .r4-button-secondary,
+.hero-actions .r4-button-secondary {
     background-color: rgba(255, 255, 255, 0.2);
     color: var(--white);
     border: 2px solid var(--white);
 }
 
-.r4-button-secondary:hover {
+.hero .r4-button-secondary:hover,
+.hero-actions .r4-button-secondary:hover {
     background-color: rgba(255, 255, 255, 0.3);
     color: var(--white);
 }

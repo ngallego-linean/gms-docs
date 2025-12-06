@@ -60,6 +60,7 @@ public class Student
                 "CTC_APPROVED" => $"Approved by CTC{(dateStr != "" ? $": {dateStr}" : "")}",
                 "CTC_REJECTED" => $"Rejected{(dateStr != "" ? $": {dateStr}" : "")}",
                 "REVISION_REQUESTED" => $"Revision Requested{(dateStr != "" ? $": {dateStr}" : "")}",
+                "WAITLIST" => $"Waitlist{(WaitlistPosition.HasValue ? $" (#{WaitlistPosition})" : "")}",
                 "GAA_PENDING" => "Awaiting GAA Generation",
                 "GAA_GENERATED" => $"GAA Generated{(dateStr != "" ? $": {dateStr}" : "")}",
                 "GAA_SIGNED" => $"GAA Signed{(dateStr != "" ? $": {dateStr}" : "")}",
@@ -95,4 +96,8 @@ public class Student
     public DateTime? SubmittedAt { get; set; }
     public DateTime? ApprovedAt { get; set; }
     public DateTime? RejectedAt { get; set; }
+
+    // Waitlist Tracking
+    public DateTime? WaitlistDate { get; set; }
+    public int? WaitlistPosition { get; set; }
 }

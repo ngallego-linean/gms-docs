@@ -214,6 +214,57 @@ public class GrantsTeamController : Controller
         return View(model);
     }
 
+    [Route("Waitlist")]
+    public IActionResult Waitlist(int grantCycleId = 1)
+    {
+        try
+        {
+            var grantCycle = _grantService.GetGrantCycle(grantCycleId);
+
+            if (grantCycle == null)
+            {
+                return NotFound("Grant cycle not found");
+            }
+
+            var allApplications = _grantService.GetApplications();
+            var waitlistStudents = allApplications
+                .Where(a => a.GrantCycleId == grantCycleId)
+                .SelectMany(a => a.Students.Select(s => new { Application = a, Student = s }))
+                .Where(x => x.Student.Status == "WAITLIST")
+                .OrderBy(x => x.Student.WaitlistPosition)
+                .Select(x => new WaitlistStudentViewModel
+                {
+                    Position = x.Student.WaitlistPosition ?? 0,
+                    StudentId = x.Student.Id,
+                    StudentName = $"{x.Student.FirstName} {x.Student.LastName}",
+                    SEID = x.Student.SEID,
+                    IHEName = x.Application.IHE.Name,
+                    LEAName = x.Application.LEA.Name,
+                    CredentialArea = x.Student.CredentialArea,
+                    AwardAmount = x.Student.AwardAmount,
+                    WaitlistDate = x.Student.WaitlistDate ?? DateTime.Now,
+                    ApplicationId = x.Application.Id
+                })
+                .ToList();
+
+            var model = new WaitlistViewModel
+            {
+                GrantCycleId = grantCycleId,
+                GrantCycleName = grantCycle.Name,
+                WaitlistStudents = waitlistStudents,
+                TotalWaitlistAmount = waitlistStudents.Sum(s => s.AwardAmount),
+                WaitlistCount = waitlistStudents.Count
+            };
+
+            return View(model);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading Waitlist page");
+            return View("Error");
+        }
+    }
+
     [Route("Analytics")]
     public IActionResult Analytics(int grantCycleId = 1)
     {

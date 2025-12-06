@@ -129,6 +129,23 @@
                 </div>
             </a>
 
+            @* Waitlist *@
+            @if (statusCounts.Waitlist > 0)
+            {
+                <a href="@Url.Action("Applications", "IHEPortal", new { iheId = Model.IHEId, grantCycleId = Model.GrantCycleId, status = "WAITLIST" })" class="metric-card-link">
+                    <div class="metric-card metric-waitlist">
+                        <div class="metric-icon">
+                            <i class="mdi mdi-account-clock-outline"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-value">@statusCounts.Waitlist</div>
+                            <div class="metric-label">Waitlist</div>
+                            <div class="metric-description">Approved, awaiting funding</div>
+                        </div>
+                    </div>
+                </a>
+            }
+
             @* Approved *@
             <a href="@Url.Action("Applications", "IHEPortal", new { iheId = Model.IHEId, grantCycleId = Model.GrantCycleId, status = "APPROVED" })" class="metric-card-link">
                 <div class="metric-card metric-approved">
@@ -166,8 +183,10 @@
                 {
                     new { StudentName = "John Martinez", LEAPartner = "Los Angeles Unified School District", DOB = "05/12/1998", CredentialArea = "Multiple Subject", CountyCDS = "19", LEACDS = "64733", SchoolCDS = "1933021", Status = "APPROVED", LastModified = DateTime.Now.AddDays(-2) },
                     new { StudentName = "Emily Rodriguez", LEAPartner = "San Diego Unified School District", DOB = "08/24/1997", CredentialArea = "Single Subject - Mathematics", CountyCDS = "37", LEACDS = "68338", SchoolCDS = "3768338", Status = "PENDING", LastModified = DateTime.Now.AddDays(-4) },
+                    new { StudentName = "Emma Richardson", LEAPartner = "Los Angeles Unified School District", DOB = "06/18/1999", CredentialArea = "Single Subject - Science", CountyCDS = "19", LEACDS = "64733", SchoolCDS = "1933021", Status = "WAITLIST", LastModified = DateTime.Now.AddDays(-1) },
                     new { StudentName = "Michael Chen", LEAPartner = "Fresno Unified School District", DOB = "11/03/1999", CredentialArea = "Education Specialist", CountyCDS = "10", LEACDS = "62331", SchoolCDS = "1062331", Status = "PENDING", LastModified = DateTime.Now.AddDays(-6) },
                     new { StudentName = "Sarah Johnson", LEAPartner = "Sacramento City Unified School District", DOB = "03/15/2000", CredentialArea = "Single Subject - English", CountyCDS = "34", LEACDS = "67447", SchoolCDS = "3467447", Status = "UNDER_REVIEW", LastModified = DateTime.Now.AddDays(-3) },
+                    new { StudentName = "Carlos Mendez", LEAPartner = "Los Angeles Unified School District", DOB = "02/28/1998", CredentialArea = "Multiple Subject", CountyCDS = "19", LEACDS = "64733", SchoolCDS = "1933021", Status = "WAITLIST", LastModified = DateTime.Now.AddDays(-1) },
                     new { StudentName = "David Kim", LEAPartner = "Oakland Unified School District", DOB = "07/22/1998", CredentialArea = "Multiple Subject", CountyCDS = "01", LEACDS = "61259", SchoolCDS = "0161259", Status = "APPROVED", LastModified = DateTime.Now.AddDays(-10) }
                 };
             }

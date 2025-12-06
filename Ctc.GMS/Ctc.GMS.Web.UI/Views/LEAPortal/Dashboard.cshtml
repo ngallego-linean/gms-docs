@@ -98,6 +98,29 @@
                 </div>
             </a>
 
+            @* Waitlist *@
+            @{
+                // MOCK DATA: Waitlist count - approved candidates awaiting funding
+                var waitlistCount = 2;
+            }
+            @if (waitlistCount > 0)
+            {
+                <a href="@Url.Action("AllCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId, status = "WAITLIST" })" class="metric-card-link">
+                    <div class="metric-card metric-waitlist">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="width: 48px; height: 48px; background-color: var(--ctc-gold); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i class="mdi mdi-account-clock-outline" style="font-size: 24px; color: var(--white);"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 2rem; font-weight: bold; color: var(--ctc-gold);">@waitlistCount</div>
+                                <div style="color: var(--ctc-gold); font-size: 0.9rem; font-weight: 600;">Waitlist</div>
+                                <small style="color: var(--gray-500);">Approved, awaiting funding</small>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            }
+
             @* Approved *@
             <a href="@Url.Action("AllCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId, status = "APPROVED" })" class="metric-card-link">
                 <div class="metric-card">

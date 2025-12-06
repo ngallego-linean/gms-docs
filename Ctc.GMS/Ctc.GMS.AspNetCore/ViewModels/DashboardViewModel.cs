@@ -84,3 +84,26 @@ public class ActionItemViewModel
     public string Priority { get; set; } = string.Empty;
     public string AssignedTo { get; set; } = string.Empty;
 }
+
+public class WaitlistViewModel
+{
+    public int GrantCycleId { get; set; }
+    public string GrantCycleName { get; set; } = string.Empty;
+    public List<WaitlistStudentViewModel> WaitlistStudents { get; set; } = new();
+    public decimal TotalWaitlistAmount { get; set; }
+    public int WaitlistCount { get; set; }
+}
+
+public class WaitlistStudentViewModel
+{
+    public int Position { get; set; }
+    public int StudentId { get; set; }
+    public string StudentName { get; set; } = string.Empty;
+    public string SEID { get; set; } = string.Empty;
+    public string IHEName { get; set; } = string.Empty;
+    public string LEAName { get; set; } = string.Empty;
+    public string CredentialArea { get; set; } = string.Empty;
+    public decimal AwardAmount { get; set; }
+    public DateTime WaitlistDate { get; set; }
+    public int ApplicationId { get; set; }
+}
