@@ -299,3 +299,54 @@ public class InvoiceListViewModel
     public string GrantCycleName { get; set; } = string.Empty;
     public List<DisbursementGroupInvoiceViewModel> DisbursementGroups { get; set; } = new();
 }
+
+/// <summary>
+/// ViewModel for GAA document preview before DocuSign submission
+/// Based on CTC GAA template (11.25)
+/// </summary>
+public class GAAPreviewViewModel
+{
+    public int GroupId { get; set; }
+    public int GrantCycleId { get; set; }
+
+    // Header Information
+    [Display(Name = "Grantee Name")]
+    public string GranteeName { get; set; } = string.Empty;
+
+    [Display(Name = "Grant Number")]
+    public string GrantNumber { get; set; } = string.Empty;
+
+    [Display(Name = "Agreement Term")]
+    public string AgreementTerm { get; set; } = string.Empty;
+
+    public string AgreementTermStart { get; set; } = string.Empty;
+    public string AgreementTermEnd { get; set; } = string.Empty;
+
+    // Payment Information
+    [Display(Name = "Student Teacher Count")]
+    public int StudentTeacherCount { get; set; }
+
+    [Display(Name = "Original Amount")]
+    [DisplayFormat(DataFormatString = "{0:C2}")]
+    public decimal OriginalAmount { get; set; }
+
+    [Display(Name = "Submission Month")]
+    public string SubmissionMonth { get; set; } = string.Empty;
+
+    // Students (Attachment A)
+    public List<StudentGAAViewModel> Students { get; set; } = new();
+
+    // Signers
+    [Display(Name = "Grantee Authorized Representative")]
+    public string GranteeSignerName { get; set; } = string.Empty;
+
+    [Display(Name = "Grantee Signer Email")]
+    public string GranteeSignerEmail { get; set; } = string.Empty;
+
+    [Display(Name = "CTC Representative")]
+    public string CTCSignerName { get; set; } = "Commission on Teacher Credentialing";
+
+    // Computed Properties
+    public string FormattedAmount => OriginalAmount.ToString("C2");
+    public string FormattedStudentCount => $"{StudentTeacherCount} student teacher(s)";
+}

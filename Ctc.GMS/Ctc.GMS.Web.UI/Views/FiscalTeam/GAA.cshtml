@@ -57,8 +57,11 @@ else
                         </p>
                     </div>
                     <div class="card-actions">
+                        <a href="@Url.Action("GAAPreview", "FiscalTeam", new { groupId = group.Id })" class="r4-button r4-button-secondary" style="margin-right: 0.5rem;">
+                            <i class="mdi mdi-eye-outline"></i> Preview
+                        </a>
                         <button type="button" class="r4-button r4-button-primary" onclick="generateGroupGAAs(@group.Id, @group.StudentCount)">
-                            <i class="mdi mdi-file-document-outline"></i> Generate GAA
+                            <i class="mdi mdi-file-sign"></i> Send to DocuSign
                         </button>
                     </div>
                 </div>

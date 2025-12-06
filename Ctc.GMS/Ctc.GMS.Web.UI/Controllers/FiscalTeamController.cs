@@ -233,6 +233,81 @@ public class FiscalTeamController : Controller
         }
     }
 
+    [Route("GAAPreview/{groupId}")]
+    public IActionResult GAAPreview(int groupId, int grantCycleId = 1)
+    {
+        try
+        {
+            var grantCycle = _grantService.GetGrantCycle(grantCycleId);
+            if (grantCycle == null)
+            {
+                return NotFound("Grant cycle not found");
+            }
+
+            // Mock LEA names matching Dashboard mock data
+            var mockLEAs = new Dictionary<int, (string Name, string Address, string Contact, string Email)>
+            {
+                { 1, ("Fresno Unified School District", "2309 Tulare Street, Fresno, CA 93721", "Maria Santos", "msantos@fresnounified.org") },
+                { 2, ("Sacramento City Unified School District", "5735 47th Avenue, Sacramento, CA 95824", "James Wilson", "jwilson@scusd.edu") },
+                { 3, ("Oakland Unified School District", "1000 Broadway, Suite 150, Oakland, CA 94607", "Lisa Chen", "lchen@ousd.org") },
+                { 4, ("Los Angeles Unified School District", "333 South Beaudry Ave, Los Angeles, CA 90017", "Robert Martinez", "rmartinez@lausd.net") },
+                { 5, ("San Diego Unified School District", "4100 Normal Street, San Diego, CA 92103", "Patricia Johnson", "pjohnson@sandi.net") },
+                { 6, ("Long Beach Unified School District", "1515 Hughes Way, Long Beach, CA 90810", "Michael Brown", "mbrown@lbusd.k12.ca.us") }
+            };
+
+            var leaInfo = mockLEAs.GetValueOrDefault(groupId, ($"District {groupId}", "123 Main Street, Sacramento, CA 95814", "Contact Name", "contact@district.org"));
+
+            // Mock IHE diversification
+            var mockIHEs = new[] {
+                "San Diego State University",
+                "UC San Diego",
+                "Cal State San Marcos",
+                "Point Loma Nazarene University",
+                "University of San Diego",
+                "CSU Fullerton"
+            };
+
+            // Generate mock students for this group
+            var mockStudents = Enumerable.Range(1, 5 + (groupId % 3)).Select(i => new StudentGAAViewModel
+            {
+                StudentId = i,
+                StudentName = $"Student Teacher {i}",
+                SEID = $"SEID{groupId:D2}{i:D3}",
+                IHEName = mockIHEs[(i - 1) % mockIHEs.Length],
+                LEAName = leaInfo.Item1,
+                CredentialArea = i % 3 == 0 ? "Education Specialist" : (i % 2 == 0 ? "Multiple Subject" : "Single Subject"),
+                AwardAmount = 10000m,
+                ApprovedDate = DateTime.Now.AddDays(-7 - i)
+            }).ToList();
+
+            var fiscalYear = DateTime.Now.Month >= 7 ? DateTime.Now.Year : DateTime.Now.Year - 1;
+
+            var model = new GAAPreviewViewModel
+            {
+                GroupId = groupId,
+                GrantCycleId = grantCycleId,
+                GranteeName = leaInfo.Item1,
+                GrantNumber = $"STSP-{fiscalYear}-{fiscalYear + 1}-{groupId:D4}",
+                AgreementTerm = $"July 1, {fiscalYear} – June 30, {fiscalYear + 1}",
+                AgreementTermStart = $"July 1, {fiscalYear}",
+                AgreementTermEnd = $"June 30, {fiscalYear + 1}",
+                StudentTeacherCount = mockStudents.Count(),
+                OriginalAmount = mockStudents.Sum(s => s.AwardAmount),
+                SubmissionMonth = DateTime.Now.ToString("MMMM yyyy"),
+                Students = mockStudents,
+                GranteeSignerName = leaInfo.Item3,
+                GranteeSignerEmail = leaInfo.Item4
+            };
+
+            return View(model);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading GAA preview for group {GroupId}", groupId);
+            return View("Error");
+        }
+    }
+
     [HttpPost]
     [Route("SendGAA/{groupId}")]
     public async Task<IActionResult> SendGAA(int groupId, int grantCycleId = 1)

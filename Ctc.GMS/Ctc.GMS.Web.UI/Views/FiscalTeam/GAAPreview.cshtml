@@ -1,0 +1,544 @@
+@model GAAPreviewViewModel
+
+@{
+    ViewData["Title"] = "GAA Document Preview";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam")">Grants Team</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("GAA", "FiscalTeam")">Generate GAA</a></li>
+        <li class="breadcrumb-item active">Preview</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-file-document-outline"></i> Grant Award Agreement Preview</h2>
+    <p class="subtitle">Review before sending to DocuSign</p>
+</div>
+
+<div class="page-actions">
+    <a href="@Url.Action("GAA", "FiscalTeam")" class="r4-button r4-button-secondary">
+        <i class="mdi mdi-arrow-left"></i> Back to GAA List
+    </a>
+    <button type="button" class="r4-button r4-button-primary" onclick="sendToDocuSign()">
+        <i class="mdi mdi-file-sign"></i> Send to DocuSign
+    </button>
+    <button type="button" class="r4-button r4-button-secondary" onclick="window.print()">
+        <i class="mdi mdi-printer"></i> Print Preview
+    </button>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- GAA Document Preview -->
+        <div class="r4-card gaa-document" id="gaaDocument">
+            <div class="r4-card-body">
+                <!-- Document Header -->
+                <div class="gaa-header">
+                    <div class="gaa-logo">
+                        <img src="/images/ctc-logo.png" alt="CTC Logo" onerror="this.style.display='none'" />
+                        <div class="gaa-agency">Commission on Teacher Credentialing</div>
+                    </div>
+                    <h1 class="gaa-title">Student Teacher Stipend Program</h1>
+                    <h2 class="gaa-subtitle">Grant Award Agreement</h2>
+                </div>
+
+                <!-- Agreement Information -->
+                <div class="gaa-info-grid">
+                    <div class="gaa-info-row">
+                        <span class="gaa-label">Grantee Name:</span>
+                        <span class="gaa-value">@Model.GranteeName</span>
+                    </div>
+                    <div class="gaa-info-row">
+                        <span class="gaa-label">Grant Number:</span>
+                        <span class="gaa-value">@Model.GrantNumber</span>
+                    </div>
+                    <div class="gaa-info-row">
+                        <span class="gaa-label">Agreement Term:</span>
+                        <span class="gaa-value">@Model.AgreementTerm</span>
+                    </div>
+                </div>
+
+                <!-- Agreement Body -->
+                <div class="gaa-body">
+                    <p class="gaa-intro">
+                        THIS AGREEMENT is between <strong>@Model.GranteeName</strong> (Grantee) and the
+                        Commission on Teacher Credentialing (Commission) and is effective as of the date of
+                        the last signature. The Grantee agrees to implement the Student Teacher Stipend Program
+                        pursuant to Education Code Section 44400.01.
+                    </p>
+
+                    <!-- Definitions Section -->
+                    <div class="gaa-section">
+                        <h3>Definitions:</h3>
+                        <ul class="gaa-definitions">
+                            <li>The term <strong>"Grantee"</strong> refers to the local educational agency.</li>
+                            <li>The term <strong>"State"</strong> or <strong>"Commission"</strong> refers to the Commission on Teacher Credentialing.</li>
+                            <li>The term <strong>"Institutions of Higher Education"</strong> or <strong>"IHE"</strong> means a California postsecondary educational institution with a Commission-accredited educator preparation program.</li>
+                            <li>The term <strong>"Educator Preparation Program"</strong> or <strong>"EPP"</strong> means a program accredited by the Commission on Teacher Credentialing.</li>
+                            <li>The term <strong>"Prospective Educator"</strong> means a candidate enrolled in a program of professional preparation for preliminary multiple subject, single subject, education specialist, or PK-3 early childhood education specialist instruction credential accredited by the Commission on Teacher Credentialing.</li>
+                            <li>The term <strong>"Student Teaching"</strong> aligns to the clinical practice guidance by the Commission on Teacher Credentialing, and refers to time spent in the classroom with a cooperating or mentor teacher, and includes, but is not limited to coplanning, coteaching, guided teaching, and solo teaching. Service on an intern credential does not qualify for student teaching.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Payments Section -->
+                    <div class="gaa-section">
+                        <h3>Payments:</h3>
+                        <p>
+                            Grantee will support <strong>@Model.StudentTeacherCount student teacher(s)</strong> during the agreement
+                            term as listed in Attachment A. Commission will send the full amount of funding upon receipt of a
+                            signed and completed agreement.
+                        </p>
+                        <div class="gaa-payment-box">
+                            <div class="gaa-payment-row">
+                                <span class="gaa-payment-label">Original Amount:</span>
+                                <span class="gaa-payment-value">@Model.FormattedAmount</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Terms and Conditions -->
+                    <div class="gaa-section">
+                        <h3>Terms and Conditions:</h3>
+                        <ul class="gaa-terms">
+                            <li>Grantee will send funding to the student teacher. Grantee will not retain any funding for administrative overhead.</li>
+                            <li>Grantee will report in the Commission Grants Management System (GMS) within a timely manner. Grantee will work with the institution of higher education (IHE) for reporting.</li>
+                            <li>It is mutually agreed that if the Budget Act of the current year and/or any subsequent years covered under this Agreement does not appropriate sufficient funds for the program, this Agreement shall be of no further force and effect. In this event, the state shall have no liability to pay any funds to the Grantee, furnish any other consideration under this agreement, and the grantee shall not be obligated to perform any provisions of this Agreement.</li>
+                            <li>Record Keeping/Auditing: Grantee shall maintain records of all expenditures and shall make such records available for audit upon request.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Signature Section -->
+                    <div class="gaa-section gaa-signatures">
+                        <h3>Signers:</h3>
+                        <div class="gaa-signature-grid">
+                            <div class="gaa-signature-block">
+                                <div class="gaa-signature-line"></div>
+                                <div class="gaa-signature-title">Grantee Authorized Representative</div>
+                                <div class="gaa-signature-name">@Model.GranteeSignerName</div>
+                                <div class="gaa-signature-date">Date: _______________</div>
+                            </div>
+                            <div class="gaa-signature-block">
+                                <div class="gaa-signature-line"></div>
+                                <div class="gaa-signature-title">Commission on Teacher Credentialing</div>
+                                <div class="gaa-signature-date">Date: _______________</div>
+                            </div>
+                            <div class="gaa-signature-block">
+                                <div class="gaa-signature-line"></div>
+                                <div class="gaa-signature-title">Accounting Officer</div>
+                                <div class="gaa-signature-date">Date: _______________</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attachment A -->
+                <div class="gaa-attachment">
+                    <h3>Attachment A: Student Teachers</h3>
+                    <p class="gaa-attachment-subtitle">@Model.SubmissionMonth Submission</p>
+                    <table class="r4-table gaa-student-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Student Name</th>
+                                <th>SEID</th>
+                                <th>IHE Institution</th>
+                                <th>Credential Area</th>
+                                <th>Award Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (var i = 0; i < Model.Students.Count; i++)
+                            {
+                                var student = Model.Students[i];
+                                <tr>
+                                    <td>@(i + 1)</td>
+                                    <td>@student.StudentName</td>
+                                    <td>@student.SEID</td>
+                                    <td>@student.IHEName</td>
+                                    <td><span class="badge badge-primary">@student.CredentialArea</span></td>
+                                    <td><strong>@student.AwardAmount.ToString("C0")</strong></td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr class="gaa-total-row">
+                                <td colspan="5" style="text-align: right;"><strong>Total:</strong></td>
+                                <td><strong>@Model.FormattedAmount</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Summary Card -->
+        <div class="r4-card">
+            <div class="r4-card-header">
+                <h4><i class="mdi mdi-information-outline"></i> Agreement Summary</h4>
+            </div>
+            <div class="r4-card-body">
+                <div class="summary-item">
+                    <span class="summary-label">Grant Number</span>
+                    <span class="summary-value">@Model.GrantNumber</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Grantee</span>
+                    <span class="summary-value">@Model.GranteeName</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Agreement Term</span>
+                    <span class="summary-value">@Model.AgreementTerm</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Student Teachers</span>
+                    <span class="summary-value">@Model.StudentTeacherCount</span>
+                </div>
+                <div class="summary-item highlight">
+                    <span class="summary-label">Total Amount</span>
+                    <span class="summary-value">@Model.FormattedAmount</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Signer Information -->
+        <div class="r4-card">
+            <div class="r4-card-header">
+                <h4><i class="mdi mdi-account-edit-outline"></i> DocuSign Signer</h4>
+            </div>
+            <div class="r4-card-body">
+                <div class="form-group">
+                    <label class="form-label">Grantee Representative</label>
+                    <input type="text" class="form-control" id="signerName" value="@Model.GranteeSignerName" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-control" id="signerEmail" value="@Model.GranteeSignerEmail" />
+                </div>
+                <small class="text-muted">
+                    <i class="mdi mdi-information-outline"></i>
+                    The signer will receive an email from DocuSign to complete the signature.
+                </small>
+            </div>
+        </div>
+
+        <!-- Actions Card -->
+        <div class="r4-card">
+            <div class="r4-card-header">
+                <h4><i class="mdi mdi-send-outline"></i> Actions</h4>
+            </div>
+            <div class="r4-card-body">
+                <button type="button" class="r4-button r4-button-primary r4-button-block" onclick="sendToDocuSign()">
+                    <i class="mdi mdi-file-sign"></i> Send to DocuSign
+                </button>
+                <button type="button" class="r4-button r4-button-secondary r4-button-block" onclick="window.print()" style="margin-top: 0.5rem;">
+                    <i class="mdi mdi-printer"></i> Print Preview
+                </button>
+                <a href="@Url.Action("GAA", "FiscalTeam")" class="r4-button r4-button-outline r4-button-block" style="margin-top: 0.5rem;">
+                    <i class="mdi mdi-close"></i> Cancel
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function sendToDocuSign() {
+            const signerName = document.getElementById('signerName').value;
+            const signerEmail = document.getElementById('signerEmail').value;
+
+            if (!signerEmail || !signerEmail.includes('@@')) {
+                alert('Please enter a valid email address for the signer.');
+                return;
+            }
+
+            if (!confirm(`Send GAA to ${signerName} (${signerEmail}) for signature via DocuSign?`)) {
+                return;
+            }
+
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(btn => btn.disabled = true);
+
+            try {
+                const response = await fetch('/FiscalTeam/SendGAA/@Model.GroupId', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        signerName: signerName,
+                        signerEmail: signerEmail
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success && result.signingUrl) {
+                    window.open(result.signingUrl, '_blank');
+                    alert('GAA sent to DocuSign successfully! A signing link has been opened in a new tab.');
+                    window.location.href = '/FiscalTeam/GAA';
+                } else {
+                    throw new Error(result.error || 'Failed to send to DocuSign');
+                }
+            } catch (error) {
+                console.error('DocuSign error:', error);
+                alert('Error sending to DocuSign: ' + error.message);
+                buttons.forEach(btn => btn.disabled = false);
+            }
+        }
+    </script>
+
+    <style>
+        /* GAA Document Styling */
+        .gaa-document {
+            background: white;
+            max-width: 800px;
+        }
+
+        .gaa-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--ctc-blue);
+        }
+
+        .gaa-logo {
+            margin-bottom: 1rem;
+        }
+
+        .gaa-logo img {
+            max-height: 60px;
+        }
+
+        .gaa-agency {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--ctc-blue);
+            margin-top: 0.5rem;
+        }
+
+        .gaa-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--gray-900);
+            margin: 0.5rem 0;
+        }
+
+        .gaa-subtitle {
+            font-size: 1.2rem;
+            color: var(--gray-700);
+            margin: 0;
+        }
+
+        .gaa-info-grid {
+            background: var(--gray-50);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1.5rem;
+        }
+
+        .gaa-info-row {
+            display: flex;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .gaa-info-row:last-child {
+            border-bottom: none;
+        }
+
+        .gaa-label {
+            font-weight: 600;
+            width: 150px;
+            color: var(--gray-700);
+        }
+
+        .gaa-value {
+            flex: 1;
+            color: var(--gray-900);
+        }
+
+        .gaa-body {
+            line-height: 1.6;
+        }
+
+        .gaa-intro {
+            margin-bottom: 1.5rem;
+        }
+
+        .gaa-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .gaa-section h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--ctc-blue);
+            margin-bottom: 0.75rem;
+            border-bottom: 1px solid var(--gray-200);
+            padding-bottom: 0.25rem;
+        }
+
+        .gaa-definitions, .gaa-terms {
+            padding-left: 1.5rem;
+        }
+
+        .gaa-definitions li, .gaa-terms li {
+            margin-bottom: 0.75rem;
+        }
+
+        .gaa-payment-box {
+            background: var(--gray-50);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--ctc-blue);
+        }
+
+        .gaa-payment-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .gaa-payment-label {
+            font-weight: 600;
+        }
+
+        .gaa-payment-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--ctc-blue);
+        }
+
+        .gaa-signatures {
+            margin-top: 2rem;
+        }
+
+        .gaa-signature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .gaa-signature-block {
+            text-align: center;
+        }
+
+        .gaa-signature-line {
+            border-bottom: 1px solid var(--gray-900);
+            height: 40px;
+            margin-bottom: 0.5rem;
+        }
+
+        .gaa-signature-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .gaa-signature-name {
+            color: var(--gray-600);
+            font-size: 0.85rem;
+        }
+
+        .gaa-signature-date {
+            color: var(--gray-500);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        .gaa-attachment {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid var(--gray-300);
+        }
+
+        .gaa-attachment h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--ctc-blue);
+        }
+
+        .gaa-attachment-subtitle {
+            color: var(--gray-600);
+            margin-bottom: 1rem;
+        }
+
+        .gaa-student-table {
+            font-size: 0.9rem;
+        }
+
+        .gaa-total-row {
+            background: var(--gray-100);
+            font-weight: bold;
+        }
+
+        /* Summary Card Styling */
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            color: var(--gray-600);
+        }
+
+        .summary-value {
+            font-weight: 600;
+        }
+
+        .summary-item.highlight {
+            background: var(--ctc-blue-light);
+            margin: 0 -1rem;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md);
+        }
+
+        .summary-item.highlight .summary-value {
+            color: var(--ctc-blue);
+            font-size: 1.2rem;
+        }
+
+        .r4-button-block {
+            display: block;
+            width: 100%;
+        }
+
+        .r4-button-outline {
+            background: transparent;
+            border: 1px solid var(--gray-400);
+            color: var(--gray-700);
+        }
+
+        .r4-button-outline:hover {
+            background: var(--gray-100);
+        }
+
+        /* Print styles */
+        @@media print {
+            .page-header, .page-actions, .col-lg-4, .breadcrumb {
+                display: none !important;
+            }
+
+            .col-lg-8 {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            .gaa-document {
+                box-shadow: none !important;
+                border: none !important;
+            }
+        }
+    </style>
+}
