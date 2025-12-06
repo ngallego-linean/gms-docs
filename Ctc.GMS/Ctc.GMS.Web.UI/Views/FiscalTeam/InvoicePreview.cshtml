@@ -1,0 +1,479 @@
+@model InvoicePreviewViewModel
+
+@{
+    ViewData["Title"] = "Invoice Preview";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam")">Grants Team</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("Invoices", "FiscalTeam")">Invoice Generation</a></li>
+        <li class="breadcrumb-item active">Invoice Preview</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-file-document-outline"></i> Invoice Preview</h2>
+    <p class="subtitle">Review invoice before sending to accounting</p>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Invoice Document -->
+        <div class="r4-card invoice-document">
+            <div class="r4-card-body">
+                <!-- Invoice Header -->
+                <div class="invoice-header">
+                    <div class="invoice-title">INVOICE</div>
+                    <div class="invoice-meta">
+                        <div class="invoice-meta-row">
+                            <span class="label">Invoice Number:</span>
+                            <span class="value invoice-number">@Model.InvoiceNumber</span>
+                        </div>
+                        <div class="invoice-meta-row">
+                            <span class="label">Date:</span>
+                            <span class="value">@Model.FormattedInvoiceDate</span>
+                        </div>
+                        <div class="invoice-meta-row">
+                            <span class="label">PO Number:</span>
+                            <span class="value">@Model.PONumber</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- From / To Section -->
+                <div class="invoice-parties">
+                    <div class="invoice-from">
+                        <h4>FROM:</h4>
+                        <div class="party-name">@Model.GranteeName</div>
+                        <div class="party-address">@Model.GranteeAddress</div>
+                        <div class="party-address">@Model.GranteeCity, @Model.GranteeState @Model.GranteeZip</div>
+                    </div>
+                    <div class="invoice-to">
+                        <h4>TO:</h4>
+                        <div class="party-name">@Model.PayeeName</div>
+                        <div class="party-address">@Model.PayeeAddress</div>
+                        <div class="party-address">@Model.PayeeCityStateZip</div>
+                    </div>
+                </div>
+
+                <!-- Program Section -->
+                <div class="invoice-section">
+                    <h4>FOR:</h4>
+                    <div class="program-name">@Model.ProgramName</div>
+                    <div class="program-desc">@Model.ProgramDescription</div>
+                    <div class="grant-number">Grant Number: <strong>@Model.GrantNumber</strong></div>
+                </div>
+
+                <!-- Line Items Table -->
+                <div class="invoice-section">
+                    <h4>Description of Services</h4>
+                    <table class="invoice-table">
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th>Quantity</th>
+                                <th class="text-right">Unit Price</th>
+                                <th class="text-right">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Student Teacher Stipend Disbursements</td>
+                                <td>@Model.StudentCount students</td>
+                                <td class="text-right">$4,000.00</td>
+                                <td class="text-right">@Model.FormattedAmount</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr class="invoice-total-row">
+                                <td colspan="3" class="text-right"><strong>TOTAL:</strong></td>
+                                <td class="text-right invoice-total">@Model.FormattedAmount</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Account Information -->
+                <div class="invoice-section invoice-accounting">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="accounting-field">
+                                <span class="label">ENY:</span>
+                                <span class="value">@Model.ENY</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="accounting-field">
+                                <span class="label">Account Code:</span>
+                                <span class="value">@Model.AccountCode</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Terms -->
+                <div class="invoice-section invoice-terms">
+                    <h4>Payment Terms</h4>
+                    <p>@Model.PaymentTerms</p>
+                </div>
+
+                <!-- Student Detail (Attachment) -->
+                <div class="invoice-section invoice-attachment">
+                    <h4>Attachment: Student Detail</h4>
+                    <table class="invoice-student-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Student Name</th>
+                                <th>SEID</th>
+                                <th>Credential Area</th>
+                                <th class="text-right">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.Students.Count; i++)
+                            {
+                                var student = Model.Students[i];
+                                <tr>
+                                    <td>@(i + 1)</td>
+                                    <td>@student.StudentName</td>
+                                    <td>@student.SEID</td>
+                                    <td>@student.CredentialArea</td>
+                                    <td class="text-right">@student.AwardAmount.ToString("C0")</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr class="invoice-total-row">
+                                <td colspan="4" class="text-right"><strong>Total:</strong></td>
+                                <td class="text-right"><strong>@Model.FormattedAmount</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Summary Card -->
+        <div class="r4-card">
+            <div class="r4-card-header">
+                <h4><i class="mdi mdi-information-outline"></i> Invoice Summary</h4>
+            </div>
+            <div class="r4-card-body">
+                <div class="summary-item">
+                    <span class="summary-label">Invoice Number</span>
+                    <span class="summary-value">@Model.InvoiceNumber</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Grant Number</span>
+                    <span class="summary-value">@Model.GrantNumber</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Students</span>
+                    <span class="summary-value">@Model.StudentCount</span>
+                </div>
+                <div class="summary-item highlight">
+                    <span class="summary-label">Total Amount</span>
+                    <span class="summary-value">@Model.FormattedAmount</span>
+                </div>
+                <hr style="border-color: var(--gray-300); margin: 1rem 0;" />
+                <div class="summary-item">
+                    <span class="summary-label">Grantee</span>
+                    <span class="summary-value" style="font-size: 0.85rem;">@Model.GranteeName</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Invoice Date</span>
+                    <span class="summary-value">@Model.FormattedInvoiceDate</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions Card -->
+        <div class="r4-card">
+            <div class="r4-card-header">
+                <h4><i class="mdi mdi-send"></i> Actions</h4>
+            </div>
+            <div class="r4-card-body">
+                <button type="button" class="r4-button r4-button-primary r4-button-block" onclick="sendToAccounting()">
+                    <i class="mdi mdi-send"></i> Send to Accounting
+                </button>
+                <button type="button" class="r4-button r4-button-secondary r4-button-block" onclick="window.print()" style="margin-top: 0.5rem;">
+                    <i class="mdi mdi-printer"></i> Print Invoice
+                </button>
+                <a href="@Url.Action("Invoices", "FiscalTeam")" class="r4-button r4-button-outline r4-button-block" style="margin-top: 0.5rem;">
+                    <i class="mdi mdi-arrow-left"></i> Back to Invoice List
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function sendToAccounting() {
+            if (!confirm('Send this invoice to the Accounting department for payment processing?\n\nThis will mark the disbursement as "Payment in Process".')) {
+                return;
+            }
+
+            const button = event.target.closest('button');
+            const originalText = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Sending...';
+
+            // Mock: In production, this would POST to an endpoint
+            setTimeout(() => {
+                button.innerHTML = '<i class="mdi mdi-check"></i> Sent to Accounting';
+                button.classList.remove('r4-button-primary');
+                button.classList.add('r4-button-success');
+
+                // Show success message
+                alert('Invoice sent to Accounting successfully!\n\nDisbursement status updated to "Payment in Process".');
+            }, 1500);
+        }
+    </script>
+
+    <style>
+        /* Invoice Document Styling */
+        .invoice-document {
+            background: white;
+            border: 1px solid var(--gray-300);
+        }
+
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .invoice-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: 0.1em;
+        }
+
+        .invoice-meta {
+            text-align: right;
+        }
+
+        .invoice-meta-row {
+            margin-bottom: 0.25rem;
+        }
+
+        .invoice-meta-row .label {
+            color: var(--gray-600);
+            margin-right: 0.5rem;
+        }
+
+        .invoice-meta-row .value {
+            font-weight: 600;
+        }
+
+        .invoice-number {
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+
+        /* Parties Section */
+        .invoice-parties {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .invoice-from h4,
+        .invoice-to h4 {
+            font-size: 0.85rem;
+            color: var(--gray-500);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .party-name {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .party-address {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+
+        /* Invoice Sections */
+        .invoice-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .invoice-section h4 {
+            font-size: 0.85rem;
+            color: var(--gray-500);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .program-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .program-desc {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+
+        .grant-number {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* Invoice Table */
+        .invoice-table,
+        .invoice-student-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+        }
+
+        .invoice-table th,
+        .invoice-table td,
+        .invoice-student-table th,
+        .invoice-student-table td {
+            padding: 0.75rem;
+            border: 1px solid var(--gray-200);
+        }
+
+        .invoice-table th,
+        .invoice-student-table th {
+            background: var(--gray-100);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .invoice-total-row {
+            background: var(--gray-50);
+            font-weight: 600;
+        }
+
+        .invoice-total {
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        /* Accounting Section */
+        .invoice-accounting {
+            background: var(--gray-50);
+            padding: 1rem;
+            border-radius: 4px;
+        }
+
+        .accounting-field {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .accounting-field .label {
+            font-weight: 600;
+            color: var(--gray-600);
+        }
+
+        .accounting-field .value {
+            font-family: monospace;
+            font-size: 0.95rem;
+        }
+
+        /* Payment Terms */
+        .invoice-terms {
+            background: var(--info-light);
+            padding: 1rem;
+            border-radius: 4px;
+            border-left: 4px solid var(--info);
+        }
+
+        .invoice-terms p {
+            margin: 0;
+            color: var(--gray-700);
+        }
+
+        /* Attachment */
+        .invoice-attachment {
+            border-top: 1px dashed var(--gray-300);
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        /* Summary Card */
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+
+        .summary-value {
+            font-weight: 600;
+        }
+
+        .summary-item.highlight {
+            background: var(--primary-light);
+            margin: 0.5rem -1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 4px;
+        }
+
+        .summary-item.highlight .summary-value {
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        /* Print Styles */
+        @@media print {
+            .r4-card:not(.invoice-document),
+            .page-header,
+            .breadcrumb,
+            .col-lg-4 {
+                display: none !important;
+            }
+
+            .col-lg-8 {
+                width: 100% !important;
+                max-width: 100% !important;
+                flex: 0 0 100% !important;
+            }
+
+            .invoice-document {
+                border: none !important;
+                box-shadow: none !important;
+            }
+        }
+    </style>
+}

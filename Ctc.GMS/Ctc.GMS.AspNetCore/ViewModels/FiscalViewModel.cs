@@ -350,3 +350,71 @@ public class GAAPreviewViewModel
     public string FormattedAmount => OriginalAmount.ToString("C2");
     public string FormattedStudentCount => $"{StudentTeacherCount} student teacher(s)";
 }
+
+/// <summary>
+/// ViewModel for Invoice preview before sending to accounting
+/// Based on CTC Invoice template (11.25)
+/// </summary>
+public class InvoicePreviewViewModel
+{
+    public int GroupId { get; set; }
+    public int GrantCycleId { get; set; }
+
+    // Grantee (LEA) Information
+    [Display(Name = "Grantee Name")]
+    public string GranteeName { get; set; } = string.Empty;
+
+    [Display(Name = "Grantee Address")]
+    public string GranteeAddress { get; set; } = string.Empty;
+
+    public string GranteeCity { get; set; } = string.Empty;
+    public string GranteeState { get; set; } = "CA";
+    public string GranteeZip { get; set; } = string.Empty;
+
+    // Invoice Details
+    [Display(Name = "Invoice Number")]
+    public string InvoiceNumber { get; set; } = string.Empty;
+
+    [Display(Name = "Invoice Date")]
+    [DataType(DataType.Date)]
+    public DateTime InvoiceDate { get; set; } = DateTime.Now;
+
+    [Display(Name = "PO Number")]
+    public string PONumber { get; set; } = string.Empty;
+
+    [Display(Name = "Grant Number")]
+    public string GrantNumber { get; set; } = string.Empty;
+
+    // CTC (Payee) Information - Static
+    public string PayeeName => "Commission on Teacher Credentialing";
+    public string PayeeAddress => "651 Bannon Street, Suite 600";
+    public string PayeeCityStateZip => "Sacramento, CA 95811";
+
+    // Program Information
+    public string ProgramName => "Student Teacher Stipend Program";
+    public string ProgramDescription => "Grant disbursement for approved student teacher stipends";
+
+    // Financial Details
+    [Display(Name = "Total Amount")]
+    [DisplayFormat(DataFormatString = "{0:C2}")]
+    public decimal TotalAmount { get; set; }
+
+    public int StudentCount { get; set; }
+
+    [Display(Name = "ENY")]
+    public string ENY { get; set; } = "2025-26";
+
+    [Display(Name = "Account Code")]
+    public string AccountCode { get; set; } = "5310-001-0407";
+
+    // Students
+    public List<StudentGAAViewModel> Students { get; set; } = new();
+
+    // Payment Terms
+    public string PaymentTerms => "Payment is due within 45 days of invoice receipt.";
+
+    // Computed Properties
+    public string FormattedAmount => TotalAmount.ToString("C2");
+    public string FormattedAddress => $"{GranteeAddress}, {GranteeCity}, {GranteeState} {GranteeZip}";
+    public string FormattedInvoiceDate => InvoiceDate.ToString("MMMM d, yyyy");
+}

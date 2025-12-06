@@ -577,6 +577,60 @@ public class FiscalTeamController : Controller
         }
     }
 
+    [Route("InvoicePreview/{groupId}")]
+    public IActionResult InvoicePreview(int groupId, int grantCycleId = 1)
+    {
+        // Mock LEA data for invoice preview
+        var mockLEAs = new Dictionary<int, (string Name, string Address, string City, string Zip)>
+        {
+            { 1, ("Fresno Unified School District", "2309 Tulare Street", "Fresno", "93721") },
+            { 2, ("Sacramento City Unified School District", "5735 47th Avenue", "Sacramento", "95824") },
+            { 3, ("Los Angeles Unified School District", "333 S Beaudry Avenue", "Los Angeles", "90017") },
+            { 4, ("San Diego Unified School District", "4100 Normal Street", "San Diego", "92103") }
+        };
+
+        var leaInfo = mockLEAs.GetValueOrDefault(groupId, ("Unknown LEA", "123 Main Street", "Sacramento", "95814"));
+
+        // Mock student data
+        var mockStudents = new List<StudentGAAViewModel>();
+        var studentNames = new[] { "Emily Rodriguez", "James Chen", "Sarah Williams", "Michael Brown", "Jessica Lee", "David Martinez" };
+        var seids = new[] { "ST1234567", "ST2345678", "ST3456789", "ST4567890", "ST5678901", "ST6789012" };
+        var credentials = new[] { "Multiple Subject", "Single Subject - Math", "Education Specialist", "Single Subject - English", "Multiple Subject", "Single Subject - Science" };
+
+        var studentCount = groupId switch { 1 => 6, 2 => 4, 3 => 8, _ => 3 };
+        for (int i = 0; i < studentCount; i++)
+        {
+            mockStudents.Add(new StudentGAAViewModel
+            {
+                StudentId = i + 1,
+                StudentName = studentNames[i % studentNames.Length],
+                SEID = seids[i % seids.Length],
+                CredentialArea = credentials[i % credentials.Length],
+                AwardAmount = 4000m
+            });
+        }
+
+        var model = new InvoicePreviewViewModel
+        {
+            GroupId = groupId,
+            GrantCycleId = grantCycleId,
+            GranteeName = leaInfo.Item1,
+            GranteeAddress = leaInfo.Item2,
+            GranteeCity = leaInfo.Item3,
+            GranteeState = "CA",
+            GranteeZip = leaInfo.Item4,
+            InvoiceNumber = $"INV-STS-2025-{groupId:D3}",
+            InvoiceDate = DateTime.Now,
+            PONumber = $"PO-{DateTime.Now:yyyyMM}-{groupId:D3}",
+            GrantNumber = $"STS-2025-{groupId:D3}",
+            TotalAmount = mockStudents.Sum(s => s.AwardAmount),
+            StudentCount = mockStudents.Count,
+            Students = mockStudents
+        };
+
+        return View(model);
+    }
+
     private void RepopulateInvoiceModel(InvoiceGenerationViewModel model, int grantCycleId)
     {
         try
