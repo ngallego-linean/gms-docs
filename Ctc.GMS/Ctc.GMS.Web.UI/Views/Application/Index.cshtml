@@ -118,24 +118,21 @@
             </table>
         </div>
 
-        @* Pagination Controls - Only shown if more than 10 items *@
-        @if (Model.Applications.Count > 10)
-        {
-            <div class="pagination-controls" id="applicationsPagination" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
-                <div class="pagination-info">
-                    Showing <span id="showingStart">1</span>-<span id="showingEnd">10</span> of <span id="totalRecords">@Model.Applications.Count</span> applications
-                </div>
-                <div class="pagination-buttons" style="display: flex; gap: 0.5rem; align-items: center;">
-                    <button type="button" class="r4-button r4-button-sm" id="prevPage" onclick="changePage(-1)">
-                        <i class="mdi mdi-chevron-left"></i> Previous
-                    </button>
-                    <span style="padding: 0 0.75rem;">Page <span id="currentPage">1</span> of <span id="totalPages">1</span></span>
-                    <button type="button" class="r4-button r4-button-sm" id="nextPage" onclick="changePage(1)">
-                        Next <i class="mdi mdi-chevron-right"></i>
-                    </button>
-                </div>
+        @* Pagination Controls *@
+        <div class="pagination-controls" id="applicationsPagination" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
+            <div class="pagination-info">
+                Showing <span id="showingStart">1</span>-<span id="showingEnd">@Math.Min(10, Model.Applications.Count)</span> of <span id="totalRecords">@Model.Applications.Count</span> applications
             </div>
-        }
+            <div class="pagination-buttons" style="display: flex; gap: 0.5rem; align-items: center;">
+                <button type="button" class="r4-button r4-button-sm" id="prevPage" onclick="changePage(-1)">
+                    <i class="mdi mdi-chevron-left"></i> Previous
+                </button>
+                <span style="padding: 0 0.75rem;">Page <span id="currentPage">1</span> of <span id="totalPages">@Math.Max(1, (int)Math.Ceiling(Model.Applications.Count / 10.0))</span></span>
+                <button type="button" class="r4-button r4-button-sm" id="nextPage" onclick="changePage(1)">
+                    Next <i class="mdi mdi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
