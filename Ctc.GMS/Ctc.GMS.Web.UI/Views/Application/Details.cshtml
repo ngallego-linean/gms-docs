@@ -4,11 +4,12 @@
 @{
     ViewData["Title"] = "Submission Details";
 
-    var submissionCount = Model.Students.Count(s => GMS.Business.Helpers.StatusHelper.GetWorkflowStage(s.Status) == GMS.Business.Helpers.StatusHelper.WorkflowStage.Submission);
-    var reviewCount = Model.Students.Count(s => GMS.Business.Helpers.StatusHelper.GetWorkflowStage(s.Status) == GMS.Business.Helpers.StatusHelper.WorkflowStage.Review);
-    var disbursementCount = Model.Students.Count(s => GMS.Business.Helpers.StatusHelper.GetWorkflowStage(s.Status) == GMS.Business.Helpers.StatusHelper.WorkflowStage.Disbursement);
-    var reportingCount = Model.Students.Count(s => GMS.Business.Helpers.StatusHelper.GetWorkflowStage(s.Status) == GMS.Business.Helpers.StatusHelper.WorkflowStage.Reporting);
-    var totalStudents = Model.Students.Count;
+    // Get only pending students (in Review workflow stage) - matches the pending count calculation on Index page
+    var pendingStudents = Model.Students
+        .Where(s => GMS.Business.Helpers.StatusHelper.GetWorkflowStage(s.Status) == GMS.Business.Helpers.StatusHelper.WorkflowStage.Review)
+        .OrderBy(s => s.LastName)
+        .ToList();
+    var pendingCount = pendingStudents.Count;
 }
 
 @section Breadcrumbs {
@@ -55,26 +56,26 @@
                 <span class="info-value">@Model.LEA.Name</span>
             </div>
             <div class="info-item">
-                <span class="info-label">Total Students</span>
+                <span class="info-label">Pending Students</span>
                 <span class="info-value">
-                    <span class="badge badge-primary">@totalStudents Students</span>
+                    <span class="badge badge-warning">@pendingCount Pending</span>
                 </span>
             </div>
         </div>
     </div>
 </div>
 
-@* Student List *@
+@* Pending Students List *@
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-account-group-outline"></i> Students</h4>
+        <h4><i class="mdi mdi-account-group-outline"></i> Pending Students</h4>
     </div>
     <div class="r4-card-body">
-        @if (!Model.Students.Any())
+        @if (!pendingStudents.Any())
         {
-            <div class="alert alert-info">
-                <i class="mdi mdi-information-outline"></i>
-                No students have been added to this submission yet.
+            <div class="alert alert-success">
+                <i class="mdi mdi-check-circle-outline"></i>
+                No students are pending review. All students have been processed.
             </div>
         }
         else
@@ -109,23 +110,14 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var student in Model.Students.OrderByDescending(s => s.Status == "SUBMITTED").ThenBy(s => s.LastName))
+                    @foreach (var student in pendingStudents)
                     {
                         <tr>
                             <td>@student.SEID</td>
                             <td>@student.FirstName</td>
                             <td>@student.LastName</td>
                             <td>@student.CredentialArea</td>
-                            <td style="text-align: right;">
-                                @if (student.Status == "SUBMITTED" || student.Status == "UNDER_REVIEW")
-                                {
-                                    <span class="text-muted">Pending</span>
-                                }
-                                else
-                                {
-                                    <text>$10,000</text>
-                                }
-                            </td>
+                            <td style="text-align: right;">$@student.AwardAmount.ToString("N0")</td>
                         </tr>
                     }
                 </tbody>
@@ -135,7 +127,7 @@
             @* Pagination Controls *@
             <div class="pagination-controls" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
                 <div class="pagination-info">
-                    Showing <span id="showingStart">1</span>-<span id="showingEnd">10</span> of <span id="totalRecords">@Model.Students.Count</span> students
+                    Showing <span id="showingStart">1</span>-<span id="showingEnd">10</span> of <span id="totalRecords">@pendingCount</span> students
                 </div>
                 <div class="pagination-buttons" style="display: flex; gap: 0.5rem; align-items: center;">
                     <button type="button" class="r4-button r4-button-sm" id="prevPage" onclick="changePage(-1)">
