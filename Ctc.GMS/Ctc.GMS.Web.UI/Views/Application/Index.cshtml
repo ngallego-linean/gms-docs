@@ -66,6 +66,7 @@
                 <thead>
                     <tr>
                         <th>Submission Month</th>
+                        <th>IHE Institution</th>
                         <th>LEA District</th>
                         <th>Pending</th>
                         <th>Status</th>
@@ -76,7 +77,7 @@
                     @if (!Model.Applications.Any())
                     {
                         <tr>
-                            <td colspan="5" class="text-center">No applications found</td>
+                            <td colspan="6" class="text-center">No applications found</td>
                         </tr>
                     }
                     else
@@ -85,6 +86,7 @@
                         {
                             <tr>
                                 <td>@app.LastModified.ToString("MMMM yyyy")</td>
+                                <td>@app.IHEName</td>
                                 <td>@app.LEAName</td>
                                 <td>
                                     <span class="badge badge-warning badge-status">@app.PendingCount Pending</span>
