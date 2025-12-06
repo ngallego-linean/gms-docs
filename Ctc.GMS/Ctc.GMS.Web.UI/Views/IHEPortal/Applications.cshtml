@@ -16,6 +16,19 @@
     <p class="subtitle">@Model.GrantCycleName</p>
 </div>
 
+@* Fiscal Year Tabs for Archive *@
+<div class="r4-tabs" style="margin-bottom: 1.5rem;">
+    <button class="r4-tab active" data-year="current" onclick="filterByYear('current')">
+        <i class="mdi mdi-calendar-today"></i> FY 2025-26 (Current)
+    </button>
+    <button class="r4-tab" data-year="2024-25" onclick="filterByYear('2024-25')">
+        <i class="mdi mdi-archive-outline"></i> FY 2024-25
+    </button>
+    <button class="r4-tab" data-year="2023-24" onclick="filterByYear('2023-24')">
+        <i class="mdi mdi-archive-outline"></i> FY 2023-24
+    </button>
+</div>
+
 <div class="r4-card">
     <div class="r4-card-header">
         <h4><i class="mdi mdi-account-multiple-outline"></i> All Candidates</h4>
@@ -89,7 +102,6 @@
                             <th>LEA CDS</th>
                             <th>School CDS</th>
                             <th>Status</th>
-                            <th>Last Modified</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -112,7 +124,6 @@
                                     }
                                     <span class="@badgeClass badge-status">@displayText</span>
                                 </td>
-                                <td>@student.LastModified.ToString("MM/dd/yyyy")</td>
                             </tr>
                         }
                     </tbody>
@@ -245,5 +256,70 @@
                 showPage(newPage);
             }
         }
+
+        // Fiscal Year Tab Filtering
+        function filterByYear(year) {
+            // Update tab active state
+            document.querySelectorAll('.r4-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.getAttribute('data-year') === year) {
+                    tab.classList.add('active');
+                }
+            });
+
+            // Show message for archived years (mock behavior)
+            const card = document.querySelector('.r4-card');
+            const alertDiv = card.querySelector('.archive-alert');
+
+            if (year !== 'current') {
+                if (!alertDiv) {
+                    const alert = document.createElement('div');
+                    alert.className = 'alert alert-info archive-alert';
+                    alert.style.marginBottom = '1rem';
+                    alert.innerHTML = '<i class="mdi mdi-archive-outline"></i> Showing archived submissions from FY ' + year + '. These records are read-only.';
+                    card.querySelector('.r4-card-body').insertBefore(alert, card.querySelector('.r4-card-body').firstChild);
+                } else {
+                    alertDiv.innerHTML = '<i class="mdi mdi-archive-outline"></i> Showing archived submissions from FY ' + year + '. These records are read-only.';
+                }
+            } else if (alertDiv) {
+                alertDiv.remove();
+            }
+        }
     </script>
+
+    <style>
+        .r4-tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 2px solid var(--gray-200);
+            padding-bottom: 0;
+        }
+
+        .r4-tab {
+            padding: 0.75rem 1.25rem;
+            border: none;
+            background: transparent;
+            color: var(--gray-600);
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s ease;
+        }
+
+        .r4-tab:hover {
+            color: var(--ctc-blue);
+            background-color: var(--gray-50);
+        }
+
+        .r4-tab.active {
+            color: var(--ctc-blue);
+            border-bottom-color: var(--ctc-blue);
+            font-weight: 600;
+        }
+
+        .r4-tab i {
+            margin-right: 0.5rem;
+        }
+    </style>
 }

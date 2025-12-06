@@ -28,16 +28,16 @@
 
 @* Submission Method Tabs *@
 <div class="submission-tabs">
-    <button type="button" class="r4-button r4-button-primary" data-tab="manual" onclick="switchTab('manual')">
-        <i class="mdi mdi-account-edit-outline"></i> Manual Entry
-    </button>
-    <button type="button" class="r4-button" data-tab="bulk" onclick="switchTab('bulk')">
+    <button type="button" class="r4-button r4-button-primary" data-tab="bulk" onclick="switchTab('bulk')">
         <i class="mdi mdi-file-upload-outline"></i> Bulk Upload
+    </button>
+    <button type="button" class="r4-button" data-tab="manual" onclick="switchTab('manual')">
+        <i class="mdi mdi-account-edit-outline"></i> Manual Entry
     </button>
 </div>
 
 @* Manual Entry Tab Content *@
-<div class="tab-content" data-tab-content="manual">
+<div class="tab-content" data-tab-content="manual" style="display: none;">
     <form method="post" action="@Url.Action("ProcessSubmission", "IHEPortal")" id="candidateForm">
         <input type="hidden" name="IHEId" value="@Model.IHEId" />
         <input type="hidden" name="GrantCycleId" value="@Model.GrantCycleId" />
@@ -99,7 +99,7 @@
 </div>
 
 @* Bulk Upload Tab Content *@
-<div class="tab-content" data-tab-content="bulk" style="display: none;">
+<div class="tab-content" data-tab-content="bulk">
     <div class="r4-card">
         <div class="r4-card-header">
             <h4><i class="mdi mdi-file-upload-outline"></i> Upload Candidate File</h4>
