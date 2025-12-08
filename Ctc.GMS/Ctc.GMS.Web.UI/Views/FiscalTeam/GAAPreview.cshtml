@@ -7,8 +7,7 @@
 @section Breadcrumbs {
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam")">Grants Team</a></li>
-        <li class="breadcrumb-item"><a href="@Url.Action("GAA", "FiscalTeam")">Generate GAA</a></li>
-        <li class="breadcrumb-item active">Preview</li>
+        <li class="breadcrumb-item active">GAA Preview</li>
     </ol>
 }
 
@@ -18,8 +17,8 @@
 </div>
 
 <div class="page-actions">
-    <a href="@Url.Action("GAA", "FiscalTeam")" class="r4-button r4-button-secondary">
-        <i class="mdi mdi-arrow-left"></i> Back to GAA List
+    <a href="@Url.Action("Dashboard", "GrantsTeam")" class="r4-button r4-button-secondary">
+        <i class="mdi mdi-arrow-left"></i> Back to Dashboard
     </a>
     <button type="button" class="r4-button r4-button-primary" onclick="sendToDocuSign()">
         <i class="mdi mdi-file-sign"></i> Send to DocuSign
@@ -237,7 +236,7 @@
                 <button type="button" class="r4-button r4-button-secondary r4-button-block" onclick="window.print()" style="margin-top: 0.5rem;">
                     <i class="mdi mdi-printer"></i> Print Preview
                 </button>
-                <a href="@Url.Action("GAA", "FiscalTeam")" class="r4-button r4-button-outline r4-button-block" style="margin-top: 0.5rem;">
+                <a href="@Url.Action("Dashboard", "GrantsTeam")" class="r4-button r4-button-outline r4-button-block" style="margin-top: 0.5rem;">
                     <i class="mdi mdi-close"></i> Cancel
                 </a>
             </div>
@@ -280,7 +279,7 @@
                 if (result.success && result.signingUrl) {
                     window.open(result.signingUrl, '_blank');
                     alert('GAA sent to DocuSign successfully! A signing link has been opened in a new tab.');
-                    window.location.href = '/FiscalTeam/GAA';
+                    window.location.href = '/GrantsTeam/Dashboard';
                 } else {
                     throw new Error(result.error || 'Failed to send to DocuSign');
                 }

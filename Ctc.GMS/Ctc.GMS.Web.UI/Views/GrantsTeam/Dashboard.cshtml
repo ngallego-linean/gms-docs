@@ -175,23 +175,23 @@
                                     @if (group.State == "NEEDS_GAA")
                                     {
                                         <div style="width: 180px; display: block;">
-                                            <button type="button" class="r4-button r4-button-sm r4-button-primary" style="width: 100%;" onclick="generateGAA(this, @group.Id)">
+                                            <a href="@Url.Action("GAAPreview", "FiscalTeam", new { groupId = group.Id })" class="r4-button r4-button-sm r4-button-primary" style="width: 100%;">
                                                 <i class="mdi mdi-file-sign"></i> Generate GAA
-                                            </button>
+                                            </a>
                                         </div>
                                     }
                                     else if (group.State == "NEEDS_PO")
                                     {
                                         <div style="width: 180px; display: block;">
-                                            <a href="@Url.Action("UploadPO", "FiscalTeam", new { id = group.Id })" class="r4-button r4-button-sm r4-button-primary" style="width: 100%;">
+                                            <button type="button" class="r4-button r4-button-sm r4-button-primary" style="width: 100%;" onclick="alert('Purchase Order uploaded successfully! This is a prototype demonstration.');">
                                                 <i class="mdi mdi-cloud-upload-outline"></i> Upload PO
-                                            </a>
+                                            </button>
                                         </div>
                                     }
                                     else if (group.State == "NEEDS_INVOICE")
                                     {
                                         <div style="width: 180px; display: block;">
-                                            <a href="@Url.Action("DownloadInvoice", "FiscalTeam", new { id = group.Id })" class="r4-button r4-button-sm r4-button-primary" style="width: 100%;">
+                                            <a href="@Url.Action("InvoicePreview", "FiscalTeam", new { groupId = group.Id })" class="r4-button r4-button-sm r4-button-primary" style="width: 100%;">
                                                 <i class="mdi mdi-receipt-text-outline"></i> Generate Invoice
                                             </a>
                                         </div>
@@ -199,9 +199,9 @@
                                     else if (group.State == "NEEDS_WARRANT")
                                     {
                                         <div style="width: 180px; display: block;">
-                                            <a href="@Url.Action("UploadWarrant", "FiscalTeam", new { id = group.Id })" class="r4-button r4-button-sm r4-button-primary" style="width: 100%;">
+                                            <button type="button" class="r4-button r4-button-sm r4-button-primary" style="width: 100%;" onclick="alert('Warrant uploaded successfully! This is a prototype demonstration.');">
                                                 <i class="mdi mdi-check-decagram"></i> Upload Warrant
-                                            </a>
+                                            </button>
                                         </div>
                                     }
                                     else if (group.State == "COMPLETE")
@@ -344,39 +344,6 @@
 
 @section Scripts {
     <script>
-        // Generate GAA and send directly to DocuSign
-        async function generateGAA(button, groupId) {
-            const originalText = button.innerHTML;
-            button.disabled = true;
-            button.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Sending to DocuSign...';
-
-            try {
-                const response = await fetch(`/FiscalTeam/SendGAA/${groupId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                const result = await response.json();
-
-                if (result.success && result.signingUrl) {
-                    // Open DocuSign signing ceremony in new tab
-                    window.open(result.signingUrl, '_blank');
-                    button.innerHTML = '<i class="mdi mdi-check"></i> Sent to DocuSign';
-                    button.classList.remove('r4-button-primary');
-                    button.classList.add('r4-button-success');
-                } else {
-                    throw new Error(result.error || 'Failed to send to DocuSign');
-                }
-            } catch (error) {
-                console.error('DocuSign error:', error);
-                alert('Error sending to DocuSign: ' + error.message);
-                button.disabled = false;
-                button.innerHTML = originalText;
-            }
-        }
-
         // Toggle timeline sub-row visibility
         function toggleTimelineRow(groupId) {
             const timelineRow = document.getElementById('timeline-' + groupId);

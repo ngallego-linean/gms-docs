@@ -329,6 +329,9 @@ public class LEAPortalController : Controller
     {
         return detailedStatus switch
         {
+            // Waitlist - funding limited, waiting for availability
+            "WAITLIST" => "WAITLIST",
+
             // Under Review - still being processed
             "DRAFT" or "PENDING_LEA" or "SUBMITTED" or "LEA_REVIEW" or
             "CTC_SUBMITTED" or "CTC_REVIEWING" => "UNDER_REVIEW",

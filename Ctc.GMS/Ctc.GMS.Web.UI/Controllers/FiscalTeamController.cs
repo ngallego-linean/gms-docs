@@ -34,75 +34,6 @@ public class FiscalTeamController : Controller
         return RedirectToAction("Dashboard", "GrantsTeam", new { grantCycleId });
     }
 
-    [Route("GAA")]
-    public IActionResult GAA(int grantCycleId = 1)
-    {
-        try
-        {
-            var grantCycle = _grantService.GetGrantCycle(grantCycleId);
-
-            if (grantCycle == null)
-            {
-                return NotFound("Grant cycle not found");
-            }
-
-            var allApplications = _grantService.GetApplications();
-
-            // Group students by LEA and submission month (disbursement groups)
-            var disbursementGroups = allApplications
-                .Where(a => a.GrantCycleId == grantCycleId)
-                .SelectMany(a => a.Students.Select(s => new
-                {
-                    Application = a,
-                    Student = s
-                }))
-                .Where(x => x.Student.Status == "CTC_APPROVED")
-                .GroupBy(x => new
-                {
-                    LEA = x.Application.LEA.Name,
-                    Month = x.Student.SubmittedAt?.ToString("yyyy-MM") ?? DateTime.Now.ToString("yyyy-MM")
-                })
-                .Select((g, index) => new DisbursementGroupViewModel
-                {
-                    Id = index + 1,
-                    LEAName = g.Key.LEA,
-                    SubmissionMonth = g.Key.Month,
-                    StudentCount = g.Count(),
-                    TotalAmount = g.Sum(x => x.Student.AwardAmount),
-                    GAAStatus = "GAA_PENDING",
-                    Students = g.Select(x => new StudentGAAViewModel
-                    {
-                        StudentId = x.Student.Id,
-                        StudentName = $"{x.Student.FirstName} {x.Student.LastName}",
-                        SEID = x.Student.SEID,
-                        IHEName = x.Application.IHE.Name,
-                        LEAName = x.Application.LEA.Name,
-                        CredentialArea = x.Student.CredentialArea,
-                        AwardAmount = x.Student.AwardAmount,
-                        GAAStatus = x.Student.Status,
-                        ApprovedDate = x.Student.SubmittedAt
-                    }).ToList()
-                })
-                .OrderBy(g => g.LEAName)
-                .ThenBy(g => g.SubmissionMonth)
-                .ToList();
-
-            var model = new GAAListViewModel
-            {
-                GrantCycleId = grantCycleId,
-                GrantCycleName = grantCycle.Name,
-                DisbursementGroups = disbursementGroups
-            };
-
-            return View(model);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error loading GAA generation page");
-            return View("Error");
-        }
-    }
-
     [Route("GAAPreview/{groupId}")]
     public IActionResult GAAPreview(int groupId, int grantCycleId = 1)
     {
@@ -785,8 +716,10 @@ public class FiscalTeamController : Controller
             { 6, "Long Beach Unified School District" }
         };
 
-        ViewBag.GroupId = id;
+        ViewBag.Id = id;
         ViewBag.LEAName = leaNames.ContainsKey(id) ? leaNames[id] : "Unknown District";
+        ViewBag.Amount = 50000m; // Mock amount
+        ViewBag.StudentCount = 5; // Mock student count
 
         return View();
     }

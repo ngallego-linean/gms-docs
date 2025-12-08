@@ -16,19 +16,6 @@
     <p class="subtitle">@Model.GrantCycleName</p>
 </div>
 
-@* Fiscal Year Tabs for Archive *@
-<div class="r4-tabs" style="margin-bottom: 1.5rem;">
-    <button class="r4-tab active" data-year="current" onclick="filterByYear('current')">
-        <i class="mdi mdi-calendar-today"></i> FY 2025-26 (Current)
-    </button>
-    <button class="r4-tab" data-year="2024-25" onclick="filterByYear('2024-25')">
-        <i class="mdi mdi-archive-outline"></i> FY 2024-25
-    </button>
-    <button class="r4-tab" data-year="2023-24" onclick="filterByYear('2023-24')">
-        <i class="mdi mdi-archive-outline"></i> FY 2023-24
-    </button>
-</div>
-
 <div class="r4-card">
     <div class="r4-card-header">
         <h4><i class="mdi mdi-account-multiple-outline"></i> All Candidates</h4>
@@ -50,7 +37,9 @@
                 new { StudentName = "Christopher Brown", LEAPartner = "Los Angeles Unified School District", DOB = "06/09/1997", CredentialArea = "Single Subject - History", CountyCDS = "19", LEACDS = "64733", SchoolCDS = "1933067", Status = "PENDING", LastModified = DateTime.Now.AddDays(-17) },
                 new { StudentName = "Maria Garcia", LEAPartner = "Sacramento City Unified School District", DOB = "10/11/1999", CredentialArea = "Multiple Subject", CountyCDS = "34", LEACDS = "67439", SchoolCDS = "3467439", Status = "PENDING", LastModified = DateTime.Now.AddDays(-19) },
                 new { StudentName = "Daniel White", LEAPartner = "San Francisco Unified School District", DOB = "04/17/1996", CredentialArea = "Education Specialist", CountyCDS = "38", LEACDS = "68478", SchoolCDS = "3868512", Status = "APPROVED", LastModified = DateTime.Now.AddDays(-21) },
-                new { StudentName = "Jennifer Lopez", LEAPartner = "Oakland Unified School District", DOB = "08/30/1998", CredentialArea = "Single Subject - Mathematics", CountyCDS = "01", LEACDS = "61259", SchoolCDS = "0161287", Status = "UNDER_REVIEW", LastModified = DateTime.Now.AddDays(-23) }
+                new { StudentName = "Jennifer Lopez", LEAPartner = "Oakland Unified School District", DOB = "08/30/1998", CredentialArea = "Single Subject - Mathematics", CountyCDS = "01", LEACDS = "61259", SchoolCDS = "0161287", Status = "UNDER_REVIEW", LastModified = DateTime.Now.AddDays(-23) },
+                new { StudentName = "Emma Richardson", LEAPartner = "Los Angeles Unified School District", DOB = "06/18/1999", CredentialArea = "Single Subject - Science", CountyCDS = "19", LEACDS = "64733", SchoolCDS = "1933021", Status = "WAITLIST", LastModified = DateTime.Now.AddDays(-1) },
+                new { StudentName = "Carlos Mendez", LEAPartner = "San Diego Unified School District", DOB = "02/28/1998", CredentialArea = "Multiple Subject", CountyCDS = "37", LEACDS = "68338", SchoolCDS = "3768338", Status = "WAITLIST", LastModified = DateTime.Now.AddDays(-3) }
             };
         }
 
@@ -85,6 +74,7 @@
                         <option value="">All Statuses</option>
                         <option value="PENDING">Pending</option>
                         <option value="UNDER_REVIEW">Under Review</option>
+                        <option value="WAITLIST">Waitlist</option>
                         <option value="APPROVED">Approved</option>
                     </select>
                 </div>
@@ -257,69 +247,5 @@
             }
         }
 
-        // Fiscal Year Tab Filtering
-        function filterByYear(year) {
-            // Update tab active state
-            document.querySelectorAll('.r4-tab').forEach(tab => {
-                tab.classList.remove('active');
-                if (tab.getAttribute('data-year') === year) {
-                    tab.classList.add('active');
-                }
-            });
-
-            // Show message for archived years (mock behavior)
-            const card = document.querySelector('.r4-card');
-            const alertDiv = card.querySelector('.archive-alert');
-
-            if (year !== 'current') {
-                if (!alertDiv) {
-                    const alert = document.createElement('div');
-                    alert.className = 'alert alert-info archive-alert';
-                    alert.style.marginBottom = '1rem';
-                    alert.innerHTML = '<i class="mdi mdi-archive-outline"></i> Showing archived submissions from FY ' + year + '. These records are read-only.';
-                    card.querySelector('.r4-card-body').insertBefore(alert, card.querySelector('.r4-card-body').firstChild);
-                } else {
-                    alertDiv.innerHTML = '<i class="mdi mdi-archive-outline"></i> Showing archived submissions from FY ' + year + '. These records are read-only.';
-                }
-            } else if (alertDiv) {
-                alertDiv.remove();
-            }
-        }
     </script>
-
-    <style>
-        .r4-tabs {
-            display: flex;
-            gap: 0.5rem;
-            border-bottom: 2px solid var(--gray-200);
-            padding-bottom: 0;
-        }
-
-        .r4-tab {
-            padding: 0.75rem 1.25rem;
-            border: none;
-            background: transparent;
-            color: var(--gray-600);
-            font-weight: 500;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            margin-bottom: -2px;
-            transition: all 0.2s ease;
-        }
-
-        .r4-tab:hover {
-            color: var(--ctc-blue);
-            background-color: var(--gray-50);
-        }
-
-        .r4-tab.active {
-            color: var(--ctc-blue);
-            border-bottom-color: var(--ctc-blue);
-            font-weight: 600;
-        }
-
-        .r4-tab i {
-            margin-right: 0.5rem;
-        }
-    </style>
 }

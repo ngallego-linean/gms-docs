@@ -112,7 +112,7 @@
                             <td onclick="event.stopPropagation();">
                                 @if (group.State == "NEEDS_GAA")
                                 {
-                                    <a href="@Url.Action("GAA", "FiscalTeam", new { id = group.Id })" class="r4-button r4-button-sm r4-button-primary">
+                                    <a href="@Url.Action("GAAPreview", "FiscalTeam", new { groupId = group.Id })" class="r4-button r4-button-sm r4-button-primary">
                                         <i class="mdi mdi-file-sign"></i> Generate GAA
                                     </a>
                                 }
