@@ -231,6 +231,25 @@ public class IHEPortalController : Controller
         }
     }
 
+    [Route("Grants")]
+    public IActionResult Grants(int iheId = 1)
+    {
+        // Mock IHE names
+        var iheNames = new Dictionary<int, string>
+        {
+            { 1, "San Diego State University" },
+            { 2, "UC San Diego" },
+            { 3, "Cal State San Marcos" },
+            { 4, "Point Loma Nazarene University" },
+            { 5, "University of San Diego" }
+        };
+
+        ViewBag.IHEId = iheId;
+        ViewBag.IHEName = iheNames.ContainsKey(iheId) ? iheNames[iheId] : "Unknown Institution";
+
+        return View();
+    }
+
     [Route("Applications")]
     public IActionResult Applications(int iheId = 1, int grantCycleId = 1)
     {

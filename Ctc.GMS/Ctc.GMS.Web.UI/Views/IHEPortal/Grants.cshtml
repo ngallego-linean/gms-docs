@@ -1,0 +1,1024 @@
+@{
+    ViewData["Title"] = "Grant History";
+
+    var iheId = ViewBag.IHEId as int? ?? 1;
+    var iheName = ViewBag.IHEName as string ?? "San Diego State University";
+
+    // Pre-computed summary values
+    var totalLEAPartners = 3;
+    var totalCandidates = 55;
+    var totalFunded = 46;
+    var totalAwarded = 460000m;
+    var totalReportsDue = 3;
+    var totalReportsComplete = 43;
+    var credentialRate = 93;
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "IHEPortal")">IHE Portal</a></li>
+        <li class="breadcrumb-item active">Grant History</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-history"></i> Grant History</h2>
+    <p class="subtitle">@iheName - All Programs & Fiscal Years</p>
+</div>
+
+<!-- Summary Cards -->
+<div class="summary-cards">
+    <div class="summary-card">
+        <div class="summary-icon" style="background-color: var(--ctc-blue);">
+            <i class="mdi mdi-domain"></i>
+        </div>
+        <div class="summary-content">
+            <div class="summary-value">@totalLEAPartners</div>
+            <div class="summary-label">LEA Partners</div>
+        </div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-icon" style="background-color: var(--gray-600);">
+            <i class="mdi mdi-account-multiple"></i>
+        </div>
+        <div class="summary-content">
+            <div class="summary-value">@totalCandidates</div>
+            <div class="summary-label">Total Candidates</div>
+            <div class="summary-detail">@totalFunded funded</div>
+        </div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-icon" style="background-color: var(--ctc-green);">
+            <i class="mdi mdi-currency-usd"></i>
+        </div>
+        <div class="summary-content">
+            <div class="summary-value">@totalAwarded.ToString("C0")</div>
+            <div class="summary-label">Total Awarded</div>
+        </div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-icon" style="background-color: @(totalReportsDue > 0 ? "var(--ctc-gold)" : "var(--gray-400)");">
+            <i class="mdi mdi-file-document-outline"></i>
+        </div>
+        <div class="summary-content">
+            <div class="summary-value">@totalReportsDue</div>
+            <div class="summary-label">Reports Due</div>
+            <div class="summary-detail">@totalReportsComplete complete</div>
+        </div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-icon" style="background-color: var(--ctc-blue);">
+            <i class="mdi mdi-certificate"></i>
+        </div>
+        <div class="summary-content">
+            <div class="summary-value">@credentialRate%</div>
+            <div class="summary-label">Report Rate</div>
+        </div>
+    </div>
+</div>
+
+<!-- STSP Program -->
+<div class="r4-card program-card">
+    <div class="program-header" onclick="toggleProgram('stsp')">
+        <div class="program-info">
+            <h3>
+                <i class="mdi mdi-chevron-down program-chevron" id="chevron-program-stsp"></i>
+                Student Teacher Stipend Program (STSP)
+            </h3>
+            <span class="status-badge status-active">Active</span>
+        </div>
+        <div class="program-summary">
+            <span class="program-stat">
+                <i class="mdi mdi-calendar"></i> 3 years
+            </span>
+            <span class="program-stat">
+                <i class="mdi mdi-account-multiple"></i> 55 candidates
+            </span>
+            <span class="program-stat">
+                <i class="mdi mdi-currency-usd"></i> $460,000
+            </span>
+        </div>
+    </div>
+
+    <div class="program-content" id="program-content-stsp">
+        <!-- FY 2025-26 -->
+        <div class="fiscal-year-section">
+            <div class="fiscal-year-header" onclick="toggleFiscalYear('stsp', 'fy2526')">
+                <div class="fy-info">
+                    <h4>
+                        <i class="mdi mdi-chevron-down fy-chevron" id="chevron-fy-stsp-fy2526"></i>
+                        FY 2025-26
+                        <span class="current-year-badge">Current</span>
+                    </h4>
+                </div>
+                <div class="fy-summary">
+                    <span class="fy-stat">15 candidates</span>
+                    <span class="fy-stat">8 funded</span>
+                    <span class="fy-stat">$80,000</span>
+                    <span class="fy-stat fy-stat-alert">3 reports due</span>
+                </div>
+            </div>
+
+            <div class="fiscal-year-content" id="fy-content-stsp-fy2526">
+                <!-- San Diego Unified -->
+                <div class="lea-partner-section">
+                    <div class="lea-partner-header" onclick="toggleLEA('stsp', 'fy2526', 'sdusd')">
+                        <div class="lea-info">
+                            <h5>
+                                <i class="mdi mdi-chevron-right lea-chevron" id="chevron-lea-stsp-fy2526-sdusd"></i>
+                                <i class="mdi mdi-domain"></i>
+                                San Diego Unified School District
+                            </h5>
+                        </div>
+                        <div class="lea-summary">
+                            <span class="lea-stat">8 candidates</span>
+                            <span class="lea-stat lea-stat-funded">5 funded</span>
+                            <span class="lea-stat lea-stat-review">2 review</span>
+                            <span class="lea-stat lea-stat-pending">1 pending</span>
+                            <span class="lea-stat">$50,000</span>
+                        </div>
+                    </div>
+                    <div class="lea-content collapsed" id="lea-content-stsp-fy2526-sdusd">
+                        <table class="r4-table candidates-table">
+                            <thead>
+                                <tr>
+                                    <th>Candidate</th>
+                                    <th>Credential Area</th>
+                                    <th>Submitted</th>
+                                    <th>Status</th>
+                                    <th>Award</th>
+                                    <th>Report Status</th>
+                                    <th>Credential Earned</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Maria Garcia</strong></td>
+                                    <td>Multiple Subject</td>
+                                    <td>Oct 2025</td>
+                                    <td><span class="status-badge status-paid">Paid</span></td>
+                                    <td>$10,000</td>
+                                    <td><span class="report-status report-submitted">Submitted</span></td>
+                                    <td><span class="credential-status cred-yes">Yes</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>James Wilson</strong></td>
+                                    <td>Single Subject - Math</td>
+                                    <td>Oct 2025</td>
+                                    <td><span class="status-badge status-paid">Paid</span></td>
+                                    <td>$10,000</td>
+                                    <td><span class="report-status report-due">Due Dec 15</span></td>
+                                    <td><span class="credential-status cred-pending">Pending</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Sarah Chen</strong></td>
+                                    <td>Single Subject - Science</td>
+                                    <td>Sep 2025</td>
+                                    <td><span class="status-badge status-paid">Paid</span></td>
+                                    <td>$10,000</td>
+                                    <td><span class="report-status report-submitted">Submitted</span></td>
+                                    <td><span class="credential-status cred-yes">Yes</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Michael Brown</strong></td>
+                                    <td>Education Specialist</td>
+                                    <td>Sep 2025</td>
+                                    <td><span class="status-badge status-paid">Paid</span></td>
+                                    <td>$10,000</td>
+                                    <td><span class="report-status report-due">Due Dec 15</span></td>
+                                    <td><span class="credential-status cred-pending">Pending</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Emily Davis</strong></td>
+                                    <td>Multiple Subject</td>
+                                    <td>Aug 2025</td>
+                                    <td><span class="status-badge status-paid">Paid</span></td>
+                                    <td>$10,000</td>
+                                    <td><span class="report-status report-submitted">Submitted</span></td>
+                                    <td><span class="credential-status cred-yes">Yes</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Robert Martinez</strong></td>
+                                    <td>Single Subject - English</td>
+                                    <td>Nov 2025</td>
+                                    <td><span class="status-badge status-review">Under Review</span></td>
+                                    <td>--</td>
+                                    <td><span class="report-status report-na">--</span></td>
+                                    <td><span class="credential-status cred-na">--</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Jennifer Lee</strong></td>
+                                    <td>Single Subject - History</td>
+                                    <td>Nov 2025</td>
+                                    <td><span class="status-badge status-review">Under Review</span></td>
+                                    <td>--</td>
+                                    <td><span class="report-status report-na">--</span></td>
+                                    <td><span class="credential-status cred-na">--</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>David Thompson</strong></td>
+                                    <td>Education Specialist</td>
+                                    <td>Dec 2025</td>
+                                    <td><span class="status-badge status-pending">Pending</span></td>
+                                    <td>--</td>
+                                    <td><span class="report-status report-na">--</span></td>
+                                    <td><span class="credential-status cred-na">--</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Los Angeles Unified -->
+                <div class="lea-partner-section">
+                    <div class="lea-partner-header" onclick="toggleLEA('stsp', 'fy2526', 'lausd')">
+                        <div class="lea-info">
+                            <h5>
+                                <i class="mdi mdi-chevron-right lea-chevron" id="chevron-lea-stsp-fy2526-lausd"></i>
+                                <i class="mdi mdi-domain"></i>
+                                Los Angeles Unified School District
+                            </h5>
+                        </div>
+                        <div class="lea-summary">
+                            <span class="lea-stat">4 candidates</span>
+                            <span class="lea-stat lea-stat-funded">2 funded</span>
+                            <span class="lea-stat lea-stat-review">1 review</span>
+                            <span class="lea-stat lea-stat-pending">1 pending</span>
+                            <span class="lea-stat">$20,000</span>
+                        </div>
+                    </div>
+                    <div class="lea-content collapsed" id="lea-content-stsp-fy2526-lausd">
+                        <table class="r4-table candidates-table">
+                            <thead>
+                                <tr>
+                                    <th>Candidate</th>
+                                    <th>Credential Area</th>
+                                    <th>Submitted</th>
+                                    <th>Status</th>
+                                    <th>Award</th>
+                                    <th>Report Status</th>
+                                    <th>Credential Earned</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Amanda Johnson</strong></td>
+                                    <td>Multiple Subject</td>
+                                    <td>Oct 2025</td>
+                                    <td><span class="status-badge status-paid">Paid</span></td>
+                                    <td>$10,000</td>
+                                    <td><span class="report-status report-submitted">Submitted</span></td>
+                                    <td><span class="credential-status cred-yes">Yes</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Christopher White</strong></td>
+                                    <td>Single Subject - Math</td>
+                                    <td>Sep 2025</td>
+                                    <td><span class="status-badge status-paid">Paid</span></td>
+                                    <td>$10,000</td>
+                                    <td><span class="report-status report-due">Due Dec 15</span></td>
+                                    <td><span class="credential-status cred-pending">Pending</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Jessica Taylor</strong></td>
+                                    <td>Education Specialist</td>
+                                    <td>Dec 2025</td>
+                                    <td><span class="status-badge status-review">Under Review</span></td>
+                                    <td>--</td>
+                                    <td><span class="report-status report-na">--</span></td>
+                                    <td><span class="credential-status cred-na">--</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Daniel Harris</strong></td>
+                                    <td>Single Subject - Science</td>
+                                    <td>Dec 2025</td>
+                                    <td><span class="status-badge status-pending">Pending</span></td>
+                                    <td>--</td>
+                                    <td><span class="report-status report-na">--</span></td>
+                                    <td><span class="credential-status cred-na">--</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Fresno Unified -->
+                <div class="lea-partner-section">
+                    <div class="lea-partner-header" onclick="toggleLEA('stsp', 'fy2526', 'fusd')">
+                        <div class="lea-info">
+                            <h5>
+                                <i class="mdi mdi-chevron-right lea-chevron" id="chevron-lea-stsp-fy2526-fusd"></i>
+                                <i class="mdi mdi-domain"></i>
+                                Fresno Unified School District
+                            </h5>
+                        </div>
+                        <div class="lea-summary">
+                            <span class="lea-stat">3 candidates</span>
+                            <span class="lea-stat lea-stat-funded">1 funded</span>
+                            <span class="lea-stat lea-stat-pending">1 pending</span>
+                            <span class="lea-stat lea-stat-waitlist">1 waitlist</span>
+                            <span class="lea-stat">$10,000</span>
+                        </div>
+                    </div>
+                    <div class="lea-content collapsed" id="lea-content-stsp-fy2526-fusd">
+                        <table class="r4-table candidates-table">
+                            <thead>
+                                <tr>
+                                    <th>Candidate</th>
+                                    <th>Credential Area</th>
+                                    <th>Submitted</th>
+                                    <th>Status</th>
+                                    <th>Award</th>
+                                    <th>Report Status</th>
+                                    <th>Credential Earned</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Nicole Anderson</strong></td>
+                                    <td>Multiple Subject</td>
+                                    <td>Aug 2025</td>
+                                    <td><span class="status-badge status-paid">Paid</span></td>
+                                    <td>$10,000</td>
+                                    <td><span class="report-status report-submitted">Submitted</span></td>
+                                    <td><span class="credential-status cred-yes">Yes</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Kevin Moore</strong></td>
+                                    <td>Single Subject - English</td>
+                                    <td>Nov 2025</td>
+                                    <td><span class="status-badge status-waitlist">Waitlist</span></td>
+                                    <td>--</td>
+                                    <td><span class="report-status report-na">--</span></td>
+                                    <td><span class="credential-status cred-na">--</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Rachel Clark</strong></td>
+                                    <td>Education Specialist</td>
+                                    <td>Dec 2025</td>
+                                    <td><span class="status-badge status-pending">Pending</span></td>
+                                    <td>--</td>
+                                    <td><span class="report-status report-na">--</span></td>
+                                    <td><span class="credential-status cred-na">--</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FY 2024-25 -->
+        <div class="fiscal-year-section">
+            <div class="fiscal-year-header" onclick="toggleFiscalYear('stsp', 'fy2425')">
+                <div class="fy-info">
+                    <h4>
+                        <i class="mdi mdi-chevron-down fy-chevron collapsed" id="chevron-fy-stsp-fy2425"></i>
+                        FY 2024-25
+                    </h4>
+                </div>
+                <div class="fy-summary">
+                    <span class="fy-stat">22 candidates</span>
+                    <span class="fy-stat">20 funded</span>
+                    <span class="fy-stat">$200,000</span>
+                </div>
+            </div>
+
+            <div class="fiscal-year-content collapsed" id="fy-content-stsp-fy2425">
+                <!-- San Diego Unified -->
+                <div class="lea-partner-section">
+                    <div class="lea-partner-header" onclick="toggleLEA('stsp', 'fy2425', 'sdusd')">
+                        <div class="lea-info">
+                            <h5>
+                                <i class="mdi mdi-chevron-right lea-chevron" id="chevron-lea-stsp-fy2425-sdusd"></i>
+                                <i class="mdi mdi-domain"></i>
+                                San Diego Unified School District
+                            </h5>
+                        </div>
+                        <div class="lea-summary">
+                            <span class="lea-stat">12 candidates</span>
+                            <span class="lea-stat lea-stat-funded">11 funded</span>
+                            <span class="lea-stat lea-stat-waitlist">1 waitlist</span>
+                            <span class="lea-stat">$110,000</span>
+                        </div>
+                    </div>
+                    <div class="lea-content collapsed" id="lea-content-stsp-fy2425-sdusd">
+                        <table class="r4-table candidates-table">
+                            <thead>
+                                <tr>
+                                    <th>Candidate</th>
+                                    <th>Credential Area</th>
+                                    <th>Submitted</th>
+                                    <th>Status</th>
+                                    <th>Award</th>
+                                    <th>Report Status</th>
+                                    <th>Credential Earned</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Thomas Robinson</strong></td>
+                                    <td>Multiple Subject</td>
+                                    <td>Oct 2024</td>
+                                    <td><span class="status-badge status-paid">Paid</span></td>
+                                    <td>$10,000</td>
+                                    <td><span class="report-status report-approved">Approved</span></td>
+                                    <td><span class="credential-status cred-yes">Yes</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Laura King</strong></td>
+                                    <td>Single Subject - Math</td>
+                                    <td>Oct 2024</td>
+                                    <td><span class="status-badge status-paid">Paid</span></td>
+                                    <td>$10,000</td>
+                                    <td><span class="report-status report-approved">Approved</span></td>
+                                    <td><span class="credential-status cred-yes">Yes</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Steven Wright</strong></td>
+                                    <td>Single Subject - Science</td>
+                                    <td>Sep 2024</td>
+                                    <td><span class="status-badge status-paid">Paid</span></td>
+                                    <td>$10,000</td>
+                                    <td><span class="report-status report-approved">Approved</span></td>
+                                    <td><span class="credential-status cred-yes">Yes</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Michelle Lopez</strong></td>
+                                    <td>Education Specialist</td>
+                                    <td>Sep 2024</td>
+                                    <td><span class="status-badge status-paid">Paid</span></td>
+                                    <td>$10,000</td>
+                                    <td><span class="report-status report-approved">Approved</span></td>
+                                    <td><span class="credential-status cred-yes">Yes</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Brian Hill</strong></td>
+                                    <td>Multiple Subject</td>
+                                    <td>Aug 2024</td>
+                                    <td><span class="status-badge status-paid">Paid</span></td>
+                                    <td>$10,000</td>
+                                    <td><span class="report-status report-approved">Approved</span></td>
+                                    <td><span class="credential-status cred-no">No</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Los Angeles Unified -->
+                <div class="lea-partner-section">
+                    <div class="lea-partner-header" onclick="toggleLEA('stsp', 'fy2425', 'lausd')">
+                        <div class="lea-info">
+                            <h5>
+                                <i class="mdi mdi-chevron-right lea-chevron" id="chevron-lea-stsp-fy2425-lausd"></i>
+                                <i class="mdi mdi-domain"></i>
+                                Los Angeles Unified School District
+                            </h5>
+                        </div>
+                        <div class="lea-summary">
+                            <span class="lea-stat">10 candidates</span>
+                            <span class="lea-stat lea-stat-funded">9 funded</span>
+                            <span class="lea-stat lea-stat-waitlist">1 waitlist</span>
+                            <span class="lea-stat">$90,000</span>
+                        </div>
+                    </div>
+                    <div class="lea-content collapsed" id="lea-content-stsp-fy2425-lausd">
+                        <table class="r4-table candidates-table">
+                            <thead>
+                                <tr>
+                                    <th>Candidate</th>
+                                    <th>Credential Area</th>
+                                    <th>Submitted</th>
+                                    <th>Status</th>
+                                    <th>Award</th>
+                                    <th>Report Status</th>
+                                    <th>Credential Earned</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Patricia Young</strong></td>
+                                    <td>Multiple Subject</td>
+                                    <td>Nov 2024</td>
+                                    <td><span class="status-badge status-paid">Paid</span></td>
+                                    <td>$10,000</td>
+                                    <td><span class="report-status report-approved">Approved</span></td>
+                                    <td><span class="credential-status cred-yes">Yes</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>George Allen</strong></td>
+                                    <td>Single Subject - English</td>
+                                    <td>Oct 2024</td>
+                                    <td><span class="status-badge status-paid">Paid</span></td>
+                                    <td>$10,000</td>
+                                    <td><span class="report-status report-approved">Approved</span></td>
+                                    <td><span class="credential-status cred-yes">Yes</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Sandra Scott</strong></td>
+                                    <td>Education Specialist</td>
+                                    <td>Sep 2024</td>
+                                    <td><span class="status-badge status-paid">Paid</span></td>
+                                    <td>$10,000</td>
+                                    <td><span class="report-status report-approved">Approved</span></td>
+                                    <td><span class="credential-status cred-yes">Yes</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FY 2023-24 -->
+        <div class="fiscal-year-section">
+            <div class="fiscal-year-header" onclick="toggleFiscalYear('stsp', 'fy2324')">
+                <div class="fy-info">
+                    <h4>
+                        <i class="mdi mdi-chevron-down fy-chevron collapsed" id="chevron-fy-stsp-fy2324"></i>
+                        FY 2023-24
+                    </h4>
+                </div>
+                <div class="fy-summary">
+                    <span class="fy-stat">18 candidates</span>
+                    <span class="fy-stat">18 funded</span>
+                    <span class="fy-stat">$180,000</span>
+                </div>
+            </div>
+
+            <div class="fiscal-year-content collapsed" id="fy-content-stsp-fy2324">
+                <!-- San Diego Unified -->
+                <div class="lea-partner-section">
+                    <div class="lea-partner-header" onclick="toggleLEA('stsp', 'fy2324', 'sdusd')">
+                        <div class="lea-info">
+                            <h5>
+                                <i class="mdi mdi-chevron-right lea-chevron" id="chevron-lea-stsp-fy2324-sdusd"></i>
+                                <i class="mdi mdi-domain"></i>
+                                San Diego Unified School District
+                            </h5>
+                        </div>
+                        <div class="lea-summary">
+                            <span class="lea-stat">10 candidates</span>
+                            <span class="lea-stat lea-stat-funded">10 funded</span>
+                            <span class="lea-stat">$100,000</span>
+                        </div>
+                    </div>
+                    <div class="lea-content collapsed" id="lea-content-stsp-fy2324-sdusd">
+                        <table class="r4-table candidates-table">
+                            <thead>
+                                <tr>
+                                    <th>Candidate</th>
+                                    <th>Credential Area</th>
+                                    <th>Submitted</th>
+                                    <th>Status</th>
+                                    <th>Award</th>
+                                    <th>Report Status</th>
+                                    <th>Credential Earned</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>William Turner</strong></td>
+                                    <td>Multiple Subject</td>
+                                    <td>Oct 2023</td>
+                                    <td><span class="status-badge status-paid">Paid</span></td>
+                                    <td>$10,000</td>
+                                    <td><span class="report-status report-approved">Approved</span></td>
+                                    <td><span class="credential-status cred-yes">Yes</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Elizabeth Baker</strong></td>
+                                    <td>Single Subject - Math</td>
+                                    <td>Oct 2023</td>
+                                    <td><span class="status-badge status-paid">Paid</span></td>
+                                    <td>$10,000</td>
+                                    <td><span class="report-status report-approved">Approved</span></td>
+                                    <td><span class="credential-status cred-yes">Yes</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Richard Green</strong></td>
+                                    <td>Single Subject - Science</td>
+                                    <td>Sep 2023</td>
+                                    <td><span class="status-badge status-paid">Paid</span></td>
+                                    <td>$10,000</td>
+                                    <td><span class="report-status report-approved">Approved</span></td>
+                                    <td><span class="credential-status cred-yes">Yes</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Los Angeles Unified -->
+                <div class="lea-partner-section">
+                    <div class="lea-partner-header" onclick="toggleLEA('stsp', 'fy2324', 'lausd')">
+                        <div class="lea-info">
+                            <h5>
+                                <i class="mdi mdi-chevron-right lea-chevron" id="chevron-lea-stsp-fy2324-lausd"></i>
+                                <i class="mdi mdi-domain"></i>
+                                Los Angeles Unified School District
+                            </h5>
+                        </div>
+                        <div class="lea-summary">
+                            <span class="lea-stat">8 candidates</span>
+                            <span class="lea-stat lea-stat-funded">8 funded</span>
+                            <span class="lea-stat">$80,000</span>
+                        </div>
+                    </div>
+                    <div class="lea-content collapsed" id="lea-content-stsp-fy2324-lausd">
+                        <table class="r4-table candidates-table">
+                            <thead>
+                                <tr>
+                                    <th>Candidate</th>
+                                    <th>Credential Area</th>
+                                    <th>Submitted</th>
+                                    <th>Status</th>
+                                    <th>Award</th>
+                                    <th>Report Status</th>
+                                    <th>Credential Earned</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Susan Adams</strong></td>
+                                    <td>Education Specialist</td>
+                                    <td>Nov 2023</td>
+                                    <td><span class="status-badge status-paid">Paid</span></td>
+                                    <td>$10,000</td>
+                                    <td><span class="report-status report-approved">Approved</span></td>
+                                    <td><span class="credential-status cred-yes">Yes</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Joseph Nelson</strong></td>
+                                    <td>Multiple Subject</td>
+                                    <td>Oct 2023</td>
+                                    <td><span class="status-badge status-paid">Paid</span></td>
+                                    <td>$10,000</td>
+                                    <td><span class="report-status report-approved">Approved</span></td>
+                                    <td><span class="credential-status cred-yes">Yes</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .summary-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .summary-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 8px;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .summary-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .summary-icon i {
+        font-size: 24px;
+        color: var(--white);
+    }
+
+    .summary-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--gray-900);
+    }
+
+    .summary-label {
+        font-size: 0.85rem;
+        color: var(--gray-600);
+        font-weight: 500;
+    }
+
+    .summary-detail {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+    }
+
+    .program-card {
+        margin-bottom: 1rem;
+    }
+
+    .program-header {
+        padding: 1rem 1.25rem;
+        background: var(--gray-50);
+        border-bottom: 1px solid var(--gray-200);
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .program-header:hover {
+        background: var(--gray-100);
+    }
+
+    .program-info h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .program-chevron, .fy-chevron, .lea-chevron {
+        transition: transform 0.2s;
+        color: var(--gray-500);
+    }
+
+    .program-chevron.collapsed, .fy-chevron.collapsed {
+        transform: rotate(-90deg);
+    }
+
+    .lea-chevron.expanded {
+        transform: rotate(90deg);
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .status-active {
+        background: var(--ctc-green);
+        color: var(--white);
+    }
+
+    .status-paid {
+        background: var(--ctc-green);
+        color: var(--white);
+    }
+
+    .status-approved {
+        background: var(--ctc-blue);
+        color: var(--white);
+    }
+
+    .status-review {
+        background: var(--gray-500);
+        color: var(--white);
+    }
+
+    .status-pending {
+        background: var(--gray-400);
+        color: var(--white);
+    }
+
+    .status-waitlist {
+        background: var(--ctc-gold);
+        color: var(--white);
+    }
+
+    .program-summary, .fy-summary, .lea-summary {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .program-stat, .fy-stat, .lea-stat {
+        font-size: 0.85rem;
+        color: var(--gray-600);
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .fy-stat-alert {
+        color: var(--ctc-gold);
+        font-weight: 600;
+    }
+
+    .lea-stat-funded {
+        color: var(--ctc-green);
+        font-weight: 500;
+    }
+
+    .lea-stat-review {
+        color: var(--gray-600);
+    }
+
+    .lea-stat-pending {
+        color: var(--gray-500);
+    }
+
+    .lea-stat-waitlist {
+        color: var(--ctc-gold);
+    }
+
+    .program-content {
+        padding: 0;
+    }
+
+    .program-content.collapsed {
+        display: none;
+    }
+
+    .fiscal-year-section {
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .fiscal-year-section:last-child {
+        border-bottom: none;
+    }
+
+    .fiscal-year-header {
+        padding: 0.75rem 1.25rem;
+        background: var(--white);
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .fiscal-year-header:hover {
+        background: var(--gray-50);
+    }
+
+    .fy-info h4 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .current-year-badge {
+        background: var(--ctc-blue);
+        color: var(--white);
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .fiscal-year-content {
+        padding: 0 1.25rem 1rem;
+    }
+
+    .fiscal-year-content.collapsed {
+        display: none;
+    }
+
+    .lea-partner-section {
+        background: var(--gray-50);
+        border: 1px solid var(--gray-200);
+        border-radius: 6px;
+        margin-bottom: 0.75rem;
+    }
+
+    .lea-partner-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .lea-partner-header {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .lea-partner-header:hover {
+        background: var(--gray-100);
+        border-radius: 6px;
+    }
+
+    .lea-info h5 {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .lea-info h5 .mdi-domain {
+        color: var(--ctc-blue);
+    }
+
+    .lea-content {
+        padding: 0 1rem 1rem;
+    }
+
+    .lea-content.collapsed {
+        display: none;
+    }
+
+    .candidates-table {
+        font-size: 0.9rem;
+    }
+
+    .candidates-table th {
+        background: var(--white);
+        font-weight: 600;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .candidates-table td {
+        padding: 0.5rem 0.75rem;
+        vertical-align: middle;
+    }
+
+    .report-status {
+        font-size: 0.8rem;
+    }
+
+    .report-submitted {
+        color: var(--ctc-green);
+        font-weight: 500;
+    }
+
+    .report-approved {
+        color: var(--ctc-blue);
+        font-weight: 500;
+    }
+
+    .report-due {
+        color: var(--ctc-gold);
+        font-weight: 600;
+    }
+
+    .report-na {
+        color: var(--gray-400);
+    }
+
+    .credential-status {
+        font-size: 0.8rem;
+    }
+
+    .cred-yes {
+        color: var(--ctc-green);
+        font-weight: 500;
+    }
+
+    .cred-no {
+        color: var(--ctc-red);
+        font-weight: 500;
+    }
+
+    .cred-pending {
+        color: var(--ctc-gold);
+    }
+
+    .cred-na {
+        color: var(--gray-400);
+    }
+</style>
+
+<script>
+    function toggleProgram(programId) {
+        const content = document.getElementById(`program-content-${programId}`);
+        const chevron = document.getElementById(`chevron-program-${programId}`);
+
+        content.classList.toggle('collapsed');
+        chevron.classList.toggle('collapsed');
+    }
+
+    function toggleFiscalYear(programId, fyId) {
+        const content = document.getElementById(`fy-content-${programId}-${fyId}`);
+        const chevron = document.getElementById(`chevron-fy-${programId}-${fyId}`);
+
+        content.classList.toggle('collapsed');
+        chevron.classList.toggle('collapsed');
+    }
+
+    function toggleLEA(programId, fyId, leaId) {
+        const content = document.getElementById(`lea-content-${programId}-${fyId}-${leaId}`);
+        const chevron = document.getElementById(`chevron-lea-${programId}-${fyId}-${leaId}`);
+
+        content.classList.toggle('collapsed');
+        chevron.classList.toggle('expanded');
+    }
+</script>
