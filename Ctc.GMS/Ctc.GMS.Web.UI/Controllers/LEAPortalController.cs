@@ -324,6 +324,26 @@ public class LEAPortalController : Controller
         }
     }
 
+    [Route("Grants")]
+    public IActionResult Grants(int leaId = 5)
+    {
+        // Mock LEA names
+        var leaNames = new Dictionary<int, string>
+        {
+            { 1, "Fresno Unified School District" },
+            { 2, "Sacramento City Unified School District" },
+            { 3, "Oakland Unified School District" },
+            { 4, "Los Angeles Unified School District" },
+            { 5, "San Diego Unified School District" },
+            { 6, "Long Beach Unified School District" }
+        };
+
+        ViewBag.LEAId = leaId;
+        ViewBag.LEAName = leaNames.ContainsKey(leaId) ? leaNames[leaId] : "Unknown District";
+
+        return View();
+    }
+
     // Maps detailed workflow statuses to simplified LEA view statuses
     private string MapToLEAStatus(string detailedStatus)
     {

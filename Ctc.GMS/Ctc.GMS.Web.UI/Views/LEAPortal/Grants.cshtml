@@ -1,0 +1,779 @@
+@{
+    ViewData["Title"] = "Grant Management";
+
+    var leaId = ViewBag.LEAId as int? ?? 1;
+    var leaName = ViewBag.LEAName as string ?? "San Diego Unified School District";
+
+    // Mock data for grant programs
+    var grantPrograms = new[] {
+        new {
+            Id = 1,
+            Name = "Student Teacher Stipend Program (STSP)",
+            ShortName = "STSP",
+            IsActive = true,
+            FiscalYears = new[] {
+                new {
+                    Year = "FY 2025-26",
+                    IsCurrent = true,
+                    TotalAwarded = 160000m,
+                    TotalPaid = 70000m,
+                    Submissions = new[] {
+                        new {
+                            Id = 1,
+                            Month = "November 2025",
+                            IHECount = 2,
+                            CandidateCount = 8,
+                            PendingCount = 3,
+                            ApprovedCount = 5,
+                            PaidCount = 0,
+                            WaitlistCount = 0,
+                            AwardAmount = 80000m,
+                            PaidAmount = 0m,
+                            Stage = "UNDER_REVIEW",
+                            StageName = "Under CTC Review",
+                            SubmittedDate = DateTime.Now.AddDays(-5),
+                            IHEs = new[] {
+                                new { Name = "San Diego State University", Candidates = 5, Status = "3 Pending, 2 Under Review", Amount = 50000m },
+                                new { Name = "UC San Diego", Candidates = 3, Status = "3 Under Review", Amount = 30000m }
+                            },
+                            Timeline = new[] {
+                                new { Step = "Submitted to CTC", Date = (DateTime?)DateTime.Now.AddDays(-5), IsComplete = true },
+                                new { Step = "CTC Review", Date = (DateTime?)null, IsComplete = false },
+                                new { Step = "GAA Generated", Date = (DateTime?)null, IsComplete = false },
+                                new { Step = "PO Uploaded", Date = (DateTime?)null, IsComplete = false },
+                                new { Step = "Invoice Sent", Date = (DateTime?)null, IsComplete = false },
+                                new { Step = "Payment Complete", Date = (DateTime?)null, IsComplete = false }
+                            }
+                        },
+                        new {
+                            Id = 2,
+                            Month = "October 2025",
+                            IHECount = 2,
+                            CandidateCount = 8,
+                            PendingCount = 0,
+                            ApprovedCount = 1,
+                            PaidCount = 7,
+                            WaitlistCount = 0,
+                            AwardAmount = 80000m,
+                            PaidAmount = 70000m,
+                            Stage = "INVOICE_SENT",
+                            StageName = "Invoice Sent",
+                            SubmittedDate = DateTime.Now.AddDays(-35),
+                            IHEs = new[] {
+                                new { Name = "Cal State San Marcos", Candidates = 5, Status = "5 Paid", Amount = 50000m },
+                                new { Name = "Point Loma Nazarene", Candidates = 3, Status = "1 Approved, 2 Paid", Amount = 30000m }
+                            },
+                            Timeline = new[] {
+                                new { Step = "Submitted to CTC", Date = (DateTime?)DateTime.Now.AddDays(-35), IsComplete = true },
+                                new { Step = "CTC Approved", Date = (DateTime?)DateTime.Now.AddDays(-28), IsComplete = true },
+                                new { Step = "GAA Signed", Date = (DateTime?)DateTime.Now.AddDays(-21), IsComplete = true },
+                                new { Step = "PO Uploaded", Date = (DateTime?)DateTime.Now.AddDays(-14), IsComplete = true },
+                                new { Step = "Invoice Sent", Date = (DateTime?)DateTime.Now.AddDays(-7), IsComplete = true },
+                                new { Step = "Payment Complete", Date = (DateTime?)null, IsComplete = false }
+                            }
+                        }
+                    }
+                },
+                new {
+                    Year = "FY 2024-25",
+                    IsCurrent = false,
+                    TotalAwarded = 200000m,
+                    TotalPaid = 200000m,
+                    Submissions = new[] {
+                        new {
+                            Id = 3,
+                            Month = "March 2025",
+                            IHECount = 3,
+                            CandidateCount = 12,
+                            PendingCount = 0,
+                            ApprovedCount = 0,
+                            PaidCount = 12,
+                            WaitlistCount = 0,
+                            AwardAmount = 120000m,
+                            PaidAmount = 120000m,
+                            Stage = "COMPLETE",
+                            StageName = "Complete",
+                            SubmittedDate = DateTime.Now.AddMonths(-8),
+                            IHEs = new[] {
+                                new { Name = "San Diego State University", Candidates = 6, Status = "6 Paid", Amount = 60000m },
+                                new { Name = "UC San Diego", Candidates = 4, Status = "4 Paid", Amount = 40000m },
+                                new { Name = "Cal State San Marcos", Candidates = 2, Status = "2 Paid", Amount = 20000m }
+                            },
+                            Timeline = new[] {
+                                new { Step = "Submitted to CTC", Date = (DateTime?)DateTime.Now.AddMonths(-8), IsComplete = true },
+                                new { Step = "CTC Approved", Date = (DateTime?)DateTime.Now.AddMonths(-7), IsComplete = true },
+                                new { Step = "GAA Signed", Date = (DateTime?)DateTime.Now.AddMonths(-6), IsComplete = true },
+                                new { Step = "PO Uploaded", Date = (DateTime?)DateTime.Now.AddMonths(-5), IsComplete = true },
+                                new { Step = "Invoice Sent", Date = (DateTime?)DateTime.Now.AddMonths(-4), IsComplete = true },
+                                new { Step = "Payment Complete", Date = (DateTime?)DateTime.Now.AddMonths(-3), IsComplete = true }
+                            }
+                        },
+                        new {
+                            Id = 4,
+                            Month = "November 2024",
+                            IHECount = 2,
+                            CandidateCount = 8,
+                            PendingCount = 0,
+                            ApprovedCount = 0,
+                            PaidCount = 8,
+                            WaitlistCount = 0,
+                            AwardAmount = 80000m,
+                            PaidAmount = 80000m,
+                            Stage = "COMPLETE",
+                            StageName = "Complete",
+                            SubmittedDate = DateTime.Now.AddMonths(-12),
+                            IHEs = new[] {
+                                new { Name = "San Diego State University", Candidates = 5, Status = "5 Paid", Amount = 50000m },
+                                new { Name = "Point Loma Nazarene", Candidates = 3, Status = "3 Paid", Amount = 30000m }
+                            },
+                            Timeline = new[] {
+                                new { Step = "Submitted to CTC", Date = (DateTime?)DateTime.Now.AddMonths(-12), IsComplete = true },
+                                new { Step = "CTC Approved", Date = (DateTime?)DateTime.Now.AddMonths(-11), IsComplete = true },
+                                new { Step = "GAA Signed", Date = (DateTime?)DateTime.Now.AddMonths(-10), IsComplete = true },
+                                new { Step = "PO Uploaded", Date = (DateTime?)DateTime.Now.AddMonths(-9), IsComplete = true },
+                                new { Step = "Invoice Sent", Date = (DateTime?)DateTime.Now.AddMonths(-8), IsComplete = true },
+                                new { Step = "Payment Complete", Date = (DateTime?)DateTime.Now.AddMonths(-7), IsComplete = true }
+                            }
+                        }
+                    }
+                },
+                new {
+                    Year = "FY 2023-24",
+                    IsCurrent = false,
+                    TotalAwarded = 120000m,
+                    TotalPaid = 120000m,
+                    Submissions = new[] {
+                        new {
+                            Id = 5,
+                            Month = "February 2024",
+                            IHECount = 2,
+                            CandidateCount = 12,
+                            PendingCount = 0,
+                            ApprovedCount = 0,
+                            PaidCount = 12,
+                            WaitlistCount = 0,
+                            AwardAmount = 120000m,
+                            PaidAmount = 120000m,
+                            Stage = "COMPLETE",
+                            StageName = "Complete",
+                            SubmittedDate = DateTime.Now.AddMonths(-20),
+                            IHEs = new[] {
+                                new { Name = "San Diego State University", Candidates = 8, Status = "8 Paid", Amount = 80000m },
+                                new { Name = "UC San Diego", Candidates = 4, Status = "4 Paid", Amount = 40000m }
+                            },
+                            Timeline = new[] {
+                                new { Step = "Submitted to CTC", Date = (DateTime?)DateTime.Now.AddMonths(-20), IsComplete = true },
+                                new { Step = "CTC Approved", Date = (DateTime?)DateTime.Now.AddMonths(-19), IsComplete = true },
+                                new { Step = "GAA Signed", Date = (DateTime?)DateTime.Now.AddMonths(-18), IsComplete = true },
+                                new { Step = "PO Uploaded", Date = (DateTime?)DateTime.Now.AddMonths(-17), IsComplete = true },
+                                new { Step = "Invoice Sent", Date = (DateTime?)DateTime.Now.AddMonths(-16), IsComplete = true },
+                                new { Step = "Payment Complete", Date = (DateTime?)DateTime.Now.AddMonths(-15), IsComplete = true }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    // Calculate totals
+    var totalAwarded = 480000m;
+    var totalPaid = 390000m;
+    var totalCandidates = 48;
+    var activeGrants = 2;
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "LEAPortal", new { leaId = leaId })">LEA Portal</a></li>
+        <li class="breadcrumb-item active">Grant Management</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-folder-multiple-outline"></i> Grant Management</h2>
+    <p class="subtitle">@leaName</p>
+</div>
+
+<div class="page-actions">
+    <a href="@Url.Action("Dashboard", "LEAPortal", new { leaId = leaId })" class="r4-button r4-button-secondary">
+        <i class="mdi mdi-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
+
+@* Summary Cards *@
+<div class="summary-cards">
+    <div class="summary-card">
+        <div class="summary-icon" style="background-color: var(--ctc-blue);">
+            <i class="mdi mdi-file-document-multiple"></i>
+        </div>
+        <div class="summary-content">
+            <div class="summary-value">@activeGrants</div>
+            <div class="summary-label">Active Grants</div>
+        </div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-icon" style="background-color: var(--gray-600);">
+            <i class="mdi mdi-account-group"></i>
+        </div>
+        <div class="summary-content">
+            <div class="summary-value">@totalCandidates</div>
+            <div class="summary-label">Total Candidates</div>
+        </div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-icon" style="background-color: var(--ctc-gold);">
+            <i class="mdi mdi-currency-usd"></i>
+        </div>
+        <div class="summary-content">
+            <div class="summary-value">@totalAwarded.ToString("C0")</div>
+            <div class="summary-label">Funds Awarded</div>
+        </div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-icon" style="background-color: var(--success);">
+            <i class="mdi mdi-cash-check"></i>
+        </div>
+        <div class="summary-content">
+            <div class="summary-value">@totalPaid.ToString("C0")</div>
+            <div class="summary-label">Funds Received</div>
+        </div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-icon" style="background-color: var(--warning);">
+            <i class="mdi mdi-clock-outline"></i>
+        </div>
+        <div class="summary-content">
+            <div class="summary-value">@((totalAwarded - totalPaid).ToString("C0"))</div>
+            <div class="summary-label">Pending Payment</div>
+        </div>
+    </div>
+</div>
+
+@* Grant Programs *@
+@foreach (var program in grantPrograms)
+{
+    <div class="r4-card grant-program-card">
+        <div class="r4-card-header grant-program-header" onclick="toggleProgram('@program.Id')">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <i class="mdi mdi-chevron-down program-chevron" id="chevron-program-@program.Id"></i>
+                <h4 style="margin: 0;">
+                    <i class="mdi mdi-school-outline"></i> @program.Name
+                </h4>
+                @if (program.IsActive)
+                {
+                    <span class="badge badge-success">Active</span>
+                }
+            </div>
+        </div>
+        <div class="r4-card-body program-content" id="program-content-@program.Id">
+            @foreach (var fy in program.FiscalYears)
+            {
+                <div class="fiscal-year-section">
+                    <div class="fiscal-year-header" onclick="toggleFiscalYear('@program.Id', '@fy.Year.Replace(" ", "-")')">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="mdi mdi-chevron-right fy-chevron" id="chevron-fy-@(program.Id)-@(fy.Year.Replace(" ", "-"))"></i>
+                            <span class="fiscal-year-title">@fy.Year</span>
+                            @if (fy.IsCurrent)
+                            {
+                                <span class="badge badge-primary">Current</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-secondary">Archived</span>
+                            }
+                        </div>
+                        <div class="fiscal-year-summary">
+                            <span class="fy-stat">@fy.TotalAwarded.ToString("C0") awarded</span>
+                            <span class="fy-divider">|</span>
+                            <span class="fy-stat fy-stat-paid">@fy.TotalPaid.ToString("C0") paid</span>
+                        </div>
+                    </div>
+                    <div class="fiscal-year-content" id="fy-content-@(program.Id)-@(fy.Year.Replace(" ", "-"))" style="@(fy.IsCurrent ? "" : "display: none;")">
+                        <table class="r4-table submissions-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 30px;"></th>
+                                    <th>Submission</th>
+                                    <th>IHEs</th>
+                                    <th>Candidates</th>
+                                    <th>Status Breakdown</th>
+                                    <th>Award</th>
+                                    <th>Paid</th>
+                                    <th>Stage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var sub in fy.Submissions)
+                                {
+                                    var stageClass = sub.Stage switch {
+                                        "COMPLETE" => "stage-complete",
+                                        "INVOICE_SENT" => "stage-invoice",
+                                        "PO_UPLOADED" => "stage-po",
+                                        "GAA_SIGNED" => "stage-gaa",
+                                        _ => "stage-review"
+                                    };
+                                    <tr class="submission-row" onclick="toggleSubmission(@sub.Id)">
+                                        <td>
+                                            <i class="mdi mdi-chevron-right expand-icon" id="chevron-sub-@sub.Id"></i>
+                                        </td>
+                                        <td>
+                                            <strong>@sub.Month</strong>
+                                            <small style="display: block; color: var(--gray-500);">Submitted @sub.SubmittedDate.ToString("MM/dd/yyyy")</small>
+                                        </td>
+                                        <td>@sub.IHECount IHE@(sub.IHECount != 1 ? "s" : "")</td>
+                                        <td>@sub.CandidateCount</td>
+                                        <td>
+                                            @if (sub.PendingCount > 0)
+                                            {
+                                                <span class="status-chip status-pending">@sub.PendingCount Pending</span>
+                                            }
+                                            @if (sub.ApprovedCount > 0)
+                                            {
+                                                <span class="status-chip status-approved">@sub.ApprovedCount Approved</span>
+                                            }
+                                            @if (sub.PaidCount > 0)
+                                            {
+                                                <span class="status-chip status-paid">@sub.PaidCount Paid</span>
+                                            }
+                                        </td>
+                                        <td>@sub.AwardAmount.ToString("C0")</td>
+                                        <td class="@(sub.PaidAmount > 0 ? "text-success" : "")">
+                                            @sub.PaidAmount.ToString("C0")
+                                        </td>
+                                        <td>
+                                            <span class="stage-badge @stageClass">@sub.StageName</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="submission-detail-row" id="detail-@sub.Id" style="display: none;">
+                                        <td colspan="8">
+                                            <div class="submission-details">
+                                                <div class="detail-section">
+                                                    <h5><i class="mdi mdi-timeline"></i> Workflow Timeline</h5>
+                                                    <div class="workflow-timeline">
+                                                        @foreach (var step in sub.Timeline)
+                                                        {
+                                                            <div class="timeline-step @(step.IsComplete ? "step-complete" : "step-pending")">
+                                                                <div class="step-marker">
+                                                                    @if (step.IsComplete)
+                                                                    {
+                                                                        <i class="mdi mdi-check"></i>
+                                                                    }
+                                                                </div>
+                                                                <div class="step-content">
+                                                                    <div class="step-name">@step.Step</div>
+                                                                    <div class="step-date">
+                                                                        @if (step.Date.HasValue)
+                                                                        {
+                                                                            @step.Date.Value.ToString("MM/dd/yyyy")
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <span class="text-muted">--</span>
+                                                                        }
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="detail-section">
+                                                    <h5><i class="mdi mdi-school"></i> IHE Breakdown</h5>
+                                                    <table class="r4-table ihe-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Institution</th>
+                                                                <th>Candidates</th>
+                                                                <th>Status</th>
+                                                                <th>Amount</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach (var ihe in sub.IHEs)
+                                                            {
+                                                                <tr>
+                                                                    <td>@ihe.Name</td>
+                                                                    <td>@ihe.Candidates</td>
+                                                                    <td>@ihe.Status</td>
+                                                                    <td>@ihe.Amount.ToString("C0")</td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div class="detail-actions">
+                                                    <a href="@Url.Action("BatchDetails", "LEAPortal", new { leaId = leaId, grantCycleId = 1, year = 2025, month = 11 })" class="r4-button r4-button-sm">
+                                                        <i class="mdi mdi-account-group"></i> View Candidates
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@* Future Programs Placeholder *@
+<div class="r4-card future-program-card">
+    <div class="r4-card-header">
+        <h4 style="margin: 0; color: var(--gray-500);">
+            <i class="mdi mdi-plus-circle-outline"></i> Additional Grant Programs
+        </h4>
+    </div>
+    <div class="r4-card-body" style="text-align: center; padding: 2rem; color: var(--gray-500);">
+        <i class="mdi mdi-file-document-plus-outline" style="font-size: 3rem; opacity: 0.3;"></i>
+        <p style="margin: 1rem 0 0 0;">Future grant programs will appear here when available.</p>
+        <small>Golden State Teacher Grant (GSTG), Classified School Employee Teacher Credentialing Program, etc.</small>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function toggleProgram(programId) {
+            const content = document.getElementById('program-content-' + programId);
+            const chevron = document.getElementById('chevron-program-' + programId);
+
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                chevron.classList.remove('mdi-chevron-right');
+                chevron.classList.add('mdi-chevron-down');
+            } else {
+                content.style.display = 'none';
+                chevron.classList.remove('mdi-chevron-down');
+                chevron.classList.add('mdi-chevron-right');
+            }
+        }
+
+        function toggleFiscalYear(programId, fyId) {
+            const content = document.getElementById('fy-content-' + programId + '-' + fyId);
+            const chevron = document.getElementById('chevron-fy-' + programId + '-' + fyId);
+
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                chevron.classList.remove('mdi-chevron-right');
+                chevron.classList.add('mdi-chevron-down');
+            } else {
+                content.style.display = 'none';
+                chevron.classList.remove('mdi-chevron-down');
+                chevron.classList.add('mdi-chevron-right');
+            }
+        }
+
+        function toggleSubmission(subId) {
+            const detail = document.getElementById('detail-' + subId);
+            const chevron = document.getElementById('chevron-sub-' + subId);
+
+            if (detail.style.display === 'none') {
+                detail.style.display = 'table-row';
+                chevron.classList.remove('mdi-chevron-right');
+                chevron.classList.add('mdi-chevron-down');
+            } else {
+                detail.style.display = 'none';
+                chevron.classList.remove('mdi-chevron-down');
+                chevron.classList.add('mdi-chevron-right');
+            }
+        }
+    </script>
+
+    <style>
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .summary-card {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .summary-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .summary-icon i {
+            font-size: 24px;
+            color: var(--white);
+        }
+
+        .summary-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .summary-label {
+            font-size: 0.85rem;
+            color: var(--gray-600);
+        }
+
+        .grant-program-card {
+            margin-bottom: 1rem;
+        }
+
+        .grant-program-header {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .grant-program-header:hover {
+            background-color: var(--gray-50);
+        }
+
+        .program-chevron {
+            font-size: 1.25rem;
+            color: var(--gray-500);
+            transition: transform 0.2s;
+        }
+
+        .fiscal-year-section {
+            border: 1px solid var(--gray-200);
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .fiscal-year-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            background-color: var(--gray-50);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .fiscal-year-header:hover {
+            background-color: var(--gray-100);
+        }
+
+        .fiscal-year-title {
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .fiscal-year-summary {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .fy-stat {
+            color: var(--gray-600);
+        }
+
+        .fy-stat-paid {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .fy-divider {
+            color: var(--gray-300);
+        }
+
+        .fy-chevron {
+            font-size: 1.1rem;
+            color: var(--gray-500);
+            transition: transform 0.2s;
+        }
+
+        .fiscal-year-content {
+            padding: 1rem;
+            background-color: var(--white);
+        }
+
+        .submissions-table {
+            width: 100%;
+            margin: 0;
+        }
+
+        .submission-row {
+            cursor: pointer;
+        }
+
+        .submission-row:hover {
+            background-color: var(--gray-50);
+        }
+
+        .expand-icon {
+            font-size: 1.1rem;
+            color: var(--gray-500);
+            transition: transform 0.2s;
+        }
+
+        .status-chip {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-right: 0.25rem;
+        }
+
+        .status-pending {
+            background-color: var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .status-approved {
+            background-color: rgba(0, 128, 0, 0.1);
+            color: var(--success);
+        }
+
+        .status-paid {
+            background-color: rgba(0, 86, 179, 0.1);
+            color: var(--ctc-blue);
+        }
+
+        .stage-badge {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .stage-review {
+            background-color: var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .stage-gaa, .stage-po, .stage-invoice {
+            background-color: rgba(255, 193, 7, 0.15);
+            color: #856404;
+        }
+
+        .stage-complete {
+            background-color: rgba(0, 128, 0, 0.1);
+            color: var(--success);
+        }
+
+        .submission-detail-row {
+            background-color: var(--gray-50);
+        }
+
+        .submission-details {
+            padding: 1.5rem;
+        }
+
+        .detail-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-section h5 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .workflow-timeline {
+            display: flex;
+            gap: 0;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .timeline-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 120px;
+            position: relative;
+        }
+
+        .timeline-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 12px;
+            left: 60px;
+            width: calc(100% - 24px);
+            height: 2px;
+            background-color: var(--gray-300);
+        }
+
+        .timeline-step.step-complete:not(:last-child)::after {
+            background-color: var(--success);
+        }
+
+        .step-marker {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--gray-300);
+            color: var(--white);
+            font-size: 0.75rem;
+            z-index: 1;
+        }
+
+        .step-complete .step-marker {
+            background-color: var(--success);
+        }
+
+        .step-content {
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+
+        .step-name {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .step-date {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+        }
+
+        .ihe-table {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .detail-actions {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .future-program-card {
+            border-style: dashed;
+            opacity: 0.7;
+        }
+
+        .text-success {
+            color: var(--success) !important;
+            font-weight: 600;
+        }
+
+        .text-muted {
+            color: var(--gray-400);
+        }
+    </style>
+}
