@@ -118,7 +118,7 @@
                                 }
                                 else if (group.State == "NEEDS_PO")
                                 {
-                                    <a href="@Url.Action("UploadPO", "FiscalTeam", new { id = group.Id })" class="r4-button r4-button-sm r4-button-primary">
+                                    <a href="@Url.Action("UploadPO", "FiscalTeam")" class="r4-button r4-button-sm r4-button-primary">
                                         <i class="mdi mdi-cloud-upload-outline"></i> Upload PO
                                     </a>
                                 }
@@ -130,7 +130,7 @@
                                 }
                                 else if (group.State == "NEEDS_WARRANT")
                                 {
-                                    <a href="@Url.Action("UploadWarrant", "FiscalTeam", new { id = group.Id })" class="r4-button r4-button-sm r4-button-primary">
+                                    <a href="@Url.Action("UploadWarrant", "FiscalTeam")" class="r4-button r4-button-sm r4-button-primary">
                                         <i class="mdi mdi-check-decagram"></i> Upload Warrant
                                     </a>
                                 }
