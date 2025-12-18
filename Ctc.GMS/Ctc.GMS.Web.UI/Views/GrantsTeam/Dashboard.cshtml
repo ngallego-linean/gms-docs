@@ -44,12 +44,81 @@
     </div>
 }
 
+@* Budget Overview - Moved up per feedback *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-chart-bar"></i> Budget Utilization</h4>
+        <div class="card-actions">
+            <a href="@Url.Action("Analytics", "GrantsTeam", new { grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-sm">
+                <i class="mdi mdi-chart-box-outline"></i> View Full Analytics
+            </a>
+        </div>
+    </div>
+    <div class="r4-card-body" style="padding-top: 0;">
+        @{
+            var encumberedM = Model.Metrics.EncumberedAmount / 1000000m;
+            var disbursedM = Model.Metrics.DisbursedAmount / 1000000m;
+            var remainingM = Model.Metrics.RemainingAmount / 1000000m;
+            var encumberedPercent = Model.Metrics.ApproprietedAmount > 0
+                ? (Model.Metrics.EncumberedAmount / Model.Metrics.ApproprietedAmount * 100)
+                : 0;
+            var disbursedPercent = Model.Metrics.ApproprietedAmount > 0
+                ? (Model.Metrics.DisbursedAmount / Model.Metrics.ApproprietedAmount * 100)
+                : 0;
+            var remainingPercent = 100 - encumberedPercent - disbursedPercent;
+        }
+
+        <div class="r4-progress" style="height: 40px; position: relative; display: flex;">
+            @if (encumberedPercent > 0.1m)
+            {
+                <div class="r4-progress-bar r4-progress-bar-encumbered"
+                     style="width: @encumberedPercent%; display: flex; align-items: center; justify-content: center; color: var(--white); font-size: 0.875rem; font-weight: 600; padding: 0 0.5rem;"
+                     role="progressbar"
+                     aria-valuenow="@encumberedPercent"
+                     aria-valuemin="0"
+                     aria-valuemax="100"
+                     title="@encumberedPercent.ToString("F1")% of total budget">
+                    @if (encumberedPercent > 12)
+                    {
+                        <span>$@encumberedM.ToString("F1")M Encumbered</span>
+                    }
+                </div>
+            }
+            @if (disbursedPercent > 0.1m)
+            {
+                <div class="r4-progress-bar r4-progress-bar-disbursed"
+                     style="width: @disbursedPercent%; display: flex; align-items: center; justify-content: center; color: var(--white); font-size: 0.875rem; font-weight: 600; padding: 0 0.5rem;"
+                     role="progressbar"
+                     aria-valuenow="@disbursedPercent"
+                     aria-valuemin="0"
+                     aria-valuemax="100"
+                     title="@disbursedPercent.ToString("F1")% of total budget">
+                    @if (disbursedPercent > 12)
+                    {
+                        <span>$@disbursedM.ToString("F1")M Disbursed</span>
+                    }
+                </div>
+            }
+            @if (remainingPercent > 0.1m)
+            {
+                <div style="flex: 1; background-color: var(--gray-200); display: flex; align-items: center; justify-content: center; color: var(--gray-700); font-size: 0.875rem; font-weight: 600; padding: 0 0.5rem;"
+                     title="@remainingPercent.ToString("F1")% of total budget">
+                    @if (remainingPercent > 12)
+                    {
+                        <span>$@remainingM.ToString("F1")M Remaining</span>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
 @* GRANTS TEAM - Disbursement Groups Awaiting Review *@
 @if (Model.ApplicationsWithPendingStudents.Any())
 {
     <div class="r4-card">
         <div class="r4-card-header">
-            <h4><i class="mdi mdi-folder-open-outline"></i> Submissions with Pending Students</h4>
+            <h4><i class="mdi mdi-folder-open-outline"></i> Submissions with Pending Candidates</h4>
             <div class="card-actions">
                 <a href="@Url.Action("Review", "GrantsTeam", new { grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-sm r4-button-primary">
                     <i class="mdi mdi-eye-outline"></i> Review Queue
@@ -269,76 +338,6 @@
         {
             <p class="text-muted"><i class="mdi mdi-check-circle-outline"></i> All caught up! No disbursement groups currently in the processing pipeline.</p>
         }
-    </div>
-</div>
-
-@* Budget Overview - Simplified *@
-<div class="r4-card">
-    <div class="r4-card-header">
-        <h4><i class="mdi mdi-chart-bar"></i> Budget Overview</h4>
-        <div class="card-actions">
-            <a href="@Url.Action("Analytics", "GrantsTeam", new { grantCycleId = Model.GrantCycleId })" class="r4-button r4-button-sm">
-                <i class="mdi mdi-chart-box-outline"></i> View Full Analytics
-            </a>
-        </div>
-    </div>
-    <div class="r4-card-body" style="padding-top: 0;">
-        @{
-            var encumberedM = Model.Metrics.EncumberedAmount / 1000000m;
-            var disbursedM = Model.Metrics.DisbursedAmount / 1000000m;
-            var remainingM = Model.Metrics.RemainingAmount / 1000000m;
-            var encumberedPercent = Model.Metrics.ApproprietedAmount > 0
-                ? (Model.Metrics.EncumberedAmount / Model.Metrics.ApproprietedAmount * 100)
-                : 0;
-            var disbursedPercent = Model.Metrics.ApproprietedAmount > 0
-                ? (Model.Metrics.DisbursedAmount / Model.Metrics.ApproprietedAmount * 100)
-                : 0;
-            var remainingPercent = 100 - encumberedPercent - disbursedPercent;
-        }
-
-        <h5>Budget Utilization</h5>
-        <div class="r4-progress" style="height: 40px; position: relative; display: flex;">
-            @if (encumberedPercent > 0.1m)
-            {
-                <div class="r4-progress-bar r4-progress-bar-encumbered"
-                     style="width: @encumberedPercent%; display: flex; align-items: center; justify-content: center; color: var(--white); font-size: 0.875rem; font-weight: 600; padding: 0 0.5rem;"
-                     role="progressbar"
-                     aria-valuenow="@encumberedPercent"
-                     aria-valuemin="0"
-                     aria-valuemax="100"
-                     title="@encumberedPercent.ToString("F1")% of total budget">
-                    @if (encumberedPercent > 12)
-                    {
-                        <span>$@encumberedM.ToString("F1")M Encumbered</span>
-                    }
-                </div>
-            }
-            @if (disbursedPercent > 0.1m)
-            {
-                <div class="r4-progress-bar r4-progress-bar-disbursed"
-                     style="width: @disbursedPercent%; display: flex; align-items: center; justify-content: center; color: var(--white); font-size: 0.875rem; font-weight: 600; padding: 0 0.5rem;"
-                     role="progressbar"
-                     aria-valuenow="@disbursedPercent"
-                     aria-valuemin="0"
-                     aria-valuemax="100"
-                     title="@disbursedPercent.ToString("F1")% of total budget">
-                    @if (disbursedPercent > 12)
-                    {
-                        <span>$@disbursedM.ToString("F1")M Disbursed</span>
-                    }
-                </div>
-            }
-            @if (remainingPercent > 0.1m)
-            {
-                <div style="flex: 1; background-color: var(--gray-200); display: flex; align-items: center; justify-content: center; color: var(--gray-700); font-size: 0.875rem; font-weight: 600; padding: 0 0.5rem;"
-                     title="@remainingPercent.ToString("F1")% of total budget">
-                    @if (remainingPercent > 12)
-                    {
-                        <span>$@remainingM.ToString("F1")M Remaining</span>
-                    }
-                </div>
-            }
-        </div>
     </div>
 </div>
 

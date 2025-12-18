@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GMS Data Model Explainer | California Commission on Teacher Credentialing</title>
+    <style>
+        :root {
+            --ctc-blue: #003366;
+            --ctc-blue-light: #0066cc;
+            --ctc-gold: #c4a000;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --gray-50: #f8f9fa;
+            --gray-100: #f1f3f5;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --gray-400: #ced4da;
+            --gray-500: #adb5bd;
+            --gray-600: #6c757d;
+            --gray-700: #495057;
+            --gray-800: #343a40;
+            --gray-900: #212529;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: var(--gray-800);
+            background: var(--gray-50);
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--ctc-blue) 0%, var(--ctc-blue-light) 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        header .subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+        }
+
+        header .version {
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            opacity: 0.7;
+        }
+
+        /* Navigation */
+        nav {
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            justify-content: center;
+        }
+
+        nav a {
+            color: var(--ctc-blue);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        nav a:hover {
+            background: var(--gray-100);
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        h2 {
+            color: var(--ctc-blue);
+            font-size: 1.75rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 3px solid var(--ctc-gold);
+        }
+
+        h3 {
+            color: var(--gray-800);
+            font-size: 1.25rem;
+            margin: 1.5rem 0 1rem;
+        }
+
+        h4 {
+            color: var(--gray-700);
+            font-size: 1rem;
+            margin: 1rem 0 0.5rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--gray-700);
+        }
+
+        /* Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .card {
+            background: var(--gray-50);
+            border-radius: 8px;
+            padding: 1.5rem;
+            border: 1px solid var(--gray-200);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .card-icon.blue { background: #e3f2fd; color: var(--ctc-blue); }
+        .card-icon.green { background: #e8f5e9; color: var(--success); }
+        .card-icon.orange { background: #fff3e0; color: #f57c00; }
+        .card-icon.purple { background: #f3e5f5; color: #7b1fa2; }
+
+        .card h4 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .card p {
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        /* Flow Diagram */
+        .flow-container {
+            background: var(--gray-100);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
+
+        .flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-width: 800px;
+        }
+
+        .flow-step {
+            background: white;
+            border: 2px solid var(--gray-300);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .flow-step.active {
+            border-color: var(--ctc-blue);
+            background: #e3f2fd;
+        }
+
+        .flow-step.complete {
+            border-color: var(--success);
+            background: #e8f5e9;
+        }
+
+        .flow-step-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .flow-step-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .flow-step-sub {
+            font-size: 0.75rem;
+            color: var(--gray-600);
+            margin-top: 0.25rem;
+        }
+
+        .flow-arrow {
+            color: var(--gray-400);
+            font-size: 1.5rem;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        th {
+            background: var(--gray-100);
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        tr:hover {
+            background: var(--gray-50);
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+        .badge-info { background: #d1ecf1; color: #0c5460; }
+        .badge-danger { background: #f8d7da; color: #721c24; }
+        .badge-primary { background: #cce5ff; color: #004085; }
+
+        /* Entity Diagram */
+        .entity-diagram {
+            background: var(--gray-900);
+            color: #f8f8f2;
+            border-radius: 8px;
+            padding: 1.5rem;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.8rem;
+            overflow-x: auto;
+            line-height: 1.4;
+        }
+
+        .entity-diagram .entity {
+            color: #66d9ef;
+        }
+
+        .entity-diagram .field {
+            color: #a6e22e;
+        }
+
+        .entity-diagram .type {
+            color: #fd971f;
+        }
+
+        .entity-diagram .comment {
+            color: #75715e;
+        }
+
+        .entity-diagram .relation {
+            color: #f92672;
+        }
+
+        /* Callouts */
+        .callout {
+            padding: 1.25rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border-left: 4px solid;
+        }
+
+        .callout-info {
+            background: #e7f3ff;
+            border-color: var(--info);
+        }
+
+        .callout-success {
+            background: #e8f5e9;
+            border-color: var(--success);
+        }
+
+        .callout-warning {
+            background: #fff8e1;
+            border-color: var(--warning);
+        }
+
+        .callout-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .stat {
+            background: var(--gray-50);
+            border-radius: 8px;
+            padding: 1.25rem;
+            text-align: center;
+            border: 1px solid var(--gray-200);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--ctc-blue);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            margin-top: 0.25rem;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+            margin: 1.5rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--gray-200);
+            border-radius: 3px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            top: 0.25rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--ctc-blue);
+            border: 2px solid white;
+            box-shadow: 0 0 0 3px var(--gray-200);
+        }
+
+        .timeline-item.complete::before {
+            background: var(--success);
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .timeline-desc {
+            font-size: 0.9rem;
+            color: var(--gray-600);
+            margin-top: 0.25rem;
+        }
+
+        /* Comparison */
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .comparison-col h4 {
+            text-align: center;
+            padding: 0.75rem;
+            border-radius: 8px 8px 0 0;
+            margin: 0;
+        }
+
+        .comparison-col.before h4 {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .comparison-col.after h4 {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .comparison-content {
+            background: var(--gray-50);
+            padding: 1rem;
+            border-radius: 0 0 8px 8px;
+            border: 1px solid var(--gray-200);
+            border-top: none;
+        }
+
+        .comparison-content ul {
+            margin: 0;
+            padding-left: 1.25rem;
+        }
+
+        .comparison-content li {
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* Grant Cards */
+        .grant-card {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .grant-card-header {
+            padding: 1rem;
+            background: var(--ctc-blue);
+            color: white;
+        }
+
+        .grant-card-header h4 {
+            color: white;
+            margin: 0;
+        }
+
+        .grant-card-header .code {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+
+        .grant-card-body {
+            padding: 1rem;
+        }
+
+        .grant-card-body .detail {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--gray-100);
+            font-size: 0.875rem;
+        }
+
+        .grant-card-body .detail:last-child {
+            border-bottom: none;
+        }
+
+        .grant-card-body .detail-label {
+            color: var(--gray-600);
+        }
+
+        .grant-card-body .detail-value {
+            font-weight: 500;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--gray-600);
+            font-size: 0.875rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.75rem;
+            }
+
+            nav ul {
+                justify-content: flex-start;
+            }
+
+            section {
+                padding: 1.5rem;
+            }
+
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+
+            .flow {
+                flex-direction: column;
+                min-width: auto;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Grant Management System</h1>
+    <div class="subtitle">Data Model & Architecture Explainer</div>
+    <div class="version">California Commission on Teacher Credentialing | December 2025</div>
+</header>
+
+<nav>
+    <ul>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#problem">The Problem</a></li>
+        <li><a href="#lifecycle">Grant Lifecycle</a></li>
+        <li><a href="#entities">Data Model</a></li>
+        <li><a href="#configurability">Configurability</a></li>
+        <li><a href="#grants">Grant Programs</a></li>
+        <li><a href="#workflow">Workflow</a></li>
+        <li><a href="#timeline">Roadmap</a></li>
+    </ul>
+</nav>
+
+<main>
+
+    <!-- Overview Section -->
+    <section id="overview">
+        <h2>What is GMS?</h2>
+        <p>The <strong>Grant Management System (GMS)</strong> is a web-based platform to automate California's teacher preparation grants. Version 1 focuses on the <strong>Student Teacher Stipend Program (STSP)</strong>, which provides $10,000 stipends to student teachers completing 540+ hours of clinical practice.</p>
+
+        <div class="stats-grid">
+            <div class="stat">
+                <div class="stat-value">$10K</div>
+                <div class="stat-label">Per Student Award</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">540+</div>
+                <div class="stat-label">Required Hours</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">$25M</div>
+                <div class="stat-label">Annual Appropriation</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">5,000+</div>
+                <div class="stat-label">Applications/Year</div>
+            </div>
+        </div>
+
+        <div class="card-grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon blue">&#x1F3DB;</div>
+                    <div>
+                        <h4>Public Portal</h4>
+                        <p>Grant listings, eligibility info, RFAs</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon green">&#x1F393;</div>
+                    <div>
+                        <h4>Grantee Portal</h4>
+                        <p>IHE/LEA submit candidates & reports</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon orange">&#x1F4CB;</div>
+                    <div>
+                        <h4>CTC Staff Portal</h4>
+                        <p>Review, approve, disburse funds</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section id="problem">
+        <h2>The Problem We're Solving</h2>
+
+        <div class="comparison">
+            <div class="comparison-col before">
+                <h4>&#x274C; Current State (Manual)</h4>
+                <div class="comparison-content">
+                    <ul>
+                        <li>Spreadsheets for tracking candidates</li>
+                        <li>Email for document exchange</li>
+                        <li>Paper forms for signatures</li>
+                        <li>Duplicate data entry</li>
+                        <li>No real-time fund visibility</li>
+                        <li>Slow turnaround times</li>
+                        <li>Difficult legislative reporting</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="comparison-col after">
+                <h4>&#x2705; Future State (GMS)</h4>
+                <div class="comparison-content">
+                    <ul>
+                        <li>Single source of truth</li>
+                        <li>Automated notifications</li>
+                        <li>DocuSign for signatures</li>
+                        <li>Data entered once</li>
+                        <li>Real-time budget dashboard</li>
+                        <li>Streamlined workflows</li>
+                        <li>Built-in reporting</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lifecycle Section -->
+    <section id="lifecycle">
+        <h2>Grant Lifecycle (STSP)</h2>
+        <p>The Student Teacher Stipend Program follows a clear workflow from candidate submission through payment and reporting.</p>
+
+        <div class="flow-container">
+            <div class="flow">
+                <div class="flow-step">
+                    <div class="flow-step-icon">&#x1F393;</div>
+                    <div class="flow-step-label">IHE Submits</div>
+                    <div class="flow-step-sub">Candidate info</div>
+                </div>
+                <div class="flow-arrow">&#x2192;</div>
+                <div class="flow-step">
+                    <div class="flow-step-icon">&#x1F3EB;</div>
+                    <div class="flow-step-label">LEA Completes</div>
+                    <div class="flow-step-sub">Fiscal + hours</div>
+                </div>
+                <div class="flow-arrow">&#x2192;</div>
+                <div class="flow-step">
+                    <div class="flow-step-icon">&#x1F50D;</div>
+                    <div class="flow-step-label">CTC Reviews</div>
+                    <div class="flow-step-sub">Approve/Reject</div>
+                </div>
+                <div class="flow-arrow">&#x2192;</div>
+                <div class="flow-step">
+                    <div class="flow-step-icon">&#x1F4DD;</div>
+                    <div class="flow-step-label">GAA Signed</div>
+                    <div class="flow-step-sub">DocuSign</div>
+                </div>
+                <div class="flow-arrow">&#x2192;</div>
+                <div class="flow-step">
+                    <div class="flow-step-icon">&#x1F4B0;</div>
+                    <div class="flow-step-label">Payment</div>
+                    <div class="flow-step-sub">Warrant issued</div>
+                </div>
+                <div class="flow-arrow">&#x2192;</div>
+                <div class="flow-step">
+                    <div class="flow-step-icon">&#x1F4CA;</div>
+                    <div class="flow-step-label">Reports</div>
+                    <div class="flow-step-sub">IHE + LEA</div>
+                </div>
+            </div>
+        </div>
+
+        <h3>Key Stakeholders</h3>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Stakeholder</th>
+                        <th>Role</th>
+                        <th>Key Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>IHE</strong><br><small>Institution of Higher Education</small></td>
+                        <td>University with credential program</td>
+                        <td>Submit candidates, report on completion</td>
+                    </tr>
+                    <tr>
+                        <td><strong>LEA</strong><br><small>Local Education Agency</small></td>
+                        <td>School district hosting placement</td>
+                        <td>Confirm hours, receive payment, report distribution</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CTC Grants Team</strong></td>
+                        <td>Program administration</td>
+                        <td>Review applications, approve candidates</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CTC Fiscal Team</strong></td>
+                        <td>Payment processing</td>
+                        <td>Generate GAAs, process invoices, track warrants</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Entities Section -->
+    <section id="entities">
+        <h2>Data Model Overview</h2>
+        <p>The GMS data model is designed for the STSP program while being extensible for future grants.</p>
+
+        <div class="entity-diagram">
+<pre>
+<span class="comment">/* CORE ENTITIES */</span>
+
+<span class="entity">GrantProgram</span>          <span class="comment">// Grant type (STSP, Teacher Residency, etc.)</span>
+    <span class="relation">1:M</span> <span class="entity">GrantCycle</span>      <span class="comment">// Funding period (FY 2025-26)</span>
+        <span class="relation">1:M</span> <span class="entity">Application</span>  <span class="comment">// IHE-LEA partnership</span>
+            <span class="relation">1:M</span> <span class="entity">Candidate</span> <span class="comment">// Individual student teacher</span>
+
+<span class="entity">Organization</span>          <span class="comment">// IHE or LEA (synced from ECS)</span>
+    <span class="relation">1:M</span> <span class="entity">User</span>            <span class="comment">// Portal users</span>
+
+<span class="comment">/* BATCH & DISBURSEMENT */</span>
+
+<span class="entity">Batch</span>                 <span class="comment">// LEA monthly submission (groups candidates)</span>
+    <span class="relation">M:1</span> <span class="entity">Candidate</span>       <span class="comment">// Via BatchCandidate join table</span>
+    <span class="relation">1:M</span> <span class="entity">Disbursement</span>    <span class="comment">// GAA, PO, Invoice, Warrant</span>
+
+<span class="comment">/* REPORTING */</span>
+
+<span class="entity">ReportingPeriod</span>       <span class="comment">// When reports are due</span>
+<span class="entity">CandidateReport</span>       <span class="comment">// IHE completion / LEA payment reports</span>
+
+<span class="comment">/* V2 EXTENSION TABLES (created but not used in V1) */</span>
+
+<span class="entity">CandidateFunding</span>      <span class="comment">// Multi-category funding tracking</span>
+<span class="entity">CandidateYearProgress</span> <span class="comment">// Annual progress tracking</span>
+<span class="entity">CandidateYearOutcome</span>  <span class="comment">// Post-completion employment</span>
+</pre>
+        </div>
+
+        <h3>Key Design Decisions</h3>
+
+        <div class="card-grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon blue">&#x1F4E6;</div>
+                    <div>
+                        <h4>Batch-Based Disbursement</h4>
+                    </div>
+                </div>
+                <p>One GAA, PO, Invoice, and Warrant per batch (not per candidate). Matches real-world CTC process and reduces paperwork.</p>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon green">&#x1F465;</div>
+                    <div>
+                        <h4>Abstracted Org Roles</h4>
+                    </div>
+                </div>
+                <p>Uses InitiatorOrg/CompleterOrg instead of hardcoded IHE/LEA. Different grants can have different workflows.</p>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon orange">&#x1F4DD;</div>
+                    <div>
+                        <h4>JSON Extension Columns</h4>
+                    </div>
+                </div>
+                <p>ExtendedDataJson columns allow grant-specific fields without schema changes. V1 leaves them empty; V2 populates them.</p>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon purple">&#x1F504;</div>
+                    <div>
+                        <h4>Status as Data</h4>
+                    </div>
+                </div>
+                <p>WorkflowState table defines valid statuses and transitions. Different grants can have different status flows.</p>
+            </div>
+        </div>
+
+        <h3>Entity Counts</h3>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Entities</th>
+                        <th>V1 Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Core</td>
+                        <td>GrantProgram, GrantCycle, Organization, User</td>
+                        <td><span class="badge badge-success">Active</span></td>
+                    </tr>
+                    <tr>
+                        <td>Application</td>
+                        <td>Application, Candidate</td>
+                        <td><span class="badge badge-success">Active</span></td>
+                    </tr>
+                    <tr>
+                        <td>Batch & Disbursement</td>
+                        <td>Batch, BatchCandidate, Disbursement</td>
+                        <td><span class="badge badge-success">Active</span></td>
+                    </tr>
+                    <tr>
+                        <td>Reporting</td>
+                        <td>ReportingPeriod, CandidateReport</td>
+                        <td><span class="badge badge-success">Active</span></td>
+                    </tr>
+                    <tr>
+                        <td>Supporting</td>
+                        <td>WorkflowState, Notification, AuditLog</td>
+                        <td><span class="badge badge-success">Active</span></td>
+                    </tr>
+                    <tr>
+                        <td>V2 Extensions</td>
+                        <td>CandidateFunding, CandidateYearProgress, CandidateYearOutcome</td>
+                        <td><span class="badge badge-info">Created, Not Used</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Configurability Section -->
+    <section id="configurability">
+        <h2>Configurability Strategy</h2>
+        <p>GMS is designed to support multiple grant programs without requiring a database rewrite. V1 implements STSP; V2 enables configuration.</p>
+
+        <div class="callout callout-info">
+            <div class="callout-title">&#x1F4A1; Design Principle</div>
+            <p>Build for STSP now, but design every table and column with future grants in mind. Create extension tables upfront but don't populate them until needed.</p>
+        </div>
+
+        <h3>What Varies Between Grants</h3>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>STSP (V1)</th>
+                        <th>Other Grants (V2)</th>
+                        <th>Solution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Org Roles</strong></td>
+                        <td>IHE initiates, LEA completes</td>
+                        <td>Could be reversed or single-org</td>
+                        <td>InitiatorOrg / CompleterOrg</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Workflow Order</strong></td>
+                        <td>IHE &rarr; LEA &rarr; CTC</td>
+                        <td>LEA &rarr; IHE &rarr; CTC, etc.</td>
+                        <td>WorkflowState table</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Batch Ownership</strong></td>
+                        <td>LEA submits batch</td>
+                        <td>Could be IHE</td>
+                        <td>Batch.SubmittingOrgId</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Evaluation</strong></td>
+                        <td>Valid/Invalid</td>
+                        <td>Scored, ranked, lottery</td>
+                        <td>Candidate.Score (nullable)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Disbursement</strong></td>
+                        <td>One-time per batch</td>
+                        <td>Advance/Progress/Final</td>
+                        <td>Disbursement 1:M from Batch</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Data Collected</strong></td>
+                        <td>Fixed candidate fields</td>
+                        <td>Different per grant</td>
+                        <td>ExtendedDataJson columns</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Funding Model</strong></td>
+                        <td>Fixed $10K</td>
+                        <td>Capped ($2.5K) or budgeted</td>
+                        <td>GrantCycle.MaxAwardAmount</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tracking Duration</strong></td>
+                        <td>Single cycle</td>
+                        <td>Multi-year (1-4 years)</td>
+                        <td>CandidateYearOutcome table</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3>GrantProgram Configuration Flags</h3>
+        <div class="entity-diagram">
+<pre>
+<span class="entity">GrantProgram</span>
+    <span class="field">WorkflowType</span>:        <span class="type">"IHE_LEA_CTC"</span> | <span class="type">"LEA_CTC"</span> | <span class="type">"IHE_CTC"</span>
+    <span class="field">EvaluationType</span>:      <span class="type">"ELIGIBILITY"</span> | <span class="type">"SCORED"</span> | <span class="type">"LOTTERY"</span>
+    <span class="field">AwardUnit</span>:           <span class="type">"PER_CANDIDATE"</span> | <span class="type">"PER_ORG"</span> | <span class="type">"LUMP_SUM"</span>
+    <span class="field">DisbursementType</span>:    <span class="type">"ONE_TIME"</span> | <span class="type">"MULTI_PHASE"</span> | <span class="type">"REIMBURSEMENT"</span>
+    <span class="field">HasMatchingFunds</span>:    <span class="type">true/false</span>
+    <span class="field">TrackingYears</span>:       <span class="type">0</span> | <span class="type">1</span> | <span class="type">2</span> | <span class="type">3</span> | <span class="type">4</span>
+    <span class="field">HasCohorts</span>:          <span class="type">true/false</span>
+    <span class="field">HasReplacements</span>:     <span class="type">true/false</span>
+</pre>
+        </div>
+    </section>
+
+    <!-- Grants Section -->
+    <section id="grants">
+        <h2>Grant Programs Analyzed</h2>
+        <p>We analyzed 8 CTC grant programs to ensure the data model can accommodate them all.</p>
+
+        <div class="card-grid">
+            <div class="grant-card">
+                <div class="grant-card-header">
+                    <h4>Student Teacher Stipend</h4>
+                    <div class="code">STSP</div>
+                </div>
+                <div class="grant-card-body">
+                    <div class="detail">
+                        <span class="detail-label">Primary Org</span>
+                        <span class="detail-value">IHE</span>
+                    </div>
+                    <div class="detail">
+                        <span class="detail-label">Secondary Org</span>
+                        <span class="detail-value">LEA (completes)</span>
+                    </div>
+                    <div class="detail">
+                        <span class="detail-label">Award Model</span>
+                        <span class="detail-value">Fixed $10K</span>
+                    </div>
+                    <div class="detail">
+                        <span class="detail-label">Model Fit</span>
+                        <span class="badge badge-success">Perfect</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grant-card">
+                <div class="grant-card-header">
+                    <h4>Teacher Residency</h4>
+                    <div class="code">TRP</div>
+                </div>
+                <div class="grant-card-body">
+                    <div class="detail">
+                        <span class="detail-label">Primary Org</span>
+                        <span class="detail-value">IHE</span>
+                    </div>
+                    <div class="detail">
+                        <span class="detail-label">Secondary Org</span>
+                        <span class="detail-value">LEA (partner)</span>
+                    </div>
+                    <div class="detail">
+                        <span class="detail-label">Award Model</span>
+                        <span class="detail-value">Budgeted + Match</span>
+                    </div>
+                    <div class="detail">
+                        <span class="detail-label">Model Fit</span>
+                        <span class="badge badge-warning">Needs Extensions</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grant-card">
+                <div class="grant-card-header">
+                    <h4>Classified Employee</h4>
+                    <div class="code">CSEP</div>
+                </div>
+                <div class="grant-card-body">
+                    <div class="detail">
+                        <span class="detail-label">Primary Org</span>
+                        <span class="detail-value">LEA</span>
+                    </div>
+                    <div class="detail">
+                        <span class="detail-label">Secondary Org</span>
+                        <span class="detail-value">None</span>
+                    </div>
+                    <div class="detail">
+                        <span class="detail-label">Award Model</span>
+                        <span class="detail-value">Budgeted</span>
+                    </div>
+                    <div class="detail">
+                        <span class="detail-label">Model Fit</span>
+                        <span class="badge badge-warning">Needs Extensions</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grant-card">
+                <div class="grant-card-header">
+                    <h4>Computer Science</h4>
+                    <div class="code">CSGF</div>
+                </div>
+                <div class="grant-card-body">
+                    <div class="detail">
+                        <span class="detail-label">Primary Org</span>
+                        <span class="detail-value">LEA</span>
+                    </div>
+                    <div class="detail">
+                        <span class="detail-label">Secondary Org</span>
+                        <span class="detail-value">None</span>
+                    </div>
+                    <div class="detail">
+                        <span class="detail-label">Award Model</span>
+                        <span class="detail-value">Capped $2.5K</span>
+                    </div>
+                    <div class="detail">
+                        <span class="detail-label">Model Fit</span>
+                        <span class="badge badge-success">Good</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grant-card">
+                <div class="grant-card-header">
+                    <h4>DELPI</h4>
+                    <div class="code">DELPI</div>
+                </div>
+                <div class="grant-card-body">
+                    <div class="detail">
+                        <span class="detail-label">Primary Org</span>
+                        <span class="detail-value">LEA</span>
+                    </div>
+                    <div class="detail">
+                        <span class="detail-label">Secondary Org</span>
+                        <span class="detail-value">None</span>
+                    </div>
+                    <div class="detail">
+                        <span class="detail-label">Award Model</span>
+                        <span class="detail-value">Budgeted</span>
+                    </div>
+                    <div class="detail">
+                        <span class="detail-label">Model Fit</span>
+                        <span class="badge badge-warning">Needs Cohorts</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grant-card">
+                <div class="grant-card-header">
+                    <h4>Integrated Teacher Prep</h4>
+                    <div class="code">ITP</div>
+                </div>
+                <div class="grant-card-body">
+                    <div class="detail">
+                        <span class="detail-label">Primary Org</span>
+                        <span class="detail-value">IHE</span>
+                    </div>
+                    <div class="detail">
+                        <span class="detail-label">Secondary Org</span>
+                        <span class="detail-value">None</span>
+                    </div>
+                    <div class="detail">
+                        <span class="detail-label">Award Model</span>
+                        <span class="detail-value">Budgeted</span>
+                    </div>
+                    <div class="detail">
+                        <span class="detail-label">Model Fit</span>
+                        <span class="badge badge-success">Good</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h3>Extensions Required by Grant</h3>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Grant</th>
+                        <th>New Tables Needed</th>
+                        <th>Config Changes</th>
+                        <th>Complexity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>STSP</td>
+                        <td>None</td>
+                        <td>None (V1 default)</td>
+                        <td><span class="badge badge-success">Low</span></td>
+                    </tr>
+                    <tr>
+                        <td>Computer Science / R&L</td>
+                        <td>Optional: CandidateFunding</td>
+                        <td>MaxAwardAmount, LEA-only workflow</td>
+                        <td><span class="badge badge-success">Low</span></td>
+                    </tr>
+                    <tr>
+                        <td>Integrated</td>
+                        <td>CandidateYearProgress</td>
+                        <td>IHE-only workflow</td>
+                        <td><span class="badge badge-info">Low-Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td>Classified</td>
+                        <td>CandidateYearProgress</td>
+                        <td>Replacements, LEA-only</td>
+                        <td><span class="badge badge-warning">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td>DELPI</td>
+                        <td>Uses ExtendedDataJson</td>
+                        <td>Cohorts, ParticipantType</td>
+                        <td><span class="badge badge-warning">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td>Teacher Residency</td>
+                        <td>CandidateFunding, CandidateYearOutcome</td>
+                        <td>MatchingFunds, 4-year tracking</td>
+                        <td><span class="badge badge-danger">High</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Workflow Section -->
+    <section id="workflow">
+        <h2>Status & Workflow</h2>
+        <p>Candidate and Batch statuses are stored in the WorkflowState table, enabling different grants to have different status flows.</p>
+
+        <h3>Candidate Status Flow (STSP)</h3>
+        <div class="flow-container">
+            <div class="flow" style="flex-wrap: wrap; justify-content: flex-start;">
+                <div class="flow-step" style="background: #e3f2fd;">
+                    <div class="flow-step-label">DRAFT</div>
+                </div>
+                <div class="flow-arrow">&#x2192;</div>
+                <div class="flow-step">
+                    <div class="flow-step-label">IHE_SUBMITTED</div>
+                </div>
+                <div class="flow-arrow">&#x2192;</div>
+                <div class="flow-step">
+                    <div class="flow-step-label">LEA_REVIEWING</div>
+                </div>
+                <div class="flow-arrow">&#x2192;</div>
+                <div class="flow-step">
+                    <div class="flow-step-label">LEA_APPROVED</div>
+                </div>
+                <div class="flow-arrow">&#x2192;</div>
+                <div class="flow-step">
+                    <div class="flow-step-label">CTC_SUBMITTED</div>
+                </div>
+                <div class="flow-arrow">&#x2192;</div>
+                <div class="flow-step">
+                    <div class="flow-step-label">CTC_REVIEWING</div>
+                </div>
+                <div class="flow-arrow">&#x2192;</div>
+                <div class="flow-step" style="background: #e8f5e9; border-color: #4caf50;">
+                    <div class="flow-step-label">APPROVED</div>
+                </div>
+                <div class="flow-arrow">&#x2192;</div>
+                <div class="flow-step">
+                    <div class="flow-step-label">REPORTING_DUE</div>
+                </div>
+                <div class="flow-arrow">&#x2192;</div>
+                <div class="flow-step" style="background: #e8f5e9; border-color: #4caf50;">
+                    <div class="flow-step-label">CLOSED</div>
+                </div>
+            </div>
+        </div>
+
+        <h3>Batch (Disbursement) Status Flow</h3>
+        <div class="flow-container">
+            <div class="flow">
+                <div class="flow-step">
+                    <div class="flow-step-label">PENDING_REVIEW</div>
+                </div>
+                <div class="flow-arrow">&#x2192;</div>
+                <div class="flow-step">
+                    <div class="flow-step-label">APPROVED</div>
+                </div>
+                <div class="flow-arrow">&#x2192;</div>
+                <div class="flow-step">
+                    <div class="flow-step-label">GAA_SENT</div>
+                </div>
+                <div class="flow-arrow">&#x2192;</div>
+                <div class="flow-step">
+                    <div class="flow-step-label">GAA_SIGNED</div>
+                </div>
+                <div class="flow-arrow">&#x2192;</div>
+                <div class="flow-step">
+                    <div class="flow-step-label">PO_UPLOADED</div>
+                </div>
+                <div class="flow-arrow">&#x2192;</div>
+                <div class="flow-step">
+                    <div class="flow-step-label">INVOICE_SENT</div>
+                </div>
+                <div class="flow-arrow">&#x2192;</div>
+                <div class="flow-step" style="background: #e8f5e9; border-color: #4caf50;">
+                    <div class="flow-step-label">COMPLETE</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="callout callout-success">
+            <div class="callout-title">&#x2705; Workflow Validation</div>
+            <p>The WorkflowState table stores <code>AllowedTransitionsJson</code> for each status, enabling the application to validate that status changes are permitted. Different grants can have entirely different status flows by configuring different WorkflowState rows.</p>
+        </div>
+    </section>
+
+    <!-- Timeline Section -->
+    <section id="timeline">
+        <h2>Implementation Roadmap</h2>
+
+        <h3>V1: STSP (April 2026)</h3>
+        <div class="timeline">
+            <div class="timeline-item complete">
+                <div class="timeline-title">Database Schema</div>
+                <div class="timeline-desc">Create all tables including V2 extensions. Seed WorkflowState and GrantProgram for STSP.</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-title">Core Entities</div>
+                <div class="timeline-desc">GrantProgram, GrantCycle, Organization, User, Application, Candidate</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-title">Batch & Disbursement</div>
+                <div class="timeline-desc">Batch, BatchCandidate, Disbursement (one per batch, Phase=FULL)</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-title">Reporting</div>
+                <div class="timeline-desc">ReportingPeriod, CandidateReport (IHE_COMPLETION, LEA_PAYMENT)</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-title">Integrations</div>
+                <div class="timeline-desc">ECS sync, DocuSign GAAs, email notifications</div>
+            </div>
+        </div>
+
+        <h3>V2 Priority Order</h3>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Priority</th>
+                        <th>Grant(s)</th>
+                        <th>Key Work</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge badge-success">1</span></td>
+                        <td>Computer Science, Reading & Literacy</td>
+                        <td>Capped awards, LEA-only workflow</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-info">2</span></td>
+                        <td>Integrated Teacher Prep</td>
+                        <td>IHE-only workflow, CandidateYearProgress</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-warning">3</span></td>
+                        <td>Classified</td>
+                        <td>Replacement tracking, annual progress</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-warning">4</span></td>
+                        <td>DELPI</td>
+                        <td>Cohort tracking, participant types</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-danger">5</span></td>
+                        <td>Teacher Residency, School Counselor</td>
+                        <td>Full funding tracking, 4-year outcomes</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Integration Section -->
+    <section id="integrations">
+        <h2>System Integrations</h2>
+
+        <div class="card-grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon blue">&#x1F5C4;</div>
+                    <div>
+                        <h4>ECS (Educator Credentialing System)</h4>
+                    </div>
+                </div>
+                <p><strong>Purpose:</strong> Source of truth for organizations, schools, contacts, and educator IDs.</p>
+                <p><strong>Sync:</strong> Nightly batch for orgs/schools; real-time for SEID lookup.</p>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon green">&#x270D;</div>
+                    <div>
+                        <h4>DocuSign</h4>
+                    </div>
+                </div>
+                <p><strong>Purpose:</strong> Electronic signatures for Grant Award Agreements (GAAs).</p>
+                <p><strong>Flow:</strong> 3-party signing: LEA &rarr; CTC Staff 1 &rarr; CTC Staff 2</p>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon orange">&#x1F4B3;</div>
+                    <div>
+                        <h4>Fi$CAL (Future)</h4>
+                    </div>
+                </div>
+                <p><strong>Purpose:</strong> California's financial system for POs and payments.</p>
+                <p><strong>V1:</strong> Manual entry. <strong>V2:</strong> API integration.</p>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon purple">&#x1F512;</div>
+                    <div>
+                        <h4>EntraID / OAuth</h4>
+                    </div>
+                </div>
+                <p><strong>Purpose:</strong> Authentication for CTC staff (EntraID) and grantees (OAuth).</p>
+                <p><strong>Grantees:</strong> Email domain validated against ECS organizations.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Summary Section -->
+    <section>
+        <h2>Summary</h2>
+
+        <div class="callout callout-success">
+            <div class="callout-title">&#x1F3AF; Key Takeaways</div>
+            <ul style="margin: 0.5rem 0 0 1.5rem;">
+                <li><strong>V1 is STSP-focused</strong> but the schema supports future grants without rewrites</li>
+                <li><strong>Batch-based disbursement</strong> matches CTC's real-world process (one GAA per LEA monthly submission)</li>
+                <li><strong>Abstracted org roles</strong> (Initiator/Completer) allow different workflow orders</li>
+                <li><strong>JSON extension columns</strong> enable grant-specific data without schema changes</li>
+                <li><strong>WorkflowState table</strong> makes status flows configurable per grant program</li>
+                <li><strong>V2 extension tables</strong> are created now but populated later</li>
+            </ul>
+        </div>
+
+        <p style="text-align: center; margin-top: 2rem; color: var(--gray-600);">
+            For full technical details, see the <a href="GMS-Data-Model-Report.md">GMS Data Model Report</a>.
+        </p>
+    </section>
+
+</main>
+
+<footer>
+    <p>California Commission on Teacher Credentialing | Grant Management System</p>
+    <p>Document Version 1.0 | December 2025</p>
+</footer>
+
+</body>
+</html>

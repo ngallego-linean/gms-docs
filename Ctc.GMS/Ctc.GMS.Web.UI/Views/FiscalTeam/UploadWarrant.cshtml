@@ -1,182 +1,246 @@
 @{
-    ViewData["Title"] = "Upload Warrant";
-
-    var leaName = ViewBag.LEAName as string;
-    var amount = (decimal)ViewBag.Amount;
-    var studentCount = (int)ViewBag.StudentCount;
-    var id = (int)ViewBag.Id;
+    ViewData["Title"] = "Bulk Warrant Entry";
 }
 
 @section Breadcrumbs {
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam")">Grants Team</a></li>
-        <li class="breadcrumb-item active">Upload Warrant</li>
+        <li class="breadcrumb-item active">Bulk Warrant Entry</li>
     </ol>
 }
 
 <div class="page-header">
-    <h2><i class="mdi mdi-check-decagram"></i> Upload Warrant Confirmation</h2>
-    <p class="subtitle">@leaName</p>
+    <h2><i class="mdi mdi-check-decagram"></i> Bulk Warrant Entry</h2>
+    <p class="subtitle">Record warrant numbers for multiple submissions</p>
+</div>
+
+<div class="page-actions">
+    <a href="@Url.Action("Dashboard", "GrantsTeam")" class="r4-button r4-button-secondary">
+        <i class="mdi mdi-arrow-left"></i> Back to Dashboard
+    </a>
 </div>
 
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-information-outline"></i> Disbursement Details</h4>
+        <h4><i class="mdi mdi-information-outline"></i> About Warrant Numbers</h4>
     </div>
     <div class="r4-card-body">
-        <div class="info-grid">
-            <div class="info-item">
-                <span class="info-label">LEA District</span>
-                <span class="info-value">@leaName</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Total Amount</span>
-                <span class="info-value info-value-highlight">@amount.ToString("C0")</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Students</span>
-                <span class="info-value">@studentCount</span>
+        <div class="r4-alert r4-alert-info" style="margin-bottom: 0;">
+            <i class="mdi mdi-information"></i>
+            <div>
+                <strong>Warrant Numbers:</strong> Warrant numbers are generated in Fi$CAL. Each submission receives a unique warrant number.
+                Warrants are not physical documents - only the warrant number and date need to be recorded.
             </div>
         </div>
     </div>
 </div>
 
+<!-- Submissions Awaiting Warrant -->
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-file-sign"></i> Warrant Information</h4>
+        <h4><i class="mdi mdi-clock-outline"></i> Submissions Awaiting Warrant</h4>
     </div>
-    <div class="r4-card-body">
-        <form id="uploadWarrantForm">
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="warrantNumber" class="form-label">Warrant Number <span class="required">*</span></label>
-                    <input type="text" id="warrantNumber" name="warrantNumber" class="form-control" placeholder="Enter warrant number" required />
-                </div>
-
-                <div class="form-group">
-                    <label for="warrantDate" class="form-label">Warrant Date <span class="required">*</span></label>
-                    <input type="date" id="warrantDate" name="warrantDate" class="form-control" required />
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="notes" class="form-label">Notes (Optional)</label>
-                <textarea id="notes" name="notes" class="form-control" rows="3" placeholder="Add any additional notes about this warrant..."></textarea>
-            </div>
-
-            <div class="form-actions">
+    <div class="r4-card-body" style="padding: 0;">
+        <form id="bulkWarrantForm">
+            <table class="r4-table warrant-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40px;">
+                            <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)">
+                        </th>
+                        <th>LEA District</th>
+                        <th>Invoice Date</th>
+                        <th>Candidates</th>
+                        <th>Amount</th>
+                        <th>Warrant Number</th>
+                        <th>Warrant Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="checkbox" name="selected" value="1" class="submission-checkbox"></td>
+                        <td>Los Angeles Unified School District</td>
+                        <td>Nov 20, 2025</td>
+                        <td>8</td>
+                        <td>$80,000</td>
+                        <td><input type="text" class="form-control form-control-sm warrant-number" placeholder="e.g., W-2025-12345" /></td>
+                        <td><input type="date" class="form-control form-control-sm warrant-date" /></td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="selected" value="2" class="submission-checkbox"></td>
+                        <td>San Diego Unified School District</td>
+                        <td>Nov 18, 2025</td>
+                        <td>5</td>
+                        <td>$50,000</td>
+                        <td><input type="text" class="form-control form-control-sm warrant-number" placeholder="e.g., W-2025-12346" /></td>
+                        <td><input type="date" class="form-control form-control-sm warrant-date" /></td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="selected" value="3" class="submission-checkbox"></td>
+                        <td>Fresno Unified School District</td>
+                        <td>Nov 15, 2025</td>
+                        <td>3</td>
+                        <td>$30,000</td>
+                        <td><input type="text" class="form-control form-control-sm warrant-number" placeholder="e.g., W-2025-12347" /></td>
+                        <td><input type="date" class="form-control form-control-sm warrant-date" /></td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="selected" value="4" class="submission-checkbox"></td>
+                        <td>Sacramento City Unified School District</td>
+                        <td>Nov 12, 2025</td>
+                        <td>4</td>
+                        <td>$40,000</td>
+                        <td><input type="text" class="form-control form-control-sm warrant-number" placeholder="e.g., W-2025-12348" /></td>
+                        <td><input type="date" class="form-control form-control-sm warrant-date" /></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="form-actions" style="padding: 1rem;">
                 <a href="@Url.Action("Dashboard", "GrantsTeam")" class="r4-button">
-                    <i class="mdi mdi-arrow-left"></i> Cancel
+                    <i class="mdi mdi-close"></i> Cancel
                 </a>
-                <button type="submit" class="r4-button r4-button-primary">
-                    <i class="mdi mdi-check"></i> Confirm Warrant
+                <button type="submit" class="r4-button r4-button-primary" id="submitBtn">
+                    <i class="mdi mdi-check"></i> Record Warrant Numbers
                 </button>
             </div>
         </form>
     </div>
 </div>
 
+<!-- Warrant History -->
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-history"></i> Warrant History</h4>
+    </div>
+    <div class="r4-card-body" style="padding: 0;">
+        <table class="r4-table">
+            <thead>
+                <tr>
+                    <th>LEA District</th>
+                    <th>Warrant Number</th>
+                    <th>Warrant Date</th>
+                    <th>Amount</th>
+                    <th>Recorded By</th>
+                    <th>Recorded On</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Long Beach Unified School District</td>
+                    <td><code>W-2025-11234</code></td>
+                    <td>Oct 25, 2025</td>
+                    <td>$60,000</td>
+                    <td>Sara S.</td>
+                    <td>Oct 26, 2025</td>
+                </tr>
+                <tr>
+                    <td>Oakland Unified School District</td>
+                    <td><code>W-2025-11233</code></td>
+                    <td>Oct 25, 2025</td>
+                    <td>$70,000</td>
+                    <td>Sara S.</td>
+                    <td>Oct 26, 2025</td>
+                </tr>
+                <tr>
+                    <td>San Francisco Unified School District</td>
+                    <td><code>W-2025-10987</code></td>
+                    <td>Sep 30, 2025</td>
+                    <td>$50,000</td>
+                    <td>Sara S.</td>
+                    <td>Oct 1, 2025</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
 @section Scripts {
     <script>
-        const form = document.getElementById('uploadWarrantForm');
-        const warrantDate = document.getElementById('warrantDate');
+        const form = document.getElementById('bulkWarrantForm');
+        const warrantDates = document.querySelectorAll('.warrant-date');
 
-        // Set default date to today
-        warrantDate.valueAsDate = new Date();
+        // Set default date to today for all warrant date fields
+        const today = new Date().toISOString().split('T')[0];
+        warrantDates.forEach(input => {
+            input.value = today;
+        });
+
+        function toggleSelectAll(checkbox) {
+            const checkboxes = document.querySelectorAll('.submission-checkbox');
+            checkboxes.forEach(cb => cb.checked = checkbox.checked);
+        }
 
         // Form submission
         form.addEventListener('submit', function(e) {
             e.preventDefault();
 
-            const warrantNum = document.getElementById('warrantNumber').value;
-            const date = document.getElementById('warrantDate').value;
+            const selectedRows = document.querySelectorAll('.submission-checkbox:checked');
+            if (selectedRows.length === 0) {
+                alert('Please select at least one submission to record warrant numbers.');
+                return;
+            }
 
-            alert(`Warrant confirmation recorded successfully!\n\nWarrant Number: ${warrantNum}\nWarrant Date: ${date}\n\nThis is a POC demonstration. In production, this would:\n• Record the warrant confirmation in the system\n• Mark the disbursement as complete\n• Notify the LEA of payment completion\n• Generate a confirmation receipt`);
+            // Validate that selected rows have warrant numbers
+            let valid = true;
+            selectedRows.forEach(checkbox => {
+                const row = checkbox.closest('tr');
+                const warrantNumber = row.querySelector('.warrant-number').value;
+                if (!warrantNumber.trim()) {
+                    valid = false;
+                    row.querySelector('.warrant-number').classList.add('is-invalid');
+                } else {
+                    row.querySelector('.warrant-number').classList.remove('is-invalid');
+                }
+            });
+
+            if (!valid) {
+                alert('Please enter warrant numbers for all selected submissions.');
+                return;
+            }
+
+            alert(`${selectedRows.length} warrant number(s) recorded successfully!\n\nThis is a POC demonstration. In production, this would:\n• Record warrant numbers in the system\n• Mark submissions as payment complete\n• Notify LEAs of payment completion\n• Update disbursement records`);
 
             window.location.href = '@Url.Action("Dashboard", "GrantsTeam")';
         });
     </script>
 
     <style>
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .info-item {
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
-        }
-
-        .info-label {
+        .warrant-table .form-control-sm {
+            padding: 0.375rem 0.5rem;
             font-size: 0.875rem;
-            color: var(--gray-600);
-            font-weight: 500;
         }
 
-        .info-value {
-            font-size: 1rem;
-            color: var(--gray-900);
+        .warrant-table .warrant-number {
+            width: 150px;
         }
 
-        .info-value-highlight {
-            font-weight: 600;
-            color: var(--ctc-blue);
+        .warrant-table .warrant-date {
+            width: 140px;
         }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
+        .warrant-table input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
         }
 
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-label {
-            display: block;
-            font-weight: 600;
-            color: var(--gray-900);
-            margin-bottom: 0.5rem;
-        }
-
-        .required {
-            color: var(--danger);
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--gray-300);
-            border-radius: 6px;
-            font-size: 1rem;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--ctc-blue);
-            box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
-        }
-
-        .form-control::placeholder {
-            color: var(--gray-400);
-        }
-
-        textarea.form-control {
-            resize: vertical;
-            min-height: 100px;
+        .form-control.is-invalid {
+            border-color: var(--danger);
+            background-color: rgba(220, 53, 69, 0.05);
         }
 
         .form-actions {
             display: flex;
             gap: 1rem;
-            margin-top: 2rem;
-            padding-top: 1.5rem;
+            padding-top: 1rem;
             border-top: 1px solid var(--gray-200);
+        }
+
+        code {
+            background: var(--gray-100);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
         }
     </style>
 }

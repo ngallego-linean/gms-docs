@@ -73,15 +73,14 @@
         @{
             // MOCK DATA: Candidate status counts for the fiscal year (July 1 - June 30)
             // Fiscal Year 25-26: July 1, 2025 - June 30, 2026
+            // Note: Total = Pending + UnderReview + Waitlist + Approved + Paid
             var fiscalYearLabel = "FY 25-26";
             var statusCounts = new {
-                Total = 47,
-                Submitted = 8,
-                Pending = 6,
-                UnderReview = 5,
-                Waitlist = 2,
-                Approved = 12,
-                PaymentInProcess = 4,
+                Total = 42,
+                Pending = 8,
+                UnderReview = 6,
+                Waitlist = 3,
+                Approved = 15,
                 Paid = 10
             };
         }
@@ -140,7 +139,7 @@
                         <div class="metric-content">
                             <div class="metric-value">@statusCounts.Waitlist</div>
                             <div class="metric-label">Waitlist</div>
-                            <div class="metric-description">Approved, awaiting funding</div>
+                            <div class="metric-description">Pending available funding</div>
                         </div>
                     </div>
                 </a>
@@ -155,7 +154,21 @@
                     <div class="metric-content">
                         <div class="metric-value">@statusCounts.Approved</div>
                         <div class="metric-label">Approved</div>
-                        <div class="metric-description">Eligible for payment</div>
+                        <div class="metric-description">Commission approved</div>
+                    </div>
+                </div>
+            </a>
+
+            @* Paid *@
+            <a href="@Url.Action("Applications", "IHEPortal", new { iheId = Model.IHEId, grantCycleId = Model.GrantCycleId, status = "PAID" })" class="metric-card-link">
+                <div class="metric-card metric-success">
+                    <div class="metric-icon">
+                        <i class="mdi mdi-cash-check"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-value">@statusCounts.Paid</div>
+                        <div class="metric-label">Paid</div>
+                        <div class="metric-description">Payment to LEA complete</div>
                     </div>
                 </div>
             </a>
