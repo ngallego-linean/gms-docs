@@ -88,7 +88,7 @@ public class FiscalTeamController : Controller
                 GroupId = groupId,
                 GrantCycleId = grantCycleId,
                 GranteeName = leaInfo.Item1,
-                GrantNumber = $"STSP-{fiscalYear}-{fiscalYear + 1}-{groupId:D4}",
+                GrantNumber = $"{fiscalYear}STSP{groupId:D3}",  // Fi$Cal format: YearProgramCodeSeq
                 AgreementTerm = $"July 1, {fiscalYear} – June 30, {fiscalYear + 1}",
                 AgreementTermStart = $"July 1, {fiscalYear}",
                 AgreementTermEnd = $"June 30, {fiscalYear + 1}",
@@ -156,7 +156,7 @@ public class FiscalTeamController : Controller
             {
                 GroupId = groupId,
                 LEAName = leaName,
-                GrantNumber = $"STS-{grantCycleId}-{groupId:D4}", // Mock grant number
+                GrantNumber = $"2025STSP{groupId:D3}",  // Fi$Cal format: YearProgramCodeSeq
                 AgreementTermStart = "July 1, 2024",
                 AgreementTermEnd = "June 30, 2025",
                 SubmissionMonth = DateTime.Now.ToString("MMMM yyyy"),
@@ -372,10 +372,10 @@ public class FiscalTeamController : Controller
             GranteeCity = leaInfo.Item3,
             GranteeState = "CA",
             GranteeZip = leaInfo.Item4,
-            InvoiceNumber = $"INV-STS-2025-{groupId:D3}",
+            InvoiceNumber = $"2025STSP{groupId:D3}-1",  // Fi$Cal format: YearProgramCodeSeq-Disbursement
             InvoiceDate = DateTime.Now,
-            PONumber = $"PO-{DateTime.Now:yyyyMM}-{groupId:D3}",
-            GrantNumber = $"STS-2025-{groupId:D3}",
+            PONumber = $"6360-000000{4200 + groupId}",  // Fi$Cal PO format
+            GrantNumber = $"2025STSP{groupId:D3}",  // Fi$Cal format: YearProgramCodeSeq
             TotalAmount = mockStudents.Sum(s => s.AwardAmount),
             StudentCount = mockStudents.Count,
             Students = mockStudents

@@ -3,11 +3,10 @@
 @{
     ViewData["Title"] = "Invoice Preview";
 
-    // Invoice Number Format: [GrantNumber]-[SequentialNumber]
-    // Example: STSP-2526-LAUSD-001-01
-    // The invoice number follows the grant number with a unique sequence at the end
-    var invoiceSequence = "01"; // This would come from the database in production
-    var formattedInvoiceNumber = $"{Model.GrantNumber}-{invoiceSequence}";
+    // Invoice Number Format: Fi$Cal format [Year][ProgramCode][Seq]-[Disbursement]
+    // Example: 2025STSP001-1 (Year 2025, Student Teacher Stipend Program, Grant #001, Disbursement #1)
+    // This format matches what Fi$Cal uses for voucher tracking
+    var formattedInvoiceNumber = Model.InvoiceNumber ?? $"{Model.GrantNumber}-1";
 }
 
 @section Breadcrumbs {
