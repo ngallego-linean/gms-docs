@@ -1,0 +1,328 @@
+@{
+    ViewData["Title"] = ViewBag.ReportTitle;
+
+    // Key metrics
+    var metrics = new {
+        TotalFunded = 214,
+        ProgramCompleted = 187,
+        CompletionRate = 87.4,
+        CredentialsEarned = 162,
+        CredentialRate = 86.6,
+        Employed = 158,
+        EmploymentRate = 84.5,
+        HiredInDistrict = 142,
+        HiredInDistrictRate = 89.9
+    };
+
+    // Credential area outcomes
+    var credentialOutcomes = new[] {
+        new { Area = "Multiple Subject", Funded = 68, Completed = 62, CompletionRate = 91.2, Employed = 58, EmploymentRate = 93.5 },
+        new { Area = "Single Subject - Math", Funded = 42, Completed = 35, CompletionRate = 83.3, Employed = 33, EmploymentRate = 94.3 },
+        new { Area = "Single Subject - English", Funded = 28, Completed = 24, CompletionRate = 85.7, Employed = 22, EmploymentRate = 91.7 },
+        new { Area = "Single Subject - Science", Funded = 24, Completed = 20, CompletionRate = 83.3, Employed = 19, EmploymentRate = 95.0 },
+        new { Area = "Education Specialist", Funded = 52, Completed = 46, CompletionRate = 88.5, Employed = 26, EmploymentRate = 56.5 }
+    };
+
+    // IHE outcomes
+    var iheOutcomes = new[] {
+        new { IHE = "UCLA", Students = 32, Completions = 29, AvgProgramHours = 542, Met500Hrs = 96.9, Met600Hrs = 89.7 },
+        new { IHE = "SDSU", Students = 28, Completions = 24, AvgProgramHours = 518, Met500Hrs = 92.9, Met600Hrs = 82.1 },
+        new { IHE = "Fresno State", Students = 26, Completions = 23, AvgProgramHours = 535, Met500Hrs = 96.2, Met600Hrs = 88.5 },
+        new { IHE = "Sac State", Students = 24, Completions = 21, AvgProgramHours = 528, Met500Hrs = 95.8, Met600Hrs = 83.3 },
+        new { IHE = "Cal State East Bay", Students = 22, Completions = 19, AvgProgramHours = 512, Met500Hrs = 90.9, Met600Hrs = 77.3 },
+        new { IHE = "Cal State Long Beach", Students = 20, Completions = 18, AvgProgramHours = 548, Met500Hrs = 95.0, Met600Hrs = 90.0 },
+        new { IHE = "SF State", Students = 18, Completions = 16, AvgProgramHours = 505, Met500Hrs = 88.9, Met600Hrs = 72.2 },
+        new { IHE = "San Jose State", Students = 16, Completions = 14, AvgProgramHours = 522, Met500Hrs = 93.8, Met600Hrs = 81.3 }
+    };
+
+    // Employment outcomes
+    var employmentBreakdown = new[] {
+        new { Status = "Hired in Sponsoring District", Count = 142, Percent = 89.9, Color = "#28A745" },
+        new { Status = "Hired in Other CA District", Count = 12, Percent = 7.6, Color = "#17A2B8" },
+        new { Status = "Hired Out of State", Count = 2, Percent = 1.3, Color = "#6C757D" },
+        new { Status = "Not Teaching", Count = 2, Percent = 1.3, Color = "#DC3545" }
+    };
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam")">Grants Team</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "Reporting")">Reporting</a></li>
+        <li class="breadcrumb-item active">Program Outcomes Report</li>
+    </ol>
+}
+
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+    <div>
+        <h2><i class="mdi mdi-chart-line"></i> @ViewBag.ReportTitle</h2>
+        <p class="subtitle">@ViewBag.GrantCycle - Student Teacher Stipend Program</p>
+    </div>
+    <div class="report-actions">
+        <button class="r4-button r4-button-secondary" onclick="window.print();">
+            <i class="mdi mdi-printer"></i> Print
+        </button>
+        <button class="r4-button r4-button-primary" onclick="alert('PDF export coming soon');">
+            <i class="mdi mdi-file-pdf-box"></i> Export PDF
+        </button>
+        <button class="r4-button r4-button-secondary" onclick="alert('Excel export coming soon');">
+            <i class="mdi mdi-file-excel"></i> Export Excel
+        </button>
+    </div>
+</div>
+
+<!-- Report Metadata -->
+<div class="r4-card">
+    <div class="r4-card-body" style="display: flex; justify-content: space-between; padding: 1rem 1.5rem; background: var(--gray-100);">
+        <div><strong>Grant Cycle:</strong> @ViewBag.GrantCycle</div>
+        <div><strong>Program:</strong> Student Teacher Stipend Program</div>
+        <div><strong>Generated:</strong> @((DateTime)ViewBag.GeneratedDate).ToString("MMMM d, yyyy h:mm tt")</div>
+    </div>
+</div>
+
+<!-- Key Metrics -->
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-chart-box-outline"></i> Key Metrics</h4>
+    </div>
+    <div class="r4-card-body">
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;">
+            <div class="metric-card metric-card-primary">
+                <div class="metric-icon"><i class="mdi mdi-school"></i></div>
+                <div class="metric-content">
+                    <div class="metric-label">Program Completion Rate</div>
+                    <div class="metric-value">@metrics.CompletionRate%</div>
+                    <div class="metric-secondary">@metrics.ProgramCompleted of @metrics.TotalFunded completed</div>
+                </div>
+            </div>
+            <div class="metric-card metric-card-success">
+                <div class="metric-icon"><i class="mdi mdi-certificate"></i></div>
+                <div class="metric-content">
+                    <div class="metric-label">Credentials Earned</div>
+                    <div class="metric-value">@metrics.CredentialsEarned</div>
+                    <div class="metric-secondary">@metrics.CredentialRate% of completers</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon"><i class="mdi mdi-briefcase-check"></i></div>
+                <div class="metric-content">
+                    <div class="metric-label">Employment Rate</div>
+                    <div class="metric-value">@metrics.EmploymentRate%</div>
+                    <div class="metric-secondary">@metrics.Employed employed in education</div>
+                </div>
+            </div>
+            <div class="metric-card metric-card-success">
+                <div class="metric-icon"><i class="mdi mdi-home-city"></i></div>
+                <div class="metric-content">
+                    <div class="metric-label">Hired in District</div>
+                    <div class="metric-value">@metrics.HiredInDistrictRate%</div>
+                    <div class="metric-secondary">@metrics.HiredInDistrict in sponsoring LEA</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Credential Area Outcomes -->
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-certificate-outline"></i> Outcomes by Credential Area</h4>
+    </div>
+    <div class="r4-card-body">
+        <table class="r4-table">
+            <thead>
+                <tr>
+                    <th>Credential Area</th>
+                    <th style="text-align: right;">Students Funded</th>
+                    <th style="text-align: right;">Completed</th>
+                    <th style="text-align: right;">Completion Rate</th>
+                    <th style="text-align: right;">Employed</th>
+                    <th style="text-align: right;">Employment Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in credentialOutcomes)
+                {
+                    <tr>
+                        <td><strong>@item.Area</strong></td>
+                        <td style="text-align: right;">@item.Funded</td>
+                        <td style="text-align: right;">@item.Completed</td>
+                        <td style="text-align: right;">
+                            <span class="status-badge @(item.CompletionRate >= 85 ? "status-success" : "status-warning")">@item.CompletionRate.ToString("F1")%</span>
+                        </td>
+                        <td style="text-align: right;">@item.Employed</td>
+                        <td style="text-align: right;">
+                            <span class="status-badge @(item.EmploymentRate >= 80 ? "status-success" : "status-warning")">@item.EmploymentRate.ToString("F1")%</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr style="font-weight: 600; background: var(--gray-100);">
+                    <td>Total</td>
+                    <td style="text-align: right;">@credentialOutcomes.Sum(c => c.Funded)</td>
+                    <td style="text-align: right;">@credentialOutcomes.Sum(c => c.Completed)</td>
+                    <td style="text-align: right;">@metrics.CompletionRate%</td>
+                    <td style="text-align: right;">@credentialOutcomes.Sum(c => c.Employed)</td>
+                    <td style="text-align: right;">@metrics.EmploymentRate%</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<!-- Employment Outcomes -->
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-briefcase-outline"></i> Employment Outcomes</h4>
+    </div>
+    <div class="r4-card-body">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <div>
+                <table class="r4-table">
+                    <thead>
+                        <tr>
+                            <th>Employment Status</th>
+                            <th style="text-align: right;">Count</th>
+                            <th style="text-align: right;">Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in employmentBreakdown)
+                        {
+                            <tr>
+                                <td>
+                                    <span style="display: inline-block; width: 12px; height: 12px; border-radius: 2px; background: @item.Color; margin-right: 8px;"></span>
+                                    @item.Status
+                                </td>
+                                <td style="text-align: right;">@item.Count</td>
+                                <td style="text-align: right;">@item.Percent.ToString("F1")%</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr style="font-weight: 600; background: var(--gray-100);">
+                            <td>Total Employed/Tracked</td>
+                            <td style="text-align: right;">@employmentBreakdown.Sum(e => e.Count)</td>
+                            <td style="text-align: right;">100%</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: center;">
+                <canvas id="employmentChart" style="max-height: 250px;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- IHE Outcomes -->
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-school-outline"></i> IHE Outcomes</h4>
+    </div>
+    <div class="r4-card-body">
+        <table class="r4-table">
+            <thead>
+                <tr>
+                    <th>IHE</th>
+                    <th style="text-align: right;">Students</th>
+                    <th style="text-align: right;">Completions</th>
+                    <th style="text-align: right;">Avg Program Hours</th>
+                    <th style="text-align: right;">Met 500hr Req</th>
+                    <th style="text-align: right;">Met 600hr Req</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ihe in iheOutcomes)
+                {
+                    <tr>
+                        <td><strong>@ihe.IHE</strong></td>
+                        <td style="text-align: right;">@ihe.Students</td>
+                        <td style="text-align: right;">@ihe.Completions</td>
+                        <td style="text-align: right;">@ihe.AvgProgramHours hrs</td>
+                        <td style="text-align: right;">
+                            <span class="status-badge @(ihe.Met500Hrs >= 90 ? "status-success" : "status-warning")">@ihe.Met500Hrs.ToString("F1")%</span>
+                        </td>
+                        <td style="text-align: right;">
+                            <span class="status-badge @(ihe.Met600Hrs >= 80 ? "status-success" : "status-warning")">@ihe.Met600Hrs.ToString("F1")%</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr style="font-weight: 600; background: var(--gray-100);">
+                    <td>Average / Total</td>
+                    <td style="text-align: right;">@iheOutcomes.Sum(i => i.Students)</td>
+                    <td style="text-align: right;">@iheOutcomes.Sum(i => i.Completions)</td>
+                    <td style="text-align: right;">@iheOutcomes.Average(i => i.AvgProgramHours).ToString("F0") hrs</td>
+                    <td style="text-align: right;">@iheOutcomes.Average(i => i.Met500Hrs).ToString("F1")%</td>
+                    <td style="text-align: right;">@iheOutcomes.Average(i => i.Met600Hrs).ToString("F1")%</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<!-- Program Impact Summary -->
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-star-outline"></i> Program Impact Summary</h4>
+    </div>
+    <div class="r4-card-body">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
+            <div style="text-align: center; padding: 2rem; background: linear-gradient(135deg, var(--ctc-blue) 0%, #2a5a8f 100%); border-radius: 8px; color: white;">
+                <div style="font-size: 3rem; font-weight: 700;">@metrics.CredentialsEarned</div>
+                <div style="font-size: 1rem; opacity: 0.9;">New Credentialed Teachers</div>
+            </div>
+            <div style="text-align: center; padding: 2rem; background: linear-gradient(135deg, var(--success) 0%, #1e7e34 100%); border-radius: 8px; color: white;">
+                <div style="font-size: 3rem; font-weight: 700;">@metrics.HiredInDistrict</div>
+                <div style="font-size: 1rem; opacity: 0.9;">Teachers in High-Need Districts</div>
+            </div>
+            <div style="text-align: center; padding: 2rem; background: linear-gradient(135deg, var(--ctc-gold) 0%, #a67c10 100%); border-radius: 8px; color: white;">
+                <div style="font-size: 3rem; font-weight: 700;">$2.14M</div>
+                <div style="font-size: 1rem; opacity: 0.9;">Invested in Teacher Pipeline</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Report Footer -->
+<div style="margin-top: 2rem; padding: 1rem; border-top: 1px solid var(--gray-300); color: var(--gray-500); font-size: 0.75rem; display: flex; justify-content: space-between;">
+    <div>California Commission on Teacher Credentialing - Confidential Internal Use Only</div>
+    <div>Generated: @((DateTime)ViewBag.GeneratedDate).ToString("MM/dd/yyyy HH:mm")</div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        new Chart(document.getElementById('employmentChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Hired in Sponsoring District', 'Hired in Other CA District', 'Hired Out of State', 'Not Teaching'],
+                datasets: [{
+                    data: [142, 12, 2, 2],
+                    backgroundColor: ['#28A745', '#17A2B8', '#6C757D', '#DC3545'],
+                    borderColor: '#FFFFFF',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { padding: 15, usePointStyle: true }
+                    }
+                }
+            }
+        });
+    </script>
+}
+
+<style>
+    @@media print {
+        .breadcrumb, .report-actions, .r4-sidebar, .r4-header { display: none !important; }
+        .r4-card { break-inside: avoid; box-shadow: none !important; border: 1px solid #ccc; }
+    }
+</style>
