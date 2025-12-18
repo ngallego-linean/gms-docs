@@ -521,4 +521,41 @@ public class ReportingController : Controller
         if (percentage >= 50) return "warning";
         return "danger";
     }
+
+    // Quick Access Reports
+    [Route("DemographicsReport")]
+    public IActionResult DemographicsReport()
+    {
+        ViewBag.ReportTitle = "Current Demographics Report";
+        ViewBag.GrantCycle = "FY 2025-26";
+        ViewBag.GeneratedDate = DateTime.Now;
+        return View();
+    }
+
+    [Route("LEAPerformanceReport")]
+    public IActionResult LEAPerformanceReport()
+    {
+        ViewBag.ReportTitle = "LEA Performance Report";
+        ViewBag.GrantCycle = "FY 2025-26";
+        ViewBag.GeneratedDate = DateTime.Now;
+        return View();
+    }
+
+    [Route("FinancialSummaryReport")]
+    public IActionResult FinancialSummaryReport()
+    {
+        ViewBag.ReportTitle = "Financial Summary Report";
+        ViewBag.GrantCycle = "FY 2025-26";
+        ViewBag.GeneratedDate = DateTime.Now;
+        return View();
+    }
+
+    [Route("ProgramOutcomesReport")]
+    public IActionResult ProgramOutcomesReport()
+    {
+        ViewBag.ReportTitle = "Program Outcomes Report";
+        ViewBag.GrantCycle = "FY 2025-26";
+        ViewBag.GeneratedDate = DateTime.Now;
+        return View();
+    }
 }

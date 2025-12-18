@@ -1,0 +1,304 @@
+@{
+    ViewData["Title"] = ViewBag.ReportTitle;
+
+    // Budget overview
+    var budget = new {
+        Appropriated = 5000000m,
+        Encumbered = 2140000m,
+        Disbursed = 1648000m,
+        Remaining = 2860000m
+    };
+
+    // Disbursement details
+    var disbursements = new[] {
+        new { LEA = "Los Angeles USD", GrantNumber = "2025STSP001", InvoiceNumber = "2025STSP001-1", PONumber = "6360-0000004201", Amount = 360000m, WarrantId = "60581151", WarrantDate = "Nov 25, 2025", Status = "Paid" },
+        new { LEA = "San Diego USD", GrantNumber = "2025STSP002", InvoiceNumber = "2025STSP002-1", PONumber = "6360-0000004202", Amount = 256000m, WarrantId = "60581152", WarrantDate = "Nov 25, 2025", Status = "Paid" },
+        new { LEA = "Fresno USD", GrantNumber = "2025STSP003", InvoiceNumber = "2025STSP003-1", PONumber = "6360-0000004203", Amount = 224000m, WarrantId = "60581153", WarrantDate = "Nov 25, 2025", Status = "Paid" },
+        new { LEA = "Sacramento City USD", GrantNumber = "2025STSP004", InvoiceNumber = "2025STSP004-1", PONumber = "6360-0000004204", Amount = 192000m, WarrantId = "60581154", WarrantDate = "Nov 25, 2025", Status = "Paid" },
+        new { LEA = "Oakland USD", GrantNumber = "2025STSP005", InvoiceNumber = "2025STSP005-1", PONumber = "6360-0000004205", Amount = 176000m, WarrantId = "60581155", WarrantDate = "Nov 20, 2025", Status = "Paid" },
+        new { LEA = "Long Beach USD", GrantNumber = "2025STSP006", InvoiceNumber = "2025STSP006-1", PONumber = "6360-0000004206", Amount = 144000m, WarrantId = "-", WarrantDate = "-", Status = "Awaiting Warrant" },
+        new { LEA = "San Francisco USD", GrantNumber = "2025STSP007", InvoiceNumber = "2025STSP007-1", PONumber = "6360-0000004207", Amount = 120000m, WarrantId = "60581156", WarrantDate = "Nov 15, 2025", Status = "Paid" },
+        new { LEA = "San Jose USD", GrantNumber = "2025STSP008", InvoiceNumber = "2025STSP008-1", PONumber = "-", Amount = 96000m, WarrantId = "-", WarrantDate = "-", Status = "Awaiting PO" },
+        new { LEA = "Santa Ana USD", GrantNumber = "2025STSP009", InvoiceNumber = "2025STSP009-1", PONumber = "6360-0000004209", Amount = 80000m, WarrantId = "-", WarrantDate = "-", Status = "Awaiting Warrant" },
+        new { LEA = "Bakersfield City SD", GrantNumber = "2025STSP010", InvoiceNumber = "-", PONumber = "-", Amount = 80000m, WarrantId = "-", WarrantDate = "-", Status = "Pending Invoice" }
+    };
+
+    // Monthly disbursements
+    var monthlyData = new[] {
+        new { Month = "July 2025", Amount = 0m },
+        new { Month = "August 2025", Amount = 120000m },
+        new { Month = "September 2025", Amount = 280000m },
+        new { Month = "October 2025", Amount = 456000m },
+        new { Month = "November 2025", Amount = 792000m }
+    };
+
+    var pendingActions = new {
+        PendingGAA = 2,
+        PendingInvoice = 1,
+        AwaitingPO = 1,
+        AwaitingWarrant = 2
+    };
+
+    var totalDisbursed = disbursements.Where(d => d.Status == "Paid").Sum(d => d.Amount);
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam")">Grants Team</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "Reporting")">Reporting</a></li>
+        <li class="breadcrumb-item active">Financial Summary Report</li>
+    </ol>
+}
+
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+    <div>
+        <h2><i class="mdi mdi-currency-usd"></i> @ViewBag.ReportTitle</h2>
+        <p class="subtitle">@ViewBag.GrantCycle - Student Teacher Stipend Program</p>
+    </div>
+    <div class="report-actions">
+        <button class="r4-button r4-button-secondary" onclick="window.print();">
+            <i class="mdi mdi-printer"></i> Print
+        </button>
+        <button class="r4-button r4-button-primary" onclick="alert('PDF export coming soon');">
+            <i class="mdi mdi-file-pdf-box"></i> Export PDF
+        </button>
+        <button class="r4-button r4-button-secondary" onclick="alert('Excel export coming soon');">
+            <i class="mdi mdi-file-excel"></i> Export Excel
+        </button>
+    </div>
+</div>
+
+<!-- Report Metadata -->
+<div class="r4-card">
+    <div class="r4-card-body" style="display: flex; justify-content: space-between; padding: 1rem 1.5rem; background: var(--gray-100);">
+        <div><strong>Grant Cycle:</strong> @ViewBag.GrantCycle</div>
+        <div><strong>Program:</strong> Student Teacher Stipend Program</div>
+        <div><strong>As of:</strong> @((DateTime)ViewBag.GeneratedDate).ToString("MMMM d, yyyy h:mm tt")</div>
+    </div>
+</div>
+
+<!-- Budget Overview -->
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-bank"></i> Budget Overview</h4>
+    </div>
+    <div class="r4-card-body">
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 1.5rem;">
+            <div class="metric-card">
+                <div class="metric-icon"><i class="mdi mdi-bank"></i></div>
+                <div class="metric-content">
+                    <div class="metric-label">Appropriated</div>
+                    <div class="metric-value">@budget.Appropriated.ToString("C0")</div>
+                </div>
+            </div>
+            <div class="metric-card metric-card-warning">
+                <div class="metric-icon"><i class="mdi mdi-lock-outline"></i></div>
+                <div class="metric-content">
+                    <div class="metric-label">Encumbered</div>
+                    <div class="metric-value">@budget.Encumbered.ToString("C0")</div>
+                    <div class="metric-secondary">@((budget.Encumbered / budget.Appropriated * 100).ToString("F1"))%</div>
+                </div>
+            </div>
+            <div class="metric-card metric-card-success">
+                <div class="metric-icon"><i class="mdi mdi-cash-check"></i></div>
+                <div class="metric-content">
+                    <div class="metric-label">Disbursed</div>
+                    <div class="metric-value">@budget.Disbursed.ToString("C0")</div>
+                    <div class="metric-secondary">@((budget.Disbursed / budget.Appropriated * 100).ToString("F1"))%</div>
+                </div>
+            </div>
+            <div class="metric-card metric-card-primary">
+                <div class="metric-icon"><i class="mdi mdi-cash-plus"></i></div>
+                <div class="metric-content">
+                    <div class="metric-label">Remaining</div>
+                    <div class="metric-value">@budget.Remaining.ToString("C0")</div>
+                    <div class="metric-secondary">@((budget.Remaining / budget.Appropriated * 100).ToString("F1"))%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Budget Progress Bar -->
+        <div style="margin-top: 1rem;">
+            <div style="font-weight: 600; margin-bottom: 0.5rem;">Budget Utilization</div>
+            <div style="height: 30px; display: flex; border-radius: 4px; overflow: hidden;">
+                <div style="width: @((budget.Disbursed / budget.Appropriated * 100).ToString("F1"))%; background: var(--success); display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 600;">
+                    @((budget.Disbursed / budget.Appropriated * 100).ToString("F0"))% Disbursed
+                </div>
+                <div style="width: @(((budget.Encumbered - budget.Disbursed) / budget.Appropriated * 100).ToString("F1"))%; background: var(--warning); display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 600;">
+                    @(((budget.Encumbered - budget.Disbursed) / budget.Appropriated * 100).ToString("F0"))% Pending
+                </div>
+                <div style="flex: 1; background: var(--gray-200); display: flex; align-items: center; justify-content: center; color: var(--gray-600); font-size: 0.75rem; font-weight: 600;">
+                    @((budget.Remaining / budget.Appropriated * 100).ToString("F0"))% Available
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Monthly Disbursements Chart -->
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-chart-bar"></i> Monthly Disbursements</h4>
+    </div>
+    <div class="r4-card-body">
+        <div style="max-width: 800px; margin: 0 auto;">
+            <canvas id="monthlyChart" style="max-height: 300px;"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Pending Actions -->
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-clock-alert-outline"></i> Pending Actions</h4>
+    </div>
+    <div class="r4-card-body">
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;">
+            <div style="text-align: center; padding: 1.5rem; border: 1px solid var(--gray-300); border-radius: 8px;">
+                <div style="font-size: 2rem; font-weight: 700; color: var(--warning);">@pendingActions.PendingGAA</div>
+                <div style="font-size: 0.875rem; color: var(--gray-600);">GAAs Awaiting Signature</div>
+            </div>
+            <div style="text-align: center; padding: 1.5rem; border: 1px solid var(--gray-300); border-radius: 8px;">
+                <div style="font-size: 2rem; font-weight: 700; color: var(--warning);">@pendingActions.PendingInvoice</div>
+                <div style="font-size: 0.875rem; color: var(--gray-600);">Pending Invoice Submission</div>
+            </div>
+            <div style="text-align: center; padding: 1.5rem; border: 1px solid var(--gray-300); border-radius: 8px;">
+                <div style="font-size: 2rem; font-weight: 700; color: var(--info);">@pendingActions.AwaitingPO</div>
+                <div style="font-size: 0.875rem; color: var(--gray-600);">Invoices Awaiting PO</div>
+            </div>
+            <div style="text-align: center; padding: 1.5rem; border: 1px solid var(--gray-300); border-radius: 8px;">
+                <div style="font-size: 2rem; font-weight: 700; color: var(--info);">@pendingActions.AwaitingWarrant</div>
+                <div style="font-size: 0.875rem; color: var(--gray-600);">Invoices Awaiting Warrant</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Disbursement Detail Table -->
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-table"></i> Disbursement Details</h4>
+    </div>
+    <div class="r4-card-body">
+        <table class="r4-table">
+            <thead>
+                <tr>
+                    <th>LEA</th>
+                    <th>Grant Number</th>
+                    <th>Invoice Number</th>
+                    <th>PO Number</th>
+                    <th style="text-align: right;">Amount</th>
+                    <th>Warrant ID</th>
+                    <th>Warrant Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in disbursements)
+                {
+                    <tr>
+                        <td><strong>@item.LEA</strong></td>
+                        <td><code>@item.GrantNumber</code></td>
+                        <td><code>@item.InvoiceNumber</code></td>
+                        <td><code>@item.PONumber</code></td>
+                        <td style="text-align: right;">@item.Amount.ToString("C0")</td>
+                        <td><code>@item.WarrantId</code></td>
+                        <td>@item.WarrantDate</td>
+                        <td>
+                            @if (item.Status == "Paid")
+                            {
+                                <span class="status-badge status-success">@item.Status</span>
+                            }
+                            else if (item.Status == "Awaiting Warrant" || item.Status == "Awaiting PO")
+                            {
+                                <span class="status-badge status-info">@item.Status</span>
+                            }
+                            else
+                            {
+                                <span class="status-badge status-warning">@item.Status</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr style="font-weight: 600; background: var(--gray-100);">
+                    <td colspan="4">Total</td>
+                    <td style="text-align: right;">@disbursements.Sum(d => d.Amount).ToString("C0")</td>
+                    <td colspan="3">@disbursements.Count(d => d.Status == "Paid") of @disbursements.Length paid</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<!-- Fi$Cal Reconciliation -->
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-check-decagram"></i> Fi$Cal Reconciliation</h4>
+    </div>
+    <div class="r4-card-body">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
+            <div style="text-align: center; padding: 1.5rem; background: var(--gray-100); border-radius: 8px;">
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--ctc-blue);">@disbursements.Count(d => d.InvoiceNumber != "-")</div>
+                <div style="font-size: 0.875rem; color: var(--gray-600);">Invoices Submitted to Fi$Cal</div>
+            </div>
+            <div style="text-align: center; padding: 1.5rem; background: var(--gray-100); border-radius: 8px;">
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);">@disbursements.Count(d => d.WarrantId != "-")</div>
+                <div style="font-size: 0.875rem; color: var(--gray-600);">Warrants Received</div>
+            </div>
+            <div style="text-align: center; padding: 1.5rem; background: var(--gray-100); border-radius: 8px;">
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--warning);">@(disbursements.Count(d => d.InvoiceNumber != "-") - disbursements.Count(d => d.WarrantId != "-"))</div>
+                <div style="font-size: 0.875rem; color: var(--gray-600);">Pending Reconciliation</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Report Footer -->
+<div style="margin-top: 2rem; padding: 1rem; border-top: 1px solid var(--gray-300); color: var(--gray-500); font-size: 0.75rem; display: flex; justify-content: space-between;">
+    <div>California Commission on Teacher Credentialing - Confidential Internal Use Only</div>
+    <div>Generated: @((DateTime)ViewBag.GeneratedDate).ToString("MM/dd/yyyy HH:mm")</div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        new Chart(document.getElementById('monthlyChart'), {
+            type: 'bar',
+            data: {
+                labels: ['July', 'August', 'September', 'October', 'November'],
+                datasets: [{
+                    label: 'Disbursements',
+                    data: [0, 120000, 280000, 456000, 792000],
+                    backgroundColor: '#1E3A5F',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + (value / 1000) + 'K';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}
+
+<style>
+    @@media print {
+        .breadcrumb, .report-actions, .r4-sidebar, .r4-header { display: none !important; }
+        .r4-card { break-inside: avoid; box-shadow: none !important; border: 1px solid #ccc; }
+    }
+</style>

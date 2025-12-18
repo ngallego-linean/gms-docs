@@ -1,0 +1,251 @@
+@{
+    ViewData["Title"] = ViewBag.ReportTitle;
+
+    // Mock data for LEA performance report
+    var leaSummary = new[] {
+        new { LEA = "Los Angeles USD", County = "Los Angeles", Students = 45, Awarded = 450000m, Disbursed = 360000m, GAAStatus = "Active", Compliance = 100.0, ComplianceClass = "success" },
+        new { LEA = "San Diego USD", County = "San Diego", Students = 32, Awarded = 320000m, Disbursed = 256000m, GAAStatus = "Active", Compliance = 100.0, ComplianceClass = "success" },
+        new { LEA = "Fresno USD", County = "Fresno", Students = 28, Awarded = 280000m, Disbursed = 224000m, GAAStatus = "Active", Compliance = 85.7, ComplianceClass = "warning" },
+        new { LEA = "Sacramento City USD", County = "Sacramento", Students = 24, Awarded = 240000m, Disbursed = 192000m, GAAStatus = "Active", Compliance = 100.0, ComplianceClass = "success" },
+        new { LEA = "Oakland USD", County = "Alameda", Students = 22, Awarded = 220000m, Disbursed = 176000m, GAAStatus = "Active", Compliance = 90.9, ComplianceClass = "warning" },
+        new { LEA = "Long Beach USD", County = "Los Angeles", Students = 18, Awarded = 180000m, Disbursed = 144000m, GAAStatus = "Pending", Compliance = 66.7, ComplianceClass = "warning" },
+        new { LEA = "San Francisco USD", County = "San Francisco", Students = 15, Awarded = 150000m, Disbursed = 120000m, GAAStatus = "Active", Compliance = 100.0, ComplianceClass = "success" },
+        new { LEA = "San Jose USD", County = "Santa Clara", Students = 12, Awarded = 120000m, Disbursed = 96000m, GAAStatus = "Active", Compliance = 75.0, ComplianceClass = "warning" },
+        new { LEA = "Santa Ana USD", County = "Orange", Students = 10, Awarded = 100000m, Disbursed = 80000m, GAAStatus = "Active", Compliance = 100.0, ComplianceClass = "success" },
+        new { LEA = "Bakersfield City SD", County = "Kern", Students = 8, Awarded = 80000m, Disbursed = 0m, GAAStatus = "Pending", Compliance = 0.0, ComplianceClass = "danger" }
+    };
+
+    var totalStudents = leaSummary.Sum(l => l.Students);
+    var totalAwarded = leaSummary.Sum(l => l.Awarded);
+    var totalDisbursed = leaSummary.Sum(l => l.Disbursed);
+    var avgStudentsPerLEA = (double)totalStudents / leaSummary.Length;
+    var overallCompliance = leaSummary.Average(l => l.Compliance);
+
+    var complianceSummary = new {
+        FullCompliance = leaSummary.Count(l => l.Compliance == 100.0),
+        PartialCompliance = leaSummary.Count(l => l.Compliance > 0 && l.Compliance < 100.0),
+        NoCompliance = leaSummary.Count(l => l.Compliance == 0)
+    };
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam")">Grants Team</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "Reporting")">Reporting</a></li>
+        <li class="breadcrumb-item active">LEA Performance Report</li>
+    </ol>
+}
+
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+    <div>
+        <h2><i class="mdi mdi-domain"></i> @ViewBag.ReportTitle</h2>
+        <p class="subtitle">@ViewBag.GrantCycle - Student Teacher Stipend Program</p>
+    </div>
+    <div class="report-actions">
+        <button class="r4-button r4-button-secondary" onclick="window.print();">
+            <i class="mdi mdi-printer"></i> Print
+        </button>
+        <button class="r4-button r4-button-primary" onclick="alert('PDF export coming soon');">
+            <i class="mdi mdi-file-pdf-box"></i> Export PDF
+        </button>
+        <button class="r4-button r4-button-secondary" onclick="alert('Excel export coming soon');">
+            <i class="mdi mdi-file-excel"></i> Export Excel
+        </button>
+    </div>
+</div>
+
+<!-- Report Metadata -->
+<div class="r4-card">
+    <div class="r4-card-body" style="display: flex; justify-content: space-between; padding: 1rem 1.5rem; background: var(--gray-100);">
+        <div><strong>Grant Cycle:</strong> @ViewBag.GrantCycle</div>
+        <div><strong>Program:</strong> Student Teacher Stipend Program</div>
+        <div><strong>Generated:</strong> @((DateTime)ViewBag.GeneratedDate).ToString("MMMM d, yyyy h:mm tt")</div>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-chart-box-outline"></i> Summary</h4>
+    </div>
+    <div class="r4-card-body">
+        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.5rem;">
+            <div class="metric-card metric-card-primary">
+                <div class="metric-icon"><i class="mdi mdi-domain"></i></div>
+                <div class="metric-content">
+                    <div class="metric-label">Total LEAs</div>
+                    <div class="metric-value">@leaSummary.Length</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon"><i class="mdi mdi-account-group"></i></div>
+                <div class="metric-content">
+                    <div class="metric-label">Students Funded</div>
+                    <div class="metric-value">@totalStudents</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon"><i class="mdi mdi-calculator"></i></div>
+                <div class="metric-content">
+                    <div class="metric-label">Avg per LEA</div>
+                    <div class="metric-value">@avgStudentsPerLEA.ToString("F1")</div>
+                </div>
+            </div>
+            <div class="metric-card metric-card-success">
+                <div class="metric-icon"><i class="mdi mdi-cash-check"></i></div>
+                <div class="metric-content">
+                    <div class="metric-label">Total Disbursed</div>
+                    <div class="metric-value">@totalDisbursed.ToString("C0")</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon"><i class="mdi mdi-check-decagram"></i></div>
+                <div class="metric-content">
+                    <div class="metric-label">Compliance Rate</div>
+                    <div class="metric-value">@overallCompliance.ToString("F0")%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Compliance Summary -->
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-shield-check-outline"></i> Compliance Status</h4>
+    </div>
+    <div class="r4-card-body">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
+            <div style="text-align: center; padding: 1.5rem; border-radius: 8px; background: var(--success-bg); border: 1px solid var(--success);">
+                <div style="font-size: 2.5rem; font-weight: 700; color: var(--success);">@complianceSummary.FullCompliance</div>
+                <div style="font-size: 0.875rem; color: var(--gray-700);">Full Compliance (100%)</div>
+            </div>
+            <div style="text-align: center; padding: 1.5rem; border-radius: 8px; background: var(--warning-bg); border: 1px solid var(--warning);">
+                <div style="font-size: 2.5rem; font-weight: 700; color: var(--warning);">@complianceSummary.PartialCompliance</div>
+                <div style="font-size: 0.875rem; color: var(--gray-700);">Partial Compliance</div>
+            </div>
+            <div style="text-align: center; padding: 1.5rem; border-radius: 8px; background: var(--danger-bg); border: 1px solid var(--danger);">
+                <div style="font-size: 2.5rem; font-weight: 700; color: var(--danger);">@complianceSummary.NoCompliance</div>
+                <div style="font-size: 0.875rem; color: var(--gray-700);">No Compliance</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Performers -->
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-trophy-outline"></i> Top Performing LEAs (by Student Count)</h4>
+    </div>
+    <div class="r4-card-body">
+        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem;">
+            @foreach (var lea in leaSummary.OrderByDescending(l => l.Students).Take(5))
+            {
+                <div style="text-align: center; padding: 1rem; border: 1px solid var(--gray-300); border-radius: 8px;">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--ctc-blue);">@lea.Students</div>
+                    <div style="font-size: 0.75rem; color: var(--gray-600); font-weight: 600;">@lea.LEA</div>
+                    <div style="font-size: 0.7rem; color: var(--gray-500);">@lea.County County</div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- LEA Summary Table -->
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-table"></i> LEA Summary</h4>
+    </div>
+    <div class="r4-card-body">
+        <table class="r4-table">
+            <thead>
+                <tr>
+                    <th>LEA Name</th>
+                    <th>County</th>
+                    <th style="text-align: right;">Students</th>
+                    <th style="text-align: right;">Amount Awarded</th>
+                    <th style="text-align: right;">Amount Disbursed</th>
+                    <th>GAA Status</th>
+                    <th style="text-align: right;">Compliance</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var lea in leaSummary)
+                {
+                    <tr>
+                        <td><strong>@lea.LEA</strong></td>
+                        <td>@lea.County</td>
+                        <td style="text-align: right;">@lea.Students</td>
+                        <td style="text-align: right;">@lea.Awarded.ToString("C0")</td>
+                        <td style="text-align: right;">@lea.Disbursed.ToString("C0")</td>
+                        <td>
+                            @if (lea.GAAStatus == "Active")
+                            {
+                                <span class="status-badge status-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="status-badge status-warning">Pending</span>
+                            }
+                        </td>
+                        <td style="text-align: right;">
+                            <span class="status-badge status-@lea.ComplianceClass">@lea.Compliance.ToString("F0")%</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr style="font-weight: 600; background: var(--gray-100);">
+                    <td colspan="2">Total (@leaSummary.Length LEAs)</td>
+                    <td style="text-align: right;">@totalStudents</td>
+                    <td style="text-align: right;">@totalAwarded.ToString("C0")</td>
+                    <td style="text-align: right;">@totalDisbursed.ToString("C0")</td>
+                    <td>-</td>
+                    <td style="text-align: right;">@overallCompliance.ToString("F0")% avg</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<!-- Outstanding Items -->
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-alert-circle-outline"></i> Outstanding Items</h4>
+    </div>
+    <div class="r4-card-body">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div>
+                <h5 style="margin-bottom: 1rem;"><i class="mdi mdi-file-clock-outline"></i> Pending GAAs</h5>
+                <ul style="margin: 0; padding-left: 1.5rem;">
+                    @foreach (var lea in leaSummary.Where(l => l.GAAStatus == "Pending"))
+                    {
+                        <li style="margin-bottom: 0.5rem;">@lea.LEA - @lea.Students students awaiting GAA</li>
+                    }
+                </ul>
+            </div>
+            <div>
+                <h5 style="margin-bottom: 1rem;"><i class="mdi mdi-file-alert-outline"></i> Overdue Reports</h5>
+                <ul style="margin: 0; padding-left: 1.5rem;">
+                    @foreach (var lea in leaSummary.Where(l => l.Compliance < 100.0))
+                    {
+                        <li style="margin-bottom: 0.5rem;">@lea.LEA - @((100.0 - lea.Compliance).ToString("F0"))% reports outstanding</li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Report Footer -->
+<div style="margin-top: 2rem; padding: 1rem; border-top: 1px solid var(--gray-300); color: var(--gray-500); font-size: 0.75rem; display: flex; justify-content: space-between;">
+    <div>California Commission on Teacher Credentialing - Confidential Internal Use Only</div>
+    <div>Generated: @((DateTime)ViewBag.GeneratedDate).ToString("MM/dd/yyyy HH:mm")</div>
+</div>
+
+<style>
+    @@media print {
+        .breadcrumb, .report-actions, .r4-sidebar, .r4-header { display: none !important; }
+        .r4-card { break-inside: avoid; box-shadow: none !important; border: 1px solid #ccc; }
+    }
+</style>
