@@ -178,17 +178,17 @@
             var disbursementGroups = new List<dynamic>
             {
                 new { SubmissionDate = new DateTime(2025, 11, 1), LEA = "Fresno Unified School District", LastAction = "Approved", LastActionDate = DateTime.Now.AddDays(-1), Amount = 67500m, State = "NEEDS_GAA", Id = 1,
-                    Step1Date = (DateTime?)null, Step2Date = (DateTime?)null, Step3Date = (DateTime?)null, Step4Date = (DateTime?)null, Step5Date = (DateTime?)null },
+                    Step1Date = (DateTime?)null, Step2Date = (DateTime?)null, Step3Date = (DateTime?)null, Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, IsAmendment = false },
                 new { SubmissionDate = new DateTime(2025, 11, 1), LEA = "Sacramento City Unified School District", LastAction = "GAA Signed", LastActionDate = DateTime.Now.AddDays(-2), Amount = 48000m, State = "NEEDS_PO", Id = 2,
-                    Step1Date = DateTime.Now.AddDays(-2), Step2Date = (DateTime?)null, Step3Date = (DateTime?)null, Step4Date = (DateTime?)null, Step5Date = (DateTime?)null },
+                    Step1Date = DateTime.Now.AddDays(-2), Step2Date = (DateTime?)null, Step3Date = (DateTime?)null, Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, IsAmendment = false },
                 new { SubmissionDate = new DateTime(2025, 10, 1), LEA = "Oakland Unified School District", LastAction = "PO Uploaded", LastActionDate = DateTime.Now.AddDays(-3), Amount = 42000m, State = "NEEDS_INVOICE", Id = 3,
-                    Step1Date = DateTime.Now.AddDays(-8), Step2Date = DateTime.Now.AddDays(-3), Step3Date = (DateTime?)null, Step4Date = (DateTime?)null, Step5Date = (DateTime?)null },
+                    Step1Date = DateTime.Now.AddDays(-8), Step2Date = DateTime.Now.AddDays(-3), Step3Date = (DateTime?)null, Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, IsAmendment = false },
                 new { SubmissionDate = new DateTime(2025, 10, 1), LEA = "Los Angeles Unified School District", LastAction = "Invoice Generated", LastActionDate = DateTime.Now.AddDays(-2), Amount = 125000m, State = "NEEDS_WARRANT", Id = 4,
-                    Step1Date = DateTime.Now.AddDays(-12), Step2Date = DateTime.Now.AddDays(-8), Step3Date = DateTime.Now.AddDays(-5), Step4Date = (DateTime?)null, Step5Date = (DateTime?)null },
+                    Step1Date = DateTime.Now.AddDays(-12), Step2Date = DateTime.Now.AddDays(-8), Step3Date = DateTime.Now.AddDays(-5), Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, IsAmendment = false },
                 new { SubmissionDate = new DateTime(2025, 9, 1), LEA = "San Diego Unified School District", LastAction = "Completed", LastActionDate = DateTime.Now.AddDays(-1), Amount = 87500m, State = "COMPLETE", Id = 5,
-                    Step1Date = DateTime.Now.AddDays(-18), Step2Date = DateTime.Now.AddDays(-14), Step3Date = DateTime.Now.AddDays(-10), Step4Date = DateTime.Now.AddDays(-5), Step5Date = DateTime.Now.AddDays(-1) },
+                    Step1Date = DateTime.Now.AddDays(-18), Step2Date = DateTime.Now.AddDays(-14), Step3Date = DateTime.Now.AddDays(-10), Step4Date = DateTime.Now.AddDays(-5), Step5Date = DateTime.Now.AddDays(-1), IsAmendment = false },
                 new { SubmissionDate = new DateTime(2025, 9, 1), LEA = "Long Beach Unified School District", LastAction = "Approved", LastActionDate = DateTime.Now.AddDays(-1), Amount = 52500m, State = "NEEDS_GAA", Id = 6,
-                    Step1Date = (DateTime?)null, Step2Date = (DateTime?)null, Step3Date = (DateTime?)null, Step4Date = (DateTime?)null, Step5Date = (DateTime?)null }
+                    Step1Date = (DateTime?)null, Step2Date = (DateTime?)null, Step3Date = (DateTime?)null, Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, IsAmendment = true }
             };
 
             // Filter out completed items (this is an action items table) and sort by date ascending (oldest first)
@@ -244,7 +244,7 @@
                                     @if (group.State == "NEEDS_GAA")
                                     {
                                         <div style="width: 180px; display: block;">
-                                            <a href="@Url.Action("GAAPreview", "FiscalTeam", new { groupId = group.Id })" class="r4-button r4-button-sm r4-button-primary" style="width: 100%;">
+                                            <a href="@Url.Action("GAAPreview", "FiscalTeam", new { groupId = group.Id, amendment = group.IsAmendment })" class="r4-button r4-button-sm r4-button-primary" style="width: 100%;">
                                                 <i class="mdi mdi-file-sign"></i> Generate GAA
                                             </a>
                                         </div>
@@ -252,9 +252,9 @@
                                     else if (group.State == "NEEDS_PO")
                                     {
                                         <div style="width: 180px; display: block;">
-                                            <button type="button" class="r4-button r4-button-sm r4-button-primary" style="width: 100%;" onclick="alert('Purchase Order uploaded successfully! This is a prototype demonstration.');">
+                                            <a href="@Url.Action("UploadPO", "FiscalTeam")" class="r4-button r4-button-sm r4-button-primary" style="width: 100%;">
                                                 <i class="mdi mdi-cloud-upload-outline"></i> Upload PO
-                                            </button>
+                                            </a>
                                         </div>
                                     }
                                     else if (group.State == "NEEDS_INVOICE")
@@ -268,9 +268,9 @@
                                     else if (group.State == "NEEDS_WARRANT")
                                     {
                                         <div style="width: 180px; display: block;">
-                                            <button type="button" class="r4-button r4-button-sm r4-button-primary" style="width: 100%;" onclick="alert('Warrant uploaded successfully! This is a prototype demonstration.');">
+                                            <a href="@Url.Action("UploadWarrant", "FiscalTeam")" class="r4-button r4-button-sm r4-button-primary" style="width: 100%;">
                                                 <i class="mdi mdi-check-decagram"></i> Upload Warrant
-                                            </button>
+                                            </a>
                                         </div>
                                     }
                                     else if (group.State == "COMPLETE")

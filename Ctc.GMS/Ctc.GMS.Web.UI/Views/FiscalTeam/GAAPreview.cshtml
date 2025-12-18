@@ -3,10 +3,8 @@
 @{
     ViewData["Title"] = "GAA Document Preview";
 
-    // MOCK DATA: Amendment information
-    // For demo purposes, we'll show this as an amendment to demonstrate the structure
-    // In production, this would come from the model
-    var isAmendment = false; // Set to true to preview amendment format
+    // Amendment toggle - controlled via query parameter ?amendment=true
+    var isAmendment = ViewBag.IsAmendment ?? false;
     var amendmentLetter = "A";
     var originalAgreementDate = "October 15, 2025";
     var previousTotal = 80000m; // Amount from original + previous amendments

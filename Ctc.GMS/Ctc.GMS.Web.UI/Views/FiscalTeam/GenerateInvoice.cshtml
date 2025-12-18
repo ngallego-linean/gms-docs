@@ -6,8 +6,7 @@
 
 @section Breadcrumbs {
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam", new { grantCycleId = 1 })">Grants Team</a></li>
-        <li class="breadcrumb-item"><a href="@Url.Action("Invoices", "FiscalTeam", new { grantCycleId = 1 })">Invoice Generation</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam")">Grants Team</a></li>
         <li class="breadcrumb-item active">Generate Invoice</li>
     </ol>
 }
@@ -117,7 +116,7 @@
                     <button type="submit" class="r4-button r4-button-primary">
                         <i class="mdi mdi-check"></i> Generate Invoice
                     </button>
-                    <a href="@Url.Action("Invoices", "FiscalTeam", new { grantCycleId = 1 })" class="r4-button r4-button-secondary">
+                    <a href="@Url.Action("Dashboard", "GrantsTeam")" class="r4-button r4-button-secondary">
                         <i class="mdi mdi-close"></i> Cancel
                     </a>
                 </div>

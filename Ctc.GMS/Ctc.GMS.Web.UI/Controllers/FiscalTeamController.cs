@@ -35,7 +35,7 @@ public class FiscalTeamController : Controller
     }
 
     [Route("GAAPreview/{groupId}")]
-    public IActionResult GAAPreview(int groupId, int grantCycleId = 1)
+    public IActionResult GAAPreview(int groupId, int grantCycleId = 1, bool amendment = false)
     {
         try
         {
@@ -100,6 +100,7 @@ public class FiscalTeamController : Controller
                 GranteeSignerEmail = leaInfo.Item4
             };
 
+            ViewBag.IsAmendment = amendment;
             return View(model);
         }
         catch (Exception ex)
@@ -231,55 +232,6 @@ public class FiscalTeamController : Controller
         }
     }
 
-    [Route("Invoices")]
-    public IActionResult Invoices(int grantCycleId = 1)
-    {
-        try
-        {
-            var grantCycle = _grantService.GetGrantCycle(grantCycleId);
-
-            if (grantCycle == null)
-            {
-                return NotFound("Grant cycle not found");
-            }
-
-            var allApplications = _grantService.GetApplications();
-
-            // Mock: Group students by LEA who have GAA signed (DocuSign completed)
-            // In production, this would query actual disbursement groups with signed GAAs
-            var disbursementGroups = allApplications
-                .Where(a => a.GrantCycleId == grantCycleId)
-                .GroupBy(a => a.LEA.Name)
-                .Select((group, index) => new DisbursementGroupInvoiceViewModel
-                {
-                    DisbursementGroupId = index + 1,
-                    LEAName = group.Key,
-                    LEAAddress = $"{index + 100} Main Street, Sacramento, CA 95814", // Mock address
-                    StudentCount = group.SelectMany(a => a.Students).Count(s => s.Status == "APPROVED"),
-                    TotalAmount = group.SelectMany(a => a.Students).Where(s => s.Status == "APPROVED").Sum(s => s.AwardAmount),
-                    GAASignedDate = DateTime.Now.AddDays(-7), // Mock: signed 7 days ago
-                    DaysSinceSigned = 7,
-                    InvoiceGenerated = false
-                })
-                .Where(dg => dg.StudentCount > 0)
-                .ToList();
-
-            var model = new InvoiceListViewModel
-            {
-                GrantCycleId = grantCycleId,
-                GrantCycleName = grantCycle.Name,
-                DisbursementGroups = disbursementGroups
-            };
-
-            return View(model);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error loading invoice generation page");
-            return View("Error");
-        }
-    }
-
     [Route("GenerateInvoice")]
     public IActionResult GenerateInvoice(int disbursementGroupId, int grantCycleId = 1)
     {
@@ -367,7 +319,7 @@ public class FiscalTeamController : Controller
 
             TempData["SuccessMessage"] = $"Invoice {model.InvoiceNumber} generated successfully for {model.LEAName}";
 
-            return RedirectToAction("Invoices", new { grantCycleId = 1 });
+            return RedirectToAction("Dashboard", "GrantsTeam");
         }
         catch (Exception ex)
         {

@@ -1,17 +1,17 @@
 @{
-    ViewData["Title"] = "Bulk Warrant Entry";
+    ViewData["Title"] = "Bulk Warrant Upload";
 }
 
 @section Breadcrumbs {
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam")">Grants Team</a></li>
-        <li class="breadcrumb-item active">Bulk Warrant Entry</li>
+        <li class="breadcrumb-item active">Bulk Warrant Upload</li>
     </ol>
 }
 
 <div class="page-header">
-    <h2><i class="mdi mdi-check-decagram"></i> Bulk Warrant Entry</h2>
-    <p class="subtitle">Record warrant numbers for multiple submissions</p>
+    <h2><i class="mdi mdi-file-upload-outline"></i> Bulk Warrant Upload</h2>
+    <p class="subtitle">Import warrant data from Fi$Cal report</p>
 </div>
 
 <div class="page-actions">
@@ -20,134 +20,224 @@
     </a>
 </div>
 
-<div class="r4-card">
+<!-- Upload Section -->
+<div class="r4-card" id="uploadCard">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-information-outline"></i> About Warrant Numbers</h4>
+        <h4><i class="mdi mdi-file-delimited-outline"></i> Upload Warrant Report</h4>
     </div>
     <div class="r4-card-body">
-        <div class="r4-alert r4-alert-info" style="margin-bottom: 0;">
+        <div class="r4-alert r4-alert-info" style="margin-bottom: 1.5rem;">
             <i class="mdi mdi-information"></i>
             <div>
-                <strong>Warrant Numbers:</strong> Warrant numbers are generated in Fi$CAL. Each submission receives a unique warrant number.
-                Warrants are not physical documents - only the warrant number and date need to be recorded.
+                <strong>Expected Format:</strong> CSV or Excel file exported from Fi$Cal with columns for Warrant Number, Date, Vendor Name, and Amount.
+                The system will automatically match warrants to pending invoices.
             </div>
+        </div>
+        <div class="file-upload-area" id="dropZone">
+            <i class="mdi mdi-cloud-upload-outline"></i>
+            <p>Drag & drop your Fi$Cal warrant report here or</p>
+            <label for="warrantFile" class="r4-button r4-button-secondary r4-button-sm">
+                <i class="mdi mdi-folder-open-outline"></i> Browse Files
+            </label>
+            <input type="file" id="warrantFile" name="warrantFile" accept=".csv,.xlsx,.xls" class="file-input" />
+            <p class="file-types">Accepted formats: CSV, XLSX, XLS</p>
         </div>
     </div>
 </div>
 
-<!-- Submissions Awaiting Warrant -->
-<div class="r4-card">
-    <div class="r4-card-header">
-        <h4><i class="mdi mdi-clock-outline"></i> Submissions Awaiting Warrant</h4>
-    </div>
-    <div class="r4-card-body" style="padding: 0;">
-        <form id="bulkWarrantForm">
-            <table class="r4-table warrant-table">
-                <thead>
-                    <tr>
-                        <th style="width: 40px;">
-                            <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)">
-                        </th>
-                        <th>LEA District</th>
-                        <th>Invoice Date</th>
-                        <th>Candidates</th>
-                        <th>Amount</th>
-                        <th>Warrant Number</th>
-                        <th>Warrant Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><input type="checkbox" name="selected" value="1" class="submission-checkbox"></td>
-                        <td>Los Angeles Unified School District</td>
-                        <td>Nov 20, 2025</td>
-                        <td>8</td>
-                        <td>$80,000</td>
-                        <td><input type="text" class="form-control form-control-sm warrant-number" placeholder="e.g., W-2025-12345" /></td>
-                        <td><input type="date" class="form-control form-control-sm warrant-date" /></td>
-                    </tr>
-                    <tr>
-                        <td><input type="checkbox" name="selected" value="2" class="submission-checkbox"></td>
-                        <td>San Diego Unified School District</td>
-                        <td>Nov 18, 2025</td>
-                        <td>5</td>
-                        <td>$50,000</td>
-                        <td><input type="text" class="form-control form-control-sm warrant-number" placeholder="e.g., W-2025-12346" /></td>
-                        <td><input type="date" class="form-control form-control-sm warrant-date" /></td>
-                    </tr>
-                    <tr>
-                        <td><input type="checkbox" name="selected" value="3" class="submission-checkbox"></td>
-                        <td>Fresno Unified School District</td>
-                        <td>Nov 15, 2025</td>
-                        <td>3</td>
-                        <td>$30,000</td>
-                        <td><input type="text" class="form-control form-control-sm warrant-number" placeholder="e.g., W-2025-12347" /></td>
-                        <td><input type="date" class="form-control form-control-sm warrant-date" /></td>
-                    </tr>
-                    <tr>
-                        <td><input type="checkbox" name="selected" value="4" class="submission-checkbox"></td>
-                        <td>Sacramento City Unified School District</td>
-                        <td>Nov 12, 2025</td>
-                        <td>4</td>
-                        <td>$40,000</td>
-                        <td><input type="text" class="form-control form-control-sm warrant-number" placeholder="e.g., W-2025-12348" /></td>
-                        <td><input type="date" class="form-control form-control-sm warrant-date" /></td>
-                    </tr>
-                </tbody>
-            </table>
-            <div class="form-actions" style="padding: 1rem;">
-                <a href="@Url.Action("Dashboard", "GrantsTeam")" class="r4-button">
-                    <i class="mdi mdi-close"></i> Cancel
-                </a>
-                <button type="submit" class="r4-button r4-button-primary" id="submitBtn">
-                    <i class="mdi mdi-check"></i> Record Warrant Numbers
-                </button>
-            </div>
-        </form>
+<!-- Processing State -->
+<div class="r4-card" id="processingCard" style="display: none;">
+    <div class="r4-card-body" style="text-align: center; padding: 3rem;">
+        <div class="processing-spinner"></div>
+        <p style="margin-top: 1rem; color: var(--gray-600);">Parsing warrant report...</p>
     </div>
 </div>
 
-<!-- Warrant History -->
-<div class="r4-card">
+<!-- Parsed Results -->
+<div class="r4-card" id="parsedResultsCard" style="display: none;">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-history"></i> Warrant History</h4>
+        <h4><i class="mdi mdi-check-circle text-success"></i> Warrant Report Parsed</h4>
+        <div class="card-header-actions">
+            <span class="parsed-summary">
+                <span id="matchedCount">0</span> of <span id="totalCount">0</span> warrants matched
+            </span>
+        </div>
     </div>
-    <div class="r4-card-body" style="padding: 0;">
-        <table class="r4-table">
+    <div class="r4-card-body">
+        <div class="parsed-file-info">
+            <i class="mdi mdi-file-delimited"></i>
+            <span id="parsedFileName">-</span>
+            <span class="file-meta" id="fileMeta">-</span>
+            <button type="button" class="r4-button r4-button-sm r4-button-outline" onclick="resetUpload()">
+                <i class="mdi mdi-close"></i> Remove
+            </button>
+        </div>
+
+        <!-- Parsed Warrants Table -->
+        <div class="parsed-table-container">
+            <table class="r4-table" id="parsedWarrantsTable">
+                <thead>
+                    <tr>
+                        <th style="width: 40px;">
+                            <input type="checkbox" id="selectAllParsed" checked onchange="toggleSelectAllParsed(this)">
+                        </th>
+                        <th>Warrant Number</th>
+                        <th>Warrant Date</th>
+                        <th>Vendor (from Fi$Cal)</th>
+                        <th>Amount</th>
+                        <th>Matched Invoice</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="parsedWarrantsBody">
+                    <!-- Populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="r4-button r4-button-secondary" onclick="resetUpload()">
+                <i class="mdi mdi-close"></i> Cancel
+            </button>
+            <button type="button" class="r4-button r4-button-primary" onclick="confirmImport()">
+                <i class="mdi mdi-check"></i> Import Selected Warrants
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Success State -->
+<div class="r4-card" id="successCard" style="display: none;">
+    <div class="r4-card-body" style="text-align: center; padding: 3rem;">
+        <div class="success-icon">
+            <i class="mdi mdi-check-circle"></i>
+        </div>
+        <h3 style="margin: 1rem 0 0.5rem;">Warrants Imported Successfully</h3>
+        <p style="color: var(--gray-600); margin-bottom: 0.5rem;">
+            <strong id="successCount">0</strong> warrants have been recorded for <strong id="successMonth">-</strong>
+        </p>
+        <p style="color: var(--gray-500); font-size: 0.9rem; margin-bottom: 1.5rem;">
+            Total amount: <strong id="successAmount">$0</strong>
+        </p>
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <button type="button" class="r4-button r4-button-secondary" onclick="uploadAnother()">
+                <i class="mdi mdi-plus"></i> Upload Another Report
+            </button>
+            <a href="#monthlyReport" class="r4-button r4-button-outline" onclick="showMonthlyReport()">
+                <i class="mdi mdi-file-chart-outline"></i> View Monthly Report
+            </a>
+            <a href="@Url.Action("Dashboard", "GrantsTeam")" class="r4-button r4-button-primary">
+                <i class="mdi mdi-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Pending Invoices (Awaiting Warrant) -->
+<div class="r4-card" id="pendingCard">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-clock-outline"></i> Invoices Awaiting Warrant</h4>
+    </div>
+    <div class="r4-card-body">
+        <table class="r4-table pending-invoices-table">
             <thead>
                 <tr>
-                    <th>LEA District</th>
-                    <th>Warrant Number</th>
-                    <th>Warrant Date</th>
+                    <th>LEA / COE</th>
+                    <th>Invoice Number</th>
+                    <th>Invoice Date</th>
+                    <th>PO Number</th>
                     <th>Amount</th>
-                    <th>Recorded By</th>
-                    <th>Recorded On</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="pendingInvoicesBody">
+                <tr data-lea="lausd" data-invoice="STS-2025-001-01">
+                    <td>Los Angeles Unified School District</td>
+                    <td><code>STS-2025-001-01</code></td>
+                    <td>Nov 20, 2025</td>
+                    <td><code>6360-0000004240</code></td>
+                    <td>$80,000</td>
+                    <td><span class="status-badge status-pending">Awaiting Warrant</span></td>
+                </tr>
+                <tr data-lea="sdusd" data-invoice="STS-2025-002-01">
+                    <td>San Diego Unified School District</td>
+                    <td><code>STS-2025-002-01</code></td>
+                    <td>Nov 18, 2025</td>
+                    <td><code>6360-0000004241</code></td>
+                    <td>$50,000</td>
+                    <td><span class="status-badge status-pending">Awaiting Warrant</span></td>
+                </tr>
+                <tr data-lea="fresno" data-invoice="STS-2025-003-01">
+                    <td>Fresno Unified School District</td>
+                    <td><code>STS-2025-003-01</code></td>
+                    <td>Nov 15, 2025</td>
+                    <td><code>6360-0000004242</code></td>
+                    <td>$30,000</td>
+                    <td><span class="status-badge status-pending">Awaiting Warrant</span></td>
+                </tr>
+                <tr data-lea="sacramento" data-invoice="STS-2025-004-01">
+                    <td>Sacramento City USD</td>
+                    <td><code>STS-2025-004-01</code></td>
+                    <td>Nov 12, 2025</td>
+                    <td><code>6360-0000004243</code></td>
+                    <td>$40,000</td>
+                    <td><span class="status-badge status-pending">Awaiting Warrant</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Monthly Warrant Reports -->
+<div class="r4-card" id="monthlyReportsCard">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-calendar-month"></i> Monthly Warrant Reports</h4>
+    </div>
+    <div class="r4-card-body">
+        <table class="r4-table monthly-reports-table">
+            <thead>
+                <tr>
+                    <th>Month</th>
+                    <th>Warrants Issued</th>
+                    <th>Total Amount</th>
+                    <th>LEAs Paid</th>
+                    <th>Imported By</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td>Long Beach Unified School District</td>
-                    <td><code>W-2025-11234</code></td>
-                    <td>Oct 25, 2025</td>
-                    <td>$60,000</td>
+                    <td><strong>October 2025</strong></td>
+                    <td>12</td>
+                    <td>$580,000</td>
+                    <td>8</td>
                     <td>Sara S.</td>
-                    <td>Oct 26, 2025</td>
+                    <td>
+                        <a href="#" class="r4-button r4-button-sm"><i class="mdi mdi-eye-outline"></i> View</a>
+                        <a href="#" class="r4-button r4-button-sm r4-button-outline"><i class="mdi mdi-download"></i> Export</a>
+                    </td>
                 </tr>
                 <tr>
-                    <td>Oakland Unified School District</td>
-                    <td><code>W-2025-11233</code></td>
-                    <td>Oct 25, 2025</td>
-                    <td>$70,000</td>
+                    <td><strong>September 2025</strong></td>
+                    <td>8</td>
+                    <td>$320,000</td>
+                    <td>5</td>
                     <td>Sara S.</td>
-                    <td>Oct 26, 2025</td>
+                    <td>
+                        <a href="#" class="r4-button r4-button-sm"><i class="mdi mdi-eye-outline"></i> View</a>
+                        <a href="#" class="r4-button r4-button-sm r4-button-outline"><i class="mdi mdi-download"></i> Export</a>
+                    </td>
                 </tr>
                 <tr>
-                    <td>San Francisco Unified School District</td>
-                    <td><code>W-2025-10987</code></td>
-                    <td>Sep 30, 2025</td>
-                    <td>$50,000</td>
+                    <td><strong>August 2025</strong></td>
+                    <td>5</td>
+                    <td>$200,000</td>
+                    <td>4</td>
                     <td>Sara S.</td>
-                    <td>Oct 1, 2025</td>
+                    <td>
+                        <a href="#" class="r4-button r4-button-sm"><i class="mdi mdi-eye-outline"></i> View</a>
+                        <a href="#" class="r4-button r4-button-sm r4-button-outline"><i class="mdi mdi-download"></i> Export</a>
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -156,91 +246,375 @@
 
 @section Scripts {
     <script>
-        const form = document.getElementById('bulkWarrantForm');
-        const warrantDates = document.querySelectorAll('.warrant-date');
+        const fileInput = document.getElementById('warrantFile');
+        const dropZone = document.getElementById('dropZone');
+        const uploadCard = document.getElementById('uploadCard');
+        const processingCard = document.getElementById('processingCard');
+        const parsedResultsCard = document.getElementById('parsedResultsCard');
+        const successCard = document.getElementById('successCard');
 
-        // Set default date to today for all warrant date fields
-        const today = new Date().toISOString().split('T')[0];
-        warrantDates.forEach(input => {
-            input.value = today;
+        // Mock parsed warrant data (simulating CSV parse)
+        const mockWarrantData = [
+            { warrantNumber: 'W-2025-12450', date: '11/25/2025', vendor: 'LOS ANGELES UNIFIED SCHOOL DIST', amount: 80000, matchedInvoice: 'STS-2025-001-01', matchedLea: 'lausd', status: 'matched' },
+            { warrantNumber: 'W-2025-12451', date: '11/25/2025', vendor: 'SAN DIEGO UNIFIED SCHOOL DIST', amount: 50000, matchedInvoice: 'STS-2025-002-01', matchedLea: 'sdusd', status: 'matched' },
+            { warrantNumber: 'W-2025-12452', date: '11/25/2025', vendor: 'FRESNO UNIFIED SCHOOL DIST', amount: 30000, matchedInvoice: 'STS-2025-003-01', matchedLea: 'fresno', status: 'matched' },
+            { warrantNumber: 'W-2025-12453', date: '11/25/2025', vendor: 'SACRAMENTO CITY USD', amount: 40000, matchedInvoice: 'STS-2025-004-01', matchedLea: 'sacramento', status: 'matched' },
+            { warrantNumber: 'W-2025-12454', date: '11/25/2025', vendor: 'KERN COUNTY SUPERINTENDENT', amount: 25000, matchedInvoice: null, matchedLea: null, status: 'unmatched' }
+        ];
+
+        // File input handler
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                processFile(this.files[0]);
+            }
         });
 
-        function toggleSelectAll(checkbox) {
-            const checkboxes = document.querySelectorAll('.submission-checkbox');
+        // Drag and drop
+        dropZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            if (e.dataTransfer.files.length > 0) {
+                processFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        function processFile(file) {
+            uploadCard.style.display = 'none';
+            processingCard.style.display = 'block';
+
+            // Simulate parsing delay
+            setTimeout(() => {
+                showParsedResults(file);
+            }, 1500);
+        }
+
+        function showParsedResults(file) {
+            processingCard.style.display = 'none';
+            parsedResultsCard.style.display = 'block';
+
+            // Update file info
+            document.getElementById('parsedFileName').textContent = file.name;
+            document.getElementById('fileMeta').textContent = `${mockWarrantData.length} warrants found`;
+
+            // Update counts
+            const matched = mockWarrantData.filter(w => w.status === 'matched').length;
+            document.getElementById('matchedCount').textContent = matched;
+            document.getElementById('totalCount').textContent = mockWarrantData.length;
+
+            // Populate table
+            const tbody = document.getElementById('parsedWarrantsBody');
+            tbody.innerHTML = mockWarrantData.map((warrant, idx) => `
+                <tr class="${warrant.status === 'matched' ? 'matched-row' : 'unmatched-row'}" data-lea="${warrant.matchedLea || ''}">
+                    <td>
+                        <input type="checkbox" class="warrant-checkbox" value="${idx}" ${warrant.status === 'matched' ? 'checked' : ''} ${warrant.status === 'unmatched' ? 'disabled' : ''}>
+                    </td>
+                    <td><code>${warrant.warrantNumber}</code></td>
+                    <td>${warrant.date}</td>
+                    <td>${warrant.vendor}</td>
+                    <td>$${warrant.amount.toLocaleString()}</td>
+                    <td>${warrant.matchedInvoice ? `<code>${warrant.matchedInvoice}</code>` : '<span class="text-muted">-</span>'}</td>
+                    <td>
+                        ${warrant.status === 'matched'
+                            ? '<span class="status-badge status-success"><i class="mdi mdi-check"></i> Matched</span>'
+                            : '<span class="status-badge status-warning"><i class="mdi mdi-alert"></i> No Match</span>'}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function toggleSelectAllParsed(checkbox) {
+            const checkboxes = document.querySelectorAll('.warrant-checkbox:not(:disabled)');
             checkboxes.forEach(cb => cb.checked = checkbox.checked);
         }
 
-        // Form submission
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
+        function resetUpload() {
+            parsedResultsCard.style.display = 'none';
+            successCard.style.display = 'none';
+            uploadCard.style.display = 'block';
+            fileInput.value = '';
+        }
 
-            const selectedRows = document.querySelectorAll('.submission-checkbox:checked');
-            if (selectedRows.length === 0) {
-                alert('Please select at least one submission to record warrant numbers.');
+        function confirmImport() {
+            const selected = document.querySelectorAll('.warrant-checkbox:checked');
+            const selectedWarrants = Array.from(selected).map(cb => mockWarrantData[parseInt(cb.value)]);
+
+            if (selectedWarrants.length === 0) {
+                alert('Please select at least one warrant to import.');
                 return;
             }
 
-            // Validate that selected rows have warrant numbers
-            let valid = true;
-            selectedRows.forEach(checkbox => {
-                const row = checkbox.closest('tr');
-                const warrantNumber = row.querySelector('.warrant-number').value;
-                if (!warrantNumber.trim()) {
-                    valid = false;
-                    row.querySelector('.warrant-number').classList.add('is-invalid');
-                } else {
-                    row.querySelector('.warrant-number').classList.remove('is-invalid');
+            const totalAmount = selectedWarrants.reduce((sum, w) => sum + w.amount, 0);
+
+            // Show success
+            parsedResultsCard.style.display = 'none';
+            successCard.style.display = 'block';
+
+            document.getElementById('successCount').textContent = selectedWarrants.length;
+            document.getElementById('successMonth').textContent = 'November 2025';
+            document.getElementById('successAmount').textContent = '$' + totalAmount.toLocaleString();
+
+            // Remove matched rows from pending table
+            selectedWarrants.forEach(warrant => {
+                if (warrant.matchedLea) {
+                    const row = document.querySelector(`#pendingInvoicesBody tr[data-lea="${warrant.matchedLea}"]`);
+                    if (row) {
+                        row.style.transition = 'opacity 0.3s ease';
+                        row.style.opacity = '0';
+                        setTimeout(() => row.remove(), 300);
+                    }
                 }
             });
+        }
 
-            if (!valid) {
-                alert('Please enter warrant numbers for all selected submissions.');
-                return;
-            }
+        function uploadAnother() {
+            successCard.style.display = 'none';
+            uploadCard.style.display = 'block';
+            fileInput.value = '';
+        }
 
-            alert(`${selectedRows.length} warrant number(s) recorded successfully!\n\nThis is a POC demonstration. In production, this would:\n• Record warrant numbers in the system\n• Mark submissions as payment complete\n• Notify LEAs of payment completion\n• Update disbursement records`);
-
-            window.location.href = '@Url.Action("Dashboard", "GrantsTeam")';
-        });
+        function showMonthlyReport() {
+            document.getElementById('monthlyReportsCard').scrollIntoView({ behavior: 'smooth' });
+        }
     </script>
 
     <style>
-        .warrant-table .form-control-sm {
-            padding: 0.375rem 0.5rem;
-            font-size: 0.875rem;
+        .file-upload-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            border: 2px dashed var(--gray-300);
+            border-radius: 8px;
+            background: var(--gray-50);
+            text-align: center;
+            transition: all 0.2s ease;
         }
 
-        .warrant-table .warrant-number {
-            width: 150px;
+        .file-upload-area:hover,
+        .file-upload-area.drag-over {
+            border-color: var(--ctc-blue);
+            background: rgba(0, 86, 179, 0.05);
         }
 
-        .warrant-table .warrant-date {
-            width: 140px;
+        .file-upload-area i {
+            font-size: 3rem;
+            color: var(--gray-400);
+            margin-bottom: 1rem;
         }
 
-        .warrant-table input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
+        .file-upload-area p {
+            color: var(--gray-600);
+            margin: 0 0 1rem 0;
         }
 
-        .form-control.is-invalid {
-            border-color: var(--danger);
-            background-color: rgba(220, 53, 69, 0.05);
+        .file-upload-area .file-types {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            margin-top: 1rem;
+            margin-bottom: 0;
         }
 
+        .file-input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            overflow: hidden;
+        }
+
+        /* Processing Spinner */
+        .processing-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--gray-200);
+            border-top-color: var(--ctc-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @@keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Card Header Actions */
+        .card-header-actions {
+            margin-left: auto;
+        }
+
+        .parsed-summary {
+            font-size: 0.9rem;
+            color: var(--gray-600);
+            background: var(--gray-100);
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+        }
+
+        /* Parsed File Info */
+        .parsed-file-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            background: rgba(0, 86, 179, 0.08);
+            border: 1px solid var(--ctc-blue);
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .parsed-file-info i {
+            font-size: 1.5rem;
+            color: var(--ctc-blue);
+        }
+
+        .parsed-file-info span:first-of-type {
+            font-weight: 500;
+            color: var(--ctc-blue);
+        }
+
+        .file-meta {
+            flex: 1;
+            text-align: right;
+            color: var(--gray-500);
+            font-size: 0.85rem;
+        }
+
+        /* Parsed Table */
+        .parsed-table-container {
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .parsed-table-container .r4-table {
+            margin-bottom: 0;
+        }
+
+        .matched-row {
+            background: rgba(40, 167, 69, 0.05);
+        }
+
+        .unmatched-row {
+            background: rgba(255, 193, 7, 0.08);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: rgba(255, 193, 7, 0.15);
+            color: #856404;
+        }
+
+        .status-success {
+            background: rgba(40, 167, 69, 0.15);
+            color: var(--success);
+        }
+
+        .status-warning {
+            background: rgba(255, 193, 7, 0.15);
+            color: #856404;
+        }
+
+        /* Success Icon */
+        .success-icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(40, 167, 69, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .success-icon i {
+            font-size: 2.5rem;
+            color: var(--success);
+        }
+
+        /* Form Actions */
         .form-actions {
             display: flex;
             gap: 1rem;
-            padding-top: 1rem;
+            padding-top: 1.5rem;
             border-top: 1px solid var(--gray-200);
         }
 
+        /* Alerts */
+        .r4-alert {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .r4-alert-info {
+            background: rgba(0, 86, 179, 0.08);
+            border: 1px solid var(--ctc-blue);
+            color: var(--gray-700);
+        }
+
+        .r4-alert i {
+            font-size: 1.25rem;
+            color: var(--ctc-blue);
+            flex-shrink: 0;
+        }
+
+        .text-success {
+            color: var(--success) !important;
+        }
+
+        .text-muted {
+            color: var(--gray-400);
+        }
+
         code {
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            font-size: 0.8em;
             background: var(--gray-100);
-            padding: 0.25rem 0.5rem;
+            padding: 0.125rem 0.375rem;
             border-radius: 4px;
-            font-size: 0.875rem;
+            white-space: nowrap;
+        }
+
+        /* Table tweaks - R4 handles base styling */
+        .pending-invoices-table td:nth-child(5),
+        .monthly-reports-table td:nth-child(3) {
+            text-align: right;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--ctc-blue);
+        }
+
+        input[type="checkbox"]:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
     </style>
 }
