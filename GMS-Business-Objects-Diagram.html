@@ -1,0 +1,2106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GMS Complete UI Flows Documentation</title>
+    <style>
+        :root {
+            --ctc-blue: #0056b3;
+            --ctc-blue-light: #e3f2fd;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --gray-50: #f8f9fa;
+            --gray-100: #f1f3f5;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --gray-500: #adb5bd;
+            --gray-600: #6c757d;
+            --gray-700: #495057;
+            --gray-800: #343a40;
+            --gray-900: #212529;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--gray-100);
+            color: var(--gray-900);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        h1 {
+            color: var(--ctc-blue);
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+
+        .subtitle {
+            color: var(--gray-600);
+            margin-bottom: 2rem;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            gap: 0.25rem;
+            background: var(--gray-200);
+            padding: 0.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: 600;
+            color: var(--gray-600);
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover { background: var(--gray-100); }
+        .tab-btn.active {
+            background: white;
+            color: var(--ctc-blue);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: var(--gray-50);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-header h3 {
+            font-size: 1.1rem;
+            color: var(--gray-800);
+        }
+
+        .card-body { padding: 1.5rem; }
+
+        /* Portal Headers */
+        .portal-header {
+            background: linear-gradient(135deg, var(--ctc-blue) 0%, #003d82 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .portal-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .portal-header p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        /* Flow Steps */
+        .flow-container {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .flow-container::before {
+            content: '';
+            position: absolute;
+            left: 0.75rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--gray-300);
+        }
+
+        .flow-step {
+            position: relative;
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+        }
+
+        .flow-step::before {
+            content: '';
+            position: absolute;
+            left: -1.35rem;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--ctc-blue);
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px var(--ctc-blue);
+        }
+
+        .flow-step.action::before { background: var(--success); box-shadow: 0 0 0 2px var(--success); }
+        .flow-step.decision::before { background: var(--warning); box-shadow: 0 0 0 2px var(--warning); }
+        .flow-step.end::before { background: var(--danger); box-shadow: 0 0 0 2px var(--danger); }
+
+        .step-title {
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 0.5rem;
+        }
+
+        .step-screen {
+            display: inline-block;
+            background: var(--ctc-blue-light);
+            color: var(--ctc-blue);
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-details {
+            color: var(--gray-600);
+            font-size: 0.95rem;
+        }
+
+        /* Field Tables */
+        .field-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+
+        .field-table th {
+            background: var(--gray-100);
+            text-align: left;
+            padding: 0.75rem;
+            border: 1px solid var(--gray-200);
+            font-weight: 600;
+        }
+
+        .field-table td {
+            padding: 0.75rem;
+            border: 1px solid var(--gray-200);
+            vertical-align: top;
+        }
+
+        .field-table tr:hover { background: var(--gray-50); }
+
+        /* Screen Mockup */
+        .screen-mockup {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .screen-mockup h4 {
+            color: var(--ctc-blue);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--ctc-blue);
+        }
+
+        /* Status Flow */
+        .status-flow {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-pending { background: var(--gray-200); color: var(--gray-700); }
+        .status-review { background: #fff3cd; color: #856404; }
+        .status-approved { background: #d4edda; color: #155724; }
+        .status-waitlist { background: #cce5ff; color: #004085; }
+        .status-paid { background: #28a745; color: white; }
+
+        .arrow {
+            color: var(--gray-500);
+            font-size: 1.2rem;
+        }
+
+        /* Workflow Steps */
+        .workflow-steps {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+
+        .workflow-step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: white;
+            border: 2px solid var(--gray-300);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .workflow-step.complete {
+            border-color: var(--success);
+            background: #d4edda;
+        }
+
+        .workflow-step .step-num {
+            background: var(--ctc-blue);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        /* Nav Links */
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+
+        .nav-link {
+            background: var(--ctc-blue-light);
+            color: var(--ctc-blue);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        /* Highlight boxes */
+        .highlight-box {
+            background: #fff3cd;
+            border-left: 4px solid var(--warning);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .info-box {
+            background: var(--ctc-blue-light);
+            border-left: 4px solid var(--ctc-blue);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        /* Sub-sections */
+        .sub-section {
+            margin-left: 1.5rem;
+            padding-left: 1rem;
+            border-left: 3px solid var(--gray-200);
+            margin-bottom: 1rem;
+        }
+
+        .sub-section h5 {
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
+        }
+
+        /* View listing */
+        .view-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .view-item {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 6px;
+            padding: 1rem;
+        }
+
+        .view-item h5 {
+            color: var(--ctc-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .view-item p {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+
+        /* Print styles */
+        @media print {
+            .tab-nav { display: none; }
+            .tab-content { display: block !important; page-break-before: always; }
+            .container { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GMS Complete UI Flows Documentation</h1>
+        <p class="subtitle">Exhaustive trace of every user flow in the Grant Management System - Student Teacher Stipend Program (STSP)</p>
+
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="showTab('overview')">System Overview</button>
+            <button class="tab-btn" onclick="showTab('ihe')">IHE Portal (9 Views)</button>
+            <button class="tab-btn" onclick="showTab('lea')">LEA Portal (10 Views)</button>
+            <button class="tab-btn" onclick="showTab('grants')">Grants Team (5 Views)</button>
+            <button class="tab-btn" onclick="showTab('fiscal')">Fiscal Team (8 Views)</button>
+            <button class="tab-btn" onclick="showTab('reporting')">Reporting Team (6 Views)</button>
+            <button class="tab-btn" onclick="showTab('objects')">Business Objects</button>
+        </div>
+
+        <!-- SYSTEM OVERVIEW TAB -->
+        <div id="overview" class="tab-content active">
+            <div class="portal-header">
+                <h2>System Overview</h2>
+                <p>Complete system architecture and user roles - 38 total views across 5 portals</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h3>User Roles & Portals</h3></div>
+                <div class="card-body">
+                    <table class="field-table">
+                        <thead>
+                            <tr>
+                                <th>Portal</th>
+                                <th>User Role</th>
+                                <th>Primary Functions</th>
+                                <th>Views</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>IHE Portal</strong></td>
+                                <td>Institution of Higher Education Staff</td>
+                                <td>Submit candidates, track applications, submit post-payment reports</td>
+                                <td>9 views</td>
+                            </tr>
+                            <tr>
+                                <td><strong>LEA Portal</strong></td>
+                                <td>Local Education Agency Staff</td>
+                                <td>Review/confirm candidates, sign GAA, submit post-payment reports</td>
+                                <td>10 views</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Grants Team</strong></td>
+                                <td>CTC Grants Team Staff</td>
+                                <td>Review submissions, approve/deny/waitlist, manage budget</td>
+                                <td>5 views</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fiscal Team</strong></td>
+                                <td>CTC Fiscal Team Staff</td>
+                                <td>Process GAAs, generate POs/Invoices, confirm warrants</td>
+                                <td>8 views</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Reporting Team</strong></td>
+                                <td>CTC Internal Staff</td>
+                                <td>Generate reports, track compliance, review submitted reports</td>
+                                <td>6 views</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h3>Complete Application Lifecycle</h3></div>
+                <div class="card-body">
+                    <div class="flow-container">
+                        <div class="flow-step">
+                            <div class="step-title">1. IHE Submits Candidate</div>
+                            <div class="step-details">IHE enters candidate info via manual entry or bulk upload. Candidate status: <span class="status-badge status-pending">PENDING</span></div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="step-title">2. LEA Reviews & Confirms</div>
+                            <div class="step-details">LEA reviews candidate, confirms partnership, provides Application Info (contacts, payment info). Adds to submission batch.</div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="step-title">3. CTC Grants Team Reviews</div>
+                            <div class="step-details">Grants Team reviews submission. Can: <span class="status-badge status-approved">APPROVE</span> <span class="status-badge status-waitlist">WAITLIST</span> or DENY</div>
+                        </div>
+                        <div class="flow-step decision">
+                            <div class="step-title">4. Budget Check</div>
+                            <div class="step-details">If budget available -> Approve. If budget exhausted -> Waitlist. Waitlisted candidates promoted when funds released.</div>
+                        </div>
+                        <div class="flow-step action">
+                            <div class="step-title">5. Disbursement Processing (6 Steps)</div>
+                            <div class="step-details">GAA Signed -> PO Generated -> PO Uploaded -> Invoice Generated -> Sent to Accounting -> Warrant Confirmed</div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="step-title">6. LEA Signs GAA</div>
+                            <div class="step-details">DocuSign integration sends GAA to LEA's Authorized Signer for signature.</div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="step-title">7. Payment Processing</div>
+                            <div class="step-details">Fiscal Team generates PO, uploads to Fi$Cal, generates invoice, sends to accounting, confirms warrant.</div>
+                        </div>
+                        <div class="flow-step end">
+                            <div class="step-title">8. Post-Payment Reporting</div>
+                            <div class="step-details">Both IHE and LEA submit outcome reports. IHE: program completion, hours, credential. LEA: payment details, employment.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h3>Candidate Status Flow</h3></div>
+                <div class="card-body">
+                    <div class="status-flow">
+                        <span class="status-badge status-pending">PENDING</span>
+                        <span class="arrow">-></span>
+                        <span class="status-badge status-review">UNDER_REVIEW</span>
+                        <span class="arrow">-></span>
+                        <span class="status-badge status-approved">APPROVED</span>
+                        <span class="arrow">-></span>
+                        <span class="status-badge status-paid">PAID</span>
+                    </div>
+                    <p style="margin-top: 1rem; color: var(--gray-600);">Alternative paths: PENDING -> WAITLIST (if no budget) -> APPROVED (when funds available). Any status -> DENIED.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h3>6-Step Disbursement Workflow</h3></div>
+                <div class="card-body">
+                    <div class="workflow-steps">
+                        <div class="workflow-step">
+                            <span class="step-num">1</span>
+                            <span>GAA Signed</span>
+                        </div>
+                        <div class="workflow-step">
+                            <span class="step-num">2</span>
+                            <span>PO Generated</span>
+                        </div>
+                        <div class="workflow-step">
+                            <span class="step-num">3</span>
+                            <span>PO Uploaded</span>
+                        </div>
+                        <div class="workflow-step">
+                            <span class="step-num">4</span>
+                            <span>Invoice Generated</span>
+                        </div>
+                        <div class="workflow-step">
+                            <span class="step-num">5</span>
+                            <span>Sent to Accounting</span>
+                        </div>
+                        <div class="workflow-step">
+                            <span class="step-num">6</span>
+                            <span>Warrant Confirmed</span>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <strong>Internal States:</strong> NEEDS_GAA -> NEEDS_PO -> NEEDS_INVOICE -> NEEDS_WARRANT -> COMPLETE
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- IHE PORTAL TAB -->
+        <div id="ihe" class="tab-content">
+            <div class="portal-header">
+                <h2>IHE Portal - 9 Views</h2>
+                <p>Institution of Higher Education user flows</p>
+            </div>
+
+            <!-- View Index -->
+            <div class="card">
+                <div class="card-header"><h3>All IHE Portal Views</h3></div>
+                <div class="card-body">
+                    <div class="view-list">
+                        <div class="view-item">
+                            <h5>1. Dashboard</h5>
+                            <p>Main landing with action items, metrics, submissions table</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>2. SubmitCandidates</h5>
+                            <p>Bulk upload or manual entry of candidates</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>3. Applications</h5>
+                            <p>View all submissions with filters</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>4. FundedCandidates</h5>
+                            <p>Post-payment candidates list</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>5. CandidateReport</h5>
+                            <p>Individual post-payment report form</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>6. StudentDetail</h5>
+                            <p>Full student details view</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>7. BulkUpload</h5>
+                            <p>Bulk upload reports via spreadsheet</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>8. ReportHistory</h5>
+                            <p>Submitted reports history</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>9. Grants</h5>
+                            <p>Grant history by program/fiscal year</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- IHE Dashboard -->
+            <div class="card">
+                <div class="card-header"><h3>View 1: Dashboard</h3></div>
+                <div class="card-body">
+                    <p><strong>File:</strong> IHEPortal/Dashboard.cshtml</p>
+                    <p><strong>Purpose:</strong> Main landing page showing action items, metrics, and navigation to all IHE functions.</p>
+
+                    <div class="screen-mockup">
+                        <h4>Action Items Section</h4>
+                        <p>Alerts for pending tasks:</p>
+                        <table class="field-table">
+                            <tr><th>Action Type</th><th>Description</th></tr>
+                            <tr><td>submit_candidates</td><td>"You have candidates ready to submit"</td></tr>
+                            <tr><td>reports_required</td><td>"Reports are due for funded candidates"</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Candidate Status Metrics</h4>
+                        <table class="field-table">
+                            <tr><td><strong>Total</strong></td><td>All candidates submitted</td></tr>
+                            <tr><td><strong>Pending</strong></td><td>Awaiting LEA review</td></tr>
+                            <tr><td><strong>Under Review</strong></td><td>CTC reviewing</td></tr>
+                            <tr><td><strong>Waitlist</strong></td><td>Budget exhausted</td></tr>
+                            <tr><td><strong>Approved</strong></td><td>Approved for funding</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Your Submissions Table</h4>
+                        <table class="field-table">
+                            <thead><tr><th>Column</th><th>Description</th></tr></thead>
+                            <tbody>
+                                <tr><td>Student Name</td><td>First + Last name (clickable)</td></tr>
+                                <tr><td>LEA Partner</td><td>Partner LEA district name</td></tr>
+                                <tr><td>DOB</td><td>Date of birth</td></tr>
+                                <tr><td>Credential Area</td><td>Teaching credential type</td></tr>
+                                <tr><td>County/LEA/School CDS</td><td>CDS codes displayed</td></tr>
+                                <tr><td>Status</td><td>Status badge (colored)</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Post-Payment Reporting Section</h4>
+                        <p>Shows after candidates receive payment:</p>
+                        <table class="field-table">
+                            <tr><td>Funded Candidates</td><td>Total count with payments</td></tr>
+                            <tr><td>Reports Due</td><td>Count requiring reports</td></tr>
+                            <tr><td>In Progress</td><td>Started but not submitted</td></tr>
+                            <tr><td>Submitted</td><td>Completed reports</td></tr>
+                        </table>
+                    </div>
+
+                    <h4>Navigation Links:</h4>
+                    <div class="nav-links">
+                        <span class="nav-link">Submit Candidates</span>
+                        <span class="nav-link">Applications</span>
+                        <span class="nav-link">Funded Candidates</span>
+                        <span class="nav-link">Bulk Upload</span>
+                        <span class="nav-link">Report History</span>
+                        <span class="nav-link">Grants</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- IHE Submit Candidates -->
+            <div class="card">
+                <div class="card-header"><h3>View 2: Submit Candidates</h3></div>
+                <div class="card-body">
+                    <p><strong>File:</strong> IHEPortal/SubmitCandidates.cshtml</p>
+                    <p><strong>Purpose:</strong> Submit new student teacher candidates for funding. Two methods available.</p>
+
+                    <h4>Tab 1: Bulk Upload Flow</h4>
+                    <div class="flow-container">
+                        <div class="flow-step">
+                            <div class="step-title">Step 1: Download Template</div>
+                            <div class="step-details">Click "Download Template" to get Excel/CSV template with required columns</div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="step-title">Step 2: Fill Out Template</div>
+                            <div class="step-details">Add candidate data to template file offline</div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="step-title">Step 3: Upload File</div>
+                            <div class="step-details">Drag & drop or browse to upload. Accepts: .xlsx, .xls, .csv</div>
+                        </div>
+                        <div class="flow-step decision">
+                            <div class="step-title">Step 4: Validation</div>
+                            <div class="step-details">System validates all rows. Displays: Total Rows | Valid | Errors with error table</div>
+                        </div>
+                        <div class="flow-step action">
+                            <div class="step-title">Step 5: Review & Submit</div>
+                            <div class="step-details">Review validated data in preview table, click "Submit Candidates"</div>
+                        </div>
+                    </div>
+
+                    <h4>Tab 2: Manual Entry Form Fields</h4>
+                    <div class="screen-mockup">
+                        <h4>Candidate Information Form</h4>
+                        <table class="field-table">
+                            <thead><tr><th>Field</th><th>Type</th><th>Options/Validation</th><th>Required</th></tr></thead>
+                            <tbody>
+                                <tr><td>First Name</td><td>text</td><td>Max 100 chars</td><td>Yes</td></tr>
+                                <tr><td>Last Name</td><td>text</td><td>Max 100 chars</td><td>Yes</td></tr>
+                                <tr><td>Date of Birth</td><td>date</td><td>Date picker</td><td>Yes</td></tr>
+                                <tr><td>Race</td><td>checkboxes</td><td>American Indian/Alaska Native, Asian, Black/African American, Native Hawaiian/Pacific Islander, White, Other</td><td>No</td></tr>
+                                <tr><td>Ethnicity</td><td>radio</td><td>Hispanic/Latino, Not Hispanic/Latino</td><td>No</td></tr>
+                                <tr><td>Gender</td><td>radio</td><td>Male, Female, Non-Binary, Prefer not to say</td><td>No</td></tr>
+                                <tr><td>Credential Area</td><td>select</td><td>Multiple Subject, Single Subject, Education Specialist, Early Childhood, Other</td><td>Yes</td></tr>
+                                <tr><td>County CDS</td><td>text</td><td>2-digit code</td><td>Yes</td></tr>
+                                <tr><td>District CDS</td><td>text</td><td>7-digit code</td><td>Yes</td></tr>
+                                <tr><td>School CDS</td><td>text</td><td>14-digit code</td><td>Yes</td></tr>
+                                <tr><td>LEA POC Name</td><td>text</td><td>Contact at LEA</td><td>Yes</td></tr>
+                                <tr><td>LEA POC Email</td><td>email</td><td>Valid email</td><td>Yes</td></tr>
+                                <tr><td>LEA POC Phone</td><td>tel</td><td>Phone number</td><td>Yes</td></tr>
+                                <tr><td>Multiple Placements</td><td>checkbox</td><td>If student has multiple placements</td><td>No</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="info-box">
+                        <strong>Actions Available:</strong>
+                        <ul>
+                            <li>"Add Another Candidate" - Adds another blank form</li>
+                            <li>"Review & Submit" - Submits all candidates to system</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- IHE Applications -->
+            <div class="card">
+                <div class="card-header"><h3>View 3: Applications</h3></div>
+                <div class="card-body">
+                    <p><strong>File:</strong> IHEPortal/Applications.cshtml</p>
+                    <p><strong>Purpose:</strong> View all submitted candidates with filtering and search capabilities.</p>
+
+                    <div class="screen-mockup">
+                        <h4>Filter Controls</h4>
+                        <table class="field-table">
+                            <tr><td><strong>Search</strong></td><td>Text search by student name</td></tr>
+                            <tr><td><strong>Filter by LEA</strong></td><td>Dropdown of all partner LEAs</td></tr>
+                            <tr><td><strong>Filter by Status</strong></td><td>PENDING, UNDER_REVIEW, APPROVED, WAITLIST, DENIED</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Applications Table</h4>
+                        <table class="field-table">
+                            <thead><tr><th>Column</th><th>Description</th></tr></thead>
+                            <tbody>
+                                <tr><td>Student Name</td><td>Clickable link to StudentDetail</td></tr>
+                                <tr><td>LEA Partner</td><td>Partner LEA name</td></tr>
+                                <tr><td>DOB</td><td>Date of birth</td></tr>
+                                <tr><td>Credential Area</td><td>Credential type</td></tr>
+                                <tr><td>County/LEA/School CDS</td><td>CDS code display</td></tr>
+                                <tr><td>Status</td><td>Colored status badge</td></tr>
+                            </tbody>
+                        </table>
+                        <p>Pagination controls at bottom of table</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- IHE Funded Candidates -->
+            <div class="card">
+                <div class="card-header"><h3>View 4: Funded Candidates</h3></div>
+                <div class="card-body">
+                    <p><strong>File:</strong> IHEPortal/FundedCandidates.cshtml</p>
+                    <p><strong>Purpose:</strong> View candidates who have received payment and submit post-payment reports.</p>
+
+                    <div class="screen-mockup">
+                        <h4>Filter Controls</h4>
+                        <table class="field-table">
+                            <tr><td><strong>Cohort Year</strong></td><td>Fiscal year filter dropdown</td></tr>
+                            <tr><td><strong>LEA Partner</strong></td><td>Filter by LEA</td></tr>
+                            <tr><td><strong>Credential Area</strong></td><td>Filter by credential type</td></tr>
+                            <tr><td><strong>Reporting Status</strong></td><td>NOT_STARTED, IN_PROGRESS, SUBMITTED</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Funded Candidates Table</h4>
+                        <table class="field-table">
+                            <thead><tr><th>Column</th><th>Description</th></tr></thead>
+                            <tbody>
+                                <tr><td>Student Name</td><td>Candidate full name</td></tr>
+                                <tr><td>LEA Partner</td><td>Partner LEA</td></tr>
+                                <tr><td>Credential Area</td><td>Credential type</td></tr>
+                                <tr><td>Award Amount</td><td>$10,000</td></tr>
+                                <tr><td>Payment Status</td><td>GAA status indicator</td></tr>
+                                <tr><td>Reporting Status</td><td>Report submission status</td></tr>
+                                <tr><td>Last Report Date</td><td>Date of most recent report</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="info-box">
+                        <strong>Row Actions:</strong>
+                        <ul>
+                            <li>"Report" button - Navigate to CandidateReport form</li>
+                            <li>"View" button - Navigate to StudentDetail</li>
+                        </ul>
+                    </div>
+
+                    <h4>Additional Navigation:</h4>
+                    <div class="nav-links">
+                        <span class="nav-link">Bulk Upload Reports</span>
+                        <span class="nav-link">Report History</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- IHE Candidate Report -->
+            <div class="card">
+                <div class="card-header"><h3>View 5: Candidate Report</h3></div>
+                <div class="card-body">
+                    <p><strong>File:</strong> IHEPortal/CandidateReport.cshtml</p>
+                    <p><strong>Purpose:</strong> Submit post-payment outcome report for individual funded candidate.</p>
+
+                    <div class="screen-mockup">
+                        <h4>Student Info (Read-only Header)</h4>
+                        <p>Displays: Student Name, LEA Partner, Credential Area, Award Amount</p>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Section 1: Program Completion</h4>
+                        <table class="field-table">
+                            <thead><tr><th>Field</th><th>Type</th><th>Options</th><th>Required</th></tr></thead>
+                            <tbody>
+                                <tr><td>Completion Status</td><td>select</td><td>IN_PROGRESS, COMPLETED, DENIED</td><td>Yes</td></tr>
+                                <tr><td>Completion Date</td><td>date</td><td>Date picker (if completed)</td><td>Conditional</td></tr>
+                                <tr><td>Switched to Intern</td><td>checkbox</td><td>Yes/No</td><td>No</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Section 2: Hours Tracking</h4>
+                        <table class="field-table">
+                            <thead><tr><th>Field</th><th>Type</th><th>Notes</th><th>Required</th></tr></thead>
+                            <tbody>
+                                <tr><td>Grant Program Hours</td><td>number</td><td>500 hours required for program</td><td>Yes</td></tr>
+                                <tr><td>Met 500 Hours</td><td>checkbox</td><td>Auto-calculated from hours</td><td>Auto</td></tr>
+                                <tr><td>Credential Program Hours</td><td>number</td><td>600 hours required for credential</td><td>Yes</td></tr>
+                                <tr><td>Met 600 Hours</td><td>checkbox</td><td>Auto-calculated from hours</td><td>Auto</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Section 3: Credential Earned</h4>
+                        <table class="field-table">
+                            <thead><tr><th>Field</th><th>Type</th><th>Options</th><th>Required</th></tr></thead>
+                            <tbody>
+                                <tr><td>Credential Earned</td><td>radio</td><td>Yes / No</td><td>Yes</td></tr>
+                                <tr><td>Credential Earned Date</td><td>date</td><td>Date picker (if earned)</td><td>Conditional</td></tr>
+                                <tr><td>Credential Type</td><td>text</td><td>Free text</td><td>Conditional</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Section 4: Employment</h4>
+                        <table class="field-table">
+                            <thead><tr><th>Field</th><th>Type</th><th>Options</th><th>Required</th></tr></thead>
+                            <tbody>
+                                <tr><td>Employment Status</td><td>select</td><td>NOT_EMPLOYED, SEEKING, EMPLOYED</td><td>Yes</td></tr>
+                                <tr><td>Employed in District</td><td>radio</td><td>Yes / No</td><td>Conditional</td></tr>
+                                <tr><td>Employed in State</td><td>radio</td><td>Yes / No</td><td>Conditional</td></tr>
+                                <tr><td>Employer Name</td><td>text</td><td>If employed</td><td>Conditional</td></tr>
+                                <tr><td>Employment Start Date</td><td>date</td><td>Date picker</td><td>Conditional</td></tr>
+                                <tr><td>School Site</td><td>text</td><td>School name</td><td>No</td></tr>
+                                <tr><td>Grade Level</td><td>text</td><td>Grade taught</td><td>No</td></tr>
+                                <tr><td>Subject Area</td><td>text</td><td>Subject taught</td><td>No</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Section 5: Additional Information</h4>
+                        <table class="field-table">
+                            <tr><td>Notes</td><td>textarea</td><td>Free text comments</td></tr>
+                            <tr><td>Document Upload</td><td>file</td><td>Upload supporting documentation</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="info-box">
+                        <strong>Form Actions:</strong>
+                        <ul>
+                            <li><strong>Save Draft</strong> - Saves form as IN_PROGRESS, can edit later</li>
+                            <li><strong>Submit Report</strong> - Submits report as SUBMITTED for CTC review</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- IHE Student Detail -->
+            <div class="card">
+                <div class="card-header"><h3>View 6: Student Detail</h3></div>
+                <div class="card-body">
+                    <p><strong>File:</strong> IHEPortal/StudentDetail.cshtml</p>
+                    <p><strong>Purpose:</strong> View complete details for a single student (read-only).</p>
+
+                    <div class="screen-mockup">
+                        <h4>All Display Sections</h4>
+                        <table class="field-table">
+                            <thead><tr><th>Section</th><th>Fields</th></tr></thead>
+                            <tbody>
+                                <tr><td><strong>Personal Info</strong></td><td>FirstName, LastName, DOB, Last4SSN</td></tr>
+                                <tr><td><strong>Demographics</strong></td><td>Race (multiple), Ethnicity, Gender</td></tr>
+                                <tr><td><strong>Credential & Program</strong></td><td>CredentialArea, County/District/School CDS codes</td></tr>
+                                <tr><td><strong>Application Context</strong></td><td>Grant Cycle, IHE Name, LEA Partner, Application ID</td></tr>
+                                <tr><td><strong>Award & Payment</strong></td><td>Award Amount ($10,000), Payment Status (GAAStatus), Reporting Status</td></tr>
+                                <tr><td><strong>Timeline</strong></td><td>Created timestamp, Submitted timestamp, Approved timestamp</td></tr>
+                                <tr><td><strong>Outcomes (from reports)</strong></td><td>Grant Program Hours, Credential Program Hours, Credential Earned, Switched to Intern, Employed in District/State</td></tr>
+                                <tr><td><strong>Latest Report</strong></td><td>Report date, status, summary of most recent report</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- IHE Bulk Upload Reports -->
+            <div class="card">
+                <div class="card-header"><h3>View 7: Bulk Upload Reports</h3></div>
+                <div class="card-body">
+                    <p><strong>File:</strong> IHEPortal/BulkUpload.cshtml</p>
+                    <p><strong>Purpose:</strong> Upload multiple post-payment reports at once via spreadsheet.</p>
+
+                    <div class="flow-container">
+                        <div class="flow-step">
+                            <div class="step-title">Step 1: Download Template</div>
+                            <div class="step-details">Click button to download Excel/CSV template with report fields</div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="step-title">Step 2: Upload File</div>
+                            <div class="step-details">Drag & drop file upload area. Accepts Excel/CSV.</div>
+                        </div>
+                        <div class="flow-step decision">
+                            <div class="step-title">Step 3: Validation Results</div>
+                            <div class="step-details">System shows: Total Rows | Valid | Errors count</div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="step-title">Step 4: Error Review (if any)</div>
+                            <div class="step-details">Error table shows: Row Number | Field Name | Error Message</div>
+                        </div>
+                        <div class="flow-step action">
+                            <div class="step-title">Step 5: Confirm Import</div>
+                            <div class="step-details">Click "Confirm Import" to submit all valid reports</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- IHE Report History -->
+            <div class="card">
+                <div class="card-header"><h3>View 8: Report History</h3></div>
+                <div class="card-body">
+                    <p><strong>File:</strong> IHEPortal/ReportHistory.cshtml</p>
+                    <p><strong>Purpose:</strong> View history of all submitted reports.</p>
+
+                    <div class="screen-mockup">
+                        <h4>Filter Controls</h4>
+                        <table class="field-table">
+                            <tr><td>Reporting Period</td><td>Dropdown of periods</td></tr>
+                            <tr><td>LEA Partner</td><td>Dropdown filter</td></tr>
+                            <tr><td>Start Date / End Date</td><td>Date range pickers</td></tr>
+                            <tr><td>Status</td><td>SUBMITTED, APPROVED, REVISIONS_REQUESTED</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Report History Table</h4>
+                        <table class="field-table">
+                            <thead><tr><th>Column</th><th>Description</th></tr></thead>
+                            <tbody>
+                                <tr><td>Student Name</td><td>Candidate name</td></tr>
+                                <tr><td>LEA Partner</td><td>LEA name</td></tr>
+                                <tr><td>Submitted Date</td><td>Report submission date</td></tr>
+                                <tr><td>Submitted By</td><td>User who submitted</td></tr>
+                                <tr><td>Status</td><td>Report status badge</td></tr>
+                                <tr><td>Completion</td><td>Program completion status</td></tr>
+                                <tr><td>Credential</td><td>Credential earned status</td></tr>
+                                <tr><td>Employed</td><td>Employment status</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="info-box">
+                        <strong>Actions:</strong>
+                        <ul>
+                            <li>"View" button - Opens report detail</li>
+                            <li>"Export to Excel" - Downloads filtered results</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- IHE Grants -->
+            <div class="card">
+                <div class="card-header"><h3>View 9: Grants</h3></div>
+                <div class="card-body">
+                    <p><strong>File:</strong> IHEPortal/Grants.cshtml</p>
+                    <p><strong>Purpose:</strong> View grant history organized hierarchically by program and fiscal year.</p>
+
+                    <div class="screen-mockup">
+                        <h4>Summary Metrics Cards</h4>
+                        <table class="field-table">
+                            <tr><td>LEA Partners</td><td>Count of partner LEAs</td></tr>
+                            <tr><td>Total Candidates</td><td>All candidates across grants</td></tr>
+                            <tr><td>Total Awarded</td><td>Sum of all awards ($)</td></tr>
+                            <tr><td>Reports Due</td><td>Outstanding report count</td></tr>
+                            <tr><td>Report Rate</td><td>Percentage of reports submitted</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Collapsible Grant Hierarchy</h4>
+                        <p><strong>Structure:</strong> Program -> Fiscal Year -> LEA Partner -> Individual Candidates</p>
+                        <table class="field-table">
+                            <thead><tr><th>Level</th><th>Information Displayed</th></tr></thead>
+                            <tbody>
+                                <tr><td>Program Level</td><td>Program name, total count</td></tr>
+                                <tr><td>Fiscal Year</td><td>FY name, count, total amount</td></tr>
+                                <tr><td>LEA Partner</td><td>LEA name, candidate count</td></tr>
+                                <tr><td>Candidate Row</td><td>Name, Credential Area, Submitted Month, Status, Award Amount, Report Status, Credential Earned</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LEA PORTAL TAB -->
+        <div id="lea" class="tab-content">
+            <div class="portal-header">
+                <h2>LEA Portal - 10 Views</h2>
+                <p>Local Education Agency user flows</p>
+            </div>
+
+            <!-- View Index -->
+            <div class="card">
+                <div class="card-header"><h3>All LEA Portal Views</h3></div>
+                <div class="card-body">
+                    <div class="view-list">
+                        <div class="view-item">
+                            <h5>1. Dashboard</h5>
+                            <p>Main landing with action items, submission tabs</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>2. ReviewCandidates</h5>
+                            <p>Review IHE candidates, add to submission</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>3. AllCandidates</h5>
+                            <p>View all associated candidates</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>4. BatchDetails</h5>
+                            <p>View submission batch details</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>5. Applications</h5>
+                            <p>Applications list view</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>6. FundedCandidates</h5>
+                            <p>Post-payment candidates</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>7. SubmitReport</h5>
+                            <p>LEA post-payment report form</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>8. Reports</h5>
+                            <p>Reports management</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>9. ReportHistory</h5>
+                            <p>Submitted reports history</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>10. Grants</h5>
+                            <p>Grant history by program</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LEA Dashboard -->
+            <div class="card">
+                <div class="card-header"><h3>View 1: Dashboard</h3></div>
+                <div class="card-body">
+                    <p><strong>File:</strong> LEAPortal/Dashboard.cshtml</p>
+                    <p><strong>Purpose:</strong> Main landing page with action items, metrics, and submission management.</p>
+
+                    <div class="screen-mockup">
+                        <h4>Action Items Alert Section</h4>
+                        <table class="field-table">
+                            <tr><td>review_required</td><td>"You have X candidates awaiting review"</td></tr>
+                            <tr><td>signature_required</td><td>"X Grant Award Agreements require signature"</td></tr>
+                            <tr><td>reports_due</td><td>"Reports are due for X funded candidates"</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Candidate Status Metrics</h4>
+                        <p>Total | Pending Review | Under CTC Review | Waitlist | Approved</p>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Submission Tabs (Fiscal Year Archives)</h4>
+                        <p><strong>Tab Structure:</strong></p>
+                        <ul>
+                            <li>Current Submissions (active tab)</li>
+                            <li>FY 2024-25 Archive</li>
+                            <li>FY 2023-24 Archive</li>
+                        </ul>
+                        <p>Each tab shows table: Batch ID | IHE Partner | Candidates | Status | Last Updated</p>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Post-Payment Reporting Section</h4>
+                        <p>Funded Candidates | Reports Due | In Progress | Submitted</p>
+                    </div>
+
+                    <h4>Navigation Links:</h4>
+                    <div class="nav-links">
+                        <span class="nav-link">Review Candidates</span>
+                        <span class="nav-link">All Candidates</span>
+                        <span class="nav-link">Applications</span>
+                        <span class="nav-link">Funded Candidates</span>
+                        <span class="nav-link">Reports</span>
+                        <span class="nav-link">Report History</span>
+                        <span class="nav-link">Grants</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LEA Review Candidates -->
+            <div class="card">
+                <div class="card-header"><h3>View 2: Review Candidates (CRITICAL FLOW)</h3></div>
+                <div class="card-body">
+                    <p><strong>File:</strong> LEAPortal/ReviewCandidates.cshtml</p>
+                    <p><strong>Purpose:</strong> Review IHE-submitted candidates and add them to a submission batch. This is where LEA provides critical Application Info.</p>
+
+                    <div class="highlight-box">
+                        <strong>Key Function:</strong> LEA must fill out Application Info section before candidates can be submitted to CTC for review.
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Application Info Section (All Editable Fields)</h4>
+
+                        <div class="sub-section">
+                            <h5>1. LEA Point of Contact</h5>
+                            <table class="field-table">
+                                <tr><td>First Name *</td><td>text input</td><td>Required</td></tr>
+                                <tr><td>Last Name *</td><td>text input</td><td>Required</td></tr>
+                                <tr><td>Email *</td><td>email input</td><td>Required</td></tr>
+                                <tr><td>Phone *</td><td>tel input</td><td>Required</td></tr>
+                            </table>
+                        </div>
+
+                        <div class="sub-section">
+                            <h5>2. GAA Authorized Signer (DocuSign recipient)</h5>
+                            <table class="field-table">
+                                <tr><td>Full Name *</td><td>text input</td><td>Required - Person who signs GAA</td></tr>
+                                <tr><td>Title *</td><td>text input</td><td>Required - Job title</td></tr>
+                                <tr><td>Email *</td><td>email input</td><td>Required - DocuSign sends here</td></tr>
+                            </table>
+                        </div>
+
+                        <div class="sub-section">
+                            <h5>3. Fiscal Agent</h5>
+                            <table class="field-table">
+                                <tr><td>Name</td><td>text input</td><td>Optional</td></tr>
+                                <tr><td>Email</td><td>email input</td><td>Optional</td></tr>
+                                <tr><td>Phone</td><td>tel input</td><td>Optional</td></tr>
+                            </table>
+                        </div>
+
+                        <div class="sub-section">
+                            <h5>4. Superintendent</h5>
+                            <table class="field-table">
+                                <tr><td>Name</td><td>text input</td><td>Optional</td></tr>
+                                <tr><td>Email</td><td>email input</td><td>Optional</td></tr>
+                            </table>
+                        </div>
+
+                        <div class="sub-section">
+                            <h5>5. Payment Information</h5>
+                            <table class="field-table">
+                                <tr><td>Payment Intent *</td><td>text/select</td><td>How LEA intends to use funds</td></tr>
+                                <tr><td>Payment Schedule *</td><td>text/select</td><td>When payments will be made to student</td></tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Candidates Selection Table</h4>
+                        <p><strong>Filter:</strong> Dropdown to filter by IHE Partner</p>
+                        <table class="field-table">
+                            <thead><tr><th>Column</th><th>Description</th></tr></thead>
+                            <tbody>
+                                <tr><td>Checkbox</td><td>Select candidate for submission batch</td></tr>
+                                <tr><td>Student Name</td><td>Candidate full name</td></tr>
+                                <tr><td>IHE</td><td>Submitting IHE name</td></tr>
+                                <tr><td>Credential Area</td><td>Teaching credential type</td></tr>
+                                <tr><td>School Site</td><td>Placement school name</td></tr>
+                                <tr><td>Status</td><td>Current status badge</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="info-box">
+                        <strong>Primary Action:</strong> "Add to Submission" button - Adds all selected candidates to current submission batch, triggering submission to CTC for review.
+                    </div>
+                </div>
+            </div>
+
+            <!-- LEA Submit Report -->
+            <div class="card">
+                <div class="card-header"><h3>View 7: Submit Report (Post-Payment)</h3></div>
+                <div class="card-body">
+                    <p><strong>File:</strong> LEAPortal/SubmitReport.cshtml</p>
+                    <p><strong>Purpose:</strong> Submit post-payment outcome report for funded candidate. LEA version has different fields than IHE version.</p>
+
+                    <div class="screen-mockup">
+                        <h4>Section 1: Payment Information</h4>
+                        <table class="field-table">
+                            <thead><tr><th>Field</th><th>Type</th><th>Options</th><th>Required</th></tr></thead>
+                            <tbody>
+                                <tr><td>Payment Category</td><td>select</td><td>STIPEND, SALARY, TUITION, OTHER</td><td>Yes</td></tr>
+                                <tr><td>Payment Schedule</td><td>select</td><td>LUMP_SUM, MONTHLY, QUARTERLY, SEMESTER</td><td>Yes</td></tr>
+                                <tr><td>Actual Payment Amount</td><td>currency</td><td>Dollar amount</td><td>Yes</td></tr>
+                                <tr><td>First Payment Date</td><td>date</td><td>Date picker</td><td>No</td></tr>
+                                <tr><td>Final Payment Date</td><td>date</td><td>Date picker</td><td>No</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Section 2: Program Completion</h4>
+                        <table class="field-table">
+                            <tr><td>Completion Status *</td><td>select</td><td>COMPLETED, IN_PROGRESS, NOT_COMPLETED</td></tr>
+                            <tr><td>Completion Date</td><td>date</td><td>If status = COMPLETED</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Section 3: Credential Information</h4>
+                        <table class="field-table">
+                            <tr><td>Credential Earned Status</td><td>select</td><td>EARNED, IN_PROGRESS, NOT_EARNED</td></tr>
+                            <tr><td>Credential Issue Date</td><td>date</td><td>If status = EARNED</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Section 4: Employment Information</h4>
+                        <table class="field-table">
+                            <thead><tr><th>Field</th><th>Type</th><th>Options</th><th>Required</th></tr></thead>
+                            <tbody>
+                                <tr><td>Hired in District</td><td>radio</td><td>Yes / No</td><td>Yes</td></tr>
+                                <tr><td>Employment Status</td><td>select</td><td>FULL_TIME, PART_TIME, SEEKING, NOT_HIRED</td><td>Yes</td></tr>
+                                <tr><td>Employment Start Date</td><td>date</td><td>Date picker</td><td>Conditional</td></tr>
+                                <tr><td>Employing LEA</td><td>text</td><td>If different from this LEA</td><td>Conditional</td></tr>
+                                <tr><td>School Site</td><td>text</td><td>School name</td><td>No</td></tr>
+                                <tr><td>Grade Level</td><td>text</td><td>Grade taught</td><td>No</td></tr>
+                                <tr><td>Subject Area</td><td>text</td><td>Subject taught</td><td>No</td></tr>
+                                <tr><td>Job Title</td><td>text</td><td>Position title</td><td>No</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Section 5: Quality Metrics (Optional)</h4>
+                        <table class="field-table">
+                            <tr><td>Placement Quality Rating</td><td>1-5 star rating</td><td>Optional quality score</td></tr>
+                            <tr><td>Placement Quality Notes</td><td>textarea</td><td>Comments on placement</td></tr>
+                            <tr><td>Mentor Teacher Name</td><td>text</td><td>Mentor assigned</td></tr>
+                            <tr><td>Mentor Teacher Feedback</td><td>textarea</td><td>Feedback from mentor</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="info-box">
+                        <strong>Form Actions:</strong>
+                        <ul>
+                            <li><strong>Save Draft</strong> - Saves as IN_PROGRESS</li>
+                            <li><strong>Submit Report</strong> - Submits for CTC review</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GRANTS TEAM TAB -->
+        <div id="grants" class="tab-content">
+            <div class="portal-header">
+                <h2>CTC Grants Team - 5 Views</h2>
+                <p>Internal CTC Staff for grant management</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h3>All Grants Team Views</h3></div>
+                <div class="card-body">
+                    <div class="view-list">
+                        <div class="view-item">
+                            <h5>1. Dashboard</h5>
+                            <p>Submissions queue, disbursement processing, budget</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>2. Review</h5>
+                            <p>Disbursement groups requiring review</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>3. ReviewStudent</h5>
+                            <p>Individual student approval/deny/waitlist</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>4. Waitlist</h5>
+                            <p>Waitlist management and promotion</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>5. Analytics</h5>
+                            <p>Program analytics dashboard</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grants Team Dashboard -->
+            <div class="card">
+                <div class="card-header"><h3>View 1: Dashboard (Central Hub)</h3></div>
+                <div class="card-body">
+                    <p><strong>File:</strong> GrantsTeam/Dashboard.cshtml</p>
+                    <p><strong>Purpose:</strong> Central hub for managing submissions, approvals, and disbursements.</p>
+
+                    <div class="screen-mockup">
+                        <h4>Funding Alert Banner</h4>
+                        <p>Shows when budget is exhausted: "Budget for [Program] has been exhausted. X candidates are on waitlist."</p>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Submissions with Pending Students Table</h4>
+                        <table class="field-table">
+                            <thead><tr><th>Column</th><th>Description</th></tr></thead>
+                            <tbody>
+                                <tr><td>LEA</td><td>Submitting LEA district name</td></tr>
+                                <tr><td>IHE</td><td>Partner IHE institution</td></tr>
+                                <tr><td>Students</td><td>Count badge</td></tr>
+                                <tr><td>Total Amount</td><td>Sum of awards ($10k x count)</td></tr>
+                                <tr><td>Submitted Date</td><td>When LEA submitted batch</td></tr>
+                                <tr><td>Actions</td><td>"Review" button -> Review page</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Disbursement Processing Table</h4>
+                        <p>Shows batches at each stage of the 6-step workflow:</p>
+                        <div class="workflow-steps">
+                            <div class="workflow-step"><span class="step-num">1</span>GAA Signed</div>
+                            <div class="workflow-step"><span class="step-num">2</span>PO Generated</div>
+                            <div class="workflow-step"><span class="step-num">3</span>PO Uploaded</div>
+                            <div class="workflow-step"><span class="step-num">4</span>Invoice</div>
+                            <div class="workflow-step"><span class="step-num">5</span>Sent</div>
+                            <div class="workflow-step"><span class="step-num">6</span>Warrant</div>
+                        </div>
+                        <table class="field-table">
+                            <thead><tr><th>Column</th><th>Description</th></tr></thead>
+                            <tbody>
+                                <tr><td>LEA</td><td>LEA name</td></tr>
+                                <tr><td>Students</td><td>Count</td></tr>
+                                <tr><td>Amount</td><td>Total disbursement</td></tr>
+                                <tr><td>Step 1-6</td><td>Checkmark indicators for each completed step</td></tr>
+                                <tr><td>Actions</td><td>Context-sensitive: Send GAA, Upload PO, Generate Invoice, etc.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Budget Overview Panel</h4>
+                        <table class="field-table">
+                            <tr><td><strong>Total Budget</strong></td><td>Allocated funds for grant cycle</td></tr>
+                            <tr><td><strong>Encumbered</strong></td><td>Approved but not yet paid (reserved)</td></tr>
+                            <tr><td><strong>Disbursed</strong></td><td>Actually paid out</td></tr>
+                            <tr><td><strong>Remaining</strong></td><td>Available for new approvals</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grants Team Review Student -->
+            <div class="card">
+                <div class="card-header"><h3>View 3: Review Student (Approval Decision)</h3></div>
+                <div class="card-body">
+                    <p><strong>File:</strong> GrantsTeam/ReviewStudent.cshtml</p>
+                    <p><strong>Purpose:</strong> Review individual student application and make approval decision.</p>
+
+                    <div class="screen-mockup">
+                        <h4>Student Information Display (Read-only)</h4>
+                        <p>All candidate details: Personal info, demographics, credential area, CDS codes, LEA/IHE partners</p>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Application Context</h4>
+                        <table class="field-table">
+                            <tr><td>Application ID</td><td>Unique identifier</td></tr>
+                            <tr><td>Submission Date</td><td>When submitted to CTC</td></tr>
+                            <tr><td>Current Status</td><td>Status badge</td></tr>
+                            <tr><td>Award Amount</td><td>$10,000</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Review Decision Actions</h4>
+                        <table class="field-table">
+                            <tr>
+                                <td><span class="status-badge status-approved">APPROVE</span></td>
+                                <td>Approve for funding (if budget available). Adds to disbursement group.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="status-badge status-waitlist">WAITLIST</span></td>
+                                <td>Add to waitlist (when budget exhausted). Can be promoted later.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="status-badge" style="background:#f8d7da;color:#721c24;">DENY</span></td>
+                                <td>Deny application. Requires denial reason in textarea.</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Denial Reason (Conditional)</h4>
+                        <p>If DENY selected: Textarea field for explanation (required)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grants Team Waitlist -->
+            <div class="card">
+                <div class="card-header"><h3>View 4: Waitlist Management</h3></div>
+                <div class="card-body">
+                    <p><strong>File:</strong> GrantsTeam/Waitlist.cshtml</p>
+                    <p><strong>Purpose:</strong> Manage waitlisted candidates and promote when funds become available.</p>
+
+                    <div class="screen-mockup">
+                        <h4>Waitlist Summary</h4>
+                        <table class="field-table">
+                            <tr><td>Total on Waitlist</td><td>Candidate count</td></tr>
+                            <tr><td>Total Amount Needed</td><td>Sum if all promoted</td></tr>
+                            <tr><td>Available Budget</td><td>Current remaining funds</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Waitlisted Candidates Table</h4>
+                        <table class="field-table">
+                            <thead><tr><th>Column</th><th>Description</th></tr></thead>
+                            <tbody>
+                                <tr><td>Position</td><td>Queue position number</td></tr>
+                                <tr><td>Student Name</td><td>Candidate name</td></tr>
+                                <tr><td>LEA</td><td>LEA name</td></tr>
+                                <tr><td>IHE</td><td>IHE name</td></tr>
+                                <tr><td>Award Amount</td><td>$10,000</td></tr>
+                                <tr><td>Waitlist Date</td><td>When added to waitlist</td></tr>
+                                <tr><td>Days Waiting</td><td>Time on waitlist</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="info-box">
+                        <strong>Row Actions:</strong>
+                        <ul>
+                            <li><strong>Promote</strong> - Move to APPROVED (only if funds available)</li>
+                            <li><strong>Remove</strong> - Remove from waitlist</li>
+                        </ul>
+                    </div>
+
+                    <div class="highlight-box">
+                        <strong>Promotion Logic:</strong> When budget becomes available (e.g., denied candidate frees funds), waitlisted candidates can be promoted in queue order.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FISCAL TEAM TAB -->
+        <div id="fiscal" class="tab-content">
+            <div class="portal-header">
+                <h2>CTC Fiscal Team - 8 Views</h2>
+                <p>Internal CTC Staff for fiscal/payment processing</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h3>All Fiscal Team Views</h3></div>
+                <div class="card-body">
+                    <div class="view-list">
+                        <div class="view-item">
+                            <h5>1. DisbursementQueue</h5>
+                            <p>Main queue with 6-step workflow</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>2. GAAPreview</h5>
+                            <p>GAA document preview & DocuSign</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>3. UploadPO</h5>
+                            <p>Purchase Order upload form</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>4. Invoices</h5>
+                            <p>Groups ready for invoice</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>5. GenerateInvoice</h5>
+                            <p>Invoice generation form</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>6. InvoicePreview</h5>
+                            <p>Invoice preview & FisCal submit</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>7. UploadWarrant</h5>
+                            <p>Warrant confirmation form</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>8. ViewDocuments</h5>
+                            <p>All disbursement documents</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fiscal Disbursement Queue -->
+            <div class="card">
+                <div class="card-header"><h3>View 1: Disbursement Queue (Main Workflow)</h3></div>
+                <div class="card-body">
+                    <p><strong>File:</strong> FiscalTeam/DisbursementQueue.cshtml</p>
+                    <p><strong>Purpose:</strong> Main queue for processing disbursements through the 6-step workflow.</p>
+
+                    <div class="screen-mockup">
+                        <h4>6-Step Workflow Visualization</h4>
+                        <div class="workflow-steps">
+                            <div class="workflow-step"><span class="step-num">1</span>GAA Signed</div>
+                            <div class="workflow-step"><span class="step-num">2</span>PO Generated</div>
+                            <div class="workflow-step"><span class="step-num">3</span>PO Uploaded</div>
+                            <div class="workflow-step"><span class="step-num">4</span>Invoice</div>
+                            <div class="workflow-step"><span class="step-num">5</span>Sent</div>
+                            <div class="workflow-step"><span class="step-num">6</span>Warrant</div>
+                        </div>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Disbursement Queue Table</h4>
+                        <table class="field-table">
+                            <thead><tr><th>Column</th><th>Description</th></tr></thead>
+                            <tbody>
+                                <tr><td>LEA</td><td>LEA district name</td></tr>
+                                <tr><td>Students</td><td>Count badge</td></tr>
+                                <tr><td>Amount</td><td>Total disbursement amount</td></tr>
+                                <tr><td>Step 1</td><td>Checkmark if GAA signed</td></tr>
+                                <tr><td>Step 2</td><td>Checkmark if PO generated</td></tr>
+                                <tr><td>Step 3</td><td>Checkmark if PO uploaded</td></tr>
+                                <tr><td>Step 4</td><td>Checkmark if invoice generated</td></tr>
+                                <tr><td>Step 5</td><td>Checkmark if sent to accounting</td></tr>
+                                <tr><td>Step 6</td><td>Checkmark if warrant confirmed</td></tr>
+                                <tr><td>Current Step</td><td>Active workflow step name</td></tr>
+                                <tr><td>Actions</td><td>Context-sensitive button for next step</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="info-box">
+                        <strong>Internal Workflow States:</strong>
+                        <ul>
+                            <li><strong>NEEDS_GAA</strong> - Waiting for GAA signature (DocuSign)</li>
+                            <li><strong>NEEDS_PO</strong> - Ready for PO generation/upload</li>
+                            <li><strong>NEEDS_INVOICE</strong> - Ready for invoice generation</li>
+                            <li><strong>NEEDS_WARRANT</strong> - Sent to accounting, awaiting warrant</li>
+                            <li><strong>COMPLETE</strong> - Warrant confirmed, disbursement complete</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fiscal GAA Preview -->
+            <div class="card">
+                <div class="card-header"><h3>View 2: GAA Preview (DocuSign Integration)</h3></div>
+                <div class="card-body">
+                    <p><strong>File:</strong> FiscalTeam/GAAPreview.cshtml</p>
+                    <p><strong>Purpose:</strong> Preview Grant Award Agreement document and send for signature via DocuSign.</p>
+
+                    <div class="screen-mockup">
+                        <h4>GAA Document Structure</h4>
+
+                        <div class="sub-section">
+                            <h5>Header Section</h5>
+                            <table class="field-table">
+                                <tr><td>Grantee Name</td><td>LEA district full name</td></tr>
+                                <tr><td>Grant Number</td><td>Auto-generated (STSP-YYYY-XXXX)</td></tr>
+                                <tr><td>Agreement Term</td><td>Start Date - End Date</td></tr>
+                            </table>
+                        </div>
+
+                        <div class="sub-section">
+                            <h5>Definitions Section</h5>
+                            <ul>
+                                <li>"Grantee" - The local education agency</li>
+                                <li>"State" - State of California</li>
+                                <li>"IHE" - Institution of Higher Education</li>
+                                <li>"EPP" - Educator Preparation Program</li>
+                                <li>"Prospective Educator" - Student teacher</li>
+                                <li>"Student Teaching" - Clinical experience</li>
+                            </ul>
+                        </div>
+
+                        <div class="sub-section">
+                            <h5>Payments Section</h5>
+                            <table class="field-table">
+                                <tr><td>Student Teacher Count</td><td>Number of students in this GAA</td></tr>
+                                <tr><td>Total Amount</td><td>$10,000 x count</td></tr>
+                            </table>
+                        </div>
+
+                        <div class="sub-section">
+                            <h5>Signature Blocks (DocuSign Fields)</h5>
+                            <table class="field-table">
+                                <tr><td><strong>Grantee Authorized Representative</strong></td><td>Name, Title, Signature field, Date</td></tr>
+                                <tr><td><strong>CTC Representative</strong></td><td>Name, Title, Signature field, Date</td></tr>
+                                <tr><td><strong>Accounting Officer</strong></td><td>Name, Signature field, Date</td></tr>
+                            </table>
+                        </div>
+
+                        <div class="sub-section">
+                            <h5>Attachment A: Student Teachers Table</h5>
+                            <table class="field-table">
+                                <thead><tr><th>Column</th><th>Description</th></tr></thead>
+                                <tbody>
+                                    <tr><td>Student Name</td><td>Full name</td></tr>
+                                    <tr><td>SEID</td><td>State Educator ID</td></tr>
+                                    <tr><td>IHE Name</td><td>Partner institution</td></tr>
+                                    <tr><td>Credential Area</td><td>Teaching credential type</td></tr>
+                                    <tr><td>Award Amount</td><td>$10,000</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <strong>Actions:</strong>
+                        <ul>
+                            <li><strong>Send to DocuSign</strong> - Sends GAA to LEA's Authorized Signer email for e-signature</li>
+                            <li><strong>Download PDF</strong> - Download unsigned GAA document</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fiscal Invoice Generation Flow -->
+            <div class="card">
+                <div class="card-header"><h3>Views 4-6: Invoice Generation Flow</h3></div>
+                <div class="card-body">
+                    <p><strong>Files:</strong> Invoices.cshtml -> GenerateInvoice.cshtml -> InvoicePreview.cshtml</p>
+
+                    <div class="flow-container">
+                        <div class="flow-step">
+                            <div class="step-title">Step 1: Invoices List</div>
+                            <div class="step-screen">FiscalTeam/Invoices.cshtml</div>
+                            <div class="step-details">Shows disbursement groups with signed GAAs ready for invoice. Columns: LEA | Address | Students | Amount | GAA Signed Date | Days Since | Status | Actions (Preview, Generate)</div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="step-title">Step 2: Generate Invoice Form</div>
+                            <div class="step-screen">FiscalTeam/GenerateInvoice.cshtml</div>
+                            <div class="step-details">
+                                <strong>LEA Info:</strong> LEA Name (readonly), LEA Address (editable)<br>
+                                <strong>Invoice Details:</strong> Invoice Number (auto), PO Number (input), Invoice Date, Amount (readonly)<br>
+                                <strong>Sidebar:</strong> Student count, total amount, student list
+                            </div>
+                        </div>
+                        <div class="flow-step action">
+                            <div class="step-title">Step 3: Invoice Preview</div>
+                            <div class="step-screen">FiscalTeam/InvoicePreview.cshtml</div>
+                            <div class="step-details">
+                                Full invoice document preview with:<br>
+                                - Header: INVOICE, Number, Date, PO<br>
+                                - FROM/TO addresses<br>
+                                - Description of Services table<br>
+                                - ENY and Account Code<br>
+                                - Student Detail attachment<br>
+                                <strong>Actions:</strong> "Mark as Submitted to FisCal" checkbox, Print, Back
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fiscal Upload Warrant -->
+            <div class="card">
+                <div class="card-header"><h3>View 7: Upload Warrant (Final Step)</h3></div>
+                <div class="card-body">
+                    <p><strong>File:</strong> FiscalTeam/UploadWarrant.cshtml</p>
+                    <p><strong>Purpose:</strong> Confirm warrant (payment) has been issued - this completes the disbursement.</p>
+
+                    <div class="screen-mockup">
+                        <h4>Disbursement Details (Read-only)</h4>
+                        <p>LEA District | Total Amount | Students Count</p>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Warrant Information Form</h4>
+                        <table class="field-table">
+                            <tr><td>Warrant Number *</td><td>text</td><td>Required - Enter warrant number from accounting</td></tr>
+                            <tr><td>Warrant Date *</td><td>date</td><td>Required - Defaults to today</td></tr>
+                            <tr><td>Notes</td><td>textarea</td><td>Optional additional notes</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="info-box">
+                        <strong>On "Confirm Warrant":</strong>
+                        <ul>
+                            <li>Marks disbursement as COMPLETE</li>
+                            <li>Updates all candidate statuses to PAID</li>
+                            <li>Triggers notification to LEA</li>
+                            <li>Enables post-payment reporting for candidates</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fiscal View Documents -->
+            <div class="card">
+                <div class="card-header"><h3>View 8: View Documents</h3></div>
+                <div class="card-body">
+                    <p><strong>File:</strong> FiscalTeam/ViewDocuments.cshtml</p>
+                    <p><strong>Purpose:</strong> View and download all documents associated with a disbursement.</p>
+
+                    <div class="screen-mockup">
+                        <h4>Document Grid</h4>
+                        <table class="field-table">
+                            <thead><tr><th>Document</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
+                            <tbody>
+                                <tr><td>Grant Award Agreement</td><td>Available (green) or Pending (gray)</td><td>Signed date</td><td>Download button</td></tr>
+                                <tr><td>Purchase Order</td><td>Available or Pending</td><td>Generated date</td><td>Download button</td></tr>
+                                <tr><td>Invoice</td><td>Available or Pending</td><td>Generated date</td><td>Download button</td></tr>
+                                <tr><td>Warrant Confirmation</td><td>Available or Pending</td><td>Confirmed date</td><td>Download button</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="highlight-box">
+                        Documents become available (green border, enabled button) as each workflow step is completed.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- REPORTING TEAM TAB -->
+        <div id="reporting" class="tab-content">
+            <div class="portal-header">
+                <h2>CTC Reporting Team - 6 Views</h2>
+                <p>Internal CTC Staff for report generation and compliance</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h3>All Reporting Team Views</h3></div>
+                <div class="card-body">
+                    <div class="view-list">
+                        <div class="view-item">
+                            <h5>1. Dashboard</h5>
+                            <p>Quick reports, custom report builder</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>2. Outstanding</h5>
+                            <p>Overdue reports tracking</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>3. Submitted</h5>
+                            <p>IHE and LEA submitted reports</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>4. Review</h5>
+                            <p>Review individual report</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>5. Compliance</h5>
+                            <p>LEA compliance dashboard</p>
+                        </div>
+                        <div class="view-item">
+                            <h5>6. Analytics</h5>
+                            <p>Program outcome metrics</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reporting Dashboard -->
+            <div class="card">
+                <div class="card-header"><h3>View 1: Dashboard (Report Builder)</h3></div>
+                <div class="card-body">
+                    <p><strong>File:</strong> Reporting/Dashboard.cshtml</p>
+                    <p><strong>Purpose:</strong> Central hub for generating reports with quick access and custom builder.</p>
+
+                    <div class="screen-mockup">
+                        <h4>Quick Access Reports (One-Click)</h4>
+                        <table class="field-table">
+                            <tr><td><strong>Current Demographics</strong></td><td>Student demographics for current grant cycle</td></tr>
+                            <tr><td><strong>LEA Performance</strong></td><td>Summary of all LEA participation and outcomes</td></tr>
+                            <tr><td><strong>Financial Summary</strong></td><td>Budget utilization and disbursement tracking</td></tr>
+                            <tr><td><strong>Program Outcomes</strong></td><td>Credential areas, completion rates, and impact</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Custom Report Builder Form</h4>
+
+                        <div class="sub-section">
+                            <h5>Report Type Selection</h5>
+                            <p>Demographics | LEA Summary | IHE Summary | Financial Summary | Program Outcomes | Compliance | Custom Query</p>
+                        </div>
+
+                        <div class="sub-section">
+                            <h5>Filters & Parameters</h5>
+                            <table class="field-table">
+                                <tr><td>Grant Cycle</td><td>Current (FY 2025-26) / Previous (FY 2024-25) / All Cycles</td></tr>
+                                <tr><td>Date Range</td><td>All Time / YTD / Last 30 Days / Last 90 Days / Custom Range</td></tr>
+                                <tr><td>Organization Filter</td><td>All / LEAs Only / IHEs Only / Specific Organization</td></tr>
+                                <tr><td>Status Filter</td><td>All / Approved / Pending / Completed</td></tr>
+                            </table>
+                        </div>
+
+                        <div class="sub-section">
+                            <h5>Data Fields to Include (Checkboxes)</h5>
+                            <p>Student Information | Demographics | Financial Data | Credential Areas | Partnership Details | Compliance Data</p>
+                        </div>
+
+                        <div class="sub-section">
+                            <h5>Output Format</h5>
+                            <table class="field-table">
+                                <tr><td>Export Format</td><td>PDF | Excel (.xlsx) | CSV | Preview in Browser</td></tr>
+                                <tr><td>Report Name</td><td>Optional custom name</td></tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Natural Language Query (Future - v2.0)</h4>
+                        <p>AI-powered query: "Show me all students from Los Angeles who received funding in the last quarter"</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reporting Review -->
+            <div class="card">
+                <div class="card-header"><h3>View 4: Review Report (Approve/Revise)</h3></div>
+                <div class="card-body">
+                    <p><strong>File:</strong> Reporting/Review.cshtml</p>
+                    <p><strong>Purpose:</strong> Review individual submitted report and approve or request revisions.</p>
+
+                    <div class="screen-mockup">
+                        <h4>Action Items (Top of Page)</h4>
+                        <table class="field-table">
+                            <tr>
+                                <td><span class="status-badge status-approved">Approve Report</span></td>
+                                <td>Mark report as APPROVED</td>
+                            </tr>
+                            <tr>
+                                <td><span class="status-badge status-review">Request Revisions</span></td>
+                                <td>Opens modal for revision notes</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Report Sections Displayed</h4>
+                        <table class="field-table">
+                            <tr><td><strong>Student Information</strong></td><td>Name, SEID, Credential Area, Application ID link</td></tr>
+                            <tr><td><strong>Report Metadata</strong></td><td>Submitted Date, Submitted By, Status, Reviewed By, Revision Count</td></tr>
+                            <tr><td><strong>IHE Details</strong></td><td>Program Completion, Grant Hours (500), Credential Hours (600), Credential Outcome, Employment</td></tr>
+                            <tr><td><strong>LEA Details</strong></td><td>Payment Info (Category, Schedule, Amount), Employment Info (Hired, Status, School)</td></tr>
+                            <tr><td><strong>Revision History</strong></td><td>Previous revision requests and notes</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Revision Request Modal</h4>
+                        <table class="field-table">
+                            <tr><td>Revision Notes *</td><td>textarea</td><td>Required - What needs to be fixed</td></tr>
+                        </table>
+                        <p><strong>Actions:</strong> Cancel | Send Revision Request</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reporting Analytics -->
+            <div class="card">
+                <div class="card-header"><h3>View 6: Analytics (Program Outcomes)</h3></div>
+                <div class="card-body">
+                    <p><strong>File:</strong> Reporting/Analytics.cshtml</p>
+                    <p><strong>Purpose:</strong> Aggregate outcomes and program performance metrics.</p>
+
+                    <div class="screen-mockup">
+                        <h4>Candidate Overview Metrics</h4>
+                        <table class="field-table">
+                            <tr><td>Total Funded</td><td>All candidates who received payment</td></tr>
+                            <tr><td>Total Reported</td><td>Candidates with submitted reports</td></tr>
+                            <tr><td>Compliance Rate</td><td>Percentage of reports submitted</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Program Outcomes</h4>
+                        <table class="field-table">
+                            <tr><td><strong>Completions</strong></td><td>Count + Completion Rate %</td></tr>
+                            <tr><td><strong>Credentials Earned</strong></td><td>Count + Earn Rate %</td></tr>
+                            <tr><td><strong>Employed</strong></td><td>Count + Employment Rate %</td></tr>
+                            <tr><td><strong>Hired in District</strong></td><td>Count + % of employed who stayed in district</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Hours Tracking</h4>
+                        <table class="field-table">
+                            <tr><td>Avg Grant Program Hours</td><td>Average + count meeting 500 hour requirement</td></tr>
+                            <tr><td>Avg Credential Program Hours</td><td>Average + count meeting 600 hour requirement</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Financial Summary</h4>
+                        <table class="field-table">
+                            <tr><td>Total Disbursed</td><td>Sum of all payments</td></tr>
+                            <tr><td>Average Payment</td><td>Average per candidate</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="screen-mockup">
+                        <h4>Employment Status Breakdown Table</h4>
+                        <p>Status | Count | Percentage breakdown for: FULL_TIME, PART_TIME, SEEKING, NOT_HIRED</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BUSINESS OBJECTS TAB -->
+        <div id="objects" class="tab-content">
+            <div class="portal-header">
+                <h2>Business Objects Reference</h2>
+                <p>Core data entities, relationships, and status enums</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h3>Core Entities</h3></div>
+                <div class="card-body">
+                    <table class="field-table">
+                        <thead>
+                            <tr><th>Entity</th><th>Description</th><th>Key Fields</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>GrantCycle</strong></td>
+                                <td>Fiscal year funding cycle</td>
+                                <td>Id, Name, FiscalYear, StartDate, EndDate, Budget, Status</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Application</strong></td>
+                                <td>Individual student application</td>
+                                <td>Id, StudentId, IHEId, LEAId, GrantCycleId, Status, AwardAmount, SubmittedDate</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Student</strong></td>
+                                <td>Student teacher candidate</td>
+                                <td>Id, FirstName, LastName, DOB, SEID, Race, Ethnicity, Gender</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IHE</strong></td>
+                                <td>Institution of Higher Education</td>
+                                <td>Id, Name, Address, POCName, POCEmail, POCPhone</td>
+                            </tr>
+                            <tr>
+                                <td><strong>LEA</strong></td>
+                                <td>Local Education Agency</td>
+                                <td>Id, Name, CDSCode, Address, POCName, POCEmail, POCPhone</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DisbursementGroup</strong></td>
+                                <td>Batch of applications for payment</td>
+                                <td>Id, LEAId, GrantCycleId, TotalAmount, StudentCount, WorkflowStep, Status</td>
+                            </tr>
+                            <tr>
+                                <td><strong>GAA</strong></td>
+                                <td>Grant Award Agreement</td>
+                                <td>Id, DisbursementGroupId, GrantNumber, SignedDate, SignerName, SignerEmail</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Invoice</strong></td>
+                                <td>Invoice for disbursement</td>
+                                <td>Id, DisbursementGroupId, InvoiceNumber, PONumber, Amount, InvoiceDate, SentDate</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IHEReport</strong></td>
+                                <td>IHE post-payment report</td>
+                                <td>Id, ApplicationId, CompletionStatus, GrantHours, CredentialHours, CredentialEarned, SubmittedDate, Status</td>
+                            </tr>
+                            <tr>
+                                <td><strong>LEAReport</strong></td>
+                                <td>LEA post-payment report</td>
+                                <td>Id, ApplicationId, PaymentCategory, PaymentAmount, EmploymentStatus, HiredInDistrict, SubmittedDate, Status</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h3>Status Enumerations</h3></div>
+                <div class="card-body">
+                    <table class="field-table">
+                        <thead><tr><th>Enum</th><th>Values</th><th>Used By</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>ApplicationStatus</strong></td>
+                                <td>PENDING, UNDER_REVIEW, APPROVED, WAITLIST, DENIED, PAID</td>
+                                <td>Application</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DisbursementStatus</strong></td>
+                                <td>NEEDS_GAA, NEEDS_PO, NEEDS_INVOICE, NEEDS_WARRANT, COMPLETE</td>
+                                <td>DisbursementGroup</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ReportStatus</strong></td>
+                                <td>NOT_STARTED, IN_PROGRESS, DRAFT, SUBMITTED, UNDER_REVIEW, APPROVED, REVISIONS_REQUESTED</td>
+                                <td>IHEReport, LEAReport</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CompletionStatus</strong></td>
+                                <td>IN_PROGRESS, COMPLETED, DENIED</td>
+                                <td>IHEReport</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CredentialEarnedStatus</strong></td>
+                                <td>EARNED, IN_PROGRESS, NOT_EARNED</td>
+                                <td>IHEReport, LEAReport</td>
+                            </tr>
+                            <tr>
+                                <td><strong>EmploymentStatus</strong></td>
+                                <td>NOT_EMPLOYED, SEEKING, EMPLOYED, FULL_TIME, PART_TIME, NOT_HIRED</td>
+                                <td>IHEReport, LEAReport</td>
+                            </tr>
+                            <tr>
+                                <td><strong>PaymentCategory</strong></td>
+                                <td>STIPEND, SALARY, TUITION, OTHER</td>
+                                <td>LEAReport</td>
+                            </tr>
+                            <tr>
+                                <td><strong>PaymentSchedule</strong></td>
+                                <td>LUMP_SUM, MONTHLY, QUARTERLY, SEMESTER</td>
+                                <td>LEAReport</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CredentialArea</strong></td>
+                                <td>MULTIPLE_SUBJECT, SINGLE_SUBJECT, EDUCATION_SPECIALIST, EARLY_CHILDHOOD, OTHER</td>
+                                <td>Student, Application</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h3>Entity Relationships</h3></div>
+                <div class="card-body">
+                    <pre style="background: var(--gray-100); padding: 1.5rem; border-radius: 6px; overflow-x: auto; font-size: 0.9rem; line-height: 1.5;">
+GrantCycle (1) ─────────< Application (*)
+    │
+    └───────────────────< DisbursementGroup (*)
+
+Student (1) ────────────< Application (*)
+
+IHE (1) ────────────────< Application (*)
+    │
+    └───────────────────< IHEReport (*) [via Application]
+
+LEA (1) ────────────────< Application (*)
+    │
+    ├───────────────────< DisbursementGroup (*)
+    │
+    └───────────────────< LEAReport (*) [via Application]
+
+DisbursementGroup (1) ──< Application (*)
+    │
+    ├──────────────────── GAA (1)
+    │
+    └──────────────────── Invoice (*)
+
+Application (1) ────────< IHEReport (*)
+    │
+    └───────────────────< LEAReport (*)
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

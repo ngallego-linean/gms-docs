@@ -2,6 +2,19 @@
 
 @{
     ViewData["Title"] = "GAA Document Preview";
+
+    // MOCK DATA: Amendment information
+    // For demo purposes, we'll show this as an amendment to demonstrate the structure
+    // In production, this would come from the model
+    var isAmendment = false; // Set to true to preview amendment format
+    var amendmentLetter = "A";
+    var originalAgreementDate = "October 15, 2025";
+    var previousTotal = 80000m; // Amount from original + previous amendments
+    var thisAmendmentAmount = Model.Students.Sum(s => s.AwardAmount);
+    var cumulativeTotal = previousTotal + thisAmendmentAmount;
+
+    var amendmentDisplay = isAmendment ? $"Amendment {amendmentLetter}" : "Original Agreement";
+    var candidatesSectionTitle = isAmendment ? "Additional Candidates" : "Candidates Included";
 }
 
 @section Breadcrumbs {
@@ -24,7 +37,7 @@
         <i class="mdi mdi-file-sign"></i> Send to DocuSign
     </button>
     <button type="button" class="r4-button r4-button-secondary" onclick="window.print()">
-        <i class="mdi mdi-printer"></i> Print Preview
+        <i class="mdi mdi-download"></i> Download
     </button>
 </div>
 
@@ -54,6 +67,10 @@
                         <span class="gaa-value">@Model.GrantNumber</span>
                     </div>
                     <div class="gaa-info-row">
+                        <span class="gaa-label">Amendment:</span>
+                        <span class="gaa-value">@amendmentDisplay</span>
+                    </div>
+                    <div class="gaa-info-row">
                         <span class="gaa-label">Agreement Term:</span>
                         <span class="gaa-value">@Model.AgreementTerm</span>
                     </div>
@@ -61,11 +78,28 @@
 
                 <!-- Agreement Body -->
                 <div class="gaa-body">
+                    @if (isAmendment)
+                    {
+                        <div class="gaa-amendment-notice">
+                            <i class="mdi mdi-file-document-edit-outline"></i>
+                            This amendment modifies Grant Award Agreement <strong>@Model.GrantNumber</strong> dated @originalAgreementDate.
+                        </div>
+                    }
                     <p class="gaa-intro">
-                        THIS AGREEMENT is between <strong>@Model.GranteeName</strong> (Grantee) and the
-                        Commission on Teacher Credentialing (Commission) and is effective as of the date of
-                        the last signature. The Grantee agrees to implement the Student Teacher Stipend Program
-                        pursuant to Education Code Section 44400.01.
+                        @if (isAmendment)
+                        {
+                            <text>THIS AMENDMENT to the Grant Award Agreement is between <strong>@Model.GranteeName</strong> (Grantee) and the
+                            Commission on Teacher Credentialing (Commission) and is effective as of the date of
+                            the last signature. This amendment adds additional candidates to the Student Teacher Stipend Program
+                            pursuant to Education Code Section 44400.01.</text>
+                        }
+                        else
+                        {
+                            <text>THIS AGREEMENT is between <strong>@Model.GranteeName</strong> (Grantee) and the
+                            Commission on Teacher Credentialing (Commission) and is effective as of the date of
+                            the last signature. The Grantee agrees to implement the Student Teacher Stipend Program
+                            pursuant to Education Code Section 44400.01.</text>
+                        }
                     </p>
 
                     <!-- Definitions Section -->
@@ -84,17 +118,41 @@
                     <!-- Payments Section -->
                     <div class="gaa-section">
                         <h3>Payments:</h3>
-                        <p>
-                            Grantee will support <strong>@Model.StudentTeacherCount student teacher(s)</strong> during the agreement
-                            term as listed in Attachment A. Commission will send the full amount of funding upon receipt of a
-                            signed and completed agreement.
-                        </p>
-                        <div class="gaa-payment-box">
-                            <div class="gaa-payment-row">
-                                <span class="gaa-payment-label">Original Amount:</span>
-                                <span class="gaa-payment-value">@Model.FormattedAmount</span>
+                        @if (isAmendment)
+                        {
+                            <p>
+                                This amendment adds <strong>@Model.StudentTeacherCount additional candidate(s)</strong> to the grant.
+                                Commission will send the amendment amount upon receipt of a signed and completed amendment.
+                            </p>
+                            <div class="gaa-payment-box">
+                                <div class="gaa-payment-row">
+                                    <span class="gaa-payment-label">Previous Total:</span>
+                                    <span class="gaa-payment-value-secondary">@previousTotal.ToString("C0")</span>
+                                </div>
+                                <div class="gaa-payment-row">
+                                    <span class="gaa-payment-label">This Amendment:</span>
+                                    <span class="gaa-payment-value-secondary">@thisAmendmentAmount.ToString("C0")</span>
+                                </div>
+                                <div class="gaa-payment-row gaa-payment-total">
+                                    <span class="gaa-payment-label">Cumulative Total:</span>
+                                    <span class="gaa-payment-value">@cumulativeTotal.ToString("C0")</span>
+                                </div>
                             </div>
-                        </div>
+                        }
+                        else
+                        {
+                            <p>
+                                Grantee will support <strong>@Model.StudentTeacherCount candidate(s)</strong> during the agreement
+                                term as listed below. Commission will send the full amount of funding upon receipt of a
+                                signed and completed agreement.
+                            </p>
+                            <div class="gaa-payment-box">
+                                <div class="gaa-payment-row">
+                                    <span class="gaa-payment-label">Original Amount:</span>
+                                    <span class="gaa-payment-value">@Model.FormattedAmount</span>
+                                </div>
+                            </div>
+                        }
                     </div>
 
                     <!-- Terms and Conditions -->
@@ -132,9 +190,9 @@
                     </div>
                 </div>
 
-                <!-- Attachment A -->
+                <!-- Candidates Section -->
                 <div class="gaa-attachment">
-                    <h3>Attachment A: Student Teachers</h3>
+                    <h3>@candidatesSectionTitle</h3>
                     <p class="gaa-attachment-subtitle">@Model.SubmissionMonth Submission</p>
                     <table class="r4-table gaa-student-table">
                         <thead>
@@ -185,6 +243,10 @@
                     <span class="summary-value">@Model.GrantNumber</span>
                 </div>
                 <div class="summary-item">
+                    <span class="summary-label">Amendment</span>
+                    <span class="summary-value">@amendmentDisplay</span>
+                </div>
+                <div class="summary-item">
                     <span class="summary-label">Grantee</span>
                     <span class="summary-value">@Model.GranteeName</span>
                 </div>
@@ -193,13 +255,27 @@
                     <span class="summary-value">@Model.AgreementTerm</span>
                 </div>
                 <div class="summary-item">
-                    <span class="summary-label">Student Teachers</span>
+                    <span class="summary-label">@(isAmendment ? "Additional Candidates" : "Candidates")</span>
                     <span class="summary-value">@Model.StudentTeacherCount</span>
                 </div>
-                <div class="summary-item highlight">
-                    <span class="summary-label">Total Amount</span>
-                    <span class="summary-value">@Model.FormattedAmount</span>
-                </div>
+                @if (isAmendment)
+                {
+                    <div class="summary-item">
+                        <span class="summary-label">This Amendment</span>
+                        <span class="summary-value">@thisAmendmentAmount.ToString("C0")</span>
+                    </div>
+                    <div class="summary-item highlight">
+                        <span class="summary-label">Cumulative Total</span>
+                        <span class="summary-value">@cumulativeTotal.ToString("C0")</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="summary-item highlight">
+                        <span class="summary-label">Total Amount</span>
+                        <span class="summary-value">@Model.FormattedAmount</span>
+                    </div>
+                }
             </div>
         </div>
 
@@ -234,7 +310,7 @@
                     <i class="mdi mdi-file-sign"></i> Send to DocuSign
                 </button>
                 <button type="button" class="r4-button r4-button-secondary r4-button-block" onclick="window.print()" style="margin-top: 0.5rem;">
-                    <i class="mdi mdi-printer"></i> Print Preview
+                    <i class="mdi mdi-download"></i> Download
                 </button>
                 <a href="@Url.Action("Dashboard", "GrantsTeam")" class="r4-button r4-button-outline r4-button-block" style="margin-top: 0.5rem;">
                     <i class="mdi mdi-close"></i> Cancel
@@ -397,10 +473,36 @@
             border-left: 4px solid var(--ctc-blue);
         }
 
+        .gaa-amendment-notice {
+            background: rgba(0, 86, 179, 0.1);
+            border: 1px solid var(--ctc-blue);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            color: var(--ctc-blue);
+            font-weight: 500;
+        }
+
+        .gaa-amendment-notice i {
+            margin-right: 0.5rem;
+        }
+
         .gaa-payment-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .gaa-payment-row:last-child {
+            border-bottom: none;
+        }
+
+        .gaa-payment-row.gaa-payment-total {
+            border-top: 2px solid var(--ctc-blue);
+            margin-top: 0.5rem;
+            padding-top: 0.75rem;
         }
 
         .gaa-payment-label {
@@ -411,6 +513,12 @@
             font-size: 1.5rem;
             font-weight: bold;
             color: var(--ctc-blue);
+        }
+
+        .gaa-payment-value-secondary {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--gray-700);
         }
 
         .gaa-signatures {

@@ -2,6 +2,12 @@
 
 @{
     ViewData["Title"] = "Invoice Preview";
+
+    // Invoice Number Format: [GrantNumber]-[SequentialNumber]
+    // Example: STSP-2526-LAUSD-001-01
+    // The invoice number follows the grant number with a unique sequence at the end
+    var invoiceSequence = "01"; // This would come from the database in production
+    var formattedInvoiceNumber = $"{Model.GrantNumber}-{invoiceSequence}";
 }
 
 @section Breadcrumbs {
@@ -28,7 +34,7 @@
                     <div class="invoice-meta">
                         <div class="invoice-meta-row">
                             <span class="label">Invoice Number:</span>
-                            <span class="value invoice-number">@Model.InvoiceNumber</span>
+                            <span class="value invoice-number">@formattedInvoiceNumber</span>
                         </div>
                         <div class="invoice-meta-row">
                             <span class="label">Date:</span>
@@ -159,7 +165,7 @@
             <div class="r4-card-body">
                 <div class="summary-item">
                     <span class="summary-label">Invoice Number</span>
-                    <span class="summary-value">@Model.InvoiceNumber</span>
+                    <span class="summary-value">@formattedInvoiceNumber</span>
                 </div>
                 <div class="summary-item">
                     <span class="summary-label">Grant Number</span>
@@ -195,15 +201,15 @@
                     <label class="fiscal-checkbox">
                         <input type="checkbox" id="fiscalSubmitted" onchange="markAsFiscalSubmitted(this)">
                         <span class="fiscal-checkbox-mark"></span>
-                        <span class="fiscal-checkbox-label">Mark as Submitted to FisCal</span>
+                        <span class="fiscal-checkbox-label">Mark as submitted to CTC Accounting</span>
                     </label>
                 </div>
                 <hr style="border-color: var(--gray-200); margin: 1rem 0;" />
                 <button type="button" class="r4-button r4-button-secondary r4-button-block" onclick="window.print()">
-                    <i class="mdi mdi-printer"></i> Print Invoice
+                    <i class="mdi mdi-download"></i> Download
                 </button>
-                <a href="@Url.Action("Invoices", "FiscalTeam")" class="r4-button r4-button-outline r4-button-block" style="margin-top: 0.5rem;">
-                    <i class="mdi mdi-arrow-left"></i> Back to Invoice List
+                <a href="@Url.Action("Dashboard", "GrantsTeam")" class="r4-button r4-button-outline r4-button-block" style="margin-top: 0.5rem;">
+                    <i class="mdi mdi-arrow-left"></i> Back to Dashboard
                 </a>
             </div>
         </div>
@@ -220,7 +226,7 @@
 
                 // Show confirmation
                 const label = container.querySelector('.fiscal-checkbox-label');
-                label.innerHTML = '<i class="mdi mdi-check-circle"></i> Submitted to FisCal';
+                label.innerHTML = '<i class="mdi mdi-check-circle"></i> Submitted to CTC Accounting';
             }
         }
     </script>

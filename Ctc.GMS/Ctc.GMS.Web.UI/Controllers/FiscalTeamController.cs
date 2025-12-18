@@ -650,32 +650,20 @@ public class FiscalTeamController : Controller
         return View();
     }
 
-    [Route("UploadPO/{id}")]
-    public IActionResult UploadPO(int id)
+    [Route("UploadPO")]
+    [Route("UploadPO/{id?}")]
+    public IActionResult UploadPO(int? id = null)
     {
-        // Mock LEA names for POC
-        var leaNames = new Dictionary<int, string>
-        {
-            { 1, "Fresno Unified School District" },
-            { 2, "Sacramento City Unified School District" },
-            { 3, "Oakland Unified School District" },
-            { 4, "Los Angeles Unified School District" },
-            { 5, "San Diego Unified School District" },
-            { 6, "Long Beach Unified School District" }
-        };
-
-        ViewBag.GroupId = id;
-        ViewBag.LEAName = leaNames.ContainsKey(id) ? leaNames[id] : "Unknown District";
-
+        // Bulk PO Upload page - no individual ID required
         return View();
     }
 
     [HttpPost]
-    [Route("UploadPO/{id}")]
-    public IActionResult UploadPO(int id, IFormFile poFile)
+    [Route("UploadPO")]
+    public IActionResult UploadPOPost()
     {
-        // Mock upload processing for POC
-        TempData["SuccessMessage"] = $"Purchase Order uploaded successfully for group {id}.";
+        // Mock bulk upload processing for POC
+        TempData["SuccessMessage"] = "Purchase Orders uploaded successfully.";
         return RedirectToAction("Dashboard", "GrantsTeam");
     }
 
@@ -702,34 +690,20 @@ public class FiscalTeamController : Controller
         return RedirectToAction("Dashboard", "GrantsTeam");
     }
 
-    [Route("UploadWarrant/{id}")]
-    public IActionResult UploadWarrant(int id)
+    [Route("UploadWarrant")]
+    [Route("UploadWarrant/{id?}")]
+    public IActionResult UploadWarrant(int? id = null)
     {
-        // Mock LEA names for POC
-        var leaNames = new Dictionary<int, string>
-        {
-            { 1, "Fresno Unified School District" },
-            { 2, "Sacramento City Unified School District" },
-            { 3, "Oakland Unified School District" },
-            { 4, "Los Angeles Unified School District" },
-            { 5, "San Diego Unified School District" },
-            { 6, "Long Beach Unified School District" }
-        };
-
-        ViewBag.Id = id;
-        ViewBag.LEAName = leaNames.ContainsKey(id) ? leaNames[id] : "Unknown District";
-        ViewBag.Amount = 50000m; // Mock amount
-        ViewBag.StudentCount = 5; // Mock student count
-
+        // Bulk Warrant Entry page - no individual ID required
         return View();
     }
 
     [HttpPost]
-    [Route("UploadWarrant/{id}")]
-    public IActionResult UploadWarrant(int id, string warrantNumber, DateTime warrantDate)
+    [Route("UploadWarrant")]
+    public IActionResult UploadWarrantPost()
     {
-        // Mock warrant processing for POC
-        TempData["SuccessMessage"] = $"Warrant #{warrantNumber} confirmed for group {id} (Date: {warrantDate:MM/dd/yyyy}).";
+        // Mock bulk warrant processing for POC
+        TempData["SuccessMessage"] = "Warrant numbers recorded successfully.";
         return RedirectToAction("Dashboard", "GrantsTeam");
     }
 

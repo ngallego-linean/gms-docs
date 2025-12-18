@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GMS Entity Relationship Diagram</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #e4e4e4;
+        }
+
+        .header {
+            background: rgba(0,0,0,0.3);
+            padding: 20px 40px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .header p {
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .controls button {
+            padding: 8px 16px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .controls button:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .controls button.active {
+            background: #4a9eff;
+            border-color: #4a9eff;
+        }
+
+        .main-container {
+            display: flex;
+            height: calc(100vh - 120px);
+        }
+
+        .sidebar {
+            width: 320px;
+            background: rgba(0,0,0,0.2);
+            border-right: 1px solid rgba(255,255,255,0.1);
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .sidebar h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #888;
+            margin-bottom: 15px;
+        }
+
+        .entity-list {
+            list-style: none;
+        }
+
+        .entity-list li {
+            padding: 10px 12px;
+            margin-bottom: 5px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .entity-list li:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .entity-list li.selected {
+            background: rgba(74, 158, 255, 0.2);
+            border-left-color: #4a9eff;
+        }
+
+        .entity-list .entity-name {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .entity-list .entity-desc {
+            font-size: 11px;
+            color: #888;
+            margin-top: 3px;
+        }
+
+        .entity-list .entity-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            font-size: 9px;
+            border-radius: 3px;
+            margin-left: 8px;
+            text-transform: uppercase;
+        }
+
+        .badge-core { background: #2d5a27; color: #7ce577; }
+        .badge-svt { background: #5a4827; color: #e5c577; }
+        .badge-v2 { background: #4a2d5a; color: #c577e5; }
+        .badge-support { background: #275a5a; color: #77e5e5; }
+
+        .diagram-container {
+            flex: 1;
+            position: relative;
+            overflow: auto;
+            padding: 40px;
+        }
+
+        .diagram {
+            position: relative;
+            min-width: 1400px;
+            min-height: 1200px;
+        }
+
+        .entity-box {
+            position: absolute;
+            background: rgba(30, 40, 60, 0.95);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            min-width: 180px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            transition: all 0.2s;
+        }
+
+        .entity-box:hover {
+            border-color: #4a9eff;
+            box-shadow: 0 4px 30px rgba(74, 158, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .entity-box.highlighted {
+            border-color: #4a9eff;
+            box-shadow: 0 0 20px rgba(74, 158, 255, 0.5);
+        }
+
+        .entity-header {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .entity-header .icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .icon-core { background: #2d5a27; }
+        .icon-svt { background: #5a4827; }
+        .icon-v2 { background: #4a2d5a; }
+        .icon-support { background: #275a5a; }
+
+        .entity-fields {
+            padding: 10px 15px;
+            font-size: 11px;
+        }
+
+        .field {
+            padding: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .field-pk {
+            color: #ffd700;
+        }
+
+        .field-fk {
+            color: #4a9eff;
+        }
+
+        .field-name {
+            color: #ccc;
+        }
+
+        .field-type {
+            color: #666;
+            font-size: 10px;
+        }
+
+        .field-icon {
+            font-size: 8px;
+            width: 12px;
+        }
+
+        /* SVG for relationship lines */
+        .relationships-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .relationship-line {
+            stroke: rgba(255,255,255,0.2);
+            stroke-width: 1.5;
+            fill: none;
+        }
+
+        .relationship-line.highlighted {
+            stroke: #4a9eff;
+            stroke-width: 2;
+        }
+
+        .cardinality {
+            font-size: 10px;
+            fill: #888;
+        }
+
+        /* Detail panel */
+        .detail-panel {
+            position: fixed;
+            right: 0;
+            top: 120px;
+            width: 350px;
+            height: calc(100vh - 120px);
+            background: rgba(20, 25, 40, 0.98);
+            border-left: 1px solid rgba(255,255,255,0.1);
+            padding: 25px;
+            overflow-y: auto;
+            transform: translateX(100%);
+            transition: transform 0.3s;
+            z-index: 100;
+        }
+
+        .detail-panel.open {
+            transform: translateX(0);
+        }
+
+        .detail-panel h2 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .detail-panel .entity-type {
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .detail-section {
+            margin-bottom: 25px;
+        }
+
+        .detail-section h4 {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .detail-section p {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #aaa;
+        }
+
+        .field-list {
+            list-style: none;
+        }
+
+        .field-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 12px;
+        }
+
+        .field-list .fname {
+            color: #fff;
+        }
+
+        .field-list .ftype {
+            color: #666;
+            margin-left: 8px;
+        }
+
+        .field-list .fdesc {
+            color: #888;
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        .relationship-list {
+            list-style: none;
+        }
+
+        .relationship-list li {
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 4px;
+            margin-bottom: 6px;
+            font-size: 12px;
+        }
+
+        .rel-arrow {
+            color: #4a9eff;
+            margin: 0 8px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            color: #fff;
+        }
+
+        /* Legend */
+        .legend {
+            position: fixed;
+            bottom: 20px;
+            left: 340px;
+            background: rgba(20, 25, 40, 0.95);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 15px 20px;
+            display: flex;
+            gap: 20px;
+            font-size: 11px;
+            z-index: 50;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        /* View modes */
+        .view-full .entity-fields { display: block; }
+        .view-compact .entity-fields { display: none; }
+        .view-compact .entity-box { min-width: 140px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>GMS Entity Relationship Diagram</h1>
+        <p>California Commission on Teacher Credentialing - Grant Management System V1</p>
+        <div class="controls">
+            <button class="active" onclick="setView('full')">Full View</button>
+            <button onclick="setView('compact')">Compact View</button>
+            <button onclick="highlightLayer('core')">Core Entities</button>
+            <button onclick="highlightLayer('svt')">SVT Tables</button>
+            <button onclick="highlightLayer('v2')">V2 Extensions</button>
+            <button onclick="highlightLayer('all')">Show All</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <h3>Core Entities</h3>
+            <ul class="entity-list" id="core-list"></ul>
+
+            <h3 style="margin-top: 25px;">Application & Workflow</h3>
+            <ul class="entity-list" id="workflow-list"></ul>
+
+            <h3 style="margin-top: 25px;">SVT (Lookup Tables)</h3>
+            <ul class="entity-list" id="svt-list"></ul>
+
+            <h3 style="margin-top: 25px;">V2 Extensions</h3>
+            <ul class="entity-list" id="v2-list"></ul>
+        </div>
+
+        <div class="diagram-container view-full" id="diagram-container">
+            <svg class="relationships-svg" id="relationships-svg"></svg>
+            <div class="diagram" id="diagram"></div>
+        </div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background: #2d5a27;"></div>
+            <span>Core Entity</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #5a4827;"></div>
+            <span>SVT (Lookup)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #4a2d5a;"></div>
+            <span>V2 Extension</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #275a5a;"></div>
+            <span>Supporting</span>
+        </div>
+        <div class="legend-item">
+            <span style="color: #ffd700;">PK</span>
+            <span>Primary Key</span>
+        </div>
+        <div class="legend-item">
+            <span style="color: #4a9eff;">FK</span>
+            <span>Foreign Key</span>
+        </div>
+    </div>
+
+    <div class="detail-panel" id="detail-panel">
+        <button class="close-btn" onclick="closeDetail()">&times;</button>
+        <div id="detail-content"></div>
+    </div>
+
+    <script>
+        // Entity definitions
+        const entities = {
+            // Core Entities
+            GrantProgram: {
+                type: 'core',
+                desc: 'Grant program configuration (STSP, Teacher Residency, etc.)',
+                position: { x: 50, y: 50 },
+                fields: [
+                    { name: 'Id', type: 'INT', pk: true },
+                    { name: 'Code', type: 'VARCHAR(20)' },
+                    { name: 'Name', type: 'VARCHAR(200)' },
+                    { name: 'WorkflowType', type: 'VARCHAR(20)' },
+                    { name: 'BatchStrategy', type: 'VARCHAR(30)' },
+                    { name: 'BatchInitiatorOrgType', type: 'VARCHAR(10)' },
+                    { name: 'HoursThreshold', type: 'INT' },
+                    { name: 'CredentialHoursThreshold', type: 'INT' },
+                    { name: 'PaymentPhasesJson', type: 'NVARCHAR(MAX)' },
+                    { name: 'HasMatchingFunds', type: 'BIT' },
+                    { name: 'TrackingYears', type: 'INT' },
+                    { name: 'HasCohorts', type: 'BIT' }
+                ],
+                relationships: [
+                    { to: 'GrantCycle', type: '1:M', label: 'has many' }
+                ]
+            },
+            GrantCycle: {
+                type: 'core',
+                desc: 'Specific funding period for a grant program',
+                position: { x: 300, y: 50 },
+                fields: [
+                    { name: 'Id', type: 'INT', pk: true },
+                    { name: 'GrantProgramId', type: 'INT', fk: 'GrantProgram' },
+                    { name: 'Name', type: 'VARCHAR(200)' },
+                    { name: 'FiscalYear', type: 'VARCHAR(10)' },
+                    { name: 'AppropriatedAmount', type: 'DECIMAL' },
+                    { name: 'DefaultAwardAmount', type: 'DECIMAL' }
+                ],
+                relationships: [
+                    { to: 'Application', type: '1:M', label: 'has many' },
+                    { to: 'Batch', type: '1:M', label: 'has many' },
+                    { to: 'ReportingPeriod', type: '1:M', label: 'has many' }
+                ]
+            },
+            Organization: {
+                type: 'core',
+                desc: 'IHE or LEA organization (synced from ECS)',
+                position: { x: 50, y: 250 },
+                fields: [
+                    { name: 'Id', type: 'INT', pk: true },
+                    { name: 'TypeId', type: 'INT', fk: 'OrganizationTypeSVT' },
+                    { name: 'EcsCdsCode', type: 'VARCHAR(14)' },
+                    { name: 'Name', type: 'VARCHAR(200)' },
+                    { name: 'StreetAddress', type: 'NVARCHAR(80)' },
+                    { name: 'EmailDomain', type: 'VARCHAR(100)' }
+                ],
+                relationships: [
+                    { to: 'Account', type: '1:M', label: 'employs' },
+                    { to: 'Application', type: '1:M', label: 'initiates/completes' },
+                    { to: 'Batch', type: '1:M', label: 'submits' }
+                ]
+            },
+            Account: {
+                type: 'core',
+                desc: 'Portal users (IHE/LEA staff, CTC staff)',
+                position: { x: 50, y: 450 },
+                fields: [
+                    { name: 'Id', type: 'INT', pk: true },
+                    { name: 'OrganizationId', type: 'INT', fk: 'Organization' },
+                    { name: 'RoleId', type: 'INT', fk: 'UserRoleSVT' },
+                    { name: 'EmailAddress', type: 'VARCHAR(320)' },
+                    { name: 'FirstName', type: 'NVARCHAR(50)' },
+                    { name: 'LastName', type: 'NVARCHAR(50)' }
+                ],
+                relationships: []
+            },
+
+            // Application & Workflow
+            Application: {
+                type: 'core',
+                desc: 'IHE-LEA pair for a grant cycle',
+                position: { x: 550, y: 50 },
+                fields: [
+                    { name: 'Id', type: 'INT', pk: true },
+                    { name: 'GrantCycleId', type: 'INT', fk: 'GrantCycle' },
+                    { name: 'InitiatorOrgId', type: 'INT', fk: 'Organization' },
+                    { name: 'CompleterOrgId', type: 'INT', fk: 'Organization' },
+                    { name: 'IHEOrgId', type: 'INT', fk: 'Organization' },
+                    { name: 'LEAOrgId', type: 'INT', fk: 'Organization' },
+                    { name: 'GAASignerName', type: 'NVARCHAR(200)' },
+                    { name: 'GAASignerEmail', type: 'VARCHAR(320)' },
+                    { name: 'ExtendedContactsJson', type: 'NVARCHAR(MAX)' },
+                    { name: 'Status', type: 'VARCHAR(20)' }
+                ],
+                relationships: [
+                    { to: 'Candidate', type: '1:M', label: 'contains' }
+                ]
+            },
+            Candidate: {
+                type: 'core',
+                desc: 'Individual grant applicant (student teacher, resident)',
+                position: { x: 550, y: 250 },
+                fields: [
+                    { name: 'Id', type: 'INT', pk: true },
+                    { name: 'ApplicationId', type: 'INT', fk: 'Application' },
+                    { name: 'StatusId', type: 'INT', fk: 'CandidateStatusSVT' },
+                    { name: 'FirstName', type: 'NVARCHAR(50)' },
+                    { name: 'LastName', type: 'NVARCHAR(50)' },
+                    { name: 'SEID', type: 'VARCHAR(10)' },
+                    { name: 'CohortYear', type: 'VARCHAR(10)', v2: true },
+                    { name: 'ParticipantType', type: 'VARCHAR(20)', v2: true },
+                    { name: 'ExtendedDataJson', type: 'NVARCHAR(MAX)', v2: true }
+                ],
+                relationships: [
+                    { to: 'BatchCandidate', type: '1:1', label: 'assigned to' },
+                    { to: 'CandidateReport', type: '1:M', label: 'has reports' },
+                    { to: 'CandidateFunding', type: '1:M', label: 'has funding (V2)' },
+                    { to: 'CandidateYearProgress', type: '1:M', label: 'tracks progress (V2)' },
+                    { to: 'CandidateYearOutcome', type: '1:M', label: 'tracks outcomes (V2)' }
+                ]
+            },
+            Batch: {
+                type: 'core',
+                desc: 'LEA monthly submission to CTC',
+                position: { x: 800, y: 50 },
+                fields: [
+                    { name: 'Id', type: 'INT', pk: true },
+                    { name: 'GrantCycleId', type: 'INT', fk: 'GrantCycle' },
+                    { name: 'StatusId', type: 'INT', fk: 'BatchStatusSVT' },
+                    { name: 'SubmittingOrgId', type: 'INT', fk: 'Organization' },
+                    { name: 'SubmissionPeriod', type: 'VARCHAR(10)' },
+                    { name: 'CandidateCount', type: 'INT' },
+                    { name: 'TotalAwardAmount', type: 'DECIMAL' }
+                ],
+                relationships: [
+                    { to: 'BatchCandidate', type: '1:M', label: 'contains' },
+                    { to: 'Disbursement', type: '1:M', label: 'has disbursements' }
+                ]
+            },
+            BatchCandidate: {
+                type: 'support',
+                desc: 'Junction: Batch to Candidate',
+                position: { x: 800, y: 250 },
+                fields: [
+                    { name: 'Id', type: 'INT', pk: true },
+                    { name: 'BatchId', type: 'INT', fk: 'Batch' },
+                    { name: 'CandidateId', type: 'INT', fk: 'Candidate' },
+                    { name: 'AddedOn', type: 'DATETIME' }
+                ],
+                relationships: []
+            },
+            Disbursement: {
+                type: 'core',
+                desc: 'Payment processing (GAA, PO, Invoice, Warrant)',
+                position: { x: 1050, y: 50 },
+                fields: [
+                    { name: 'Id', type: 'INT', pk: true },
+                    { name: 'BatchId', type: 'INT', fk: 'Batch' },
+                    { name: 'StatusId', type: 'INT', fk: 'DisbursementStatusSVT' },
+                    { name: 'Phase', type: 'VARCHAR(20)' },
+                    { name: 'Amount', type: 'DECIMAL' },
+                    { name: 'GAAEnvelopeId', type: 'VARCHAR(100)' },
+                    { name: 'PONumber', type: 'VARCHAR(50)' },
+                    { name: 'InvoiceNumber', type: 'VARCHAR(50)' },
+                    { name: 'WarrantNumber', type: 'VARCHAR(50)' }
+                ],
+                relationships: [
+                    { to: 'DisbursementFile', type: '1:M', label: 'has documents' }
+                ]
+            },
+
+            // Reporting
+            ReportingPeriod: {
+                type: 'support',
+                desc: 'Report due dates per grant cycle',
+                position: { x: 550, y: 450 },
+                fields: [
+                    { name: 'Id', type: 'INT', pk: true },
+                    { name: 'GrantCycleId', type: 'INT', fk: 'GrantCycle' },
+                    { name: 'ReportTypeId', type: 'INT', fk: 'ReportTypeSVT' },
+                    { name: 'PeriodName', type: 'VARCHAR(100)' },
+                    { name: 'DueOn', type: 'DATETIME' }
+                ],
+                relationships: [
+                    { to: 'CandidateReport', type: '1:M', label: 'has reports' }
+                ]
+            },
+            CandidateReport: {
+                type: 'core',
+                desc: 'Per-candidate report (IHE completion, LEA payment)',
+                position: { x: 800, y: 450 },
+                fields: [
+                    { name: 'Id', type: 'INT', pk: true },
+                    { name: 'CandidateId', type: 'INT', fk: 'Candidate' },
+                    { name: 'ReportingPeriodId', type: 'INT', fk: 'ReportingPeriod' },
+                    { name: 'ReportTypeId', type: 'INT', fk: 'ReportTypeSVT' },
+                    { name: 'ReportingOrgTypeId', type: 'INT', fk: 'OrganizationTypeSVT' },
+                    { name: 'CompletionStatus', type: 'VARCHAR(30)' },
+                    { name: 'GrantProgramHours', type: 'INT' },
+                    { name: 'ExtendedDataJson', type: 'NVARCHAR(MAX)' },
+                    { name: 'Status', type: 'VARCHAR(20)' }
+                ],
+                relationships: []
+            },
+
+            // File Storage
+            File: {
+                type: 'support',
+                desc: 'Document storage (GAA, PO, Invoice PDFs)',
+                position: { x: 1050, y: 250 },
+                fields: [
+                    { name: 'Id', type: 'INT', pk: true },
+                    { name: 'TypeId', type: 'INT', fk: 'FileTypeSVT' },
+                    { name: 'StorageKey', type: 'UNIQUEIDENTIFIER' },
+                    { name: 'FileName', type: 'VARCHAR(255)' },
+                    { name: 'FileSizeInKilobytes', type: 'INT' }
+                ],
+                relationships: []
+            },
+            DisbursementFile: {
+                type: 'support',
+                desc: 'Junction: Disbursement to File',
+                position: { x: 1050, y: 400 },
+                fields: [
+                    { name: 'Id', type: 'INT', pk: true },
+                    { name: 'DisbursementId', type: 'INT', fk: 'Disbursement' },
+                    { name: 'FileId', type: 'INT', fk: 'File' },
+                    { name: 'Purpose', type: 'VARCHAR(50)' }
+                ],
+                relationships: []
+            },
+
+            // SVT Tables
+            OrganizationTypeSVT: {
+                type: 'svt',
+                desc: 'Lookup: IHE, LEA, COE, CTC',
+                position: { x: 50, y: 650 },
+                fields: [
+                    { name: 'Id', type: 'INT', pk: true },
+                    { name: 'Name', type: 'VARCHAR(50)' },
+                    { name: 'Description', type: 'VARCHAR(500)' }
+                ],
+                relationships: []
+            },
+            CandidateStatusSVT: {
+                type: 'svt',
+                desc: 'Lookup: Candidate workflow states',
+                position: { x: 250, y: 650 },
+                fields: [
+                    { name: 'Id', type: 'INT', pk: true },
+                    { name: 'Code', type: 'VARCHAR(30)' },
+                    { name: 'Name', type: 'VARCHAR(50)' },
+                    { name: 'Category', type: 'VARCHAR(20)' },
+                    { name: 'LEADisplayCategory', type: 'VARCHAR(20)' }
+                ],
+                relationships: []
+            },
+            BatchStatusSVT: {
+                type: 'svt',
+                desc: 'Lookup: Batch workflow states',
+                position: { x: 450, y: 650 },
+                fields: [
+                    { name: 'Id', type: 'INT', pk: true },
+                    { name: 'Code', type: 'VARCHAR(30)' },
+                    { name: 'Name', type: 'VARCHAR(50)' },
+                    { name: 'Category', type: 'VARCHAR(20)' }
+                ],
+                relationships: []
+            },
+            DisbursementStatusSVT: {
+                type: 'svt',
+                desc: 'Lookup: Disbursement states',
+                position: { x: 650, y: 650 },
+                fields: [
+                    { name: 'Id', type: 'INT', pk: true },
+                    { name: 'Code', type: 'VARCHAR(30)' },
+                    { name: 'Name', type: 'VARCHAR(50)' }
+                ],
+                relationships: []
+            },
+            UserRoleSVT: {
+                type: 'svt',
+                desc: 'Lookup: User roles',
+                position: { x: 850, y: 650 },
+                fields: [
+                    { name: 'Id', type: 'INT', pk: true },
+                    { name: 'Code', type: 'VARCHAR(30)' },
+                    { name: 'Name', type: 'VARCHAR(50)' }
+                ],
+                relationships: []
+            },
+            ReportTypeSVT: {
+                type: 'svt',
+                desc: 'Lookup: Report types with schema definitions',
+                position: { x: 1050, y: 650 },
+                fields: [
+                    { name: 'Id', type: 'INT', pk: true },
+                    { name: 'Code', type: 'VARCHAR(30)' },
+                    { name: 'Name', type: 'VARCHAR(50)' },
+                    { name: 'ReportingOrgTypeId', type: 'INT', fk: 'OrganizationTypeSVT' },
+                    { name: 'FormSchemaJson', type: 'NVARCHAR(MAX)' }
+                ],
+                relationships: []
+            },
+            FileTypeSVT: {
+                type: 'svt',
+                desc: 'Lookup: File types',
+                position: { x: 1200, y: 650 },
+                fields: [
+                    { name: 'Id', type: 'INT', pk: true },
+                    { name: 'Name', type: 'VARCHAR(50)' }
+                ],
+                relationships: []
+            },
+
+            // V2 Extensions
+            CandidateFunding: {
+                type: 'v2',
+                desc: 'V2: Multi-source funding tracking (Grant + Match)',
+                position: { x: 300, y: 850 },
+                fields: [
+                    { name: 'Id', type: 'INT', pk: true },
+                    { name: 'CandidateId', type: 'INT', fk: 'Candidate' },
+                    { name: 'FiscalYear', type: 'VARCHAR(10)' },
+                    { name: 'FundingSource', type: 'VARCHAR(20)' },
+                    { name: 'Category', type: 'VARCHAR(50)' },
+                    { name: 'BudgetedAmount', type: 'DECIMAL' },
+                    { name: 'ExpendedAmount', type: 'DECIMAL' }
+                ],
+                relationships: []
+            },
+            CandidateYearProgress: {
+                type: 'v2',
+                desc: 'V2: Annual degree/credential progress',
+                position: { x: 550, y: 850 },
+                fields: [
+                    { name: 'Id', type: 'INT', pk: true },
+                    { name: 'CandidateId', type: 'INT', fk: 'Candidate' },
+                    { name: 'FiscalYear', type: 'VARCHAR(10)' },
+                    { name: 'YearInProgram', type: 'INT' },
+                    { name: 'HasDegreeProgress', type: 'BIT' },
+                    { name: 'HasCredentialProgress', type: 'BIT' },
+                    { name: 'HasEarlyExit', type: 'BIT' }
+                ],
+                relationships: []
+            },
+            CandidateYearOutcome: {
+                type: 'v2',
+                desc: 'V2: Post-completion employment tracking',
+                position: { x: 800, y: 850 },
+                fields: [
+                    { name: 'Id', type: 'INT', pk: true },
+                    { name: 'CandidateId', type: 'INT', fk: 'Candidate' },
+                    { name: 'OutcomeYear', type: 'INT' },
+                    { name: 'IsEmployed', type: 'BIT' },
+                    { name: 'EmployerOrgId', type: 'INT', fk: 'Organization' },
+                    { name: 'Position', type: 'VARCHAR(50)' },
+                    { name: 'IsSameLEAAsPlacement', type: 'BIT' }
+                ],
+                relationships: []
+            },
+
+            // Status History
+            CandidateStatusChange: {
+                type: 'support',
+                desc: 'Audit: Candidate status history',
+                position: { x: 1050, y: 550 },
+                fields: [
+                    { name: 'Id', type: 'INT', pk: true },
+                    { name: 'CandidateId', type: 'INT', fk: 'Candidate' },
+                    { name: 'FromStatusId', type: 'INT', fk: 'CandidateStatusSVT' },
+                    { name: 'ToStatusId', type: 'INT', fk: 'CandidateStatusSVT' },
+                    { name: 'ChangedOn', type: 'DATETIME' }
+                ],
+                relationships: []
+            }
+        };
+
+        // Relationship definitions (for drawing lines)
+        const relationships = [
+            { from: 'GrantProgram', to: 'GrantCycle', fromPos: 'right', toPos: 'left' },
+            { from: 'GrantCycle', to: 'Application', fromPos: 'right', toPos: 'left' },
+            { from: 'GrantCycle', to: 'Batch', fromPos: 'right', toPos: 'left' },
+            { from: 'Organization', to: 'Account', fromPos: 'bottom', toPos: 'top' },
+            { from: 'Organization', to: 'Application', fromPos: 'right', toPos: 'left' },
+            { from: 'Application', to: 'Candidate', fromPos: 'bottom', toPos: 'top' },
+            { from: 'Batch', to: 'BatchCandidate', fromPos: 'bottom', toPos: 'top' },
+            { from: 'Candidate', to: 'BatchCandidate', fromPos: 'right', toPos: 'left' },
+            { from: 'Batch', to: 'Disbursement', fromPos: 'right', toPos: 'left' },
+            { from: 'Candidate', to: 'CandidateReport', fromPos: 'bottom', toPos: 'top' },
+            { from: 'GrantCycle', to: 'ReportingPeriod', fromPos: 'bottom', toPos: 'top' },
+            { from: 'ReportingPeriod', to: 'CandidateReport', fromPos: 'right', toPos: 'left' },
+            { from: 'Disbursement', to: 'DisbursementFile', fromPos: 'bottom', toPos: 'top' },
+            { from: 'File', to: 'DisbursementFile', fromPos: 'bottom', toPos: 'top' },
+            { from: 'Candidate', to: 'CandidateFunding', fromPos: 'bottom', toPos: 'top' },
+            { from: 'Candidate', to: 'CandidateYearProgress', fromPos: 'bottom', toPos: 'top' },
+            { from: 'Candidate', to: 'CandidateYearOutcome', fromPos: 'bottom', toPos: 'top' },
+            { from: 'Candidate', to: 'CandidateStatusChange', fromPos: 'right', toPos: 'left' }
+        ];
+
+        // Render functions
+        function renderSidebar() {
+            const coreList = document.getElementById('core-list');
+            const workflowList = document.getElementById('workflow-list');
+            const svtList = document.getElementById('svt-list');
+            const v2List = document.getElementById('v2-list');
+
+            const coreEntities = ['GrantProgram', 'GrantCycle', 'Organization', 'Account'];
+            const workflowEntities = ['Application', 'Candidate', 'Batch', 'BatchCandidate', 'Disbursement', 'CandidateReport'];
+            const svtEntities = Object.keys(entities).filter(k => entities[k].type === 'svt');
+            const v2Entities = Object.keys(entities).filter(k => entities[k].type === 'v2');
+
+            function createListItem(name) {
+                const entity = entities[name];
+                const badgeClass = {
+                    'core': 'badge-core',
+                    'svt': 'badge-svt',
+                    'v2': 'badge-v2',
+                    'support': 'badge-support'
+                }[entity.type];
+
+                return `
+                    <li onclick="selectEntity('${name}')" id="sidebar-${name}">
+                        <div class="entity-name">
+                            ${name}
+                            <span class="entity-badge ${badgeClass}">${entity.type}</span>
+                        </div>
+                        <div class="entity-desc">${entity.desc}</div>
+                    </li>
+                `;
+            }
+
+            coreList.innerHTML = coreEntities.map(createListItem).join('');
+            workflowList.innerHTML = workflowEntities.map(createListItem).join('');
+            svtList.innerHTML = svtEntities.map(createListItem).join('');
+            v2List.innerHTML = v2Entities.map(createListItem).join('');
+        }
+
+        function renderDiagram() {
+            const diagram = document.getElementById('diagram');
+            let html = '';
+
+            for (const [name, entity] of Object.entries(entities)) {
+                const iconClass = {
+                    'core': 'icon-core',
+                    'svt': 'icon-svt',
+                    'v2': 'icon-v2',
+                    'support': 'icon-support'
+                }[entity.type];
+
+                const iconLetter = {
+                    'core': 'C',
+                    'svt': 'S',
+                    'v2': 'V2',
+                    'support': 'J'
+                }[entity.type];
+
+                html += `
+                    <div class="entity-box" id="entity-${name}"
+                         style="left: ${entity.position.x}px; top: ${entity.position.y}px;"
+                         data-type="${entity.type}"
+                         onclick="selectEntity('${name}')">
+                        <div class="entity-header">
+                            <span class="icon ${iconClass}">${iconLetter}</span>
+                            ${name}
+                        </div>
+                        <div class="entity-fields">
+                            ${entity.fields.map(f => `
+                                <div class="field">
+                                    <span class="field-icon">${f.pk ? '🔑' : (f.fk ? '🔗' : '')}</span>
+                                    <span class="field-name ${f.pk ? 'field-pk' : ''} ${f.fk ? 'field-fk' : ''}">${f.name}</span>
+                                    <span class="field-type">${f.type}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            diagram.innerHTML = html;
+            renderRelationships();
+        }
+
+        function renderRelationships() {
+            const svg = document.getElementById('relationships-svg');
+            let paths = '';
+
+            for (const rel of relationships) {
+                const fromEl = document.getElementById(`entity-${rel.from}`);
+                const toEl = document.getElementById(`entity-${rel.to}`);
+
+                if (!fromEl || !toEl) continue;
+
+                const fromRect = fromEl.getBoundingClientRect();
+                const toRect = toEl.getBoundingClientRect();
+                const containerRect = document.getElementById('diagram-container').getBoundingClientRect();
+
+                let x1, y1, x2, y2;
+
+                // Calculate connection points based on position hints
+                if (rel.fromPos === 'right') {
+                    x1 = fromEl.offsetLeft + fromEl.offsetWidth;
+                    y1 = fromEl.offsetTop + fromEl.offsetHeight / 2;
+                } else if (rel.fromPos === 'bottom') {
+                    x1 = fromEl.offsetLeft + fromEl.offsetWidth / 2;
+                    y1 = fromEl.offsetTop + fromEl.offsetHeight;
+                } else {
+                    x1 = fromEl.offsetLeft;
+                    y1 = fromEl.offsetTop + fromEl.offsetHeight / 2;
+                }
+
+                if (rel.toPos === 'left') {
+                    x2 = toEl.offsetLeft;
+                    y2 = toEl.offsetTop + toEl.offsetHeight / 2;
+                } else if (rel.toPos === 'top') {
+                    x2 = toEl.offsetLeft + toEl.offsetWidth / 2;
+                    y2 = toEl.offsetTop;
+                } else {
+                    x2 = toEl.offsetLeft + toEl.offsetWidth;
+                    y2 = toEl.offsetTop + toEl.offsetHeight / 2;
+                }
+
+                // Create curved path
+                const midX = (x1 + x2) / 2;
+                const midY = (y1 + y2) / 2;
+
+                paths += `<path class="relationship-line" id="rel-${rel.from}-${rel.to}"
+                    d="M ${x1} ${y1} Q ${midX} ${y1}, ${midX} ${midY} T ${x2} ${y2}" />`;
+            }
+
+            svg.innerHTML = paths;
+        }
+
+        function selectEntity(name) {
+            // Clear previous selection
+            document.querySelectorAll('.entity-list li').forEach(el => el.classList.remove('selected'));
+            document.querySelectorAll('.entity-box').forEach(el => el.classList.remove('highlighted'));
+            document.querySelectorAll('.relationship-line').forEach(el => el.classList.remove('highlighted'));
+
+            // Highlight selected
+            const sidebarEl = document.getElementById(`sidebar-${name}`);
+            const entityEl = document.getElementById(`entity-${name}`);
+
+            if (sidebarEl) sidebarEl.classList.add('selected');
+            if (entityEl) entityEl.classList.add('highlighted');
+
+            // Highlight related relationships
+            for (const rel of relationships) {
+                if (rel.from === name || rel.to === name) {
+                    const lineEl = document.getElementById(`rel-${rel.from}-${rel.to}`);
+                    if (lineEl) lineEl.classList.add('highlighted');
+                }
+            }
+
+            // Show detail panel
+            showDetail(name);
+        }
+
+        function showDetail(name) {
+            const entity = entities[name];
+            const panel = document.getElementById('detail-panel');
+            const content = document.getElementById('detail-content');
+
+            const typeLabel = {
+                'core': 'Core Entity',
+                'svt': 'Static Value Table (Lookup)',
+                'v2': 'V2 Extension Table',
+                'support': 'Supporting Entity'
+            }[entity.type];
+
+            // Find related entities
+            const relatedFrom = relationships.filter(r => r.from === name).map(r => r.to);
+            const relatedTo = relationships.filter(r => r.to === name).map(r => r.from);
+
+            content.innerHTML = `
+                <h2>${name}</h2>
+                <div class="entity-type">${typeLabel}</div>
+
+                <div class="detail-section">
+                    <h4>Description</h4>
+                    <p>${entity.desc}</p>
+                </div>
+
+                <div class="detail-section">
+                    <h4>Fields (${entity.fields.length})</h4>
+                    <ul class="field-list">
+                        ${entity.fields.map(f => `
+                            <li>
+                                <span class="fname">${f.pk ? '🔑 ' : ''}${f.fk ? '🔗 ' : ''}${f.name}</span>
+                                <span class="ftype">${f.type}</span>
+                                ${f.fk ? `<div class="fdesc">References ${f.fk}</div>` : ''}
+                                ${f.v2 ? `<div class="fdesc" style="color: #c577e5;">V2 Extension Field</div>` : ''}
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+
+                ${relatedFrom.length > 0 ? `
+                <div class="detail-section">
+                    <h4>References (FK to other tables)</h4>
+                    <ul class="relationship-list">
+                        ${relatedFrom.map(r => `
+                            <li>${name} <span class="rel-arrow">→</span> ${r}</li>
+                        `).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+
+                ${relatedTo.length > 0 ? `
+                <div class="detail-section">
+                    <h4>Referenced By</h4>
+                    <ul class="relationship-list">
+                        ${relatedTo.map(r => `
+                            <li>${r} <span class="rel-arrow">→</span> ${name}</li>
+                        `).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+            `;
+
+            panel.classList.add('open');
+        }
+
+        function closeDetail() {
+            document.getElementById('detail-panel').classList.remove('open');
+        }
+
+        function setView(view) {
+            const container = document.getElementById('diagram-container');
+            container.classList.remove('view-full', 'view-compact');
+            container.classList.add(`view-${view}`);
+
+            document.querySelectorAll('.controls button').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+
+            setTimeout(renderRelationships, 100);
+        }
+
+        function highlightLayer(layer) {
+            document.querySelectorAll('.entity-box').forEach(el => {
+                if (layer === 'all') {
+                    el.style.opacity = '1';
+                } else {
+                    el.style.opacity = el.dataset.type === layer ? '1' : '0.3';
+                }
+            });
+        }
+
+        // Initialize
+        renderSidebar();
+        renderDiagram();
+
+        // Redraw lines on resize
+        window.addEventListener('resize', renderRelationships);
+    </script>
+</body>
+</html>

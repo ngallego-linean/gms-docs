@@ -76,11 +76,34 @@
                         <div>
                             <div style="font-size: 2rem; font-weight: bold; color: var(--ctc-blue);">@Model.TotalStudents</div>
                             <div style="color: var(--ctc-blue); font-size: 0.9rem; font-weight: 600;">Total Candidates</div>
-                            <small style="color: var(--gray-500);">Candidates submitted</small>
+                            <small style="color: var(--gray-500);">Submitted to Commission</small>
                         </div>
                     </div>
                 </div>
             </a>
+
+            @* Awaiting LEA Review *@
+            @{
+                // MOCK DATA: Candidates submitted by IHE awaiting LEA review
+                var awaitingReviewCount = 8;
+            }
+            @if (awaitingReviewCount > 0)
+            {
+                <a href="@Url.Action("ReviewCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId })" class="metric-card-link">
+                    <div class="metric-card metric-warning">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="width: 48px; height: 48px; background-color: var(--warning); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i class="mdi mdi-account-alert-outline" style="font-size: 24px; color: var(--white);"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 2rem; font-weight: bold; color: var(--warning);">@awaitingReviewCount</div>
+                                <div style="color: var(--warning); font-size: 0.9rem; font-weight: 600;">Awaiting Review</div>
+                                <small style="color: var(--gray-500);">Submitted by IHE partners</small>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            }
 
             @* Under Review *@
             <a href="@Url.Action("AllCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId, status = "UNDER_REVIEW" })" class="metric-card-link">
@@ -114,7 +137,7 @@
                             <div>
                                 <div style="font-size: 2rem; font-weight: bold; color: var(--ctc-gold);">@waitlistCount</div>
                                 <div style="color: var(--ctc-gold); font-size: 0.9rem; font-weight: 600;">Waitlist</div>
-                                <small style="color: var(--gray-500);">Approved, awaiting funding</small>
+                                <small style="color: var(--gray-500);">Pending available funding</small>
                             </div>
                         </div>
                     </div>
@@ -147,7 +170,7 @@
                         <div>
                             <div style="font-size: 2rem; font-weight: bold; color: var(--gray-900);">@Model.TotalFundedStudents</div>
                             <div style="color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Paid</div>
-                            <small style="color: var(--gray-500);">Payment complete</small>
+                            <small style="color: var(--gray-500);">Payment to LEA complete</small>
                         </div>
                     </div>
                 </div>
