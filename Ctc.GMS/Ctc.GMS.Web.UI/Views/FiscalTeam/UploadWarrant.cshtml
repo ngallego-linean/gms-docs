@@ -81,11 +81,11 @@
                         <th style="width: 40px;">
                             <input type="checkbox" id="selectAllParsed" checked onchange="toggleSelectAllParsed(this)">
                         </th>
-                        <th>Warrant Number</th>
+                        <th>Warrant ID</th>
                         <th>Warrant Date</th>
-                        <th>Vendor (from Fi$Cal)</th>
+                        <th>Invoice Number</th>
+                        <th>Supplier</th>
                         <th>Amount</th>
-                        <th>Matched Invoice</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -151,33 +151,33 @@
                 </tr>
             </thead>
             <tbody id="pendingInvoicesBody">
-                <tr data-lea="lausd" data-invoice="STS-2025-001-01">
+                <tr data-lea="lausd" data-invoice="2025STSP001-1">
                     <td>Los Angeles Unified School District</td>
-                    <td><code>STS-2025-001-01</code></td>
+                    <td><code>2025STSP001-1</code></td>
                     <td>Nov 20, 2025</td>
                     <td><code>6360-0000004240</code></td>
                     <td>$80,000</td>
                     <td><span class="status-badge status-pending">Awaiting Warrant</span></td>
                 </tr>
-                <tr data-lea="sdusd" data-invoice="STS-2025-002-01">
+                <tr data-lea="sdusd" data-invoice="2025STSP002-1">
                     <td>San Diego Unified School District</td>
-                    <td><code>STS-2025-002-01</code></td>
+                    <td><code>2025STSP002-1</code></td>
                     <td>Nov 18, 2025</td>
                     <td><code>6360-0000004241</code></td>
                     <td>$50,000</td>
                     <td><span class="status-badge status-pending">Awaiting Warrant</span></td>
                 </tr>
-                <tr data-lea="fresno" data-invoice="STS-2025-003-01">
+                <tr data-lea="fresno" data-invoice="2025STSP003-1">
                     <td>Fresno Unified School District</td>
-                    <td><code>STS-2025-003-01</code></td>
+                    <td><code>2025STSP003-1</code></td>
                     <td>Nov 15, 2025</td>
                     <td><code>6360-0000004242</code></td>
                     <td>$30,000</td>
                     <td><span class="status-badge status-pending">Awaiting Warrant</span></td>
                 </tr>
-                <tr data-lea="sacramento" data-invoice="STS-2025-004-01">
+                <tr data-lea="sacramento" data-invoice="2025STSP004-1">
                     <td>Sacramento City USD</td>
-                    <td><code>STS-2025-004-01</code></td>
+                    <td><code>2025STSP004-1</code></td>
                     <td>Nov 12, 2025</td>
                     <td><code>6360-0000004243</code></td>
                     <td>$40,000</td>
@@ -253,13 +253,14 @@
         const parsedResultsCard = document.getElementById('parsedResultsCard');
         const successCard = document.getElementById('successCard');
 
-        // Mock parsed warrant data (simulating CSV parse)
+        // Mock parsed warrant data (simulating Fi$Cal CSV parse)
+        // Reference = 8-digit warrant ID, Invoice Number = Fi$Cal format for matching
         const mockWarrantData = [
-            { warrantNumber: 'W-2025-12450', date: '11/25/2025', vendor: 'LOS ANGELES UNIFIED SCHOOL DIST', amount: 80000, matchedInvoice: 'STS-2025-001-01', matchedLea: 'lausd', status: 'matched' },
-            { warrantNumber: 'W-2025-12451', date: '11/25/2025', vendor: 'SAN DIEGO UNIFIED SCHOOL DIST', amount: 50000, matchedInvoice: 'STS-2025-002-01', matchedLea: 'sdusd', status: 'matched' },
-            { warrantNumber: 'W-2025-12452', date: '11/25/2025', vendor: 'FRESNO UNIFIED SCHOOL DIST', amount: 30000, matchedInvoice: 'STS-2025-003-01', matchedLea: 'fresno', status: 'matched' },
-            { warrantNumber: 'W-2025-12453', date: '11/25/2025', vendor: 'SACRAMENTO CITY USD', amount: 40000, matchedInvoice: 'STS-2025-004-01', matchedLea: 'sacramento', status: 'matched' },
-            { warrantNumber: 'W-2025-12454', date: '11/25/2025', vendor: 'KERN COUNTY SUPERINTENDENT', amount: 25000, matchedInvoice: null, matchedLea: null, status: 'unmatched' }
+            { warrantNumber: '60581151', date: '11/25/2025', invoiceNumber: '2025STSP001-1', vendor: 'LOS ANGELES UNIFIED SCHOOL DIST', amount: 80000, matchedInvoice: '2025STSP001-1', matchedLea: 'lausd', status: 'matched' },
+            { warrantNumber: '60581152', date: '11/25/2025', invoiceNumber: '2025STSP002-1', vendor: 'SAN DIEGO UNIFIED SCHOOL DIST', amount: 50000, matchedInvoice: '2025STSP002-1', matchedLea: 'sdusd', status: 'matched' },
+            { warrantNumber: '60581153', date: '11/25/2025', invoiceNumber: '2025STSP003-1', vendor: 'FRESNO UNIFIED SCHOOL DIST', amount: 30000, matchedInvoice: '2025STSP003-1', matchedLea: 'fresno', status: 'matched' },
+            { warrantNumber: '60581154', date: '11/25/2025', invoiceNumber: '2025STSP004-1', vendor: 'SACRAMENTO CITY USD', amount: 40000, matchedInvoice: '2025STSP004-1', matchedLea: 'sacramento', status: 'matched' },
+            { warrantNumber: '60581155', date: '11/25/2025', invoiceNumber: '2025STSP099-1', vendor: 'KERN COUNTY SUPERINTENDENT', amount: 25000, matchedInvoice: null, matchedLea: null, status: 'unmatched' }
         ];
 
         // File input handler
@@ -311,7 +312,7 @@
             document.getElementById('matchedCount').textContent = matched;
             document.getElementById('totalCount').textContent = mockWarrantData.length;
 
-            // Populate table
+            // Populate table - Invoice Number is the key field for matching
             const tbody = document.getElementById('parsedWarrantsBody');
             tbody.innerHTML = mockWarrantData.map((warrant, idx) => `
                 <tr class="${warrant.status === 'matched' ? 'matched-row' : 'unmatched-row'}" data-lea="${warrant.matchedLea || ''}">
@@ -320,9 +321,9 @@
                     </td>
                     <td><code>${warrant.warrantNumber}</code></td>
                     <td>${warrant.date}</td>
+                    <td><code>${warrant.invoiceNumber}</code></td>
                     <td>${warrant.vendor}</td>
                     <td>$${warrant.amount.toLocaleString()}</td>
-                    <td>${warrant.matchedInvoice ? `<code>${warrant.matchedInvoice}</code>` : '<span class="text-muted">-</span>'}</td>
                     <td>
                         ${warrant.status === 'matched'
                             ? '<span class="status-badge status-success"><i class="mdi mdi-check"></i> Matched</span>'
