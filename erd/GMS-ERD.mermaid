@@ -1,0 +1,474 @@
+erDiagram
+    %% ==========================================
+    %% GMS ENTITY RELATIONSHIP DIAGRAM
+    %% Aligned with V1 Schema - December 2025
+    %% ==========================================
+    %% Terminology Mapping:
+    %%   Database "Batch" = UI "Submission"
+    %%   Database "Application" = UI "Partnership"
+    %%   Database "Student" (code) = UI "Candidate"
+    %% ==========================================
+
+    %% Core Configuration
+    GRANT_PROGRAM ||--o{ GRANT_CYCLE : "has many"
+
+    %% Grant Cycle Relationships
+    GRANT_CYCLE ||--o{ PARTNERSHIP : "contains"
+    GRANT_CYCLE ||--o{ SUBMISSION : "receives"
+    GRANT_CYCLE ||--o{ REPORTING_PERIOD : "defines"
+
+    %% Organization Relationships
+    ORGANIZATION ||--o{ PARTNERSHIP : "IHE Partner"
+    ORGANIZATION ||--o{ PARTNERSHIP : "LEA Partner"
+    ORGANIZATION ||--o{ ACCOUNT : "employs"
+    ORGANIZATION ||--o{ SUBMISSION : "submits"
+
+    %% Partnership & Candidate
+    PARTNERSHIP ||--o{ CANDIDATE : "includes"
+
+    %% Submission Processing
+    SUBMISSION ||--o{ SUBMISSION_CANDIDATE : "contains"
+    SUBMISSION_CANDIDATE }o--|| CANDIDATE : "references"
+    SUBMISSION ||--|| DISBURSEMENT : "triggers"
+
+    %% Disbursement & Files
+    DISBURSEMENT ||--o{ DISBURSEMENT_FILE : "has"
+    DISBURSEMENT_FILE }o--|| FILE : "references"
+
+    %% Reporting
+    CANDIDATE ||--o{ CANDIDATE_REPORT : "submits"
+    REPORTING_PERIOD ||--o{ CANDIDATE_REPORT : "collects"
+    CANDIDATE_REPORT ||--o{ CANDIDATE_REPORT_FILE : "has"
+    CANDIDATE_REPORT_FILE }o--|| FILE : "references"
+
+    %% Audit Trail
+    CANDIDATE ||--o{ CANDIDATE_STATUS_CHANGE : "tracks"
+    SUBMISSION ||--o{ SUBMISSION_STATUS_CHANGE : "tracks"
+    DISBURSEMENT ||--o{ DISBURSEMENT_STATUS_CHANGE : "tracks"
+
+    %% Notifications
+    ACCOUNT ||--o{ NOTIFICATION : "receives"
+
+    %% SVT Lookups
+    ORGANIZATION_TYPE_SVT ||--o{ ORGANIZATION : "categorizes"
+    USER_ROLE_SVT ||--o{ ACCOUNT : "assigns"
+    CANDIDATE_STATUS_SVT ||--o{ CANDIDATE : "status"
+    SUBMISSION_STATUS_SVT ||--o{ SUBMISSION : "status"
+    DISBURSEMENT_STATUS_SVT ||--o{ DISBURSEMENT : "status"
+    REPORT_TYPE_SVT ||--o{ CANDIDATE_REPORT : "defines"
+    REPORT_TYPE_SVT ||--o{ REPORTING_PERIOD : "configures"
+    FILE_TYPE_SVT ||--o{ FILE : "categorizes"
+    NOTIFICATION_TYPE_SVT ||--o{ NOTIFICATION : "templates"
+    BATCH_TIMELINE_EVENT_TYPE_SVT ||--o{ SUBMISSION : "tracks events"
+
+    %% ==========================================
+    %% CORE ENTITIES
+    %% ==========================================
+
+    GRANT_PROGRAM {
+        int Id PK
+        string Code UK
+        string Name
+        string Description
+        string WorkflowType
+        string BatchStrategy
+        int HoursThreshold
+        int CredentialHoursThreshold
+        boolean IsActive
+    }
+
+    GRANT_CYCLE {
+        int Id PK
+        int GrantProgramId FK
+        string Name
+        string FiscalYear
+        decimal AppropriatedAmount
+        decimal DefaultAwardAmount
+        decimal MinAwardAmount
+        decimal MaxAwardAmount
+        datetime ApplicationOpenOn
+        datetime ApplicationCloseOn
+        datetime CycleStartOn
+        datetime CycleEndOn
+        string Status
+    }
+
+    ORGANIZATION {
+        int Id PK
+        int TypeId FK
+        string EcsCdsCode UK
+        int EcsOrganizationId
+        string Name
+        string StreetAddress
+        string City
+        string StateProvince
+        string PostalCode
+        string PrimaryEmailAddress
+        string EmailDomain
+        boolean IsActive
+        datetime LastEcsSyncOn
+    }
+
+    ACCOUNT {
+        int Id PK
+        int OrganizationId FK
+        int RoleId FK
+        string EmailAddress UK
+        string FirstName
+        string LastName
+        string PhoneNumber
+        string Title
+        string EntraId
+        string OAuthProvider
+        boolean IsActive
+        datetime LastLoginOn
+    }
+
+    %% ==========================================
+    %% APPLICATION ENTITIES
+    %% ==========================================
+
+    PARTNERSHIP {
+        int Id PK
+        int GrantCycleId FK
+        int IHEPartnerId FK
+        int LEAPartnerId FK
+        int InitiatorContactId FK
+        int CompleterContactId FK
+        string POCFirstName
+        string POCLastName
+        string POCEmail
+        string POCPhone
+        string GAASignerName
+        string GAASignerTitle
+        string GAASignerEmail
+        string FiscalAgentName
+        string FiscalAgentEmail
+        string FiscalAgentPhone
+        string SuperintendentName
+        string SuperintendentEmail
+        string PaymentIntent
+        string PaymentSchedule
+        string Status
+    }
+
+    CANDIDATE {
+        int Id PK
+        int PartnershipId FK
+        int StatusId FK
+        string SEID UK
+        string FirstName
+        string LastName
+        datetime DateOfBirth
+        string Last4SSN
+        string EmailAddress
+        string Race
+        string Ethnicity
+        string Gender
+        string CredentialArea
+        string SchoolCdsCode
+        string SchoolName
+        decimal RequestedAmount
+        decimal AwardedAmount
+        int WaitlistPosition
+        datetime WaitlistAddedOn
+        datetime StatusChangedOn
+        int StatusChangedByAccountId FK
+        datetime SubmittedByInitiatorOn
+        datetime SubmittedByCompleterOn
+        datetime SubmittedToCTCOn
+        datetime ApprovedOn
+        int ApprovedByAccountId FK
+        datetime RejectedOn
+        int RejectedByAccountId FK
+        string RejectionReason
+    }
+
+    %% ==========================================
+    %% SUBMISSION & DISBURSEMENT
+    %% ==========================================
+
+    SUBMISSION {
+        int Id PK
+        int GrantCycleId FK
+        int StatusId FK
+        int SubmittingOrgId FK
+        string SubmissionNumber
+        string SubmissionPeriod
+        string SubmissionType
+        int CandidateCount
+        decimal TotalAwardAmount
+        datetime StatusChangedOn
+        int StatusChangedByAccountId FK
+        datetime SubmittedOn
+        int SubmittedByAccountId FK
+        datetime ApprovedOn
+        int ApprovedByAccountId FK
+        datetime RejectedOn
+        int RejectedByAccountId FK
+        string RejectionReason
+    }
+
+    SUBMISSION_CANDIDATE {
+        int Id PK
+        int SubmissionId FK
+        int CandidateId FK
+        datetime AddedOn
+        int AddedByAccountId FK
+    }
+
+    DISBURSEMENT {
+        int Id PK
+        int SubmissionId FK
+        int StatusId FK
+        string Phase
+        int Sequence
+        decimal Amount
+        decimal PercentOfTotal
+        string GAADocumentStorageKey
+        string GAAEnvelopeId
+        string GAAStatus
+        datetime GAASentOn
+        datetime GAASignedOn
+        datetime GAACompletedOn
+        string PONumber
+        decimal POAmount
+        datetime POIssuedOn
+        string PODocumentStorageKey
+        datetime POUploadedOn
+        int POUploadedByAccountId FK
+        string InvoiceNumber
+        decimal InvoiceAmount
+        datetime InvoiceIssuedOn
+        string InvoiceDocumentStorageKey
+        datetime InvoiceSentOn
+        string WarrantNumber
+        decimal WarrantAmount
+        datetime WarrantIssuedOn
+        datetime WarrantConfirmedOn
+        int WarrantConfirmedByAccountId FK
+    }
+
+    %% ==========================================
+    %% REPORTING ENTITIES
+    %% ==========================================
+
+    REPORTING_PERIOD {
+        int Id PK
+        int GrantCycleId FK
+        int ReportTypeId FK
+        string PeriodName
+        datetime StartOn
+        datetime DueOn
+        boolean IsActive
+    }
+
+    CANDIDATE_REPORT {
+        int Id PK
+        int CandidateId FK
+        int ReportingPeriodId FK
+        int ReportingOrgId FK
+        int ReportTypeId FK
+        int ReportingOrgTypeId FK
+        string CompletionStatus
+        datetime CompletionOn
+        int GrantProgramHours
+        int CredentialProgramHours
+        boolean HasCredentialEarned
+        datetime CredentialEarnedOn
+        string EmploymentStatus
+        boolean IsHiredByPartnerOrg
+        boolean IsEmployedInDistrict
+        boolean IsEmployedInState
+        string PaymentCategory
+        decimal PaymentAmount
+        datetime PaymentOn
+        string Status
+        datetime SubmittedOn
+        int SubmittedByAccountId FK
+        datetime ApprovedOn
+        int ApprovedByAccountId FK
+        string RevisionNotes
+    }
+
+    %% ==========================================
+    %% FILE & DOCUMENT STORAGE
+    %% ==========================================
+
+    FILE {
+        int Id PK
+        int TypeId FK
+        datetime DocumentDate
+        string Title
+        string StorageKey UK
+        string FileName
+        int FileSizeInKilobytes
+        string FormatDescription
+        string RelativePath
+        string ContentHash
+    }
+
+    DISBURSEMENT_FILE {
+        int Id PK
+        int DisbursementId FK
+        int FileId FK
+        string Purpose
+    }
+
+    CANDIDATE_REPORT_FILE {
+        int Id PK
+        int CandidateReportId FK
+        int FileId FK
+    }
+
+    %% ==========================================
+    %% NOTIFICATIONS
+    %% ==========================================
+
+    NOTIFICATION {
+        int Id PK
+        int TypeId FK
+        int RecipientAccountId FK
+        int RelatedSubmissionId FK
+        int RelatedCandidateId FK
+        int RelatedPartnershipId FK
+        string RecipientEmailAddress
+        string Subject
+        string BodyHtml
+        string Status
+        datetime SentOn
+        string ErrorMessage
+        int RetryCount
+    }
+
+    %% ==========================================
+    %% AUDIT TRAIL
+    %% ==========================================
+
+    CANDIDATE_STATUS_CHANGE {
+        int Id PK
+        int CandidateId FK
+        int FromStatusId FK
+        int ToStatusId FK
+        datetime ChangedOn
+        int ChangedByAccountId FK
+        string Comments
+    }
+
+    SUBMISSION_STATUS_CHANGE {
+        int Id PK
+        int SubmissionId FK
+        int FromStatusId FK
+        int ToStatusId FK
+        datetime ChangedOn
+        int ChangedByAccountId FK
+        string Comments
+    }
+
+    DISBURSEMENT_STATUS_CHANGE {
+        int Id PK
+        int DisbursementId FK
+        int FromStatusId FK
+        int ToStatusId FK
+        datetime ChangedOn
+        int ChangedByAccountId FK
+        string Comments
+    }
+
+    AUDIT_LOG {
+        bigint Id PK
+        string EntityType
+        int EntityId
+        string Action
+        string OldValueJson
+        string NewValueJson
+        int AccountId FK
+        string IpAddress
+        string UserAgent
+        datetime CreatedOn
+    }
+
+    %% ==========================================
+    %% SVT TABLES (Static Value Tables)
+    %% ==========================================
+
+    ORGANIZATION_TYPE_SVT {
+        int Id PK
+        string Name
+        string Description
+        int DisplayOrder
+    }
+
+    USER_ROLE_SVT {
+        int Id PK
+        string Code UK
+        string Name
+        string Description
+        int DisplayOrder
+    }
+
+    CANDIDATE_STATUS_SVT {
+        int Id PK
+        string Code UK
+        string Name
+        string Description
+        int DisplayOrder
+        string Category
+        string LEADisplayCategory
+        boolean IsTerminal
+        string AllowedTransitionsJson
+    }
+
+    SUBMISSION_STATUS_SVT {
+        int Id PK
+        string Code UK
+        string Name
+        string Description
+        int DisplayOrder
+        string Category
+        boolean IsTerminal
+        string AllowedTransitionsJson
+    }
+
+    DISBURSEMENT_STATUS_SVT {
+        int Id PK
+        string Code UK
+        string Name
+        string Description
+        int DisplayOrder
+    }
+
+    REPORT_TYPE_SVT {
+        int Id PK
+        string Code UK
+        string Name
+        string Description
+        int DisplayOrder
+        int ReportingOrgTypeId FK
+        string FormSchemaJson
+    }
+
+    FILE_TYPE_SVT {
+        int Id PK
+        string Name
+        string Description
+        int DisplayOrder
+    }
+
+    NOTIFICATION_TYPE_SVT {
+        int Id PK
+        string Code UK
+        string Name
+        string Description
+        int DisplayOrder
+        string SubjectTemplate
+        string BodyTemplate
+    }
+
+    BATCH_TIMELINE_EVENT_TYPE_SVT {
+        int Id PK
+        string Code UK
+        string Name
+        string Description
+        int DisplayOrder
+    }
