@@ -139,52 +139,54 @@
         <h4><i class="mdi mdi-clock-outline"></i> Invoices Awaiting Warrant</h4>
     </div>
     <div class="r4-card-body">
-        <table class="r4-table pending-invoices-table">
-            <thead>
-                <tr>
-                    <th>LEA / COE</th>
-                    <th>Invoice Number</th>
-                    <th>Invoice Date</th>
-                    <th>PO Number</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody id="pendingInvoicesBody">
-                <tr data-lea="lausd" data-invoice="2025STSP001-1">
-                    <td>Los Angeles Unified School District</td>
-                    <td><code>2025STSP001-1</code></td>
-                    <td>Nov 20, 2025</td>
-                    <td><code>6360-0000004240</code></td>
-                    <td>$80,000</td>
-                    <td><span class="status-badge status-pending">Awaiting Warrant</span></td>
-                </tr>
-                <tr data-lea="sdusd" data-invoice="2025STSP002-1">
-                    <td>San Diego Unified School District</td>
-                    <td><code>2025STSP002-1</code></td>
-                    <td>Nov 18, 2025</td>
-                    <td><code>6360-0000004241</code></td>
-                    <td>$50,000</td>
-                    <td><span class="status-badge status-pending">Awaiting Warrant</span></td>
-                </tr>
-                <tr data-lea="fresno" data-invoice="2025STSP003-1">
-                    <td>Fresno Unified School District</td>
-                    <td><code>2025STSP003-1</code></td>
-                    <td>Nov 15, 2025</td>
-                    <td><code>6360-0000004242</code></td>
-                    <td>$30,000</td>
-                    <td><span class="status-badge status-pending">Awaiting Warrant</span></td>
-                </tr>
-                <tr data-lea="sacramento" data-invoice="2025STSP004-1">
-                    <td>Sacramento City USD</td>
-                    <td><code>2025STSP004-1</code></td>
-                    <td>Nov 12, 2025</td>
-                    <td><code>6360-0000004243</code></td>
-                    <td>$40,000</td>
-                    <td><span class="status-badge status-pending">Awaiting Warrant</span></td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="table-wrapper">
+            <table class="r4-table pending-invoices-table">
+                <thead>
+                    <tr>
+                        <th>LEA / COE</th>
+                        <th>Invoice Number</th>
+                        <th>Invoice Date</th>
+                        <th>PO Number</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="pendingInvoicesBody">
+                    <tr data-lea="lausd" data-invoice="2025STSP001-1">
+                        <td>Los Angeles Unified School District</td>
+                        <td><code>2025STSP001-1</code></td>
+                        <td>Nov 20, 2025</td>
+                        <td><code>6360-0000004240</code></td>
+                        <td>$80,000</td>
+                        <td><span class="status-badge status-pending">Awaiting Warrant</span></td>
+                    </tr>
+                    <tr data-lea="sdusd" data-invoice="2025STSP002-1">
+                        <td>San Diego Unified School District</td>
+                        <td><code>2025STSP002-1</code></td>
+                        <td>Nov 18, 2025</td>
+                        <td><code>6360-0000004241</code></td>
+                        <td>$50,000</td>
+                        <td><span class="status-badge status-pending">Awaiting Warrant</span></td>
+                    </tr>
+                    <tr data-lea="fresno" data-invoice="2025STSP003-1">
+                        <td>Fresno Unified School District</td>
+                        <td><code>2025STSP003-1</code></td>
+                        <td>Nov 15, 2025</td>
+                        <td><code>6360-0000004242</code></td>
+                        <td>$30,000</td>
+                        <td><span class="status-badge status-pending">Awaiting Warrant</span></td>
+                    </tr>
+                    <tr data-lea="sacramento" data-invoice="2025STSP004-1">
+                        <td>Sacramento City USD</td>
+                        <td><code>2025STSP004-1</code></td>
+                        <td>Nov 12, 2025</td>
+                        <td><code>6360-0000004243</code></td>
+                        <td>$40,000</td>
+                        <td><span class="status-badge status-pending">Awaiting Warrant</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -194,53 +196,55 @@
         <h4><i class="mdi mdi-calendar-month"></i> Monthly Warrant Reports</h4>
     </div>
     <div class="r4-card-body">
-        <table class="r4-table monthly-reports-table">
-            <thead>
-                <tr>
-                    <th>Month</th>
-                    <th>Warrants Issued</th>
-                    <th>Total Amount</th>
-                    <th>LEAs Paid</th>
-                    <th>Imported By</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>October 2025</strong></td>
-                    <td>12</td>
-                    <td>$580,000</td>
-                    <td>8</td>
-                    <td>Sara S.</td>
-                    <td>
-                        <a href="#" class="r4-button r4-button-sm"><i class="mdi mdi-eye-outline"></i> View</a>
-                        <a href="#" class="r4-button r4-button-sm r4-button-outline"><i class="mdi mdi-download"></i> Export</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td><strong>September 2025</strong></td>
-                    <td>8</td>
-                    <td>$320,000</td>
-                    <td>5</td>
-                    <td>Sara S.</td>
-                    <td>
-                        <a href="#" class="r4-button r4-button-sm"><i class="mdi mdi-eye-outline"></i> View</a>
-                        <a href="#" class="r4-button r4-button-sm r4-button-outline"><i class="mdi mdi-download"></i> Export</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td><strong>August 2025</strong></td>
-                    <td>5</td>
-                    <td>$200,000</td>
-                    <td>4</td>
-                    <td>Sara S.</td>
-                    <td>
-                        <a href="#" class="r4-button r4-button-sm"><i class="mdi mdi-eye-outline"></i> View</a>
-                        <a href="#" class="r4-button r4-button-sm r4-button-outline"><i class="mdi mdi-download"></i> Export</a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="table-wrapper">
+            <table class="r4-table monthly-reports-table">
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Warrants Issued</th>
+                        <th>Total Amount</th>
+                        <th>LEAs Paid</th>
+                        <th>Imported By</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>October 2025</strong></td>
+                        <td>12</td>
+                        <td>$580,000</td>
+                        <td>8</td>
+                        <td>Sara S.</td>
+                        <td>
+                            <a href="#" class="r4-button r4-button-sm"><i class="mdi mdi-eye-outline"></i> View</a>
+                            <a href="#" class="r4-button r4-button-sm r4-button-outline"><i class="mdi mdi-download"></i> Export</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>September 2025</strong></td>
+                        <td>8</td>
+                        <td>$320,000</td>
+                        <td>5</td>
+                        <td>Sara S.</td>
+                        <td>
+                            <a href="#" class="r4-button r4-button-sm"><i class="mdi mdi-eye-outline"></i> View</a>
+                            <a href="#" class="r4-button r4-button-sm r4-button-outline"><i class="mdi mdi-download"></i> Export</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>August 2025</strong></td>
+                        <td>5</td>
+                        <td>$200,000</td>
+                        <td>4</td>
+                        <td>Sara S.</td>
+                        <td>
+                            <a href="#" class="r4-button r4-button-sm"><i class="mdi mdi-eye-outline"></i> View</a>
+                            <a href="#" class="r4-button r4-button-sm r4-button-outline"><i class="mdi mdi-download"></i> Export</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -260,7 +264,7 @@
             { warrantNumber: '60581152', date: '11/25/2025', invoiceNumber: '2025STSP002-1', vendor: 'SAN DIEGO UNIFIED SCHOOL DIST', amount: 50000, matchedInvoice: '2025STSP002-1', matchedLea: 'sdusd', status: 'matched' },
             { warrantNumber: '60581153', date: '11/25/2025', invoiceNumber: '2025STSP003-1', vendor: 'FRESNO UNIFIED SCHOOL DIST', amount: 30000, matchedInvoice: '2025STSP003-1', matchedLea: 'fresno', status: 'matched' },
             { warrantNumber: '60581154', date: '11/25/2025', invoiceNumber: '2025STSP004-1', vendor: 'SACRAMENTO CITY USD', amount: 40000, matchedInvoice: '2025STSP004-1', matchedLea: 'sacramento', status: 'matched' },
-            { warrantNumber: '60581155', date: '11/25/2025', invoiceNumber: '2025STSP099-1', vendor: 'KERN COUNTY SUPERINTENDENT', amount: 25000, matchedInvoice: null, matchedLea: null, status: 'unmatched' }
+            { warrantNumber: '60581155', date: '11/25/2025', invoiceNumber: '2025STSP099-1', vendor: 'KERN COUNTY SUPERINTENDENT', amount: 30000, matchedInvoice: null, matchedLea: null, status: 'unmatched' }
         ];
 
         // File input handler
