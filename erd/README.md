@@ -10,6 +10,24 @@ Open `GMS-ERD.mermaid` in [mermaid.live](https://mermaid.live) to render the dia
 
 ---
 
+## System Users
+
+**Important:** Candidates (students) are NOT system users. They are the subject of grants but never log in.
+
+| User Role | Organization Type | What They Do |
+|-----------|-------------------|--------------|
+| **IHE Staff** | University/College | Enter candidates, submit to LEA, submit IHE reports |
+| **LEA Staff** | School District | Review candidates, batch & submit to CTC, submit LEA reports |
+| **CTC Grants Team** | CTC | Review/approve submissions, manage waitlist, approve reports |
+| **CTC Fiscal Team** | CTC | Generate GAAs, process payments, track warrants |
+
+### Key Relationship Clarifications
+- **CANDIDATE has CANDIDATE_REPORT** — Reports are *about* candidates
+- **ORGANIZATION submits CANDIDATE_REPORT** — IHE/LEA staff *submit* reports
+- **ORGANIZATION submits BATCH** — LEA staff submit batches to CTC
+
+---
+
 ## R4 Compliance Legend
 
 ### Standard Fields (DB-114)
