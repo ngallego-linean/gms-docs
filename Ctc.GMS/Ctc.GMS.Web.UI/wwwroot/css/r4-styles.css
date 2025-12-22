@@ -597,6 +597,7 @@ body {
 /* Ensure tables in card bodies have proper border */
 .r4-card-body > .r4-table {
     margin: calc(var(--spacing-lg) * -1);
+    width: calc(100% + (var(--spacing-lg) * 2));
 }
 
 /* Table cells in card tables */
