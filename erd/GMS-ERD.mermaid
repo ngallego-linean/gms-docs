@@ -1,69 +1,93 @@
 erDiagram
-    %% ==========================================
+    %% ==========================================================================
     %% GMS ENTITY RELATIONSHIP DIAGRAM
-    %% Aligned with V1 Schema - December 2025
-    %% ==========================================
-    %% Terminology Mapping:
-    %%   Database "Batch" = UI "Submission"
-    %%   Database "Application" = UI "Partnership"
-    %%   Database "Student" (code) = UI "Candidate"
-    %% ==========================================
+    %% California Commission on Teacher Credentialing
+    %% Grant Management System - Version 1.0
+    %% December 2025
+    %% ==========================================================================
+    %%
+    %% LEGEND - R4 COMPLIANCE
+    %% ----------------------
+    %% [Standard Fields] All tables include 5 audit fields (DB-114):
+    %%   CreatedOn, CreatedByAccountId, LastUpdatedOn,
+    %%   LastUpdatedByAccountId, CanBeDeleted
+    %%
+    %% [Archivable] Some tables include archive fields (DB-113):
+    %%   IsArchived, ArchivedOn, ArchivedByAccountId, ArchivedComments
+    %%
+    %% [SVT] Static Value Tables - Lookup tables with code-referenced IDs
+    %%   Fields: Id, Code, Name, Description, DisplayOrder
+    %%
+    %% [Naming] DB-110: DateTime fields end with "On"
+    %%          DB-108: Bit fields start with Is/Has/Can
+    %%
+    %% TERMINOLOGY
+    %% -----------
+    %% Database APPLICATION = UI "Partnership"
+    %% Database BATCH = UI "Submission"
+    %% Database CANDIDATE = UI "Candidate"
+    %%
+    %% ECS INTEGRATION
+    %% ---------------
+    %% ECS = Educator Credential System (external CTC system)
+    %% Used for: SEID lookup, Organization sync, School/District data
+    %% ==========================================================================
+
+    %% =========================================
+    %% RELATIONSHIPS - Grouped by Domain
+    %% =========================================
 
     %% Core Configuration
-    GRANT_PROGRAM ||--o{ GRANT_CYCLE : "has many"
+    GRANT_PROGRAM ||--o{ GRANT_CYCLE : has
 
-    %% Grant Cycle Relationships
-    GRANT_CYCLE ||--o{ PARTNERSHIP : "contains"
-    GRANT_CYCLE ||--o{ SUBMISSION : "receives"
-    GRANT_CYCLE ||--o{ REPORTING_PERIOD : "defines"
+    %% Organizations
+    ORGANIZATION_TYPE_SVT ||--o{ ORGANIZATION : types
+    ORGANIZATION ||--o{ ACCOUNT : employs
+    USER_ROLE_SVT ||--o{ ACCOUNT : assigns
 
-    %% Organization Relationships
-    ORGANIZATION ||--o{ PARTNERSHIP : "IHE Partner"
-    ORGANIZATION ||--o{ PARTNERSHIP : "LEA Partner"
-    ORGANIZATION ||--o{ ACCOUNT : "employs"
-    ORGANIZATION ||--o{ SUBMISSION : "submits"
+    %% Applications (Partnerships)
+    GRANT_CYCLE ||--o{ APPLICATION : contains
+    ORGANIZATION ||--o{ APPLICATION : partners
+    APPLICATION ||--o{ CANDIDATE : includes
 
-    %% Partnership & Candidate
-    PARTNERSHIP ||--o{ CANDIDATE : "includes"
+    %% Candidates
+    CANDIDATE_STATUS_SVT ||--o{ CANDIDATE : tracks
+    CANDIDATE ||--o{ CANDIDATE_STATUS_CHANGE : logs
 
-    %% Submission Processing
-    SUBMISSION ||--o{ SUBMISSION_CANDIDATE : "contains"
-    SUBMISSION_CANDIDATE }o--|| CANDIDATE : "references"
-    SUBMISSION ||--|| DISBURSEMENT : "triggers"
+    %% Batches (Submissions)
+    GRANT_CYCLE ||--o{ BATCH : receives
+    BATCH_STATUS_SVT ||--o{ BATCH : tracks
+    BATCH ||--o{ BATCH_CANDIDATE : contains
+    BATCH_CANDIDATE }o--|| CANDIDATE : links
+    BATCH ||--o{ BATCH_STATUS_CHANGE : logs
+    BATCH_TIMELINE_EVENT_TYPE_SVT ||--o{ BATCH_TIMELINE_EVENT : types
+    BATCH ||--o{ BATCH_TIMELINE_EVENT : records
 
-    %% Disbursement & Files
-    DISBURSEMENT ||--o{ DISBURSEMENT_FILE : "has"
-    DISBURSEMENT_FILE }o--|| FILE : "references"
+    %% Disbursements
+    BATCH ||--|| DISBURSEMENT : triggers
+    DISBURSEMENT_STATUS_SVT ||--o{ DISBURSEMENT : tracks
+    DISBURSEMENT ||--o{ DISBURSEMENT_STATUS_CHANGE : logs
+    DISBURSEMENT ||--o{ DISBURSEMENT_FILE : attaches
 
     %% Reporting
-    CANDIDATE ||--o{ CANDIDATE_REPORT : "submits"
-    REPORTING_PERIOD ||--o{ CANDIDATE_REPORT : "collects"
-    CANDIDATE_REPORT ||--o{ CANDIDATE_REPORT_FILE : "has"
-    CANDIDATE_REPORT_FILE }o--|| FILE : "references"
+    GRANT_CYCLE ||--o{ REPORTING_PERIOD : defines
+    REPORT_TYPE_SVT ||--o{ REPORTING_PERIOD : configures
+    REPORTING_PERIOD ||--o{ CANDIDATE_REPORT : collects
+    CANDIDATE ||--o{ CANDIDATE_REPORT : submits
+    CANDIDATE_REPORT ||--o{ CANDIDATE_REPORT_FILE : attaches
 
-    %% Audit Trail
-    CANDIDATE ||--o{ CANDIDATE_STATUS_CHANGE : "tracks"
-    SUBMISSION ||--o{ SUBMISSION_STATUS_CHANGE : "tracks"
-    DISBURSEMENT ||--o{ DISBURSEMENT_STATUS_CHANGE : "tracks"
+    %% Files
+    FILE_TYPE_SVT ||--o{ FILE : types
+    DISBURSEMENT_FILE }o--|| FILE : stores
+    CANDIDATE_REPORT_FILE }o--|| FILE : stores
 
     %% Notifications
-    ACCOUNT ||--o{ NOTIFICATION : "receives"
+    NOTIFICATION_TYPE_SVT ||--o{ NOTIFICATION : templates
+    ACCOUNT ||--o{ NOTIFICATION : receives
 
-    %% SVT Lookups
-    ORGANIZATION_TYPE_SVT ||--o{ ORGANIZATION : "categorizes"
-    USER_ROLE_SVT ||--o{ ACCOUNT : "assigns"
-    CANDIDATE_STATUS_SVT ||--o{ CANDIDATE : "status"
-    SUBMISSION_STATUS_SVT ||--o{ SUBMISSION : "status"
-    DISBURSEMENT_STATUS_SVT ||--o{ DISBURSEMENT : "status"
-    REPORT_TYPE_SVT ||--o{ CANDIDATE_REPORT : "defines"
-    REPORT_TYPE_SVT ||--o{ REPORTING_PERIOD : "configures"
-    FILE_TYPE_SVT ||--o{ FILE : "categorizes"
-    NOTIFICATION_TYPE_SVT ||--o{ NOTIFICATION : "templates"
-    BATCH_TIMELINE_EVENT_TYPE_SVT ||--o{ SUBMISSION : "tracks events"
-
-    %% ==========================================
-    %% CORE ENTITIES
-    %% ==========================================
+    %% =========================================
+    %% SECTION 1: CORE CONFIGURATION
+    %% =========================================
 
     GRANT_PROGRAM {
         int Id PK
@@ -93,6 +117,17 @@ erDiagram
         string Status
     }
 
+    %% =========================================
+    %% SECTION 2: ORGANIZATIONS AND ACCOUNTS
+    %% =========================================
+
+    ORGANIZATION_TYPE_SVT {
+        int Id PK
+        string Name
+        string Description
+        int DisplayOrder
+    }
+
     ORGANIZATION {
         int Id PK
         int TypeId FK
@@ -104,9 +139,18 @@ erDiagram
         string StateProvince
         string PostalCode
         string PrimaryEmailAddress
+        string PrimaryPhoneNumber
         string EmailDomain
         boolean IsActive
         datetime LastEcsSyncOn
+    }
+
+    USER_ROLE_SVT {
+        int Id PK
+        string Code UK
+        string Name
+        string Description
+        int DisplayOrder
     }
 
     ACCOUNT {
@@ -124,21 +168,17 @@ erDiagram
         datetime LastLoginOn
     }
 
-    %% ==========================================
-    %% APPLICATION ENTITIES
-    %% ==========================================
+    %% =========================================
+    %% SECTION 3: APPLICATIONS (Partnerships)
+    %% =========================================
 
-    PARTNERSHIP {
+    APPLICATION {
         int Id PK
         int GrantCycleId FK
-        int IHEPartnerId FK
-        int LEAPartnerId FK
+        int IHEOrgId FK
+        int LEAOrgId FK
         int InitiatorContactId FK
         int CompleterContactId FK
-        string POCFirstName
-        string POCLastName
-        string POCEmail
-        string POCPhone
         string GAASignerName
         string GAASignerTitle
         string GAASignerEmail
@@ -147,14 +187,34 @@ erDiagram
         string FiscalAgentPhone
         string SuperintendentName
         string SuperintendentEmail
+        string POCFirstName
+        string POCLastName
+        string POCEmail
+        string POCPhone
         string PaymentIntent
         string PaymentSchedule
         string Status
     }
 
+    %% =========================================
+    %% SECTION 4: CANDIDATES
+    %% =========================================
+
+    CANDIDATE_STATUS_SVT {
+        int Id PK
+        string Code UK
+        string Name
+        string Description
+        int DisplayOrder
+        string Category
+        string LEADisplayCategory
+        boolean IsTerminal
+        string AllowedTransitionsJson
+    }
+
     CANDIDATE {
         int Id PK
-        int PartnershipId FK
+        int ApplicationId FK
         int StatusId FK
         string SEID UK
         string FirstName
@@ -184,18 +244,39 @@ erDiagram
         string RejectionReason
     }
 
-    %% ==========================================
-    %% SUBMISSION & DISBURSEMENT
-    %% ==========================================
+    CANDIDATE_STATUS_CHANGE {
+        int Id PK
+        int CandidateId FK
+        int FromStatusId FK
+        int ToStatusId FK
+        datetime ChangedOn
+        int ChangedByAccountId FK
+        string Comments
+    }
 
-    SUBMISSION {
+    %% =========================================
+    %% SECTION 5: BATCHES (Submissions)
+    %% =========================================
+
+    BATCH_STATUS_SVT {
+        int Id PK
+        string Code UK
+        string Name
+        string Description
+        int DisplayOrder
+        string Category
+        boolean IsTerminal
+        string AllowedTransitionsJson
+    }
+
+    BATCH {
         int Id PK
         int GrantCycleId FK
         int StatusId FK
         int SubmittingOrgId FK
-        string SubmissionNumber
+        string BatchNumber
         string SubmissionPeriod
-        string SubmissionType
+        string BatchType
         int CandidateCount
         decimal TotalAwardAmount
         datetime StatusChangedOn
@@ -209,17 +290,57 @@ erDiagram
         string RejectionReason
     }
 
-    SUBMISSION_CANDIDATE {
+    BATCH_CANDIDATE {
         int Id PK
-        int SubmissionId FK
+        int BatchId FK
         int CandidateId FK
         datetime AddedOn
         int AddedByAccountId FK
     }
 
+    BATCH_STATUS_CHANGE {
+        int Id PK
+        int BatchId FK
+        int FromStatusId FK
+        int ToStatusId FK
+        datetime ChangedOn
+        int ChangedByAccountId FK
+        string Comments
+    }
+
+    BATCH_TIMELINE_EVENT_TYPE_SVT {
+        int Id PK
+        string Code UK
+        string Name
+        string Description
+        int DisplayOrder
+    }
+
+    BATCH_TIMELINE_EVENT {
+        int Id PK
+        int BatchId FK
+        int EventTypeId FK
+        datetime EventOn
+        int EventByAccountId FK
+        string Description
+        string IHESource
+    }
+
+    %% =========================================
+    %% SECTION 6: DISBURSEMENTS
+    %% =========================================
+
+    DISBURSEMENT_STATUS_SVT {
+        int Id PK
+        string Code UK
+        string Name
+        string Description
+        int DisplayOrder
+    }
+
     DISBURSEMENT {
         int Id PK
-        int SubmissionId FK
+        int BatchId FK
         int StatusId FK
         string Phase
         int Sequence
@@ -249,9 +370,36 @@ erDiagram
         int WarrantConfirmedByAccountId FK
     }
 
-    %% ==========================================
-    %% REPORTING ENTITIES
-    %% ==========================================
+    DISBURSEMENT_STATUS_CHANGE {
+        int Id PK
+        int DisbursementId FK
+        int FromStatusId FK
+        int ToStatusId FK
+        datetime ChangedOn
+        int ChangedByAccountId FK
+        string Comments
+    }
+
+    DISBURSEMENT_FILE {
+        int Id PK
+        int DisbursementId FK
+        int FileId FK
+        string Purpose
+    }
+
+    %% =========================================
+    %% SECTION 7: REPORTING
+    %% =========================================
+
+    REPORT_TYPE_SVT {
+        int Id PK
+        string Code UK
+        string Name
+        string Description
+        int DisplayOrder
+        int ReportingOrgTypeId FK
+        string FormSchemaJson
+    }
 
     REPORTING_PERIOD {
         int Id PK
@@ -291,9 +439,22 @@ erDiagram
         string RevisionNotes
     }
 
-    %% ==========================================
-    %% FILE & DOCUMENT STORAGE
-    %% ==========================================
+    CANDIDATE_REPORT_FILE {
+        int Id PK
+        int CandidateReportId FK
+        int FileId FK
+    }
+
+    %% =========================================
+    %% SECTION 8: FILE STORAGE
+    %% =========================================
+
+    FILE_TYPE_SVT {
+        int Id PK
+        string Name
+        string Description
+        int DisplayOrder
+    }
 
     FILE {
         int Id PK
@@ -308,30 +469,27 @@ erDiagram
         string ContentHash
     }
 
-    DISBURSEMENT_FILE {
-        int Id PK
-        int DisbursementId FK
-        int FileId FK
-        string Purpose
-    }
+    %% =========================================
+    %% SECTION 9: NOTIFICATIONS
+    %% =========================================
 
-    CANDIDATE_REPORT_FILE {
+    NOTIFICATION_TYPE_SVT {
         int Id PK
-        int CandidateReportId FK
-        int FileId FK
+        string Code UK
+        string Name
+        string Description
+        int DisplayOrder
+        string SubjectTemplate
+        string BodyTemplate
     }
-
-    %% ==========================================
-    %% NOTIFICATIONS
-    %% ==========================================
 
     NOTIFICATION {
         int Id PK
         int TypeId FK
         int RecipientAccountId FK
-        int RelatedSubmissionId FK
+        int RelatedBatchId FK
         int RelatedCandidateId FK
-        int RelatedPartnershipId FK
+        int RelatedApplicationId FK
         string RecipientEmailAddress
         string Subject
         string BodyHtml
@@ -341,39 +499,9 @@ erDiagram
         int RetryCount
     }
 
-    %% ==========================================
-    %% AUDIT TRAIL
-    %% ==========================================
-
-    CANDIDATE_STATUS_CHANGE {
-        int Id PK
-        int CandidateId FK
-        int FromStatusId FK
-        int ToStatusId FK
-        datetime ChangedOn
-        int ChangedByAccountId FK
-        string Comments
-    }
-
-    SUBMISSION_STATUS_CHANGE {
-        int Id PK
-        int SubmissionId FK
-        int FromStatusId FK
-        int ToStatusId FK
-        datetime ChangedOn
-        int ChangedByAccountId FK
-        string Comments
-    }
-
-    DISBURSEMENT_STATUS_CHANGE {
-        int Id PK
-        int DisbursementId FK
-        int FromStatusId FK
-        int ToStatusId FK
-        datetime ChangedOn
-        int ChangedByAccountId FK
-        string Comments
-    }
+    %% =========================================
+    %% SECTION 10: AUDIT LOG
+    %% =========================================
 
     AUDIT_LOG {
         bigint Id PK
@@ -386,89 +514,4 @@ erDiagram
         string IpAddress
         string UserAgent
         datetime CreatedOn
-    }
-
-    %% ==========================================
-    %% SVT TABLES (Static Value Tables)
-    %% ==========================================
-
-    ORGANIZATION_TYPE_SVT {
-        int Id PK
-        string Name
-        string Description
-        int DisplayOrder
-    }
-
-    USER_ROLE_SVT {
-        int Id PK
-        string Code UK
-        string Name
-        string Description
-        int DisplayOrder
-    }
-
-    CANDIDATE_STATUS_SVT {
-        int Id PK
-        string Code UK
-        string Name
-        string Description
-        int DisplayOrder
-        string Category
-        string LEADisplayCategory
-        boolean IsTerminal
-        string AllowedTransitionsJson
-    }
-
-    SUBMISSION_STATUS_SVT {
-        int Id PK
-        string Code UK
-        string Name
-        string Description
-        int DisplayOrder
-        string Category
-        boolean IsTerminal
-        string AllowedTransitionsJson
-    }
-
-    DISBURSEMENT_STATUS_SVT {
-        int Id PK
-        string Code UK
-        string Name
-        string Description
-        int DisplayOrder
-    }
-
-    REPORT_TYPE_SVT {
-        int Id PK
-        string Code UK
-        string Name
-        string Description
-        int DisplayOrder
-        int ReportingOrgTypeId FK
-        string FormSchemaJson
-    }
-
-    FILE_TYPE_SVT {
-        int Id PK
-        string Name
-        string Description
-        int DisplayOrder
-    }
-
-    NOTIFICATION_TYPE_SVT {
-        int Id PK
-        string Code UK
-        string Name
-        string Description
-        int DisplayOrder
-        string SubjectTemplate
-        string BodyTemplate
-    }
-
-    BATCH_TIMELINE_EVENT_TYPE_SVT {
-        int Id PK
-        string Code UK
-        string Name
-        string Description
-        int DisplayOrder
     }
