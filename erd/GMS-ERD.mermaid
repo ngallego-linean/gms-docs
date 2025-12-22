@@ -9,7 +9,8 @@ erDiagram
     APPLICATION ||--o{ CANDIDATE : includes
     CANDIDATE_STATUS_SVT ||--o{ CANDIDATE : tracks
     CANDIDATE ||--o{ CANDIDATE_STATUS_CHANGE : logs
-    GRANT_CYCLE ||--o{ BATCH : receives
+    GRANT_CYCLE ||--o{ BATCH : contains
+    ORGANIZATION ||--o{ BATCH : submits
     BATCH_STATUS_SVT ||--o{ BATCH : tracks
     BATCH ||--o{ BATCH_CANDIDATE : contains
     BATCH_CANDIDATE }o--|| CANDIDATE : links
@@ -23,7 +24,8 @@ erDiagram
     GRANT_CYCLE ||--o{ REPORTING_PERIOD : defines
     REPORT_TYPE_SVT ||--o{ REPORTING_PERIOD : configures
     REPORTING_PERIOD ||--o{ CANDIDATE_REPORT : collects
-    CANDIDATE ||--o{ CANDIDATE_REPORT : submits
+    CANDIDATE ||--o{ CANDIDATE_REPORT : has
+    ORGANIZATION ||--o{ CANDIDATE_REPORT : submits
     CANDIDATE_REPORT ||--o{ CANDIDATE_REPORT_FILE : attaches
     FILE_TYPE_SVT ||--o{ FILE : types
     DISBURSEMENT_FILE }o--|| FILE : stores
