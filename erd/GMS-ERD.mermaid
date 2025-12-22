@@ -1,60 +1,14 @@
 erDiagram
-    %% ==========================================================================
-    %% GMS ENTITY RELATIONSHIP DIAGRAM
-    %% California Commission on Teacher Credentialing
-    %% Grant Management System - Version 1.0
-    %% December 2025
-    %% ==========================================================================
-    %%
-    %% LEGEND - R4 COMPLIANCE
-    %% ----------------------
-    %% [Standard Fields] All tables include 5 audit fields (DB-114):
-    %%   CreatedOn, CreatedByAccountId, LastUpdatedOn,
-    %%   LastUpdatedByAccountId, CanBeDeleted
-    %%
-    %% [Archivable] Some tables include archive fields (DB-113):
-    %%   IsArchived, ArchivedOn, ArchivedByAccountId, ArchivedComments
-    %%
-    %% [SVT] Static Value Tables - Lookup tables with code-referenced IDs
-    %%   Fields: Id, Code, Name, Description, DisplayOrder
-    %%
-    %% [Naming] DB-110: DateTime fields end with "On"
-    %%          DB-108: Bit fields start with Is/Has/Can
-    %%
-    %% TERMINOLOGY
-    %% -----------
-    %% Database APPLICATION = UI "Partnership"
-    %% Database BATCH = UI "Submission"
-    %% Database CANDIDATE = UI "Candidate"
-    %%
-    %% ECS INTEGRATION
-    %% ---------------
-    %% ECS = Educator Credential System (external CTC system)
-    %% Used for: SEID lookup, Organization sync, School/District data
-    %% ==========================================================================
 
-    %% =========================================
-    %% RELATIONSHIPS - Grouped by Domain
-    %% =========================================
-
-    %% Core Configuration
     GRANT_PROGRAM ||--o{ GRANT_CYCLE : has
-
-    %% Organizations
     ORGANIZATION_TYPE_SVT ||--o{ ORGANIZATION : types
     ORGANIZATION ||--o{ ACCOUNT : employs
     USER_ROLE_SVT ||--o{ ACCOUNT : assigns
-
-    %% Applications (Partnerships)
     GRANT_CYCLE ||--o{ APPLICATION : contains
     ORGANIZATION ||--o{ APPLICATION : partners
     APPLICATION ||--o{ CANDIDATE : includes
-
-    %% Candidates
     CANDIDATE_STATUS_SVT ||--o{ CANDIDATE : tracks
     CANDIDATE ||--o{ CANDIDATE_STATUS_CHANGE : logs
-
-    %% Batches (Submissions)
     GRANT_CYCLE ||--o{ BATCH : receives
     BATCH_STATUS_SVT ||--o{ BATCH : tracks
     BATCH ||--o{ BATCH_CANDIDATE : contains
@@ -62,32 +16,20 @@ erDiagram
     BATCH ||--o{ BATCH_STATUS_CHANGE : logs
     BATCH_TIMELINE_EVENT_TYPE_SVT ||--o{ BATCH_TIMELINE_EVENT : types
     BATCH ||--o{ BATCH_TIMELINE_EVENT : records
-
-    %% Disbursements
     BATCH ||--|| DISBURSEMENT : triggers
     DISBURSEMENT_STATUS_SVT ||--o{ DISBURSEMENT : tracks
     DISBURSEMENT ||--o{ DISBURSEMENT_STATUS_CHANGE : logs
     DISBURSEMENT ||--o{ DISBURSEMENT_FILE : attaches
-
-    %% Reporting
     GRANT_CYCLE ||--o{ REPORTING_PERIOD : defines
     REPORT_TYPE_SVT ||--o{ REPORTING_PERIOD : configures
     REPORTING_PERIOD ||--o{ CANDIDATE_REPORT : collects
     CANDIDATE ||--o{ CANDIDATE_REPORT : submits
     CANDIDATE_REPORT ||--o{ CANDIDATE_REPORT_FILE : attaches
-
-    %% Files
     FILE_TYPE_SVT ||--o{ FILE : types
     DISBURSEMENT_FILE }o--|| FILE : stores
     CANDIDATE_REPORT_FILE }o--|| FILE : stores
-
-    %% Notifications
     NOTIFICATION_TYPE_SVT ||--o{ NOTIFICATION : templates
     ACCOUNT ||--o{ NOTIFICATION : receives
-
-    %% =========================================
-    %% SECTION 1: CORE CONFIGURATION
-    %% =========================================
 
     GRANT_PROGRAM {
         int Id PK
@@ -116,10 +58,6 @@ erDiagram
         datetime CycleEndOn
         string Status
     }
-
-    %% =========================================
-    %% SECTION 2: ORGANIZATIONS AND ACCOUNTS
-    %% =========================================
 
     ORGANIZATION_TYPE_SVT {
         int Id PK
@@ -168,10 +106,6 @@ erDiagram
         datetime LastLoginOn
     }
 
-    %% =========================================
-    %% SECTION 3: APPLICATIONS (Partnerships)
-    %% =========================================
-
     APPLICATION {
         int Id PK
         int GrantCycleId FK
@@ -195,10 +129,6 @@ erDiagram
         string PaymentSchedule
         string Status
     }
-
-    %% =========================================
-    %% SECTION 4: CANDIDATES
-    %% =========================================
 
     CANDIDATE_STATUS_SVT {
         int Id PK
@@ -253,10 +183,6 @@ erDiagram
         int ChangedByAccountId FK
         string Comments
     }
-
-    %% =========================================
-    %% SECTION 5: BATCHES (Submissions)
-    %% =========================================
 
     BATCH_STATUS_SVT {
         int Id PK
@@ -326,10 +252,6 @@ erDiagram
         string IHESource
     }
 
-    %% =========================================
-    %% SECTION 6: DISBURSEMENTS
-    %% =========================================
-
     DISBURSEMENT_STATUS_SVT {
         int Id PK
         string Code UK
@@ -387,10 +309,6 @@ erDiagram
         string Purpose
     }
 
-    %% =========================================
-    %% SECTION 7: REPORTING
-    %% =========================================
-
     REPORT_TYPE_SVT {
         int Id PK
         string Code UK
@@ -445,10 +363,6 @@ erDiagram
         int FileId FK
     }
 
-    %% =========================================
-    %% SECTION 8: FILE STORAGE
-    %% =========================================
-
     FILE_TYPE_SVT {
         int Id PK
         string Name
@@ -468,10 +382,6 @@ erDiagram
         string RelativePath
         string ContentHash
     }
-
-    %% =========================================
-    %% SECTION 9: NOTIFICATIONS
-    %% =========================================
 
     NOTIFICATION_TYPE_SVT {
         int Id PK
@@ -498,10 +408,6 @@ erDiagram
         string ErrorMessage
         int RetryCount
     }
-
-    %% =========================================
-    %% SECTION 10: AUDIT LOG
-    %% =========================================
 
     AUDIT_LOG {
         bigint Id PK
