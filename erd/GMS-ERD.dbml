@@ -1,0 +1,580 @@
+// GMS Entity Relationship Diagram - DBML Format
+// California Commission on Teacher Credentialing
+// Grant Management System - Version 1.0
+// December 2025
+//
+// View at: https://dbdiagram.io
+
+// =============================================================================
+// CORE CONFIGURATION
+// =============================================================================
+
+Table GRANT_PROGRAM {
+  Id int [pk, increment]
+  Code varchar(50) [unique, not null]
+  Name varchar(100) [not null]
+  Description varchar(500)
+  WorkflowType varchar(50)
+  BatchStrategy varchar(50)
+  HoursThreshold int
+  CredentialHoursThreshold int
+  EligibleCredentialAreasJson text
+  RequiredDocumentsJson text
+  IsActive bit [default: 1]
+
+  Note: 'Defines grant types (STSP, Teacher Residency, etc.)'
+}
+
+Table GRANT_CYCLE {
+  Id int [pk, increment]
+  GrantProgramId int [ref: > GRANT_PROGRAM.Id, not null]
+  Name varchar(100) [not null]
+  FiscalYear varchar(10) [not null]
+  AppropriatedAmount decimal
+  EncumberedAmount decimal
+  DisbursedAmount decimal
+  DefaultAwardAmount decimal
+  MinAwardAmount decimal
+  MaxAwardAmount decimal
+  ApplicationOpenOn datetime
+  ApplicationCloseOn datetime
+  CycleStartOn datetime
+  CycleEndOn datetime
+  Status varchar(50)
+
+  Note: 'A specific funding period for a grant program'
+}
+
+// =============================================================================
+// ORGANIZATIONS & ACCOUNTS
+// =============================================================================
+
+Table ORGANIZATION_TYPE_SVT {
+  Id int [pk, increment]
+  Code varchar(50) [unique, not null]
+  Name varchar(100) [not null]
+  Description varchar(500)
+  DisplayOrder int
+
+  Note: 'SVT: IHE, LEA, COE, CTC'
+}
+
+Table ORGANIZATION {
+  Id int [pk, increment]
+  TypeId int [ref: > ORGANIZATION_TYPE_SVT.Id, not null]
+  EcsCdsCode varchar(20) [unique]
+  EcsOrganizationId int
+  Name varchar(100) [not null]
+  StreetAddress varchar(255)
+  City varchar(100)
+  StateProvince varchar(50)
+  PostalCode varchar(20)
+  PrimaryEmailAddress varchar(255)
+  PrimaryPhoneNumber varchar(25)
+  EmailDomain varchar(100)
+  IsActive bit [default: 1]
+  LastEcsSyncOn datetime
+
+  Note: 'IHE or LEA organization, synced from ECS'
+}
+
+Table USER_ROLE_SVT {
+  Id int [pk, increment]
+  Code varchar(50) [unique, not null]
+  Name varchar(100) [not null]
+  Description varchar(500)
+  DisplayOrder int
+
+  Note: 'SVT: IHE_STAFF, LEA_STAFF, CTC_GRANTS, CTC_FISCAL, CTC_ADMIN'
+}
+
+Table ACCOUNT {
+  Id int [pk, increment]
+  OrganizationId int [ref: > ORGANIZATION.Id]
+  RoleId int [ref: > USER_ROLE_SVT.Id, not null]
+  EmailAddress varchar(255) [unique, not null]
+  FirstName varchar(100) [not null]
+  LastName varchar(100) [not null]
+  PhoneNumber varchar(25)
+  Title varchar(100)
+  EntraId varchar(100)
+  OAuthProvider varchar(50)
+  IsActive bit [default: 1]
+  LastLoginOn datetime
+
+  Note: 'Portal users (IHE/LEA staff, CTC staff)'
+}
+
+// =============================================================================
+// CANDIDATES
+// =============================================================================
+
+Table CANDIDATE_STATUS_SVT {
+  Id int [pk, increment]
+  Code varchar(50) [unique, not null]
+  Name varchar(100) [not null]
+  Description varchar(500)
+  DisplayOrder int
+  Category varchar(50)
+  LEADisplayCategory varchar(50)
+  IsTerminal bit [default: 0]
+  AllowedTransitionsJson text
+
+  Note: 'SVT: DRAFT, IHE_SUBMITTED, LEA_REVIEWING, CTC_APPROVED, etc.'
+}
+
+Table CANDIDATE {
+  Id int [pk, increment]
+  GrantCycleId int [ref: > GRANT_CYCLE.Id, not null]
+  OriginatingOrgId int [ref: > ORGANIZATION.Id, not null]
+  StatusId int [ref: > CANDIDATE_STATUS_SVT.Id, not null]
+  SEID varchar(20) [unique]
+  FirstName varchar(100) [not null]
+  LastName varchar(100) [not null]
+  DateOfBirth datetime
+  Last4SSN varchar(4)
+  EmailAddress varchar(255)
+  Race varchar(50)
+  Ethnicity varchar(50)
+  Gender varchar(20)
+  CredentialArea varchar(100)
+  SchoolCdsCode varchar(20)
+  SchoolName varchar(100)
+  RequestedAmount decimal
+  AwardedAmount decimal
+  WaitlistPosition int
+  WaitlistAddedOn datetime
+  StatusChangedOn datetime
+  StatusChangedByAccountId int [ref: > ACCOUNT.Id]
+  SubmittedByInitiatorOn datetime
+  SubmittedByCompleterOn datetime
+  SubmittedToCTCOn datetime
+  ApprovedOn datetime
+  ApprovedByAccountId int [ref: > ACCOUNT.Id]
+  RejectedOn datetime
+  RejectedByAccountId int [ref: > ACCOUNT.Id]
+  RejectionReason text
+
+  Note: 'Individual applying for the grant (student teacher)'
+}
+
+Table CANDIDATE_STATUS_CHANGE {
+  Id int [pk, increment]
+  CandidateId int [ref: > CANDIDATE.Id, not null]
+  FromStatusId int [ref: > CANDIDATE_STATUS_SVT.Id]
+  ToStatusId int [ref: > CANDIDATE_STATUS_SVT.Id, not null]
+  ChangedOn datetime [not null]
+  ChangedByAccountId int [ref: > ACCOUNT.Id, not null]
+  Comments text
+
+  Note: 'Audit trail for candidate status transitions'
+}
+
+// =============================================================================
+// SUBMISSIONS
+// =============================================================================
+
+Table SUBMISSION_STATUS_SVT {
+  Id int [pk, increment]
+  Code varchar(50) [unique, not null]
+  Name varchar(100) [not null]
+  Description varchar(500)
+  DisplayOrder int
+  Category varchar(50)
+  IsTerminal bit [default: 0]
+  AllowedTransitionsJson text
+
+  Note: 'SVT: DRAFT, IN_PROGRESS, SUBMITTED, UNDER_REVIEW, APPROVED, CLOSED'
+}
+
+Table SUBMISSION {
+  Id int [pk, increment]
+  GrantCycleId int [ref: > GRANT_CYCLE.Id, not null]
+  StatusId int [ref: > SUBMISSION_STATUS_SVT.Id, not null]
+  SubmittingOrgId int [ref: > ORGANIZATION.Id, not null]
+  SubmissionNumber varchar(50)
+  SubmissionPeriod varchar(20)
+  SubmissionType varchar(50)
+  CandidateCount int [default: 0]
+  TotalAwardAmount decimal [default: 0]
+  StatusChangedOn datetime
+  StatusChangedByAccountId int [ref: > ACCOUNT.Id]
+  SubmittedOn datetime
+  SubmittedByAccountId int [ref: > ACCOUNT.Id]
+  ApprovedOn datetime
+  ApprovedByAccountId int [ref: > ACCOUNT.Id]
+  RejectedOn datetime
+  RejectedByAccountId int [ref: > ACCOUNT.Id]
+  RejectionReason text
+
+  Note: 'LEA monthly submission to CTC'
+}
+
+Table SUBMISSION_CANDIDATE {
+  Id int [pk, increment]
+  SubmissionId int [ref: > SUBMISSION.Id, not null]
+  CandidateId int [ref: > CANDIDATE.Id, not null]
+  AddedOn datetime [not null]
+  AddedByAccountId int [ref: > ACCOUNT.Id, not null]
+
+  Note: 'Junction: Links candidates to submissions (IHE-LEA partnership proof)'
+}
+
+Table SUBMISSION_STATUS_CHANGE {
+  Id int [pk, increment]
+  SubmissionId int [ref: > SUBMISSION.Id, not null]
+  FromStatusId int [ref: > SUBMISSION_STATUS_SVT.Id]
+  ToStatusId int [ref: > SUBMISSION_STATUS_SVT.Id, not null]
+  ChangedOn datetime [not null]
+  ChangedByAccountId int [ref: > ACCOUNT.Id, not null]
+  Comments text
+
+  Note: 'Audit trail for submission status transitions'
+}
+
+Table SUBMISSION_TIMELINE_EVENT_TYPE_SVT {
+  Id int [pk, increment]
+  Code varchar(50) [unique, not null]
+  Name varchar(100) [not null]
+  Description varchar(500)
+  DisplayOrder int
+
+  Note: 'SVT: CANDIDATE_ADDED, CANDIDATE_REMOVED, DOCUMENT_UPLOADED, etc.'
+}
+
+Table SUBMISSION_TIMELINE_EVENT {
+  Id int [pk, increment]
+  SubmissionId int [ref: > SUBMISSION.Id, not null]
+  EventTypeId int [ref: > SUBMISSION_TIMELINE_EVENT_TYPE_SVT.Id, not null]
+  EventOn datetime [not null]
+  EventByAccountId int [ref: > ACCOUNT.Id]
+  Description varchar(500)
+  IHESource varchar(100)
+
+  Note: 'Activity log for submission lifecycle events'
+}
+
+// =============================================================================
+// DISBURSEMENTS
+// =============================================================================
+
+Table DISBURSEMENT_STATUS_SVT {
+  Id int [pk, increment]
+  Code varchar(50) [unique, not null]
+  Name varchar(100) [not null]
+  Description varchar(500)
+  DisplayOrder int
+
+  Note: 'SVT: NEEDS_GAA, GAA_SENT, GAA_SIGNED, PO_UPLOADED, COMPLETE, etc.'
+}
+
+Table DISBURSEMENT {
+  Id int [pk, increment]
+  CandidateId int [ref: > CANDIDATE.Id, not null]
+  SubmissionId int [ref: > SUBMISSION.Id, not null]
+  StatusId int [ref: > DISBURSEMENT_STATUS_SVT.Id, not null]
+  Phase varchar(50)
+  Sequence int [default: 1]
+  Amount decimal [not null]
+  PercentOfTotal decimal
+  GAADocumentStorageKey varchar(500)
+  GAAEnvelopeId varchar(100)
+  GAAStatus varchar(50)
+  GAASentOn datetime
+  GAASignedOn datetime
+  GAACompletedOn datetime
+  PONumber varchar(50)
+  POAmount decimal
+  POIssuedOn datetime
+  PODocumentStorageKey varchar(500)
+  POUploadedOn datetime
+  POUploadedByAccountId int [ref: > ACCOUNT.Id]
+  InvoiceNumber varchar(50)
+  InvoiceAmount decimal
+  InvoiceIssuedOn datetime
+  InvoiceDocumentStorageKey varchar(500)
+  InvoiceSentOn datetime
+  WarrantNumber varchar(50)
+  WarrantAmount decimal
+  WarrantIssuedOn datetime
+  WarrantConfirmedOn datetime
+  WarrantConfirmedByAccountId int [ref: > ACCOUNT.Id]
+
+  Note: 'Payment processing record per candidate'
+}
+
+Table DISBURSEMENT_STATUS_CHANGE {
+  Id int [pk, increment]
+  DisbursementId int [ref: > DISBURSEMENT.Id, not null]
+  FromStatusId int [ref: > DISBURSEMENT_STATUS_SVT.Id]
+  ToStatusId int [ref: > DISBURSEMENT_STATUS_SVT.Id, not null]
+  ChangedOn datetime [not null]
+  ChangedByAccountId int [ref: > ACCOUNT.Id, not null]
+  Comments text
+
+  Note: 'Audit trail for disbursement status transitions'
+}
+
+Table DISBURSEMENT_FILE {
+  Id int [pk, increment]
+  DisbursementId int [ref: > DISBURSEMENT.Id, not null]
+  FileId int [ref: > FILE.Id, not null]
+  Purpose varchar(100)
+
+  Note: 'Junction: Links files to disbursements (GAA, PO, Invoice)'
+}
+
+// =============================================================================
+// REPORTING
+// =============================================================================
+
+Table REPORT_TYPE_SVT {
+  Id int [pk, increment]
+  Code varchar(50) [unique, not null]
+  Name varchar(100) [not null]
+  Description varchar(500)
+  DisplayOrder int
+  ReportingOrgTypeId int [ref: > ORGANIZATION_TYPE_SVT.Id]
+  FormSchemaJson text
+
+  Note: 'SVT: IHE_COMPLETION, LEA_EMPLOYMENT, IHE_MIDYEAR, LEA_PAYMENT'
+}
+
+Table REPORTING_PERIOD {
+  Id int [pk, increment]
+  GrantCycleId int [ref: > GRANT_CYCLE.Id, not null]
+  ReportTypeId int [ref: > REPORT_TYPE_SVT.Id, not null]
+  PeriodName varchar(100) [not null]
+  StartOn datetime
+  DueOn datetime [not null]
+  IsActive bit [default: 1]
+
+  Note: 'When reports are due'
+}
+
+Table CANDIDATE_REPORT {
+  Id int [pk, increment]
+  CandidateId int [ref: > CANDIDATE.Id, not null]
+  ReportingPeriodId int [ref: > REPORTING_PERIOD.Id, not null]
+  ReportingOrgId int [ref: > ORGANIZATION.Id, not null]
+  ReportTypeId int [ref: > REPORT_TYPE_SVT.Id, not null]
+  ReportingOrgTypeId int [ref: > ORGANIZATION_TYPE_SVT.Id, not null]
+
+  // Completion Info
+  CompletionStatus varchar(50)
+  CompletionOn datetime
+  DenialReason text
+  SwitchedToIntern bit
+  InternSwitchOn datetime
+
+  // Program Hours
+  GrantProgramHours int
+  CredentialProgramHours int
+
+  // Credential Info
+  HasCredentialEarned bit
+  CredentialEarnedOn datetime
+  CredentialType varchar(100)
+  CredentialEarnedStatus varchar(50)
+  ProgramCompletionStatus varchar(50)
+  ProgramCompletionOn datetime
+
+  // Employment Info
+  EmploymentStatus varchar(50)
+  IsHiredByPartnerOrg bit
+  IsEmployedInDistrict bit
+  IsEmployedInState bit
+  EmployerName varchar(100)
+  HireOn datetime
+  EmploymentStartOn datetime
+  JobTitle varchar(100)
+  SchoolSite varchar(100)
+  GradeLevel varchar(50)
+  SubjectArea varchar(100)
+
+  // Payment Info
+  PaymentCategory varchar(50)
+  PaymentSchedule varchar(50)
+  PaymentAmount decimal
+  PaymentOn datetime
+  FirstPaymentOn datetime
+  FinalPaymentOn datetime
+  PaymentScheduleDetails text
+
+  // Quality Tracking
+  PlacementQualityRating int
+  PlacementQualityNotes text
+  MentorTeacherName varchar(100)
+  MentorTeacherFeedback text
+
+  // Workflow
+  Status varchar(50)
+  SubmittedOn datetime
+  SubmittedByAccountId int [ref: > ACCOUNT.Id]
+  ApprovedOn datetime
+  ApprovedByAccountId int [ref: > ACCOUNT.Id]
+  RevisionNotes text
+  RevisionCount int [default: 0]
+  ConfirmationNumber varchar(100)
+
+  // Locking
+  IsLocked bit [default: 0]
+  LockedOn datetime
+  LockedByAccountId int [ref: > ACCOUNT.Id]
+
+  // CTC Review
+  CTCReviewer varchar(100)
+  CTCReviewOn datetime
+  CTCFeedback text
+
+  Note: 'Per-candidate report (IHE completion or LEA payment)'
+}
+
+Table CANDIDATE_REPORT_FILE {
+  Id int [pk, increment]
+  CandidateReportId int [ref: > CANDIDATE_REPORT.Id, not null]
+  FileId int [ref: > FILE.Id, not null]
+
+  Note: 'Junction: Links files to candidate reports'
+}
+
+// =============================================================================
+// FILES
+// =============================================================================
+
+Table FILE_TYPE_SVT {
+  Id int [pk, increment]
+  Code varchar(50) [unique, not null]
+  Name varchar(100) [not null]
+  Description varchar(500)
+  DisplayOrder int
+
+  Note: 'SVT: GAA_DOCUMENT, GAA_SIGNED, PO_DOCUMENT, INVOICE, etc.'
+}
+
+Table FILE {
+  Id int [pk, increment]
+  TypeId int [ref: > FILE_TYPE_SVT.Id, not null]
+  DocumentDate datetime
+  Title varchar(255)
+  StorageKey varchar(500) [unique, not null]
+  FileName varchar(255) [not null]
+  FileSizeInKilobytes int [not null]
+  FormatDescription varchar(100)
+  RelativePath varchar(500)
+  ContentHash varchar(64)
+
+  Note: 'Central document storage'
+}
+
+// =============================================================================
+// NOTIFICATIONS
+// =============================================================================
+
+Table NOTIFICATION_TYPE_SVT {
+  Id int [pk, increment]
+  Code varchar(50) [unique, not null]
+  Name varchar(100) [not null]
+  Description varchar(500)
+  DisplayOrder int
+  SubjectTemplate varchar(500)
+  BodyTemplate text
+
+  Note: 'SVT: Email notification templates'
+}
+
+Table NOTIFICATION {
+  Id int [pk, increment]
+  TypeId int [ref: > NOTIFICATION_TYPE_SVT.Id, not null]
+  RecipientAccountId int [ref: > ACCOUNT.Id]
+  RelatedSubmissionId int [ref: > SUBMISSION.Id]
+  RelatedCandidateId int [ref: > CANDIDATE.Id]
+  RelatedDisbursementId int [ref: > DISBURSEMENT.Id]
+  RecipientEmailAddress varchar(255) [not null]
+  Subject varchar(500) [not null]
+  BodyHtml text [not null]
+  Status varchar(50) [default: 'PENDING']
+  SentOn datetime
+  ErrorMessage text
+  RetryCount int [default: 0]
+
+  Note: 'Email/system notifications'
+}
+
+// =============================================================================
+// AUDIT
+// =============================================================================
+
+Table AUDIT_LOG {
+  Id bigint [pk, increment]
+  EntityType varchar(100) [not null]
+  EntityId int [not null]
+  Action varchar(50) [not null]
+  OldValueJson text
+  NewValueJson text
+  AccountId int [ref: > ACCOUNT.Id]
+  IpAddress varchar(45)
+  UserAgent varchar(500)
+  CreatedOn datetime [not null]
+
+  Note: 'General audit trail for compliance'
+}
+
+// =============================================================================
+// TABLE GROUPS
+// =============================================================================
+
+TableGroup core_config {
+  GRANT_PROGRAM
+  GRANT_CYCLE
+}
+
+TableGroup organizations {
+  ORGANIZATION_TYPE_SVT
+  ORGANIZATION
+  USER_ROLE_SVT
+  ACCOUNT
+}
+
+TableGroup candidates {
+  CANDIDATE_STATUS_SVT
+  CANDIDATE
+  CANDIDATE_STATUS_CHANGE
+}
+
+TableGroup submissions {
+  SUBMISSION_STATUS_SVT
+  SUBMISSION
+  SUBMISSION_CANDIDATE
+  SUBMISSION_STATUS_CHANGE
+  SUBMISSION_TIMELINE_EVENT_TYPE_SVT
+  SUBMISSION_TIMELINE_EVENT
+}
+
+TableGroup disbursements {
+  DISBURSEMENT_STATUS_SVT
+  DISBURSEMENT
+  DISBURSEMENT_STATUS_CHANGE
+  DISBURSEMENT_FILE
+}
+
+TableGroup reporting {
+  REPORT_TYPE_SVT
+  REPORTING_PERIOD
+  CANDIDATE_REPORT
+  CANDIDATE_REPORT_FILE
+}
+
+TableGroup files {
+  FILE_TYPE_SVT
+  FILE
+}
+
+TableGroup notifications {
+  NOTIFICATION_TYPE_SVT
+  NOTIFICATION
+}
+
+TableGroup audit {
+  AUDIT_LOG
+}
