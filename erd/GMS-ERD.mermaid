@@ -4,20 +4,20 @@ erDiagram
     ORGANIZATION_TYPE_SVT ||--o{ ORGANIZATION : types
     ORGANIZATION ||--o{ ACCOUNT : employs
     USER_ROLE_SVT ||--o{ ACCOUNT : assigns
-    GRANT_CYCLE ||--o{ APPLICATION : contains
-    ORGANIZATION ||--o{ APPLICATION : partners
-    APPLICATION ||--o{ CANDIDATE : includes
+    GRANT_CYCLE ||--o{ CANDIDATE : enrolls
+    ORGANIZATION ||--o{ CANDIDATE : enters
     CANDIDATE_STATUS_SVT ||--o{ CANDIDATE : tracks
     CANDIDATE ||--o{ CANDIDATE_STATUS_CHANGE : logs
-    GRANT_CYCLE ||--o{ BATCH : contains
-    ORGANIZATION ||--o{ BATCH : submits
-    BATCH_STATUS_SVT ||--o{ BATCH : tracks
-    BATCH ||--o{ BATCH_CANDIDATE : contains
-    BATCH_CANDIDATE }o--|| CANDIDATE : links
-    BATCH ||--o{ BATCH_STATUS_CHANGE : logs
-    BATCH_TIMELINE_EVENT_TYPE_SVT ||--o{ BATCH_TIMELINE_EVENT : types
-    BATCH ||--o{ BATCH_TIMELINE_EVENT : records
-    BATCH ||--|| DISBURSEMENT : triggers
+    GRANT_CYCLE ||--o{ SUBMISSION : contains
+    ORGANIZATION ||--o{ SUBMISSION : submits
+    SUBMISSION_STATUS_SVT ||--o{ SUBMISSION : tracks
+    SUBMISSION ||--o{ SUBMISSION_CANDIDATE : contains
+    SUBMISSION_CANDIDATE }o--|| CANDIDATE : links
+    SUBMISSION ||--o{ SUBMISSION_STATUS_CHANGE : logs
+    SUBMISSION_TIMELINE_EVENT_TYPE_SVT ||--o{ SUBMISSION_TIMELINE_EVENT : types
+    SUBMISSION ||--o{ SUBMISSION_TIMELINE_EVENT : records
+    CANDIDATE ||--o{ DISBURSEMENT : receives
+    SUBMISSION ||--o{ DISBURSEMENT : batches
     DISBURSEMENT_STATUS_SVT ||--o{ DISBURSEMENT : tracks
     DISBURSEMENT ||--o{ DISBURSEMENT_STATUS_CHANGE : logs
     DISBURSEMENT ||--o{ DISBURSEMENT_FILE : attaches
@@ -35,22 +35,26 @@ erDiagram
 
     GRANT_PROGRAM {
         int Id PK
-        string Code UK
-        string Name
-        string Description
-        string WorkflowType
-        string BatchStrategy
+        varchar(50) Code UK
+        varchar(100) Name
+        varchar(500) Description
+        varchar(50) WorkflowType
+        varchar(50) BatchStrategy
         int HoursThreshold
         int CredentialHoursThreshold
-        boolean IsActive
+        varchar(max) EligibleCredentialAreasJson
+        varchar(max) RequiredDocumentsJson
+        bit IsActive
     }
 
     GRANT_CYCLE {
         int Id PK
         int GrantProgramId FK
-        string Name
-        string FiscalYear
+        varchar(100) Name
+        varchar(10) FiscalYear
         decimal AppropriatedAmount
+        decimal EncumberedAmount
+        decimal DisbursedAmount
         decimal DefaultAwardAmount
         decimal MinAwardAmount
         decimal MaxAwardAmount
@@ -58,38 +62,39 @@ erDiagram
         datetime ApplicationCloseOn
         datetime CycleStartOn
         datetime CycleEndOn
-        string Status
+        varchar(50) Status
     }
 
     ORGANIZATION_TYPE_SVT {
         int Id PK
-        string Name
-        string Description
+        varchar(50) Code UK
+        varchar(100) Name
+        varchar(500) Description
         int DisplayOrder
     }
 
     ORGANIZATION {
         int Id PK
         int TypeId FK
-        string EcsCdsCode UK
+        varchar(20) EcsCdsCode UK
         int EcsOrganizationId
-        string Name
-        string StreetAddress
-        string City
-        string StateProvince
-        string PostalCode
-        string PrimaryEmailAddress
-        string PrimaryPhoneNumber
-        string EmailDomain
-        boolean IsActive
+        varchar(100) Name
+        varchar(255) StreetAddress
+        varchar(100) City
+        varchar(50) StateProvince
+        varchar(20) PostalCode
+        varchar(255) PrimaryEmailAddress
+        varchar(25) PrimaryPhoneNumber
+        varchar(100) EmailDomain
+        bit IsActive
         datetime LastEcsSyncOn
     }
 
     USER_ROLE_SVT {
         int Id PK
-        string Code UK
-        string Name
-        string Description
+        varchar(50) Code UK
+        varchar(100) Name
+        varchar(500) Description
         int DisplayOrder
     }
 
@@ -97,69 +102,46 @@ erDiagram
         int Id PK
         int OrganizationId FK
         int RoleId FK
-        string EmailAddress UK
-        string FirstName
-        string LastName
-        string PhoneNumber
-        string Title
-        string EntraId
-        string OAuthProvider
-        boolean IsActive
+        varchar(255) EmailAddress UK
+        varchar(100) FirstName
+        varchar(100) LastName
+        varchar(25) PhoneNumber
+        varchar(100) Title
+        varchar(100) EntraId
+        varchar(50) OAuthProvider
+        bit IsActive
         datetime LastLoginOn
-    }
-
-    APPLICATION {
-        int Id PK
-        int GrantCycleId FK
-        int IHEOrgId FK
-        int LEAOrgId FK
-        int InitiatorContactId FK
-        int CompleterContactId FK
-        string GAASignerName
-        string GAASignerTitle
-        string GAASignerEmail
-        string FiscalAgentName
-        string FiscalAgentEmail
-        string FiscalAgentPhone
-        string SuperintendentName
-        string SuperintendentEmail
-        string POCFirstName
-        string POCLastName
-        string POCEmail
-        string POCPhone
-        string PaymentIntent
-        string PaymentSchedule
-        string Status
     }
 
     CANDIDATE_STATUS_SVT {
         int Id PK
-        string Code UK
-        string Name
-        string Description
+        varchar(50) Code UK
+        varchar(100) Name
+        varchar(500) Description
         int DisplayOrder
-        string Category
-        string LEADisplayCategory
-        boolean IsTerminal
-        string AllowedTransitionsJson
+        varchar(50) Category
+        varchar(50) LEADisplayCategory
+        bit IsTerminal
+        varchar(max) AllowedTransitionsJson
     }
 
     CANDIDATE {
         int Id PK
-        int ApplicationId FK
+        int GrantCycleId FK
+        int OriginatingOrgId FK
         int StatusId FK
-        string SEID UK
-        string FirstName
-        string LastName
+        varchar(20) SEID UK
+        varchar(100) FirstName
+        varchar(100) LastName
         datetime DateOfBirth
-        string Last4SSN
-        string EmailAddress
-        string Race
-        string Ethnicity
-        string Gender
-        string CredentialArea
-        string SchoolCdsCode
-        string SchoolName
+        varchar(4) Last4SSN
+        varchar(255) EmailAddress
+        varchar(50) Race
+        varchar(50) Ethnicity
+        varchar(20) Gender
+        varchar(100) CredentialArea
+        varchar(20) SchoolCdsCode
+        varchar(100) SchoolName
         decimal RequestedAmount
         decimal AwardedAmount
         int WaitlistPosition
@@ -173,7 +155,7 @@ erDiagram
         int ApprovedByAccountId FK
         datetime RejectedOn
         int RejectedByAccountId FK
-        string RejectionReason
+        varchar(max) RejectionReason
     }
 
     CANDIDATE_STATUS_CHANGE {
@@ -183,28 +165,28 @@ erDiagram
         int ToStatusId FK
         datetime ChangedOn
         int ChangedByAccountId FK
-        string Comments
+        varchar(max) Comments
     }
 
-    BATCH_STATUS_SVT {
+    SUBMISSION_STATUS_SVT {
         int Id PK
-        string Code UK
-        string Name
-        string Description
+        varchar(50) Code UK
+        varchar(100) Name
+        varchar(500) Description
         int DisplayOrder
-        string Category
-        boolean IsTerminal
-        string AllowedTransitionsJson
+        varchar(50) Category
+        bit IsTerminal
+        varchar(max) AllowedTransitionsJson
     }
 
-    BATCH {
+    SUBMISSION {
         int Id PK
         int GrantCycleId FK
         int StatusId FK
         int SubmittingOrgId FK
-        string BatchNumber
-        string SubmissionPeriod
-        string BatchType
+        varchar(50) SubmissionNumber
+        varchar(20) SubmissionPeriod
+        varchar(50) SubmissionType
         int CandidateCount
         decimal TotalAwardAmount
         datetime StatusChangedOn
@@ -215,79 +197,80 @@ erDiagram
         int ApprovedByAccountId FK
         datetime RejectedOn
         int RejectedByAccountId FK
-        string RejectionReason
+        varchar(max) RejectionReason
     }
 
-    BATCH_CANDIDATE {
+    SUBMISSION_CANDIDATE {
         int Id PK
-        int BatchId FK
+        int SubmissionId FK
         int CandidateId FK
         datetime AddedOn
         int AddedByAccountId FK
     }
 
-    BATCH_STATUS_CHANGE {
+    SUBMISSION_STATUS_CHANGE {
         int Id PK
-        int BatchId FK
+        int SubmissionId FK
         int FromStatusId FK
         int ToStatusId FK
         datetime ChangedOn
         int ChangedByAccountId FK
-        string Comments
+        varchar(max) Comments
     }
 
-    BATCH_TIMELINE_EVENT_TYPE_SVT {
+    SUBMISSION_TIMELINE_EVENT_TYPE_SVT {
         int Id PK
-        string Code UK
-        string Name
-        string Description
+        varchar(50) Code UK
+        varchar(100) Name
+        varchar(500) Description
         int DisplayOrder
     }
 
-    BATCH_TIMELINE_EVENT {
+    SUBMISSION_TIMELINE_EVENT {
         int Id PK
-        int BatchId FK
+        int SubmissionId FK
         int EventTypeId FK
         datetime EventOn
         int EventByAccountId FK
-        string Description
-        string IHESource
+        varchar(500) Description
+        varchar(100) IHESource
     }
 
     DISBURSEMENT_STATUS_SVT {
         int Id PK
-        string Code UK
-        string Name
-        string Description
+        varchar(50) Code UK
+        varchar(100) Name
+        varchar(500) Description
         int DisplayOrder
     }
 
     DISBURSEMENT {
         int Id PK
-        int BatchId FK
+        int CandidateId FK
+        int SubmissionId FK
         int StatusId FK
-        string Phase
+        varchar(50) Phase
         int Sequence
         decimal Amount
         decimal PercentOfTotal
-        string GAADocumentStorageKey
-        string GAAEnvelopeId
-        string GAAStatus
+        varchar(500) GAADocumentStorageKey
+        varchar(100) GAAEnvelopeId
+        varchar(50) GAAStatus
         datetime GAASentOn
         datetime GAASignedOn
         datetime GAACompletedOn
-        string PONumber
+        varchar(50) PONumber
         decimal POAmount
         datetime POIssuedOn
-        string PODocumentStorageKey
+        varchar(500) PODocumentStorageKey
         datetime POUploadedOn
         int POUploadedByAccountId FK
-        string InvoiceNumber
+        varchar(50) InvoiceNumber
         decimal InvoiceAmount
         datetime InvoiceIssuedOn
-        string InvoiceDocumentStorageKey
+        varchar(500) InvoiceDocumentStorageKey
         datetime InvoiceSentOn
-        string WarrantNumber
+        varchar(50) WarrantNumber
         decimal WarrantAmount
         datetime WarrantIssuedOn
         datetime WarrantConfirmedOn
@@ -301,34 +284,34 @@ erDiagram
         int ToStatusId FK
         datetime ChangedOn
         int ChangedByAccountId FK
-        string Comments
+        varchar(max) Comments
     }
 
     DISBURSEMENT_FILE {
         int Id PK
         int DisbursementId FK
         int FileId FK
-        string Purpose
+        varchar(100) Purpose
     }
 
     REPORT_TYPE_SVT {
         int Id PK
-        string Code UK
-        string Name
-        string Description
+        varchar(50) Code UK
+        varchar(100) Name
+        varchar(500) Description
         int DisplayOrder
         int ReportingOrgTypeId FK
-        string FormSchemaJson
+        varchar(max) FormSchemaJson
     }
 
     REPORTING_PERIOD {
         int Id PK
         int GrantCycleId FK
         int ReportTypeId FK
-        string PeriodName
+        varchar(100) PeriodName
         datetime StartOn
         datetime DueOn
-        boolean IsActive
+        bit IsActive
     }
 
     CANDIDATE_REPORT {
@@ -338,25 +321,55 @@ erDiagram
         int ReportingOrgId FK
         int ReportTypeId FK
         int ReportingOrgTypeId FK
-        string CompletionStatus
+        varchar(50) CompletionStatus
         datetime CompletionOn
+        varchar(max) DenialReason
+        bit SwitchedToIntern
+        datetime InternSwitchOn
         int GrantProgramHours
         int CredentialProgramHours
-        boolean HasCredentialEarned
+        bit HasCredentialEarned
         datetime CredentialEarnedOn
-        string EmploymentStatus
-        boolean IsHiredByPartnerOrg
-        boolean IsEmployedInDistrict
-        boolean IsEmployedInState
-        string PaymentCategory
+        varchar(100) CredentialType
+        varchar(50) CredentialEarnedStatus
+        varchar(50) ProgramCompletionStatus
+        datetime ProgramCompletionOn
+        varchar(50) EmploymentStatus
+        bit IsHiredByPartnerOrg
+        bit IsEmployedInDistrict
+        bit IsEmployedInState
+        varchar(100) EmployerName
+        datetime HireOn
+        datetime EmploymentStartOn
+        varchar(100) JobTitle
+        varchar(100) SchoolSite
+        varchar(50) GradeLevel
+        varchar(100) SubjectArea
+        varchar(50) PaymentCategory
+        varchar(50) PaymentSchedule
         decimal PaymentAmount
         datetime PaymentOn
-        string Status
+        datetime FirstPaymentOn
+        datetime FinalPaymentOn
+        varchar(max) PaymentScheduleDetails
+        int PlacementQualityRating
+        varchar(max) PlacementQualityNotes
+        varchar(100) MentorTeacherName
+        varchar(max) MentorTeacherFeedback
+        varchar(50) Status
         datetime SubmittedOn
         int SubmittedByAccountId FK
         datetime ApprovedOn
         int ApprovedByAccountId FK
-        string RevisionNotes
+        varchar(max) RevisionNotes
+        int RevisionCount
+        varchar(100) ConfirmationNumber
+        bit IsLocked
+        datetime LockedOn
+        int LockedByAccountId FK
+        varchar(100) CTCReviewer
+        datetime CTCReviewOn
+        varchar(max) CTCFeedback
     }
 
     CANDIDATE_REPORT_FILE {
@@ -367,8 +380,9 @@ erDiagram
 
     FILE_TYPE_SVT {
         int Id PK
-        string Name
-        string Description
+        varchar(50) Code UK
+        varchar(100) Name
+        varchar(500) Description
         int DisplayOrder
     }
 
@@ -376,50 +390,50 @@ erDiagram
         int Id PK
         int TypeId FK
         datetime DocumentDate
-        string Title
-        string StorageKey UK
-        string FileName
+        varchar(255) Title
+        varchar(500) StorageKey UK
+        varchar(255) FileName
         int FileSizeInKilobytes
-        string FormatDescription
-        string RelativePath
-        string ContentHash
+        varchar(100) FormatDescription
+        varchar(500) RelativePath
+        varchar(64) ContentHash
     }
 
     NOTIFICATION_TYPE_SVT {
         int Id PK
-        string Code UK
-        string Name
-        string Description
+        varchar(50) Code UK
+        varchar(100) Name
+        varchar(500) Description
         int DisplayOrder
-        string SubjectTemplate
-        string BodyTemplate
+        varchar(500) SubjectTemplate
+        varchar(max) BodyTemplate
     }
 
     NOTIFICATION {
         int Id PK
         int TypeId FK
         int RecipientAccountId FK
-        int RelatedBatchId FK
+        int RelatedSubmissionId FK
         int RelatedCandidateId FK
-        int RelatedApplicationId FK
-        string RecipientEmailAddress
-        string Subject
-        string BodyHtml
-        string Status
+        int RelatedDisbursementId FK
+        varchar(255) RecipientEmailAddress
+        varchar(500) Subject
+        varchar(max) BodyHtml
+        varchar(50) Status
         datetime SentOn
-        string ErrorMessage
+        varchar(max) ErrorMessage
         int RetryCount
     }
 
     AUDIT_LOG {
         bigint Id PK
-        string EntityType
+        varchar(100) EntityType
         int EntityId
-        string Action
-        string OldValueJson
-        string NewValueJson
+        varchar(50) Action
+        varchar(max) OldValueJson
+        varchar(max) NewValueJson
         int AccountId FK
-        string IpAddress
-        string UserAgent
+        varchar(45) IpAddress
+        varchar(500) UserAgent
         datetime CreatedOn
     }
