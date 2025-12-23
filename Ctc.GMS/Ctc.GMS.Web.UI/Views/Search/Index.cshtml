@@ -1,0 +1,1410 @@
+@{
+    ViewData["Title"] = "Search";
+    var activeTab = ViewData["ActiveTab"]?.ToString() ?? "candidates";
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam")">Grants Team</a></li>
+        <li class="breadcrumb-item active">Search</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-magnify"></i> Search</h2>
+</div>
+
+<!-- Main Search Container -->
+<div class="search-container">
+    <!-- Search Tabs -->
+    <div class="search-tabs">
+        <button class="search-tab active" data-tab="candidates" onclick="switchTab('candidates')">
+            <i class="mdi mdi-account-group"></i> Candidates
+            <span class="tab-count" id="candidates-tab-count">0</span>
+        </button>
+        <button class="search-tab" data-tab="leas" onclick="switchTab('leas')">
+            <i class="mdi mdi-domain"></i> LEAs
+            <span class="tab-count" id="leas-tab-count">0</span>
+        </button>
+        <button class="search-tab" data-tab="ihes" onclick="switchTab('ihes')">
+            <i class="mdi mdi-school"></i> IHEs
+            <span class="tab-count" id="ihes-tab-count">0</span>
+        </button>
+    </div>
+
+    <!-- Candidates Tab -->
+    <div id="candidates-tab" class="tab-content active">
+        <!-- Search + Filters Card -->
+        <div class="search-filters-card">
+            <!-- Search Row -->
+            <div class="search-row">
+                <div class="search-input-wrapper">
+                    <i class="mdi mdi-magnify"></i>
+                    <input type="text" id="candidates-search"
+                           placeholder="Search by SEID, name..."
+                           onkeyup="debounceSearch('candidates')">
+                    <button class="clear-btn" onclick="clearSearch('candidates')" style="display: none;">
+                        <i class="mdi mdi-close-circle"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Filters Row -->
+            <div class="quick-filters">
+                <span class="quick-filter-label">Quick filters:</span>
+                <button class="quick-filter-btn" onclick="applyQuickFilter('candidates', 'submission')" data-filter="submission">
+                    Submission
+                </button>
+                <button class="quick-filter-btn" onclick="applyQuickFilter('candidates', 'review')" data-filter="review">
+                    Under Review
+                </button>
+                <button class="quick-filter-btn" onclick="applyQuickFilter('candidates', 'disbursement')" data-filter="disbursement">
+                    Disbursement
+                </button>
+                <button class="quick-filter-btn" onclick="applyQuickFilter('candidates', 'reporting')" data-filter="reporting">
+                    Reporting
+                </button>
+                <button class="quick-filter-btn" onclick="applyQuickFilter('candidates', 'complete')" data-filter="complete">
+                    Complete
+                </button>
+            </div>
+
+            <!-- Filter Dropdowns Row -->
+            <div class="filter-row">
+                <div class="filter-dropdown">
+                    <button class="filter-btn" onclick="toggleDropdown('candidates-status-dropdown')">
+                        <span>Status</span>
+                        <span class="filter-count" id="candidates-status-count"></span>
+                        <i class="mdi mdi-chevron-down"></i>
+                    </button>
+                    <div id="candidates-status-dropdown" class="dropdown-panel">
+                        <div class="dropdown-section">
+                            <div class="dropdown-section-title">Submission</div>
+                            <label><input type="checkbox" value="DRAFT" onchange="updateFilter('candidates')"> Draft</label>
+                            <label><input type="checkbox" value="IHE_SUBMITTED" onchange="updateFilter('candidates')"> Submitted to LEA</label>
+                            <label><input type="checkbox" value="LEA_REVIEWING" onchange="updateFilter('candidates')"> LEA Reviewing</label>
+                            <label><input type="checkbox" value="LEA_APPROVED" onchange="updateFilter('candidates')"> LEA Approved</label>
+                            <label><input type="checkbox" value="CTC_SUBMITTED" onchange="updateFilter('candidates')"> Submitted to CTC</label>
+                        </div>
+                        <div class="dropdown-section">
+                            <div class="dropdown-section-title">Review</div>
+                            <label><input type="checkbox" value="CTC_REVIEWING" onchange="updateFilter('candidates')"> CTC Reviewing</label>
+                            <label><input type="checkbox" value="REVISION_REQUESTED" onchange="updateFilter('candidates')"> Revision Requested</label>
+                            <label><input type="checkbox" value="CTC_REJECTED" onchange="updateFilter('candidates')"> Rejected</label>
+                        </div>
+                        <div class="dropdown-section">
+                            <div class="dropdown-section-title">Disbursement</div>
+                            <label><input type="checkbox" value="CTC_APPROVED" onchange="updateFilter('candidates')"> CTC Approved</label>
+                            <label><input type="checkbox" value="GAA_PENDING" onchange="updateFilter('candidates')"> Awaiting GAA</label>
+                            <label><input type="checkbox" value="GAA_SIGNED" onchange="updateFilter('candidates')"> GAA Signed</label>
+                            <label><input type="checkbox" value="INVOICE_GENERATED" onchange="updateFilter('candidates')"> Invoice Generated</label>
+                            <label><input type="checkbox" value="PAYMENT_COMPLETE" onchange="updateFilter('candidates')"> Payment Complete</label>
+                        </div>
+                        <div class="dropdown-section">
+                            <div class="dropdown-section-title">Reporting</div>
+                            <label><input type="checkbox" value="REPORTING_PENDING" onchange="updateFilter('candidates')"> Reports Pending</label>
+                            <label><input type="checkbox" value="REPORTING_COMPLETE" onchange="updateFilter('candidates')"> Reports Submitted</label>
+                            <label><input type="checkbox" value="REPORTS_APPROVED" onchange="updateFilter('candidates')"> Complete</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-dropdown">
+                    <button class="filter-btn" onclick="toggleDropdown('candidates-credential-dropdown')">
+                        <span>Credential</span>
+                        <span class="filter-count" id="candidates-credential-count"></span>
+                        <i class="mdi mdi-chevron-down"></i>
+                    </button>
+                    <div id="candidates-credential-dropdown" class="dropdown-panel">
+                        <label><input type="checkbox" value="Multiple Subject" onchange="updateFilter('candidates')"> Multiple Subject</label>
+                        <label><input type="checkbox" value="Single Subject - Mathematics" onchange="updateFilter('candidates')"> Single Subject - Math</label>
+                        <label><input type="checkbox" value="Single Subject - English" onchange="updateFilter('candidates')"> Single Subject - English</label>
+                        <label><input type="checkbox" value="Single Subject - Science" onchange="updateFilter('candidates')"> Single Subject - Science</label>
+                        <label><input type="checkbox" value="Education Specialist" onchange="updateFilter('candidates')"> Education Specialist</label>
+                        <label><input type="checkbox" value="PK-3 Early Childhood" onchange="updateFilter('candidates')"> PK-3 Early Childhood</label>
+                    </div>
+                </div>
+
+                <div class="filter-dropdown">
+                    <button class="filter-btn" onclick="toggleDropdown('candidates-ihe-dropdown')">
+                        <span>IHE</span>
+                        <span class="filter-count" id="candidates-ihe-count"></span>
+                        <i class="mdi mdi-chevron-down"></i>
+                    </button>
+                    <div id="candidates-ihe-dropdown" class="dropdown-panel">
+                        <label><input type="checkbox" value="1" onchange="updateFilter('candidates')"> CSU Fullerton</label>
+                        <label><input type="checkbox" value="2" onchange="updateFilter('candidates')"> UCLA</label>
+                        <label><input type="checkbox" value="3" onchange="updateFilter('candidates')"> San Diego State</label>
+                        <label><input type="checkbox" value="4" onchange="updateFilter('candidates')"> UC Irvine</label>
+                        <label><input type="checkbox" value="5" onchange="updateFilter('candidates')"> CSU Long Beach</label>
+                        <label><input type="checkbox" value="6" onchange="updateFilter('candidates')"> USC</label>
+                        <label><input type="checkbox" value="7" onchange="updateFilter('candidates')"> CSU Northridge</label>
+                        <label><input type="checkbox" value="8" onchange="updateFilter('candidates')"> UC Berkeley</label>
+                    </div>
+                </div>
+
+                <div class="filter-dropdown">
+                    <button class="filter-btn" onclick="toggleDropdown('candidates-lea-dropdown')">
+                        <span>LEA</span>
+                        <span class="filter-count" id="candidates-lea-count"></span>
+                        <i class="mdi mdi-chevron-down"></i>
+                    </button>
+                    <div id="candidates-lea-dropdown" class="dropdown-panel">
+                        <label><input type="checkbox" value="1" onchange="updateFilter('candidates')"> Los Angeles USD</label>
+                        <label><input type="checkbox" value="2" onchange="updateFilter('candidates')"> San Diego USD</label>
+                        <label><input type="checkbox" value="3" onchange="updateFilter('candidates')"> Fresno USD</label>
+                        <label><input type="checkbox" value="4" onchange="updateFilter('candidates')"> Long Beach USD</label>
+                        <label><input type="checkbox" value="5" onchange="updateFilter('candidates')"> Sacramento City USD</label>
+                        <label><input type="checkbox" value="6" onchange="updateFilter('candidates')"> Oakland USD</label>
+                        <label><input type="checkbox" value="7" onchange="updateFilter('candidates')"> San Francisco USD</label>
+                        <label><input type="checkbox" value="8" onchange="updateFilter('candidates')"> Santa Ana USD</label>
+                    </div>
+                </div>
+
+                <div class="filter-dropdown">
+                    <button class="filter-btn" onclick="toggleDropdown('candidates-hours-dropdown')">
+                        <span>Hours</span>
+                        <span class="filter-count" id="candidates-hours-count"></span>
+                        <i class="mdi mdi-chevron-down"></i>
+                    </button>
+                    <div id="candidates-hours-dropdown" class="dropdown-panel dropdown-panel-sm">
+                        <label><input type="checkbox" id="candidates-500hr" onchange="updateFilter('candidates')"> Met 500hr (Grant)</label>
+                        <label><input type="checkbox" id="candidates-600hr" onchange="updateFilter('candidates')"> Met 600hr (Credential)</label>
+                    </div>
+                </div>
+
+                <div class="filter-spacer"></div>
+
+                <button class="clear-filters-btn" onclick="clearAllFilters('candidates')" id="candidates-clear-btn" style="display: none;">
+                    <i class="mdi mdi-close"></i> Clear filters
+                </button>
+            </div>
+
+            <!-- Active Filters Chips -->
+            <div class="active-filters" id="candidates-active-filters"></div>
+        </div>
+
+        <!-- Results -->
+        <div class="results-card">
+            <div class="results-header">
+                <div class="results-count">
+                    <span id="candidates-count">0</span> candidates
+                </div>
+                <div class="results-actions">
+                    <button class="action-btn" onclick="openColumnPicker('candidates')">
+                        <i class="mdi mdi-view-column-outline"></i> Columns
+                    </button>
+                    <div class="export-dropdown">
+                        <button class="action-btn" onclick="toggleExportMenu('candidates')">
+                            <i class="mdi mdi-download-outline"></i> Export
+                            <i class="mdi mdi-chevron-down"></i>
+                        </button>
+                        <div id="candidates-export-menu" class="export-menu">
+                            <a href="#" onclick="exportData('candidates', 'csv'); return false;">
+                                <i class="mdi mdi-file-delimited-outline"></i> CSV
+                            </a>
+                            <a href="#" onclick="exportData('candidates', 'excel'); return false;">
+                                <i class="mdi mdi-microsoft-excel"></i> Excel
+                            </a>
+                            <a href="#" onclick="exportData('candidates', 'pdf'); return false;">
+                                <i class="mdi mdi-file-pdf-box"></i> PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-table-wrapper">
+                <table class="results-table" id="candidates-table">
+                    <thead>
+                        <tr id="candidates-header"></tr>
+                    </thead>
+                    <tbody id="candidates-body"></tbody>
+                </table>
+            </div>
+
+            <div class="results-footer">
+                <div class="pagination-info">
+                    Showing <span id="candidates-showing-start">0</span>-<span id="candidates-showing-end">0</span>
+                    of <span id="candidates-total">0</span>
+                </div>
+                <div class="pagination-controls">
+                    <button class="pagination-btn" id="candidates-prev" onclick="changePage('candidates', -1)" disabled>
+                        <i class="mdi mdi-chevron-left"></i>
+                    </button>
+                    <span class="pagination-pages">
+                        <span id="candidates-current-page">1</span> / <span id="candidates-total-pages">1</span>
+                    </span>
+                    <button class="pagination-btn" id="candidates-next" onclick="changePage('candidates', 1)" disabled>
+                        <i class="mdi mdi-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="page-size-select">
+                    <select id="candidates-page-size" onchange="changePageSize('candidates')">
+                        <option value="25">25 / page</option>
+                        <option value="50">50 / page</option>
+                        <option value="100">100 / page</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LEAs Tab -->
+    <div id="leas-tab" class="tab-content">
+        <div class="search-filters-card">
+            <div class="search-row">
+                <div class="search-input-wrapper">
+                    <i class="mdi mdi-magnify"></i>
+                    <input type="text" id="leas-search" placeholder="Search by name or CDS code..." onkeyup="debounceSearch('leas')">
+                    <button class="clear-btn" onclick="clearSearch('leas')" style="display: none;">
+                        <i class="mdi mdi-close-circle"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="filter-row">
+                <div class="filter-dropdown">
+                    <button class="filter-btn" onclick="toggleDropdown('leas-county-dropdown')">
+                        <span>County</span>
+                        <span class="filter-count" id="leas-county-count"></span>
+                        <i class="mdi mdi-chevron-down"></i>
+                    </button>
+                    <div id="leas-county-dropdown" class="dropdown-panel">
+                        <label><input type="checkbox" value="Los Angeles" onchange="updateFilter('leas')"> Los Angeles</label>
+                        <label><input type="checkbox" value="San Diego" onchange="updateFilter('leas')"> San Diego</label>
+                        <label><input type="checkbox" value="Orange" onchange="updateFilter('leas')"> Orange</label>
+                        <label><input type="checkbox" value="Alameda" onchange="updateFilter('leas')"> Alameda</label>
+                        <label><input type="checkbox" value="Sacramento" onchange="updateFilter('leas')"> Sacramento</label>
+                        <label><input type="checkbox" value="Fresno" onchange="updateFilter('leas')"> Fresno</label>
+                        <label><input type="checkbox" value="San Francisco" onchange="updateFilter('leas')"> San Francisco</label>
+                    </div>
+                </div>
+
+                <div class="filter-dropdown">
+                    <button class="filter-btn" onclick="toggleDropdown('leas-compliance-dropdown')">
+                        <span>Compliance</span>
+                        <span class="filter-count" id="leas-compliance-count"></span>
+                        <i class="mdi mdi-chevron-down"></i>
+                    </button>
+                    <div id="leas-compliance-dropdown" class="dropdown-panel dropdown-panel-sm">
+                        <label><input type="checkbox" value="full" onchange="updateFilter('leas')"> Full (100%)</label>
+                        <label><input type="checkbox" value="partial" onchange="updateFilter('leas')"> Partial (50-99%)</label>
+                        <label><input type="checkbox" value="low" onchange="updateFilter('leas')"> Non-Compliant (&lt;50%)</label>
+                    </div>
+                </div>
+
+                <label class="filter-checkbox">
+                    <input type="checkbox" id="leas-active" checked onchange="updateFilter('leas')">
+                    <span>Has active candidates</span>
+                </label>
+
+                <div class="filter-spacer"></div>
+
+                <button class="clear-filters-btn" onclick="clearAllFilters('leas')" id="leas-clear-btn" style="display: none;">
+                    <i class="mdi mdi-close"></i> Clear filters
+                </button>
+            </div>
+
+            <div class="active-filters" id="leas-active-filters"></div>
+        </div>
+
+        <div class="results-card">
+            <div class="results-header">
+                <div class="results-count"><span id="leas-count">0</span> LEAs</div>
+                <div class="results-actions">
+                    <button class="action-btn" onclick="openColumnPicker('leas')">
+                        <i class="mdi mdi-view-column-outline"></i> Columns
+                    </button>
+                    <div class="export-dropdown">
+                        <button class="action-btn" onclick="toggleExportMenu('leas')">
+                            <i class="mdi mdi-download-outline"></i> Export <i class="mdi mdi-chevron-down"></i>
+                        </button>
+                        <div id="leas-export-menu" class="export-menu">
+                            <a href="#" onclick="exportData('leas', 'csv'); return false;"><i class="mdi mdi-file-delimited-outline"></i> CSV</a>
+                            <a href="#" onclick="exportData('leas', 'excel'); return false;"><i class="mdi mdi-microsoft-excel"></i> Excel</a>
+                            <a href="#" onclick="exportData('leas', 'pdf'); return false;"><i class="mdi mdi-file-pdf-box"></i> PDF</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="results-table-wrapper">
+                <table class="results-table" id="leas-table">
+                    <thead><tr id="leas-header"></tr></thead>
+                    <tbody id="leas-body"></tbody>
+                </table>
+            </div>
+            <div class="results-footer">
+                <div class="pagination-info">
+                    Showing <span id="leas-showing-start">0</span>-<span id="leas-showing-end">0</span> of <span id="leas-total">0</span>
+                </div>
+                <div class="pagination-controls">
+                    <button class="pagination-btn" id="leas-prev" onclick="changePage('leas', -1)" disabled><i class="mdi mdi-chevron-left"></i></button>
+                    <span class="pagination-pages"><span id="leas-current-page">1</span> / <span id="leas-total-pages">1</span></span>
+                    <button class="pagination-btn" id="leas-next" onclick="changePage('leas', 1)" disabled><i class="mdi mdi-chevron-right"></i></button>
+                </div>
+                <div class="page-size-select">
+                    <select id="leas-page-size" onchange="changePageSize('leas')">
+                        <option value="25">25 / page</option>
+                        <option value="50">50 / page</option>
+                        <option value="100">100 / page</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- IHEs Tab -->
+    <div id="ihes-tab" class="tab-content">
+        <div class="search-filters-card">
+            <div class="search-row">
+                <div class="search-input-wrapper">
+                    <i class="mdi mdi-magnify"></i>
+                    <input type="text" id="ihes-search" placeholder="Search by name or code..." onkeyup="debounceSearch('ihes')">
+                    <button class="clear-btn" onclick="clearSearch('ihes')" style="display: none;">
+                        <i class="mdi mdi-close-circle"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="filter-row">
+                <label class="filter-checkbox">
+                    <input type="checkbox" id="ihes-active" checked onchange="updateFilter('ihes')">
+                    <span>Has active candidates</span>
+                </label>
+
+                <div class="filter-spacer"></div>
+
+                <button class="clear-filters-btn" onclick="clearAllFilters('ihes')" id="ihes-clear-btn" style="display: none;">
+                    <i class="mdi mdi-close"></i> Clear filters
+                </button>
+            </div>
+
+            <div class="active-filters" id="ihes-active-filters"></div>
+        </div>
+
+        <div class="results-card">
+            <div class="results-header">
+                <div class="results-count"><span id="ihes-count">0</span> IHEs</div>
+                <div class="results-actions">
+                    <button class="action-btn" onclick="openColumnPicker('ihes')">
+                        <i class="mdi mdi-view-column-outline"></i> Columns
+                    </button>
+                    <div class="export-dropdown">
+                        <button class="action-btn" onclick="toggleExportMenu('ihes')">
+                            <i class="mdi mdi-download-outline"></i> Export <i class="mdi mdi-chevron-down"></i>
+                        </button>
+                        <div id="ihes-export-menu" class="export-menu">
+                            <a href="#" onclick="exportData('ihes', 'csv'); return false;"><i class="mdi mdi-file-delimited-outline"></i> CSV</a>
+                            <a href="#" onclick="exportData('ihes', 'excel'); return false;"><i class="mdi mdi-microsoft-excel"></i> Excel</a>
+                            <a href="#" onclick="exportData('ihes', 'pdf'); return false;"><i class="mdi mdi-file-pdf-box"></i> PDF</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="results-table-wrapper">
+                <table class="results-table" id="ihes-table">
+                    <thead><tr id="ihes-header"></tr></thead>
+                    <tbody id="ihes-body"></tbody>
+                </table>
+            </div>
+            <div class="results-footer">
+                <div class="pagination-info">
+                    Showing <span id="ihes-showing-start">0</span>-<span id="ihes-showing-end">0</span> of <span id="ihes-total">0</span>
+                </div>
+                <div class="pagination-controls">
+                    <button class="pagination-btn" id="ihes-prev" onclick="changePage('ihes', -1)" disabled><i class="mdi mdi-chevron-left"></i></button>
+                    <span class="pagination-pages"><span id="ihes-current-page">1</span> / <span id="ihes-total-pages">1</span></span>
+                    <button class="pagination-btn" id="ihes-next" onclick="changePage('ihes', 1)" disabled><i class="mdi mdi-chevron-right"></i></button>
+                </div>
+                <div class="page-size-select">
+                    <select id="ihes-page-size" onchange="changePageSize('ihes')">
+                        <option value="25">25 / page</option>
+                        <option value="50">50 / page</option>
+                        <option value="100">100 / page</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Column Picker Modal -->
+<div id="column-picker-modal" class="modal">
+    <div class="modal-backdrop" onclick="closeColumnPicker()"></div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4>Select Columns</h4>
+            <button class="modal-close" onclick="closeColumnPicker()"><i class="mdi mdi-close"></i></button>
+        </div>
+        <div class="modal-body">
+            <div id="column-list" class="column-list"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="resetColumns()">Reset to Default</button>
+            <button class="btn-primary" onclick="applyColumns()">Apply</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Column definitions
+        const columnDefs = {
+            candidates: [
+                { key: 'seid', label: 'SEID', default: true },
+                { key: 'firstName', label: 'First Name', default: true },
+                { key: 'lastName', label: 'Last Name', default: true },
+                { key: 'status', label: 'Status', default: true },
+                { key: 'credentialArea', label: 'Credential', default: true },
+                { key: 'ihe', label: 'IHE', default: true },
+                { key: 'lea', label: 'LEA', default: true },
+                { key: 'awardAmount', label: 'Award', default: true },
+                { key: 'grantProgramHours', label: 'Grant Hours', default: false },
+                { key: 'credentialProgramHours', label: 'Cred Hours', default: false },
+                { key: 'met500Hours', label: '500hr', default: false },
+                { key: 'met600Hours', label: '600hr', default: false },
+                { key: 'credentialEarned', label: 'Credential Earned', default: false },
+                { key: 'employmentStatus', label: 'Employment', default: false },
+                { key: 'submittedAt', label: 'Submitted', default: false },
+                { key: 'approvedAt', label: 'Approved', default: false },
+                { key: 'lastActionDate', label: 'Last Action', default: false }
+            ],
+            leas: [
+                { key: 'name', label: 'Name', default: true },
+                { key: 'cdsCode', label: 'CDS Code', default: true },
+                { key: 'county', label: 'County', default: true },
+                { key: 'ihePartners', label: 'IHE Partners', default: true },
+                { key: 'totalCandidates', label: 'Candidates', default: true },
+                { key: 'approved', label: 'Approved', default: true },
+                { key: 'paid', label: 'Paid', default: true },
+                { key: 'totalAwards', label: 'Total Awards', default: true },
+                { key: 'compliancePercent', label: 'Compliance', default: true },
+                { key: 'pendingReview', label: 'Pending', default: false },
+                { key: 'inDisbursement', label: 'In Disbursement', default: false },
+                { key: 'reportsOverdue', label: 'Overdue', default: false }
+            ],
+            ihes: [
+                { key: 'name', label: 'Name', default: true },
+                { key: 'code', label: 'Code', default: true },
+                { key: 'leaPartners', label: 'LEA Partners', default: true },
+                { key: 'totalCandidates', label: 'Candidates', default: true },
+                { key: 'submitted', label: 'Submitted', default: true },
+                { key: 'approved', label: 'Approved', default: true },
+                { key: 'completionRate', label: 'Completion', default: true },
+                { key: 'credentialRate', label: 'Credential', default: true },
+                { key: 'employmentRate', label: 'Employment', default: false },
+                { key: 'reportsOverdue', label: 'Overdue', default: false }
+            ]
+        };
+
+        // Quick filter mappings
+        const quickFilterStatuses = {
+            submission: ['DRAFT', 'IHE_SUBMITTED', 'LEA_REVIEWING', 'LEA_APPROVED', 'CTC_SUBMITTED'],
+            review: ['CTC_REVIEWING', 'REVISION_REQUESTED'],
+            disbursement: ['CTC_APPROVED', 'GAA_PENDING', 'GAA_SIGNED', 'INVOICE_GENERATED', 'PAYMENT_COMPLETE'],
+            reporting: ['REPORTING_PENDING', 'REPORTING_COMPLETE'],
+            complete: ['REPORTS_APPROVED']
+        };
+
+        // State
+        const state = {
+            candidates: { page: 1, pageSize: 25, data: [], selectedColumns: [], totalCount: 0, totalPages: 0, filters: {} },
+            leas: { page: 1, pageSize: 25, data: [], selectedColumns: [], totalCount: 0, totalPages: 0, filters: {} },
+            ihes: { page: 1, pageSize: 25, data: [], selectedColumns: [], totalCount: 0, totalPages: 0, filters: {} }
+        };
+
+        let currentColumnPickerType = null;
+        let searchTimeout = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            for (const type of ['candidates', 'leas', 'ihes']) {
+                state[type].selectedColumns = columnDefs[type].filter(c => c.default).map(c => c.key);
+            }
+            loadData('candidates');
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.filter-dropdown')) {
+                    document.querySelectorAll('.dropdown-panel').forEach(p => p.classList.remove('open'));
+                }
+                if (!e.target.closest('.export-dropdown')) {
+                    document.querySelectorAll('.export-menu').forEach(m => m.classList.remove('open'));
+                }
+            });
+        });
+
+        // Tab switching
+        function switchTab(tab) {
+            document.querySelectorAll('.search-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+            document.getElementById(`${tab}-tab`).classList.add('active');
+            if (state[tab].data.length === 0) loadData(tab);
+        }
+
+        // Dropdown toggle
+        function toggleDropdown(id) {
+            const panel = document.getElementById(id);
+            const wasOpen = panel.classList.contains('open');
+            document.querySelectorAll('.dropdown-panel').forEach(p => p.classList.remove('open'));
+            if (!wasOpen) panel.classList.add('open');
+        }
+
+        // Search
+        function debounceSearch(type) {
+            const input = document.getElementById(`${type}-search`);
+            const clearBtn = input.parentElement.querySelector('.clear-btn');
+            clearBtn.style.display = input.value ? 'flex' : 'none';
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => { state[type].page = 1; loadData(type); }, 300);
+        }
+
+        function clearSearch(type) {
+            const input = document.getElementById(`${type}-search`);
+            input.value = '';
+            input.parentElement.querySelector('.clear-btn').style.display = 'none';
+            state[type].page = 1;
+            loadData(type);
+        }
+
+        // Quick filters
+        function applyQuickFilter(type, filter) {
+            // Clear all status checkboxes first
+            document.querySelectorAll('#candidates-status-dropdown input[type="checkbox"]').forEach(cb => cb.checked = false);
+
+            // Check the ones for this quick filter
+            const statuses = quickFilterStatuses[filter];
+            statuses.forEach(s => {
+                const cb = document.querySelector(`#candidates-status-dropdown input[value="${s}"]`);
+                if (cb) cb.checked = true;
+            });
+
+            // Update quick filter button states
+            document.querySelectorAll('.quick-filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.quick-filter-btn[data-filter="${filter}"]`).classList.add('active');
+
+            updateFilter(type);
+        }
+
+        // Filter updates
+        function updateFilter(type) {
+            state[type].page = 1;
+            updateFilterCounts(type);
+            updateActiveFilters(type);
+            loadData(type);
+        }
+
+        function updateFilterCounts(type) {
+            if (type === 'candidates') {
+                const statusCount = document.querySelectorAll('#candidates-status-dropdown input:checked').length;
+                const credCount = document.querySelectorAll('#candidates-credential-dropdown input:checked').length;
+                const iheCount = document.querySelectorAll('#candidates-ihe-dropdown input:checked').length;
+                const leaCount = document.querySelectorAll('#candidates-lea-dropdown input:checked').length;
+                const hoursCount = (document.getElementById('candidates-500hr').checked ? 1 : 0) +
+                                   (document.getElementById('candidates-600hr').checked ? 1 : 0);
+
+                document.getElementById('candidates-status-count').textContent = statusCount || '';
+                document.getElementById('candidates-credential-count').textContent = credCount || '';
+                document.getElementById('candidates-ihe-count').textContent = iheCount || '';
+                document.getElementById('candidates-lea-count').textContent = leaCount || '';
+                document.getElementById('candidates-hours-count').textContent = hoursCount || '';
+
+                const hasFilters = statusCount || credCount || iheCount || leaCount || hoursCount;
+                document.getElementById('candidates-clear-btn').style.display = hasFilters ? 'flex' : 'none';
+            }
+        }
+
+        function updateActiveFilters(type) {
+            const container = document.getElementById(`${type}-active-filters`);
+            const chips = [];
+
+            if (type === 'candidates') {
+                document.querySelectorAll('#candidates-status-dropdown input:checked').forEach(cb => {
+                    chips.push({ type: 'status', value: cb.value, label: cb.parentElement.textContent.trim() });
+                });
+                document.querySelectorAll('#candidates-credential-dropdown input:checked').forEach(cb => {
+                    chips.push({ type: 'credential', value: cb.value, label: cb.parentElement.textContent.trim() });
+                });
+                document.querySelectorAll('#candidates-ihe-dropdown input:checked').forEach(cb => {
+                    chips.push({ type: 'ihe', value: cb.value, label: cb.parentElement.textContent.trim() });
+                });
+                document.querySelectorAll('#candidates-lea-dropdown input:checked').forEach(cb => {
+                    chips.push({ type: 'lea', value: cb.value, label: cb.parentElement.textContent.trim() });
+                });
+                if (document.getElementById('candidates-500hr').checked) {
+                    chips.push({ type: 'hours', value: '500', label: 'Met 500hr' });
+                }
+                if (document.getElementById('candidates-600hr').checked) {
+                    chips.push({ type: 'hours', value: '600', label: 'Met 600hr' });
+                }
+            }
+
+            container.innerHTML = chips.map(chip =>
+                `<span class="filter-chip" data-type="${chip.type}" data-value="${chip.value}">
+                    ${chip.label}
+                    <button onclick="removeFilter('${type}', '${chip.type}', '${chip.value}')"><i class="mdi mdi-close"></i></button>
+                </span>`
+            ).join('');
+        }
+
+        function removeFilter(type, filterType, value) {
+            if (type === 'candidates') {
+                if (filterType === 'hours') {
+                    document.getElementById(`candidates-${value}hr`).checked = false;
+                } else {
+                    const dropdown = document.getElementById(`candidates-${filterType}-dropdown`);
+                    const cb = dropdown.querySelector(`input[value="${value}"]`);
+                    if (cb) cb.checked = false;
+                }
+            }
+            updateFilter(type);
+        }
+
+        function clearAllFilters(type) {
+            if (type === 'candidates') {
+                document.querySelectorAll('#candidates-status-dropdown input, #candidates-credential-dropdown input, #candidates-ihe-dropdown input, #candidates-lea-dropdown input').forEach(cb => cb.checked = false);
+                document.getElementById('candidates-500hr').checked = false;
+                document.getElementById('candidates-600hr').checked = false;
+                document.querySelectorAll('.quick-filter-btn').forEach(btn => btn.classList.remove('active'));
+            } else if (type === 'leas') {
+                document.querySelectorAll('#leas-county-dropdown input, #leas-compliance-dropdown input').forEach(cb => cb.checked = false);
+            }
+            updateFilter(type);
+        }
+
+        // Load data
+        async function loadData(type) {
+            const params = new URLSearchParams();
+            params.set('page', state[type].page);
+            params.set('pageSize', state[type].pageSize);
+
+            const search = document.getElementById(`${type}-search`).value;
+            if (search) params.set('search', search);
+
+            if (type === 'candidates') {
+                const statuses = Array.from(document.querySelectorAll('#candidates-status-dropdown input:checked')).map(cb => cb.value);
+                if (statuses.length) params.set('status', statuses.join(','));
+
+                const credentials = Array.from(document.querySelectorAll('#candidates-credential-dropdown input:checked')).map(cb => cb.value);
+                if (credentials.length) params.set('credentialArea', credentials.join(','));
+
+                const ihes = Array.from(document.querySelectorAll('#candidates-ihe-dropdown input:checked')).map(cb => cb.value);
+                if (ihes.length) params.set('iheId', ihes[0]); // Single for now
+
+                const leas = Array.from(document.querySelectorAll('#candidates-lea-dropdown input:checked')).map(cb => cb.value);
+                if (leas.length) params.set('leaId', leas[0]);
+
+                if (document.getElementById('candidates-500hr').checked) params.set('met500Hours', 'true');
+                if (document.getElementById('candidates-600hr').checked) params.set('met600Hours', 'true');
+            } else if (type === 'leas') {
+                if (document.getElementById('leas-active').checked) params.set('hasActiveCandidates', 'true');
+            } else if (type === 'ihes') {
+                if (document.getElementById('ihes-active').checked) params.set('hasActiveCandidates', 'true');
+            }
+
+            try {
+                const response = await fetch(`/Search/${type.charAt(0).toUpperCase() + type.slice(1)}?${params}`);
+                const result = await response.json();
+                state[type].data = result.data;
+                state[type].totalCount = result.totalCount;
+                state[type].totalPages = result.totalPages;
+                renderTable(type);
+                updatePagination(type);
+                document.getElementById(`${type}-tab-count`).textContent = result.totalCount;
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        // Render table
+        function renderTable(type) {
+            const headerRow = document.getElementById(`${type}-header`);
+            const tbody = document.getElementById(`${type}-body`);
+            const columns = state[type].selectedColumns;
+            const data = state[type].data;
+
+            headerRow.innerHTML = columns.map(key => {
+                const col = columnDefs[type].find(c => c.key === key);
+                return `<th>${col ? col.label : key}</th>`;
+            }).join('') + '<th></th>';
+
+            tbody.innerHTML = data.length ? data.map(row => {
+                const cells = columns.map(key => `<td>${formatCell(type, key, row)}</td>`).join('');
+                const action = type === 'candidates'
+                    ? `<a href="/Application/Details/${row.applicationId}" class="view-btn">View</a>`
+                    : `<a href="#" class="view-btn" onclick="drillDown('${type}', ${row.id}); return false;">Candidates</a>`;
+                return `<tr>${cells}<td>${action}</td></tr>`;
+            }).join('') : '<tr><td colspan="100" class="no-results">No results found</td></tr>';
+
+            document.getElementById(`${type}-count`).textContent = state[type].totalCount;
+        }
+
+        function formatCell(type, key, row) {
+            if (type === 'candidates') {
+                switch (key) {
+                    case 'status': return `<span class="status-pill status-${row.statusCategory}">${row.statusDisplay}</span>`;
+                    case 'awardAmount': return `$${row.awardAmount.toLocaleString()}`;
+                    case 'met500Hours': case 'met600Hours': return row[key] ? '<i class="mdi mdi-check-circle text-success"></i>' : '<i class="mdi mdi-close-circle text-muted"></i>';
+                    case 'credentialEarned': return row.credentialEarned == null ? '-' : (row.credentialEarned ? 'Yes' : 'No');
+                    case 'submittedAt': case 'approvedAt': case 'lastActionDate': return row[key] ? new Date(row[key]).toLocaleDateString() : '-';
+                    case 'ihe': return row.iheName;
+                    case 'lea': return row.leaName;
+                    default: return row[key] ?? '-';
+                }
+            } else if (type === 'leas') {
+                switch (key) {
+                    case 'totalAwards': return `$${row.totalAwards.toLocaleString()}`;
+                    case 'compliancePercent': return `<span class="compliance-pill compliance-${row.compliancePercent === 100 ? 'full' : row.compliancePercent >= 50 ? 'partial' : 'low'}">${row.compliancePercent}%</span>`;
+                    default: return row[key] ?? '-';
+                }
+            } else if (type === 'ihes') {
+                switch (key) {
+                    case 'completionRate': case 'credentialRate': case 'employmentRate': return `${row[key]}%`;
+                    default: return row[key] ?? '-';
+                }
+            }
+            return row[key] || '-';
+        }
+
+        // Pagination
+        function updatePagination(type) {
+            const { page, pageSize, totalCount, totalPages } = state[type];
+            const start = totalCount === 0 ? 0 : (page - 1) * pageSize + 1;
+            const end = Math.min(page * pageSize, totalCount);
+
+            document.getElementById(`${type}-showing-start`).textContent = start;
+            document.getElementById(`${type}-showing-end`).textContent = end;
+            document.getElementById(`${type}-total`).textContent = totalCount;
+            document.getElementById(`${type}-current-page`).textContent = page;
+            document.getElementById(`${type}-total-pages`).textContent = totalPages || 1;
+            document.getElementById(`${type}-prev`).disabled = page <= 1;
+            document.getElementById(`${type}-next`).disabled = page >= totalPages;
+        }
+
+        function changePage(type, delta) { state[type].page += delta; loadData(type); }
+        function changePageSize(type) { state[type].pageSize = parseInt(document.getElementById(`${type}-page-size`).value); state[type].page = 1; loadData(type); }
+
+        // Column picker
+        function openColumnPicker(type) {
+            currentColumnPickerType = type;
+            const list = document.getElementById('column-list');
+            list.innerHTML = columnDefs[type].map(col => `
+                <label class="column-item">
+                    <input type="checkbox" value="${col.key}" ${state[type].selectedColumns.includes(col.key) ? 'checked' : ''}>
+                    ${col.label}
+                    ${col.default ? '<span class="default-tag">Default</span>' : ''}
+                </label>
+            `).join('');
+            document.getElementById('column-picker-modal').classList.add('open');
+        }
+
+        function closeColumnPicker() { document.getElementById('column-picker-modal').classList.remove('open'); }
+        function resetColumns() {
+            document.querySelectorAll('#column-list input').forEach(input => {
+                const col = columnDefs[currentColumnPickerType].find(c => c.key === input.value);
+                input.checked = col && col.default;
+            });
+        }
+        function applyColumns() {
+            state[currentColumnPickerType].selectedColumns = Array.from(document.querySelectorAll('#column-list input:checked')).map(i => i.value);
+            renderTable(currentColumnPickerType);
+            closeColumnPicker();
+        }
+
+        // Export
+        function toggleExportMenu(type) {
+            const menu = document.getElementById(`${type}-export-menu`);
+            document.querySelectorAll('.export-menu').forEach(m => { if (m !== menu) m.classList.remove('open'); });
+            menu.classList.toggle('open');
+        }
+
+        function exportData(type, format) {
+            alert(`Exporting ${state[type].totalCount} ${type} as ${format.toUpperCase()}`);
+            document.getElementById(`${type}-export-menu`).classList.remove('open');
+        }
+
+        // Drill down
+        function drillDown(type, id) {
+            if (type === 'leas') {
+                document.querySelectorAll('#candidates-lea-dropdown input').forEach(cb => cb.checked = cb.value == id);
+            } else if (type === 'ihes') {
+                document.querySelectorAll('#candidates-ihe-dropdown input').forEach(cb => cb.checked = cb.value == id);
+            }
+            switchTab('candidates');
+            updateFilter('candidates');
+        }
+    </script>
+
+    <style>
+        .search-container { max-width: 100%; }
+
+        /* Tabs */
+        .search-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--gray-200);
+            padding-bottom: 0;
+        }
+
+        .search-tab {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            font-weight: 500;
+            color: var(--gray-500);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .search-tab:hover { color: var(--ctc-blue); }
+        .search-tab.active {
+            color: var(--ctc-blue);
+            border-bottom-color: var(--ctc-blue);
+        }
+
+        .tab-count {
+            background: var(--gray-100);
+            color: var(--gray-600);
+            padding: 0.125rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .search-tab.active .tab-count {
+            background: rgba(0, 86, 179, 0.1);
+            color: var(--ctc-blue);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Search & Filters Card */
+        .search-filters-card {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .search-row { margin-bottom: 0.75rem; }
+
+        .search-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input-wrapper > i {
+            position: absolute;
+            left: 1rem;
+            color: var(--gray-400);
+            font-size: 1.25rem;
+        }
+
+        .search-input-wrapper input {
+            width: 100%;
+            padding: 0.75rem 2.5rem 0.75rem 3rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .search-input-wrapper input:focus {
+            outline: none;
+            border-color: var(--ctc-blue);
+            box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+        }
+
+        .clear-btn {
+            position: absolute;
+            right: 0.75rem;
+            background: none;
+            border: none;
+            color: var(--gray-400);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .clear-btn:hover { color: var(--gray-600); }
+
+        /* Quick Filters */
+        .quick-filters {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .quick-filter-label {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+            margin-right: 0.25rem;
+        }
+
+        .quick-filter-btn {
+            padding: 0.375rem 0.75rem;
+            background: var(--gray-100);
+            border: 1px solid var(--gray-200);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--gray-600);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-filter-btn:hover {
+            background: var(--gray-200);
+        }
+
+        .quick-filter-btn.active {
+            background: var(--ctc-blue);
+            border-color: var(--ctc-blue);
+            color: white;
+        }
+
+        /* Filter Row */
+        .filter-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-dropdown { position: relative; }
+
+        .filter-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.5rem 0.75rem;
+            background: var(--white);
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover { border-color: var(--gray-400); }
+
+        .filter-count {
+            background: var(--ctc-blue);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.125rem 0.375rem;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .filter-count:empty { display: none; }
+
+        .dropdown-panel {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 0.5rem;
+            min-width: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .dropdown-panel.open { display: block; }
+        .dropdown-panel-sm { min-width: 160px; }
+
+        .dropdown-panel label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.15s;
+        }
+
+        .dropdown-panel label:hover { background: var(--gray-50); }
+
+        .dropdown-section { margin-bottom: 0.5rem; }
+        .dropdown-section:last-child { margin-bottom: 0; }
+
+        .dropdown-section-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--gray-500);
+            padding: 0.5rem 0.75rem 0.25rem;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.85rem;
+            color: var(--gray-700);
+            cursor: pointer;
+        }
+
+        .filter-spacer { flex: 1; }
+
+        .clear-filters-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem 0.75rem;
+            background: none;
+            border: none;
+            color: var(--gray-500);
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .clear-filters-btn:hover { color: var(--danger); }
+
+        /* Active Filters */
+        .active-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .active-filters:empty { display: none; margin-top: 0; }
+
+        .filter-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem 0.25rem 0.75rem;
+            background: rgba(0, 86, 179, 0.1);
+            color: var(--ctc-blue);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .filter-chip button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            color: var(--ctc-blue);
+            cursor: pointer;
+            padding: 0;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+        }
+
+        .filter-chip button:hover { background: rgba(0, 86, 179, 0.2); }
+
+        /* Results Card */
+        .results-card {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--gray-200);
+            background: var(--gray-50);
+        }
+
+        .results-count {
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        .results-count span { color: var(--ctc-blue); }
+
+        .results-actions { display: flex; gap: 0.5rem; }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.5rem 0.75rem;
+            background: var(--white);
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: var(--gray-700);
+            cursor: pointer;
+        }
+
+        .action-btn:hover { background: var(--gray-50); }
+
+        .export-dropdown { position: relative; }
+
+        .export-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            right: 0;
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            min-width: 120px;
+            z-index: 100;
+        }
+
+        .export-menu.open { display: block; }
+
+        .export-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1rem;
+            color: var(--gray-700);
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+
+        .export-menu a:hover { background: var(--gray-50); }
+
+        /* Table */
+        .results-table-wrapper { overflow-x: auto; }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        .results-table th {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--gray-600);
+            background: var(--gray-50);
+            border-bottom: 1px solid var(--gray-200);
+            white-space: nowrap;
+        }
+
+        .results-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .results-table tr:hover td { background: var(--gray-50); }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem 1rem !important;
+            color: var(--gray-500);
+        }
+
+        .view-btn {
+            padding: 0.375rem 0.75rem;
+            background: var(--gray-100);
+            border-radius: 4px;
+            color: var(--gray-700);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .view-btn:hover { background: var(--gray-200); }
+
+        /* Status Pills */
+        .status-pill {
+            display: inline-block;
+            padding: 0.25rem 0.625rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .status-submission { background: var(--gray-100); color: var(--gray-700); }
+        .status-review { background: #fff3cd; color: #856404; }
+        .status-rejected { background: #f8d7da; color: #721c24; }
+        .status-disbursement { background: #d4edda; color: #155724; }
+        .status-reporting { background: #cce5ff; color: #004085; }
+        .status-complete { background: #d1ecf1; color: #0c5460; }
+
+        .compliance-pill {
+            display: inline-block;
+            padding: 0.25rem 0.625rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .compliance-full { background: #d4edda; color: #155724; }
+        .compliance-partial { background: #fff3cd; color: #856404; }
+        .compliance-low { background: #f8d7da; color: #721c24; }
+
+        .text-success { color: var(--success); }
+        .text-muted { color: var(--gray-400); }
+
+        /* Footer / Pagination */
+        .results-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: var(--gray-50);
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .pagination-info { font-size: 0.85rem; color: var(--gray-600); }
+
+        .pagination-controls { display: flex; align-items: center; gap: 0.5rem; }
+
+        .pagination-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: var(--white);
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .pagination-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .pagination-btn:not(:disabled):hover { background: var(--gray-100); }
+
+        .pagination-pages { font-size: 0.85rem; color: var(--gray-600); padding: 0 0.5rem; }
+
+        .page-size-select select {
+            padding: 0.375rem 0.5rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.open { display: flex; }
+
+        .modal-backdrop {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            position: relative;
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .modal-header h4 { margin: 0; font-size: 1.1rem; }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: var(--gray-500);
+            cursor: pointer;
+        }
+
+        .modal-body { padding: 1rem 1.25rem; overflow-y: auto; }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            padding: 1rem 1.25rem;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .column-list { display: flex; flex-direction: column; gap: 0.25rem; }
+
+        .column-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .column-item:hover { background: var(--gray-50); }
+
+        .default-tag {
+            margin-left: auto;
+            font-size: 0.65rem;
+            padding: 0.125rem 0.375rem;
+            background: var(--gray-100);
+            color: var(--gray-500);
+            border-radius: 3px;
+        }
+
+        .btn-secondary {
+            padding: 0.5rem 1rem;
+            background: var(--gray-100);
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            padding: 0.5rem 1rem;
+            background: var(--ctc-blue);
+            border: 1px solid var(--ctc-blue);
+            border-radius: 6px;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover { background: #004a99; }
+    </style>
+}
