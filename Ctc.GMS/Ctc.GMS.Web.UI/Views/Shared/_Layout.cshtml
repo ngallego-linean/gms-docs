@@ -85,6 +85,11 @@
                         </a>
                     </li>
                     <li>
+                        <a asp-controller="Search" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Search" ? "active" : "")">
+                            <i class="mdi mdi-magnify"></i> Search
+                        </a>
+                    </li>
+                    <li>
                         <a asp-controller="Reporting" asp-action="Dashboard" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Reporting" ? "active" : "")">
                             <i class="mdi mdi-chart-line"></i> Reporting
                         </a>
