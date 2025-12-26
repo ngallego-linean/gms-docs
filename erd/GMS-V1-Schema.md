@@ -529,6 +529,8 @@ CREATE TABLE Organization (
     -- Address (per Common Data Fields Guidelines)
     StreetAddress               NVARCHAR(80) NULL,
     City                        NVARCHAR(40) NULL,
+    County                      NVARCHAR(50) NULL,     -- California county (for geographic reporting)
+    Region                      NVARCHAR(50) NULL,     -- CTC region designation (e.g., "Northern", "Southern", "Bay Area")
     StateProvince               NVARCHAR(40) NULL,
     PostalCode                  NVARCHAR(40) NULL,
     CountryId                   INT NULL DEFAULT 226,  -- USA
@@ -559,6 +561,8 @@ CREATE TABLE Organization (
 CREATE INDEX IX_Organization_TypeId ON Organization(TypeId);
 CREATE INDEX IX_Organization_EcsCdsCode ON Organization(EcsCdsCode);
 CREATE INDEX IX_Organization_Name ON Organization(Name);
+CREATE INDEX IX_Organization_County ON Organization(County) WHERE County IS NOT NULL;
+CREATE INDEX IX_Organization_Region ON Organization(Region) WHERE Region IS NOT NULL;
 ```
 
 ---
