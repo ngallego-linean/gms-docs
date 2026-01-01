@@ -374,7 +374,17 @@ public class ReportService : IReportService
             TotalAmountDisbursed = totalDisbursed,
             AveragePaymentAmount = avgPayment,
 
-            EmploymentByStatus = employmentByStatus
+            EmploymentByStatus = employmentByStatus,
+
+            // Demographics aggregation
+            CandidatesByRaceEthnicity = GetRaceEthnicityBreakdown(allStudents),
+            CandidatesByGender = GetGenderBreakdown(allStudents),
+            CandidatesByCredentialArea = GetCredentialAreaBreakdown(allStudents),
+
+            // Year-over-year demographics
+            CandidatesByRaceEthnicityByYear = GetRaceEthnicityByYear(allStudents),
+            CandidatesByGenderByYear = GetGenderByYear(allStudents),
+            CandidatesByCredentialAreaByYear = GetCredentialAreaByYear(allStudents)
         };
 
         return analytics;
@@ -442,4 +452,210 @@ public class ReportService : IReportService
             IsOverdue = daysUntil < 0
         }).ToList();
     }
+
+    #region Demographics Helper Methods
+
+    private Dictionary<string, int> GetRaceEthnicityBreakdown(List<Student> students)
+    {
+        // Combine Race and Ethnicity into unified categories
+        // Hispanic/Latino takes precedence as per federal reporting guidelines
+        var breakdown = new Dictionary<string, int>
+        {
+            { "Hispanic/Latino", 0 },
+            { "White", 0 },
+            { "Black/African American", 0 },
+            { "Asian", 0 },
+            { "Two or More Races", 0 },
+            { "Native Hawaiian/Pacific Islander", 0 },
+            { "American Indian/Alaska Native", 0 },
+            { "Unknown/Not Reported", 0 }
+        };
+
+        foreach (var student in students)
+        {
+            var category = CategorizeRaceEthnicity(student.Race, student.Ethnicity);
+            if (breakdown.ContainsKey(category))
+                breakdown[category]++;
+            else
+                breakdown["Unknown/Not Reported"]++;
+        }
+
+        // Remove zero-count categories and sort by count descending
+        return breakdown
+            .Where(kvp => kvp.Value > 0)
+            .OrderByDescending(kvp => kvp.Value)
+            .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+    }
+
+    private string CategorizeRaceEthnicity(string? race, string? ethnicity)
+    {
+        // Hispanic/Latino takes precedence (but not "Non-Hispanic")
+        if (!string.IsNullOrEmpty(ethnicity) &&
+            ethnicity.Contains("Hispanic", StringComparison.OrdinalIgnoreCase) &&
+            !ethnicity.StartsWith("Non", StringComparison.OrdinalIgnoreCase))
+            return "Hispanic/Latino";
+
+        if (string.IsNullOrEmpty(race))
+            return "Unknown/Not Reported";
+
+        return race.ToUpperInvariant() switch
+        {
+            "WHITE" or "CAUCASIAN" => "White",
+            "BLACK" or "AFRICAN AMERICAN" or "BLACK/AFRICAN AMERICAN" => "Black/African American",
+            "ASIAN" => "Asian",
+            "HISPANIC" or "LATINO" or "HISPANIC/LATINO" => "Hispanic/Latino",
+            "NATIVE HAWAIIAN" or "PACIFIC ISLANDER" or "NATIVE HAWAIIAN/PACIFIC ISLANDER" => "Native Hawaiian/Pacific Islander",
+            "AMERICAN INDIAN" or "ALASKA NATIVE" or "AMERICAN INDIAN/ALASKA NATIVE" => "American Indian/Alaska Native",
+            "TWO OR MORE" or "MULTIRACIAL" or "TWO OR MORE RACES" => "Two or More Races",
+            _ => "Unknown/Not Reported"
+        };
+    }
+
+    private Dictionary<string, int> GetGenderBreakdown(List<Student> students)
+    {
+        var breakdown = new Dictionary<string, int>
+        {
+            { "Female", 0 },
+            { "Male", 0 },
+            { "Non-Binary", 0 },
+            { "Not Reported", 0 }
+        };
+
+        foreach (var student in students)
+        {
+            var category = CategorizeGender(student.Gender);
+            if (breakdown.ContainsKey(category))
+                breakdown[category]++;
+            else
+                breakdown["Not Reported"]++;
+        }
+
+        return breakdown
+            .Where(kvp => kvp.Value > 0)
+            .OrderByDescending(kvp => kvp.Value)
+            .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+    }
+
+    private string CategorizeGender(string? gender)
+    {
+        if (string.IsNullOrEmpty(gender))
+            return "Not Reported";
+
+        return gender.ToUpperInvariant() switch
+        {
+            "F" or "FEMALE" => "Female",
+            "M" or "MALE" => "Male",
+            "N" or "NB" or "NON-BINARY" or "NONBINARY" => "Non-Binary",
+            _ => "Not Reported"
+        };
+    }
+
+    private Dictionary<string, int> GetCredentialAreaBreakdown(List<Student> students)
+    {
+        var breakdown = new Dictionary<string, int>
+        {
+            { "Multiple Subject", 0 },
+            { "Single Subject", 0 },
+            { "Education Specialist", 0 },
+            { "Other", 0 }
+        };
+
+        foreach (var student in students)
+        {
+            var category = CategorizeCredentialArea(student.CredentialArea);
+            if (breakdown.ContainsKey(category))
+                breakdown[category]++;
+            else
+                breakdown["Other"]++;
+        }
+
+        return breakdown
+            .Where(kvp => kvp.Value > 0)
+            .OrderByDescending(kvp => kvp.Value)
+            .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+    }
+
+    private string CategorizeCredentialArea(string? credentialArea)
+    {
+        if (string.IsNullOrEmpty(credentialArea))
+            return "Other";
+
+        var upper = credentialArea.ToUpperInvariant();
+
+        if (upper.Contains("MULTIPLE") || upper.Contains("ELEMENTARY"))
+            return "Multiple Subject";
+        if (upper.Contains("SINGLE") || upper.Contains("SECONDARY"))
+            return "Single Subject";
+        if (upper.Contains("SPECIALIST") || upper.Contains("SPECIAL ED") || upper.Contains("SPED"))
+            return "Education Specialist";
+
+        return "Other";
+    }
+
+    private Dictionary<string, Dictionary<string, int>> GetRaceEthnicityByYear(List<Student> students)
+    {
+        var cohortYears = new[] { "2024-25", "2023-24", "2022-23", "2021-22", "2020-21" };
+        var result = new Dictionary<string, Dictionary<string, int>>();
+
+        foreach (var year in cohortYears)
+        {
+            var yearStudents = FilterStudentsByFiscalYear(students, year);
+            if (yearStudents.Any())
+            {
+                result[year] = GetRaceEthnicityBreakdown(yearStudents);
+            }
+        }
+
+        return result;
+    }
+
+    private Dictionary<string, Dictionary<string, int>> GetGenderByYear(List<Student> students)
+    {
+        var cohortYears = new[] { "2024-25", "2023-24", "2022-23", "2021-22", "2020-21" };
+        var result = new Dictionary<string, Dictionary<string, int>>();
+
+        foreach (var year in cohortYears)
+        {
+            var yearStudents = FilterStudentsByFiscalYear(students, year);
+            if (yearStudents.Any())
+            {
+                result[year] = GetGenderBreakdown(yearStudents);
+            }
+        }
+
+        return result;
+    }
+
+    private Dictionary<string, Dictionary<string, int>> GetCredentialAreaByYear(List<Student> students)
+    {
+        var cohortYears = new[] { "2024-25", "2023-24", "2022-23", "2021-22", "2020-21" };
+        var result = new Dictionary<string, Dictionary<string, int>>();
+
+        foreach (var year in cohortYears)
+        {
+            var yearStudents = FilterStudentsByFiscalYear(students, year);
+            if (yearStudents.Any())
+            {
+                result[year] = GetCredentialAreaBreakdown(yearStudents);
+            }
+        }
+
+        return result;
+    }
+
+    private List<Student> FilterStudentsByFiscalYear(List<Student> students, string fiscalYear)
+    {
+        // Fiscal year runs July 1 - June 30
+        // e.g., "2024-25" = July 1, 2024 to June 30, 2025
+        var parts = fiscalYear.Split('-');
+        if (parts.Length != 2) return students;
+
+        var startYear = 2000 + int.Parse(parts[0]);
+        var startDate = new DateTime(startYear, 7, 1);
+        var endDate = new DateTime(startYear + 1, 6, 30);
+
+        return students.Where(s => s.CreatedAt >= startDate && s.CreatedAt <= endDate).ToList();
+    }
+
+    #endregion
 }

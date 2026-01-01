@@ -5,19 +5,19 @@
     // States: NEEDS_GAA, NEEDS_PO, NEEDS_INVOICE, NEEDS_WARRANT, COMPLETE
     var allDisbursementGroups = new List<dynamic>
     {
-        new { SubmissionDate = DateTime.Now.AddDays(-5), LEA = "Fresno Unified School District", LastAction = "Approved", LastActionDate = DateTime.Now.AddDays(-1), Amount = 67500m, State = "NEEDS_GAA", Id = 1,
+        new { SubmissionDate = DateTime.Now.AddDays(-5), LEA = "Fresno Unified School District", LastAction = "Approved", LastActionDate = DateTime.Now.AddDays(-1), Amount = 90000m, State = "NEEDS_GAA", Id = 1,
             Step1Date = (DateTime?)null, Step2Date = (DateTime?)null, Step3Date = (DateTime?)null, Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, Step6Date = (DateTime?)null },
-        new { SubmissionDate = DateTime.Now.AddDays(-7), LEA = "Sacramento City Unified School District", LastAction = "GAA Signed", LastActionDate = DateTime.Now.AddDays(-2), Amount = 48000m, State = "NEEDS_PO", Id = 2,
+        new { SubmissionDate = DateTime.Now.AddDays(-7), LEA = "Sacramento City Unified School District", LastAction = "GAA Signed", LastActionDate = DateTime.Now.AddDays(-2), Amount = 60000m, State = "NEEDS_PO", Id = 2,
             Step1Date = DateTime.Now.AddDays(-2), Step2Date = (DateTime?)null, Step3Date = (DateTime?)null, Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, Step6Date = (DateTime?)null },
-        new { SubmissionDate = DateTime.Now.AddDays(-10), LEA = "Oakland Unified School District", LastAction = "PO Uploaded", LastActionDate = DateTime.Now.AddDays(-3), Amount = 42000m, State = "NEEDS_INVOICE", Id = 3,
+        new { SubmissionDate = DateTime.Now.AddDays(-10), LEA = "Oakland Unified School District", LastAction = "PO Uploaded", LastActionDate = DateTime.Now.AddDays(-3), Amount = 50000m, State = "NEEDS_INVOICE", Id = 3,
             Step1Date = DateTime.Now.AddDays(-8), Step2Date = DateTime.Now.AddDays(-3), Step3Date = (DateTime?)null, Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, Step6Date = (DateTime?)null },
-        new { SubmissionDate = DateTime.Now.AddDays(-15), LEA = "Los Angeles Unified School District", LastAction = "Invoice Sent", LastActionDate = DateTime.Now.AddDays(-2), Amount = 125000m, State = "NEEDS_WARRANT", Id = 4,
+        new { SubmissionDate = DateTime.Now.AddDays(-15), LEA = "Los Angeles Unified School District", LastAction = "Invoice Sent", LastActionDate = DateTime.Now.AddDays(-2), Amount = 150000m, State = "NEEDS_WARRANT", Id = 4,
             Step1Date = DateTime.Now.AddDays(-12), Step2Date = DateTime.Now.AddDays(-8), Step3Date = DateTime.Now.AddDays(-5), Step4Date = DateTime.Now.AddDays(-2), Step5Date = (DateTime?)null, Step6Date = (DateTime?)null },
-        new { SubmissionDate = DateTime.Now.AddDays(-20), LEA = "San Diego Unified School District", LastAction = "Warrant Confirmed", LastActionDate = DateTime.Now.AddDays(-1), Amount = 87500m, State = "COMPLETE", Id = 5,
+        new { SubmissionDate = DateTime.Now.AddDays(-20), LEA = "San Diego Unified School District", LastAction = "Warrant Confirmed", LastActionDate = DateTime.Now.AddDays(-1), Amount = 100000m, State = "COMPLETE", Id = 5,
             Step1Date = DateTime.Now.AddDays(-18), Step2Date = DateTime.Now.AddDays(-14), Step3Date = DateTime.Now.AddDays(-10), Step4Date = DateTime.Now.AddDays(-5), Step5Date = DateTime.Now.AddDays(-2), Step6Date = DateTime.Now.AddDays(-1) },
-        new { SubmissionDate = DateTime.Now.AddDays(-25), LEA = "Long Beach Unified School District", LastAction = "Approved", LastActionDate = DateTime.Now.AddDays(-1), Amount = 52500m, State = "NEEDS_GAA", Id = 6,
+        new { SubmissionDate = DateTime.Now.AddDays(-25), LEA = "Long Beach Unified School District", LastAction = "Approved", LastActionDate = DateTime.Now.AddDays(-1), Amount = 70000m, State = "NEEDS_GAA", Id = 6,
             Step1Date = (DateTime?)null, Step2Date = (DateTime?)null, Step3Date = (DateTime?)null, Step4Date = (DateTime?)null, Step5Date = (DateTime?)null, Step6Date = (DateTime?)null },
-        new { SubmissionDate = DateTime.Now.AddDays(-30), LEA = "Riverside Unified School District", LastAction = "Warrant Confirmed", LastActionDate = DateTime.Now.AddDays(-5), Amount = 95000m, State = "COMPLETE", Id = 7,
+        new { SubmissionDate = DateTime.Now.AddDays(-30), LEA = "Riverside Unified School District", LastAction = "Warrant Confirmed", LastActionDate = DateTime.Now.AddDays(-5), Amount = 120000m, State = "COMPLETE", Id = 7,
             Step1Date = DateTime.Now.AddDays(-28), Step2Date = DateTime.Now.AddDays(-24), Step3Date = DateTime.Now.AddDays(-20), Step4Date = DateTime.Now.AddDays(-15), Step5Date = DateTime.Now.AddDays(-10), Step6Date = DateTime.Now.AddDays(-5) }
     };
 

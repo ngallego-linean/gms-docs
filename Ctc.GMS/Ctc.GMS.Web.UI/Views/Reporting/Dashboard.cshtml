@@ -26,11 +26,24 @@
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
             <div style="display: flex; gap: 1rem; padding: 1.5rem; border: 1px solid var(--gray-300); border-radius: 8px; background-color: var(--white); transition: box-shadow 0.2s;">
                 <div style="font-size: 3rem; color: var(--ctc-blue);">
+                    <i class="mdi mdi-chart-line"></i>
+                </div>
+                <div style="flex: 1;">
+                    <h5 style="margin: 0 0 0.5rem 0; color: var(--ctc-blue);">Program Impact Report</h5>
+                    <p style="margin: 0 0 1rem 0; color: var(--gray-600); font-size: 0.875rem;">Is the program achieving its goals?</p>
+                    <a href="@Url.Action("ProgramOutcomesReport", "Reporting")" class="r4-button r4-button-sm r4-button-primary">
+                        <i class="mdi mdi-eye"></i> View Report
+                    </a>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; padding: 1.5rem; border: 1px solid var(--gray-300); border-radius: 8px; background-color: var(--white); transition: box-shadow 0.2s;">
+                <div style="font-size: 3rem; color: var(--ctc-blue);">
                     <i class="mdi mdi-account-group"></i>
                 </div>
                 <div style="flex: 1;">
-                    <h5 style="margin: 0 0 0.5rem 0; color: var(--ctc-blue);">Current Demographics</h5>
-                    <p style="margin: 0 0 1rem 0; color: var(--gray-600); font-size: 0.875rem;">Student demographics for current grant cycle</p>
+                    <h5 style="margin: 0 0 0.5rem 0; color: var(--ctc-blue);">Candidate Pipeline Analysis</h5>
+                    <p style="margin: 0 0 1rem 0; color: var(--gray-600); font-size: 0.875rem;">Who are we reaching, and who are we missing?</p>
                     <a href="@Url.Action("DemographicsReport", "Reporting")" class="r4-button r4-button-sm r4-button-primary">
                         <i class="mdi mdi-eye"></i> View Report
                     </a>
@@ -39,24 +52,11 @@
 
             <div style="display: flex; gap: 1rem; padding: 1.5rem; border: 1px solid var(--gray-300); border-radius: 8px; background-color: var(--white); transition: box-shadow 0.2s;">
                 <div style="font-size: 3rem; color: var(--ctc-blue);">
-                    <i class="mdi mdi-domain"></i>
+                    <i class="mdi mdi-chart-areaspline"></i>
                 </div>
                 <div style="flex: 1;">
-                    <h5 style="margin: 0 0 0.5rem 0; color: var(--ctc-blue);">LEA Performance</h5>
-                    <p style="margin: 0 0 1rem 0; color: var(--gray-600); font-size: 0.875rem;">Summary of all LEA participation and outcomes</p>
-                    <a href="@Url.Action("LEAPerformanceReport", "Reporting")" class="r4-button r4-button-sm r4-button-primary">
-                        <i class="mdi mdi-eye"></i> View Report
-                    </a>
-                </div>
-            </div>
-
-            <div style="display: flex; gap: 1rem; padding: 1.5rem; border: 1px solid var(--gray-300); border-radius: 8px; background-color: var(--white); transition: box-shadow 0.2s;">
-                <div style="font-size: 3rem; color: var(--ctc-blue);">
-                    <i class="mdi mdi-currency-usd"></i>
-                </div>
-                <div style="flex: 1;">
-                    <h5 style="margin: 0 0 0.5rem 0; color: var(--ctc-blue);">Financial Summary</h5>
-                    <p style="margin: 0 0 1rem 0; color: var(--gray-600); font-size: 0.875rem;">Budget utilization and disbursement tracking</p>
+                    <h5 style="margin: 0 0 0.5rem 0; color: var(--ctc-blue);">Investment Efficiency Report</h5>
+                    <p style="margin: 0 0 1rem 0; color: var(--gray-600); font-size: 0.875rem;">What does each credentialed teacher cost us?</p>
                     <a href="@Url.Action("FinancialSummaryReport", "Reporting")" class="r4-button r4-button-sm r4-button-primary">
                         <i class="mdi mdi-eye"></i> View Report
                     </a>
@@ -65,12 +65,25 @@
 
             <div style="display: flex; gap: 1rem; padding: 1.5rem; border: 1px solid var(--gray-300); border-radius: 8px; background-color: var(--white); transition: box-shadow 0.2s;">
                 <div style="font-size: 3rem; color: var(--ctc-blue);">
-                    <i class="mdi mdi-chart-line"></i>
+                    <i class="mdi mdi-handshake"></i>
                 </div>
                 <div style="flex: 1;">
-                    <h5 style="margin: 0 0 0.5rem 0; color: var(--ctc-blue);">Program Outcomes</h5>
-                    <p style="margin: 0 0 1rem 0; color: var(--gray-600); font-size: 0.875rem;">Credential areas, completion rates, and impact</p>
-                    <a href="@Url.Action("ProgramOutcomesReport", "Reporting")" class="r4-button r4-button-sm r4-button-primary">
+                    <h5 style="margin: 0 0 0.5rem 0; color: var(--ctc-blue);">Partnership Outcomes Report</h5>
+                    <p style="margin: 0 0 1rem 0; color: var(--gray-600); font-size: 0.875rem;">Which partnerships produce teachers who stay?</p>
+                    <a href="@Url.Action("LEAPerformanceReport", "Reporting")" class="r4-button r4-button-sm r4-button-primary">
+                        <i class="mdi mdi-eye"></i> View Report
+                    </a>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; padding: 1.5rem; border: 1px solid var(--gray-300); border-radius: 8px; background-color: var(--white); transition: box-shadow 0.2s;">
+                <div style="font-size: 3rem; color: var(--ctc-blue);">
+                    <i class="mdi mdi-timer-outline"></i>
+                </div>
+                <div style="flex: 1;">
+                    <h5 style="margin: 0 0 0.5rem 0; color: var(--ctc-blue);">Processing Efficiency Report</h5>
+                    <p style="margin: 0 0 1rem 0; color: var(--gray-600); font-size: 0.875rem;">How long does it take to get funds to grantees?</p>
+                    <a href="@Url.Action("ProcessingEfficiencyReport", "Reporting")" class="r4-button r4-button-sm r4-button-primary">
                         <i class="mdi mdi-eye"></i> View Report
                     </a>
                 </div>
@@ -99,7 +112,7 @@
                             <option value="ihe-summary">IHE Summary Report</option>
                             <option value="financial">Financial Summary Report</option>
                             <option value="program-outcomes">Program Outcomes Report</option>
-                            <option value="compliance">Compliance & Reporting Status</option>
+                            <option value="status">Reporting Status</option>
                             <option value="custom">Custom Query Report</option>
                         </select>
                     </div>

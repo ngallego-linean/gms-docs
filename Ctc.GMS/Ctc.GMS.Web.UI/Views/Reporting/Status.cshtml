@@ -1,0 +1,633 @@
+@model ReportingStatusViewModel
+
+@{
+    ViewData["Title"] = "Reporting Status";
+    var activeSection = Model.ActiveTab == "IHE" ? Model.IHE : Model.LEA;
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam")">Grants Team</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "Reporting")">Reporting</a></li>
+        <li class="breadcrumb-item active">Status</li>
+    </ol>
+}
+
+<div class="page-header">
+    <h2><i class="mdi mdi-clipboard-check-outline"></i> Reporting Status</h2>
+    <p class="subtitle">Track report submissions by organization</p>
+</div>
+
+@* Tab Navigation *@
+<div class="r4-card" style="margin-bottom: 0; border-bottom: none; border-radius: 8px 8px 0 0;">
+    <div class="r4-card-body" style="padding: 0;">
+        <div class="status-tabs">
+            <a href="@Url.Action("Status", "Reporting", new { tab = "LEA", fiscalYear = Model.FiscalYear })"
+               class="status-tab @(Model.ActiveTab == "LEA" ? "active" : "")">
+                <div class="tab-content">
+                    <i class="mdi mdi-domain"></i>
+                    <div class="tab-info">
+                        <span class="tab-label">LEAs</span>
+                        <span class="tab-count">@Model.LEA.Metrics.Total organizations</span>
+                        <span class="tab-summary">
+                            @Model.LEA.Metrics.Complete complete
+                            @if (Model.LEA.CriticallyOverdueCount > 0)
+                            {
+                                <span class="overdue-indicator">@Model.LEA.CriticallyOverdueCount overdue</span>
+                            }
+                        </span>
+                    </div>
+                </div>
+            </a>
+            <a href="@Url.Action("Status", "Reporting", new { tab = "IHE", fiscalYear = Model.FiscalYear })"
+               class="status-tab @(Model.ActiveTab == "IHE" ? "active" : "")">
+                <div class="tab-content">
+                    <i class="mdi mdi-school"></i>
+                    <div class="tab-info">
+                        <span class="tab-label">IHEs</span>
+                        <span class="tab-count">@Model.IHE.Metrics.Total institutions</span>
+                        <span class="tab-summary">
+                            @Model.IHE.Metrics.Complete complete
+                            @if (Model.IHE.CriticallyOverdueCount > 0)
+                            {
+                                <span class="overdue-indicator">@Model.IHE.CriticallyOverdueCount overdue</span>
+                            }
+                        </span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+@* Status Cards Section *@
+<div class="r4-card" style="border-radius: 0 0 8px 8px; border-top: none;">
+    <div class="r4-card-header" style="border-top: 1px solid var(--gray-200);">
+        <div>
+            <h4>
+                @if (Model.ActiveTab == "LEA")
+                {
+                    <i class="mdi mdi-domain"></i>
+                    <text>LEA Employment Reports</text>
+                }
+                else
+                {
+                    <i class="mdi mdi-school"></i>
+                    <text>IHE Program Completion Reports</text>
+                }
+            </h4>
+            <p class="card-subtitle">@activeSection.ReportDescription</p>
+        </div>
+        <div class="card-actions">
+            <label for="fiscalYear" style="margin-right: 0.5rem; font-weight: 500;">Reporting Period:</label>
+            <select id="fiscalYear" class="form-control" style="width: auto; display: inline-block;" onchange="changeFiscalYear(this.value)">
+                @foreach (var option in Model.FiscalYearOptions)
+                {
+                    <option value="@option.Value" selected="@(option.Value == Model.FiscalYear)">@option.Text</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="r4-card-body">
+        @* Status Cards *@
+        <div class="status-cards-grid">
+            @* Complete Card *@
+            <div class="status-card status-complete @(Model.ExpandedStatus == "Complete" ? "expanded" : "")"
+                 onclick="toggleStatus('Complete')" data-status="Complete">
+                <div class="status-icon">
+                    <i class="mdi mdi-check-circle"></i>
+                </div>
+                <div class="status-label">Complete</div>
+                <div class="status-count">@activeSection.Metrics.Complete</div>
+                <div class="status-type">@activeSection.TypeLabel</div>
+                <div class="status-percent">@activeSection.Metrics.CompletePercent.ToString("F1")%</div>
+                <div class="status-divider"></div>
+                <div class="status-candidates">
+                    @activeSection.Metrics.CandidatesReported candidates
+                    <br><span class="text-muted">all reported</span>
+                </div>
+                <div class="status-action">
+                    <span class="view-link">View List <i class="mdi mdi-chevron-down"></i></span>
+                </div>
+            </div>
+
+            @* In Progress Card *@
+            <div class="status-card status-inprogress @(Model.ExpandedStatus == "InProgress" ? "expanded" : "")"
+                 onclick="toggleStatus('InProgress')" data-status="InProgress">
+                <div class="status-icon">
+                    <i class="mdi mdi-progress-clock"></i>
+                </div>
+                <div class="status-label">In Progress</div>
+                <div class="status-count">@activeSection.Metrics.InProgress</div>
+                <div class="status-type">@activeSection.TypeLabel</div>
+                <div class="status-percent">@activeSection.Metrics.InProgressPercent.ToString("F1")%</div>
+                <div class="status-divider"></div>
+                <div class="status-candidates">
+                    @activeSection.Metrics.CandidatesPending candidates
+                    <br><span class="text-muted">pending</span>
+                </div>
+                <div class="status-action">
+                    <span class="view-link">View List <i class="mdi mdi-chevron-down"></i></span>
+                </div>
+            </div>
+
+            @* Not Started Card *@
+            <div class="status-card status-notstarted @(Model.ExpandedStatus == "NotStarted" ? "expanded" : "")"
+                 onclick="toggleStatus('NotStarted')" data-status="NotStarted">
+                <div class="status-icon">
+                    <i class="mdi mdi-circle-outline"></i>
+                </div>
+                <div class="status-label">Not Started</div>
+                <div class="status-count">@activeSection.Metrics.NotStarted</div>
+                <div class="status-type">@activeSection.TypeLabel</div>
+                <div class="status-percent">@activeSection.Metrics.NotStartedPercent.ToString("F1")%</div>
+                <div class="status-divider"></div>
+                <div class="status-candidates">
+                    @activeSection.Metrics.CandidatesNotStarted candidates
+                    <br><span class="text-muted">no reports</span>
+                </div>
+                <div class="status-action">
+                    <span class="view-link">View List <i class="mdi mdi-chevron-down"></i></span>
+                </div>
+            </div>
+        </div>
+
+        @* Critically Overdue Alert *@
+        @if (activeSection.CriticallyOverdueCount > 0)
+        {
+            <div class="alert alert-warning" style="margin-top: 1.5rem; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <i class="mdi mdi-alert-outline"></i>
+                    <strong>@activeSection.CriticallyOverdueCount @activeSection.TypeLabel</strong> have critically overdue reports (30+ days)
+                </div>
+                <button class="r4-button r4-button-sm" onclick="showOverdueOnly()">
+                    <i class="mdi mdi-eye"></i> View Overdue
+                </button>
+            </div>
+        }
+
+        @* Expandable Organization Table *@
+        <div id="organization-table-container" class="organization-table-container" style="display: none; margin-top: 1.5rem;">
+            <div class="table-header">
+                <h5 id="table-title">
+                    <i class="mdi mdi-table"></i>
+                    <span id="table-status-label">Organizations</span>
+                    (<span id="table-count">0</span>)
+                </h5>
+                <div class="table-actions">
+                    <div class="btn-group">
+                        <button class="r4-button r4-button-sm" onclick="exportTable()">
+                            <i class="mdi mdi-download"></i> Export
+                        </button>
+                        <button class="r4-button r4-button-sm r4-button-secondary" onclick="closeTable()">
+                            <i class="mdi mdi-close"></i> Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="r4-table" id="organization-table">
+                    <thead>
+                        <tr>
+                            <th>@activeSection.TypeLabel.TrimEnd('s')</th>
+                            <th>Required</th>
+                            <th>Submitted</th>
+                            <th>Progress</th>
+                            <th>Overdue</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="organization-table-body">
+                        @* Populated by JavaScript *@
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        @* Default message when no table is shown *@
+        <div id="no-selection-message" class="no-selection-message">
+            <i class="mdi mdi-hand-pointing-up"></i>
+            <p>Click a status card above to view organizations in that category.</p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Organization data for JavaScript filtering
+        const organizationData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(activeSection.Organizations));
+        const activeTab = '@Model.ActiveTab';
+        const typeLabel = '@activeSection.TypeLabel';
+        let currentStatus = '@(Model.ExpandedStatus ?? "")';
+
+        function changeFiscalYear(year) {
+            window.location.href = '@Url.Action("Status", "Reporting")?tab=' + activeTab + '&fiscalYear=' + year;
+        }
+
+        function toggleStatus(status) {
+            const cards = document.querySelectorAll('.status-card');
+            const tableContainer = document.getElementById('organization-table-container');
+            const noSelectionMessage = document.getElementById('no-selection-message');
+
+            // If clicking the same status, close it
+            if (currentStatus === status) {
+                currentStatus = '';
+                cards.forEach(card => card.classList.remove('expanded'));
+                tableContainer.style.display = 'none';
+                noSelectionMessage.style.display = 'flex';
+                return;
+            }
+
+            currentStatus = status;
+
+            // Update card styles
+            cards.forEach(card => {
+                if (card.dataset.status === status) {
+                    card.classList.add('expanded');
+                } else {
+                    card.classList.remove('expanded');
+                }
+            });
+
+            // Filter and display data
+            const filteredOrgs = organizationData.filter(org => org.Status === status);
+            displayOrganizations(filteredOrgs, status);
+
+            // Show table, hide message
+            tableContainer.style.display = 'block';
+            noSelectionMessage.style.display = 'none';
+        }
+
+        function showOverdueOnly() {
+            const overdueOrgs = organizationData.filter(org => org.HasCriticallyOverdue);
+            displayOrganizations(overdueOrgs, 'Overdue');
+
+            // Update card styles
+            document.querySelectorAll('.status-card').forEach(card => card.classList.remove('expanded'));
+
+            const tableContainer = document.getElementById('organization-table-container');
+            const noSelectionMessage = document.getElementById('no-selection-message');
+            tableContainer.style.display = 'block';
+            noSelectionMessage.style.display = 'none';
+            currentStatus = 'Overdue';
+        }
+
+        function displayOrganizations(orgs, statusLabel) {
+            const tbody = document.getElementById('organization-table-body');
+            const tableTitle = document.getElementById('table-status-label');
+            const tableCount = document.getElementById('table-count');
+
+            // Update header
+            const statusLabels = {
+                'Complete': 'Complete',
+                'InProgress': 'In Progress',
+                'NotStarted': 'Not Started',
+                'Overdue': 'Critically Overdue'
+            };
+            tableTitle.textContent = typeLabel + ' ' + (statusLabels[statusLabel] || statusLabel);
+            tableCount.textContent = orgs.length;
+
+            // Build table rows
+            let html = '';
+            orgs.forEach(org => {
+                const progressClass = org.ProgressPercent >= 100 ? 'text-success' :
+                                     org.ProgressPercent > 0 ? 'text-warning' : 'text-muted';
+                html += `
+                    <tr ${org.HasCriticallyOverdue ? 'class="table-row-critical"' : ''}>
+                        <td><strong>${org.Name}</strong></td>
+                        <td>${org.ReportsRequired}</td>
+                        <td>${org.ReportsSubmitted}</td>
+                        <td>
+                            <div class="progress-cell">
+                                <div class="progress-bar-mini">
+                                    <div class="progress-fill" style="width: ${org.ProgressPercent}%"></div>
+                                </div>
+                                <span class="${progressClass}">${org.ProgressPercent.toFixed(0)}%</span>
+                            </div>
+                        </td>
+                        <td>
+                            ${org.OverdueCount > 0
+                                ? `<span class="badge badge-danger">${org.OverdueCount}</span>`
+                                : '<span class="text-muted">-</span>'}
+                        </td>
+                        <td>
+                            <button class="r4-button r4-button-sm" onclick="viewOrganization(${org.Id})">
+                                <i class="mdi mdi-eye"></i> View
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function closeTable() {
+            const tableContainer = document.getElementById('organization-table-container');
+            const noSelectionMessage = document.getElementById('no-selection-message');
+            const cards = document.querySelectorAll('.status-card');
+
+            tableContainer.style.display = 'none';
+            noSelectionMessage.style.display = 'flex';
+            cards.forEach(card => card.classList.remove('expanded'));
+            currentStatus = '';
+        }
+
+        function viewOrganization(id) {
+            // TODO: Navigate to organization detail view
+            alert('View organization ' + id + ' - Detail view coming soon');
+        }
+
+        function exportTable() {
+            const table = document.getElementById('organization-table');
+            const rows = Array.from(table.querySelectorAll('tr'));
+            let csv = [];
+
+            rows.forEach(row => {
+                const cells = Array.from(row.querySelectorAll('th, td'));
+                const rowData = cells.slice(0, -1).map(cell => { // Exclude action column
+                    let text = cell.textContent.trim().replace(/\s+/g, ' ').replace(/"/g, '""');
+                    return `"${text}"`;
+                });
+                csv.push(rowData.join(','));
+            });
+
+            const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `reporting_status_${activeTab.toLowerCase()}_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Initialize if there's an expanded status from URL
+        document.addEventListener('DOMContentLoaded', function() {
+            if (currentStatus) {
+                toggleStatus(currentStatus);
+            }
+        });
+    </script>
+
+    <style>
+        /* Tab Styles */
+        .status-tabs {
+            display: flex;
+            border-bottom: 2px solid var(--gray-200);
+        }
+
+        .status-tab {
+            flex: 1;
+            padding: 1.25rem 1.5rem;
+            text-decoration: none;
+            color: var(--gray-600);
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s ease;
+        }
+
+        .status-tab:hover {
+            background-color: var(--gray-50);
+            color: var(--gray-800);
+        }
+
+        .status-tab.active {
+            color: var(--ctc-blue);
+            border-bottom-color: var(--ctc-blue);
+            background-color: var(--white);
+        }
+
+        .status-tab .tab-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-tab .tab-content i {
+            font-size: 2rem;
+            opacity: 0.7;
+        }
+
+        .status-tab.active .tab-content i {
+            opacity: 1;
+        }
+
+        .status-tab .tab-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .status-tab .tab-label {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .status-tab .tab-count {
+            font-size: 0.85rem;
+            color: var(--gray-500);
+        }
+
+        .status-tab .tab-summary {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+        }
+
+        .status-tab .overdue-indicator {
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        /* Status Cards Grid */
+        .status-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .status-card {
+            background: var(--white);
+            border: 2px solid var(--gray-200);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .status-card:hover {
+            border-color: var(--gray-400);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .status-card.expanded {
+            border-color: var(--ctc-blue);
+            box-shadow: 0 4px 12px rgba(0,82,155,0.15);
+        }
+
+        .status-card.expanded::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 12px solid var(--ctc-blue);
+        }
+
+        .status-card .status-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-complete .status-icon { color: var(--success); }
+        .status-inprogress .status-icon { color: var(--warning); }
+        .status-notstarted .status-icon { color: var(--gray-400); }
+
+        .status-card .status-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--gray-600);
+            margin-bottom: 0.25rem;
+        }
+
+        .status-card .status-count {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            line-height: 1;
+        }
+
+        .status-card .status-type {
+            font-size: 0.9rem;
+            color: var(--gray-500);
+            margin-bottom: 0.25rem;
+        }
+
+        .status-card .status-percent {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gray-600);
+        }
+
+        .status-card .status-divider {
+            height: 1px;
+            background: var(--gray-200);
+            margin: 1rem 0;
+        }
+
+        .status-card .status-candidates {
+            font-size: 0.9rem;
+            color: var(--gray-700);
+            line-height: 1.4;
+        }
+
+        .status-card .status-action {
+            margin-top: 1rem;
+        }
+
+        .status-card .view-link {
+            color: var(--ctc-blue);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .status-card.expanded .view-link i {
+            transform: rotate(180deg);
+        }
+
+        /* Organization Table */
+        .organization-table-container {
+            border-top: 1px solid var(--gray-200);
+            padding-top: 1.5rem;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .table-header h5 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .table-row-critical {
+            background-color: #fff5f5 !important;
+        }
+
+        .progress-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .progress-bar-mini {
+            width: 80px;
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--ctc-blue);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        /* No Selection Message */
+        .no-selection-message {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            color: var(--gray-500);
+            text-align: center;
+            margin-top: 1.5rem;
+            border: 2px dashed var(--gray-200);
+            border-radius: 8px;
+        }
+
+        .no-selection-message i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .no-selection-message p {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .status-cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .status-tabs {
+                flex-direction: column;
+            }
+
+            .table-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+        }
+    </style>
+}

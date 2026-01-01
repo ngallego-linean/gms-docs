@@ -146,6 +146,9 @@ public class MockRepository
                 LastName = "Smith",
                 SEID = "12345678",
                 CredentialArea = "Multiple Subject",
+                Race = "White",
+                Ethnicity = "Non-Hispanic",
+                Gender = "Male",
                 Status = "CTC_REVIEWING",
                 AwardAmount = 10000,
                 LastActionDate = new DateTime(2025, 10, 15),
@@ -161,6 +164,9 @@ public class MockRepository
                 LastName = "Garcia",
                 SEID = "23456789",
                 CredentialArea = "Single Subject - Mathematics",
+                Race = "White",
+                Ethnicity = "Hispanic",
+                Gender = "Female",
                 Status = "PAYMENT_COMPLETE",
                 AwardAmount = 10000,
                 LastActionDate = new DateTime(2025, 10, 28),
@@ -177,6 +183,9 @@ public class MockRepository
                 LastName = "Chen",
                 SEID = "34567890",
                 CredentialArea = "Education Specialist",
+                Race = "Asian",
+                Ethnicity = "Non-Hispanic",
+                Gender = "Male",
                 Status = "GAA_SIGNED",
                 AwardAmount = 10000,
                 LastActionDate = new DateTime(2025, 10, 20),
@@ -197,6 +206,9 @@ public class MockRepository
                 LastName = "Johnson",
                 SEID = "45678901",
                 CredentialArea = "Single Subject - English",
+                Race = "Black",
+                Ethnicity = "Non-Hispanic",
+                Gender = "Female",
                 Status = "REPORTING_PENDING",
                 AwardAmount = 10000,
                 LastActionDate = new DateTime(2025, 11, 1),
@@ -213,6 +225,9 @@ public class MockRepository
                 LastName = "Brown",
                 SEID = "56789012",
                 CredentialArea = "Multiple Subject",
+                Race = "Two or More Races",
+                Ethnicity = "Non-Hispanic",
+                Gender = "Male",
                 Status = "INVOICE_GENERATED",
                 AwardAmount = 10000,
                 LastActionDate = new DateTime(2025, 10, 25),
@@ -226,6 +241,30 @@ public class MockRepository
         // Add more students to show budget utilization and workflow distribution
         // Total budget: $25M, distribute students across lifecycle stages
         var additionalStudentId = 6;
+
+        // Demographics distribution (based on CA teacher residency data):
+        // Race/Ethnicity: Hispanic 42%, White 21%, Black 12%, Asian 9%, Two+ 7%, Other 9%
+        // Gender: Female 66%, Male 31%, Non-Binary 2%, Not Reported 1%
+        string GetRace(int index) => (index % 100) switch {
+            < 42 => "Hispanic/Latino",
+            < 63 => "White",
+            < 75 => "Black",
+            < 84 => "Asian",
+            < 91 => "Two or More Races",
+            < 94 => "Native Hawaiian/Pacific Islander",
+            < 97 => "American Indian/Alaska Native",
+            _ => "Unknown"
+        };
+
+        string GetEthnicity(int index) => (index % 100) < 42 ? "Hispanic" : "Non-Hispanic";
+
+        string GetGender(int index) => (index % 100) switch {
+            < 66 => "Female",
+            < 97 => "Male",
+            < 99 => "Non-Binary",
+            _ => ""
+        };
+
         for (int i = 0; i < 390; i++)
         {
             // Distribute students across workflow stages:
@@ -278,6 +317,9 @@ public class MockRepository
                 LastName = $"Test{i}",
                 SEID = $"{10000000 + i}",
                 CredentialArea = i % 3 == 0 ? "Multiple Subject" : i % 3 == 1 ? "Single Subject" : "Education Specialist",
+                Race = GetRace(i),
+                Ethnicity = GetEthnicity(i),
+                Gender = GetGender(i),
                 Status = status,
                 AwardAmount = 10000,
                 LastActionDate = lastActionDate,
@@ -339,6 +381,9 @@ public class MockRepository
                 LastName = $"Test{i + 390}",
                 SEID = $"{10000390 + i}",
                 CredentialArea = i % 3 == 0 ? "Multiple Subject" : i % 3 == 1 ? "Single Subject" : "Education Specialist",
+                Race = GetRace(i + 390),
+                Ethnicity = GetEthnicity(i + 390),
+                Gender = GetGender(i + 390),
                 Status = status,
                 AwardAmount = 10000,
                 LastActionDate = lastActionDate,
@@ -402,6 +447,9 @@ public class MockRepository
                 LastName = $"Test{i + 780}",
                 SEID = $"{10000780 + i}",
                 CredentialArea = i % 3 == 0 ? "Multiple Subject" : i % 3 == 1 ? "Single Subject" : "Education Specialist",
+                Race = GetRace(i + 780),
+                Ethnicity = GetEthnicity(i + 780),
+                Gender = GetGender(i + 780),
                 Status = status,
                 AwardAmount = 10000,
                 LastActionDate = lastActionDate,

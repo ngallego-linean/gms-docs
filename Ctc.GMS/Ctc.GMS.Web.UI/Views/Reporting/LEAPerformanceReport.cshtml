@@ -1,237 +1,363 @@
 @{
     ViewData["Title"] = ViewBag.ReportTitle;
+    ViewBag.ReportType = "LEA";
+    ViewBag.ReportId = (int?)null;
 
-    // Mock data for LEA performance report
-    var leaSummary = new[] {
-        new { LEA = "Los Angeles USD", County = "Los Angeles", Students = 45, Awarded = 450000m, Disbursed = 360000m, GAAStatus = "Active", Compliance = 100.0, ComplianceClass = "success" },
-        new { LEA = "San Diego USD", County = "San Diego", Students = 32, Awarded = 320000m, Disbursed = 256000m, GAAStatus = "Active", Compliance = 100.0, ComplianceClass = "success" },
-        new { LEA = "Fresno USD", County = "Fresno", Students = 28, Awarded = 280000m, Disbursed = 224000m, GAAStatus = "Active", Compliance = 85.7, ComplianceClass = "warning" },
-        new { LEA = "Sacramento City USD", County = "Sacramento", Students = 24, Awarded = 240000m, Disbursed = 192000m, GAAStatus = "Active", Compliance = 100.0, ComplianceClass = "success" },
-        new { LEA = "Oakland USD", County = "Alameda", Students = 22, Awarded = 220000m, Disbursed = 176000m, GAAStatus = "Active", Compliance = 90.9, ComplianceClass = "warning" },
-        new { LEA = "Long Beach USD", County = "Los Angeles", Students = 18, Awarded = 180000m, Disbursed = 144000m, GAAStatus = "Pending", Compliance = 66.7, ComplianceClass = "warning" },
-        new { LEA = "San Francisco USD", County = "San Francisco", Students = 15, Awarded = 150000m, Disbursed = 120000m, GAAStatus = "Active", Compliance = 100.0, ComplianceClass = "success" },
-        new { LEA = "San Jose USD", County = "Santa Clara", Students = 12, Awarded = 120000m, Disbursed = 96000m, GAAStatus = "Active", Compliance = 75.0, ComplianceClass = "warning" },
-        new { LEA = "Santa Ana USD", County = "Orange", Students = 10, Awarded = 100000m, Disbursed = 80000m, GAAStatus = "Active", Compliance = 100.0, ComplianceClass = "success" },
-        new { LEA = "Bakersfield City SD", County = "Kern", Students = 8, Awarded = 80000m, Disbursed = 0m, GAAStatus = "Pending", Compliance = 0.0, ComplianceClass = "danger" }
+    // IHE-LEA Partnership outcomes (aggregated by partnership, not individual LEAs)
+    var partnerships = new[] {
+        new { IHE = "UCLA", LEA = "Los Angeles USD", Funded = 32, Completed = 29, Credentialed = 27, Employed = 26, InDistrict = 24, CompletionRate = 90.6, CredentialRate = 93.1, EmploymentRate = 89.7, RetentionRate = 92.3 },
+        new { IHE = "SDSU", LEA = "San Diego USD", Funded = 28, Completed = 24, Credentialed = 22, Employed = 21, InDistrict = 19, CompletionRate = 85.7, CredentialRate = 91.7, EmploymentRate = 87.5, RetentionRate = 90.5 },
+        new { IHE = "Fresno State", LEA = "Fresno USD", Funded = 26, Completed = 23, Credentialed = 20, Employed = 19, InDistrict = 16, CompletionRate = 88.5, CredentialRate = 87.0, EmploymentRate = 82.6, RetentionRate = 84.2 },
+        new { IHE = "Sac State", LEA = "Sacramento City USD", Funded = 24, Completed = 21, Credentialed = 19, Employed = 18, InDistrict = 17, CompletionRate = 87.5, CredentialRate = 90.5, EmploymentRate = 85.7, RetentionRate = 94.4 },
+        new { IHE = "Cal State East Bay", LEA = "Oakland USD", Funded = 22, Completed = 19, Credentialed = 17, Employed = 16, InDistrict = 14, CompletionRate = 86.4, CredentialRate = 89.5, EmploymentRate = 84.2, RetentionRate = 87.5 },
+        new { IHE = "CSU Long Beach", LEA = "Long Beach USD", Funded = 20, Completed = 18, Credentialed = 17, Employed = 16, InDistrict = 15, CompletionRate = 90.0, CredentialRate = 94.4, EmploymentRate = 88.9, RetentionRate = 93.8 },
+        new { IHE = "SF State", LEA = "San Francisco USD", Funded = 18, Completed = 16, Credentialed = 15, Employed = 14, InDistrict = 13, CompletionRate = 88.9, CredentialRate = 93.8, EmploymentRate = 87.5, RetentionRate = 92.9 },
+        new { IHE = "San Jose State", LEA = "San Jose USD", Funded = 16, Completed = 14, Credentialed = 12, Employed = 11, InDistrict = 9, CompletionRate = 87.5, CredentialRate = 85.7, EmploymentRate = 78.6, RetentionRate = 81.8 },
+        new { IHE = "CSU Fullerton", LEA = "Santa Ana USD", Funded = 14, Completed = 12, Credentialed = 11, Employed = 10, InDistrict = 9, CompletionRate = 85.7, CredentialRate = 91.7, EmploymentRate = 83.3, RetentionRate = 90.0 },
+        new { IHE = "CSU Bakersfield", LEA = "Bakersfield City SD", Funded = 14, Completed = 11, Credentialed = 9, Employed = 7, InDistrict = 6, CompletionRate = 78.6, CredentialRate = 81.8, EmploymentRate = 63.6, RetentionRate = 85.7 }
     };
 
-    var totalStudents = leaSummary.Sum(l => l.Students);
-    var totalAwarded = leaSummary.Sum(l => l.Awarded);
-    var totalDisbursed = leaSummary.Sum(l => l.Disbursed);
-    var avgStudentsPerLEA = (double)totalStudents / leaSummary.Length;
-    var overallCompliance = leaSummary.Average(l => l.Compliance);
-
-    var complianceSummary = new {
-        FullCompliance = leaSummary.Count(l => l.Compliance == 100.0),
-        PartialCompliance = leaSummary.Count(l => l.Compliance > 0 && l.Compliance < 100.0),
-        NoCompliance = leaSummary.Count(l => l.Compliance == 0)
+    // Prior year for comparison
+    var priorYear = new {
+        Partnerships = 8,
+        TotalFunded = 178,
+        AvgCompletionRate = 82.4,
+        AvgCredentialRate = 85.2,
+        AvgEmploymentRate = 79.8,
+        AvgRetentionRate = 86.5
     };
+
+    // Current year aggregates
+    var currentYear = new {
+        Partnerships = partnerships.Length,
+        TotalFunded = partnerships.Sum(p => p.Funded),
+        TotalCompleted = partnerships.Sum(p => p.Completed),
+        TotalCredentialed = partnerships.Sum(p => p.Credentialed),
+        TotalEmployed = partnerships.Sum(p => p.Employed),
+        TotalInDistrict = partnerships.Sum(p => p.InDistrict),
+        AvgCompletionRate = partnerships.Average(p => p.CompletionRate),
+        AvgCredentialRate = partnerships.Average(p => p.CredentialRate),
+        AvgEmploymentRate = partnerships.Average(p => p.EmploymentRate),
+        AvgRetentionRate = partnerships.Average(p => p.RetentionRate)
+    };
+
+    // Targets
+    var targets = new {
+        CompletionRate = 85.0,
+        CredentialRate = 85.0,
+        EmploymentRate = 80.0,
+        RetentionRate = 85.0
+    };
+
+    // Helper functions
+    Func<double, double, string> getTrend = (current, prior) => {
+        var diff = current - prior;
+        if (diff > 0) return $"<span style=\"color: var(--success);\">+{diff:F1}%</span>";
+        if (diff < 0) return $"<span style=\"color: var(--danger);\">{diff:F1}%</span>";
+        return "<span style=\"color: var(--gray-500);\">No change</span>";
+    };
+
+    Func<double, double, string> getTargetStatus = (actual, target) => {
+        if (actual >= target) return "<span style=\"color: var(--success);\"><i class=\"mdi mdi-check-circle\"></i></span>";
+        if (actual >= target - 5) return "<span style=\"color: var(--warning);\"><i class=\"mdi mdi-alert\"></i></span>";
+        return "<span style=\"color: var(--danger);\"><i class=\"mdi mdi-close-circle\"></i></span>";
+    };
+
+    // Top and bottom partnerships by combined outcome score
+    var rankedPartnerships = partnerships.OrderByDescending(p => (p.CredentialRate + p.EmploymentRate + p.RetentionRate) / 3).ToArray();
+    var topPartnerships = rankedPartnerships.Take(3).ToArray();
+    var bottomPartnerships = rankedPartnerships.Reverse().Take(3).Reverse().ToArray();
 }
 
 @section Breadcrumbs {
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam")">Grants Team</a></li>
         <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "Reporting")">Reporting</a></li>
-        <li class="breadcrumb-item active">LEA Performance Report</li>
+        <li class="breadcrumb-item active">Partnership Outcomes Report</li>
     </ol>
 }
 
-<div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
-    <div>
-        <h2><i class="mdi mdi-domain"></i> @ViewBag.ReportTitle</h2>
-        <p class="subtitle">@ViewBag.GrantCycle - Student Teacher Stipend Program</p>
-    </div>
-    <div class="report-actions">
-        <button class="r4-button r4-button-secondary" onclick="window.print();">
-            <i class="mdi mdi-printer"></i> Print
-        </button>
-        <button class="r4-button r4-button-primary" onclick="alert('PDF export coming soon');">
-            <i class="mdi mdi-file-pdf-box"></i> Export PDF
-        </button>
-        <button class="r4-button r4-button-secondary" onclick="alert('Excel export coming soon');">
-            <i class="mdi mdi-file-excel"></i> Export Excel
-        </button>
-    </div>
+<div class="page-header" style="margin-bottom: 1rem;">
+    <h2><i class="mdi mdi-handshake"></i> @ViewBag.ReportTitle</h2>
+    <p class="subtitle">Which partnerships produce teachers who stay?</p>
 </div>
+
+<!-- Report Export Toolbar -->
+@await Html.PartialAsync("_ReportExportToolbar")
 
 <!-- Report Metadata -->
 <div class="r4-card">
     <div class="r4-card-body" style="display: flex; justify-content: space-between; padding: 1rem 1.5rem; background: var(--gray-100);">
         <div><strong>Grant Cycle:</strong> @ViewBag.GrantCycle</div>
         <div><strong>Program:</strong> Student Teacher Stipend Program</div>
-        <div><strong>Generated:</strong> @((DateTime)ViewBag.GeneratedDate).ToString("MMMM d, yyyy h:mm tt")</div>
+        <div><strong>Generated:</strong> @(((DateTime)ViewBag.GeneratedDate).ToString("MMMM d, yyyy"))</div>
     </div>
 </div>
 
-<!-- Summary Cards -->
+<!-- Partnership Summary -->
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-chart-box-outline"></i> Summary</h4>
+        <h4><i class="mdi mdi-chart-box-outline"></i> Partnership Summary</h4>
     </div>
     <div class="r4-card-body">
         <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.5rem;">
             <div class="metric-card metric-card-primary">
-                <div class="metric-icon"><i class="mdi mdi-domain"></i></div>
+                <div class="metric-icon"><i class="mdi mdi-handshake"></i></div>
                 <div class="metric-content">
-                    <div class="metric-label">Total LEAs</div>
-                    <div class="metric-value">@leaSummary.Length</div>
+                    <div class="metric-label">Active Partnerships</div>
+                    <div class="metric-value">@currentYear.Partnerships</div>
+                    <div class="metric-secondary">+@(currentYear.Partnerships - priorYear.Partnerships) vs prior</div>
                 </div>
             </div>
             <div class="metric-card">
                 <div class="metric-icon"><i class="mdi mdi-account-group"></i></div>
                 <div class="metric-content">
-                    <div class="metric-label">Students Funded</div>
-                    <div class="metric-value">@totalStudents</div>
+                    <div class="metric-label">Candidates Funded</div>
+                    <div class="metric-value">@currentYear.TotalFunded</div>
+                    <div class="metric-secondary">+@(currentYear.TotalFunded - priorYear.TotalFunded) vs prior</div>
                 </div>
             </div>
             <div class="metric-card">
-                <div class="metric-icon"><i class="mdi mdi-calculator"></i></div>
+                <div class="metric-icon"><i class="mdi mdi-certificate"></i></div>
                 <div class="metric-content">
-                    <div class="metric-label">Avg per LEA</div>
-                    <div class="metric-value">@avgStudentsPerLEA.ToString("F1")</div>
+                    <div class="metric-label">Credentialed</div>
+                    <div class="metric-value">@currentYear.TotalCredentialed</div>
+                    <div class="metric-secondary">@((double)currentYear.TotalCredentialed / currentYear.TotalFunded * 100).ToString("F0")% of funded</div>
                 </div>
             </div>
             <div class="metric-card metric-card-success">
-                <div class="metric-icon"><i class="mdi mdi-cash-check"></i></div>
+                <div class="metric-icon"><i class="mdi mdi-briefcase-check"></i></div>
                 <div class="metric-content">
-                    <div class="metric-label">Total Disbursed</div>
-                    <div class="metric-value">@totalDisbursed.ToString("C0")</div>
+                    <div class="metric-label">Employed</div>
+                    <div class="metric-value">@currentYear.TotalEmployed</div>
+                    <div class="metric-secondary">@((double)currentYear.TotalEmployed / currentYear.TotalCredentialed * 100).ToString("F0")% of credentialed</div>
                 </div>
             </div>
-            <div class="metric-card">
-                <div class="metric-icon"><i class="mdi mdi-check-decagram"></i></div>
+            <div class="metric-card metric-card-success">
+                <div class="metric-icon"><i class="mdi mdi-home-city"></i></div>
                 <div class="metric-content">
-                    <div class="metric-label">Compliance Rate</div>
-                    <div class="metric-value">@overallCompliance.ToString("F0")%</div>
+                    <div class="metric-label">In Sponsoring District</div>
+                    <div class="metric-value">@currentYear.TotalInDistrict</div>
+                    <div class="metric-secondary">@((double)currentYear.TotalInDistrict / currentYear.TotalEmployed * 100).ToString("F0")% retention</div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Compliance Summary -->
+<!-- Outcome Metrics vs Targets -->
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-shield-check-outline"></i> Compliance Status</h4>
+        <h4><i class="mdi mdi-target"></i> Outcome Metrics vs Targets</h4>
     </div>
     <div class="r4-card-body">
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
-            <div style="text-align: center; padding: 1.5rem; border-radius: 8px; background: var(--success-bg); border: 1px solid var(--success);">
-                <div style="font-size: 2.5rem; font-weight: 700; color: var(--success);">@complianceSummary.FullCompliance</div>
-                <div style="font-size: 0.875rem; color: var(--gray-700);">Full Compliance (100%)</div>
-            </div>
-            <div style="text-align: center; padding: 1.5rem; border-radius: 8px; background: var(--warning-bg); border: 1px solid var(--warning);">
-                <div style="font-size: 2.5rem; font-weight: 700; color: var(--warning);">@complianceSummary.PartialCompliance</div>
-                <div style="font-size: 0.875rem; color: var(--gray-700);">Partial Compliance</div>
-            </div>
-            <div style="text-align: center; padding: 1.5rem; border-radius: 8px; background: var(--danger-bg); border: 1px solid var(--danger);">
-                <div style="font-size: 2.5rem; font-weight: 700; color: var(--danger);">@complianceSummary.NoCompliance</div>
-                <div style="font-size: 0.875rem; color: var(--gray-700);">No Compliance</div>
-            </div>
-        </div>
+        <table class="r4-table">
+            <thead>
+                <tr>
+                    <th>Outcome Metric</th>
+                    <th style="text-align: right;">Target</th>
+                    <th style="text-align: right;">FY 2023-24</th>
+                    <th style="text-align: right;">FY 2024-25</th>
+                    <th style="text-align: center;">YoY Change</th>
+                    <th style="text-align: center;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Program Completion Rate</strong></td>
+                    <td style="text-align: right;">@targets.CompletionRate.ToString("F0")%</td>
+                    <td style="text-align: right;">@priorYear.AvgCompletionRate.ToString("F1")%</td>
+                    <td style="text-align: right;">@currentYear.AvgCompletionRate.ToString("F1")%</td>
+                    <td style="text-align: center;">@Html.Raw(getTrend(currentYear.AvgCompletionRate, priorYear.AvgCompletionRate))</td>
+                    <td style="text-align: center;">@Html.Raw(getTargetStatus(currentYear.AvgCompletionRate, targets.CompletionRate))</td>
+                </tr>
+                <tr>
+                    <td><strong>Credential Attainment Rate</strong></td>
+                    <td style="text-align: right;">@targets.CredentialRate.ToString("F0")%</td>
+                    <td style="text-align: right;">@priorYear.AvgCredentialRate.ToString("F1")%</td>
+                    <td style="text-align: right;">@currentYear.AvgCredentialRate.ToString("F1")%</td>
+                    <td style="text-align: center;">@Html.Raw(getTrend(currentYear.AvgCredentialRate, priorYear.AvgCredentialRate))</td>
+                    <td style="text-align: center;">@Html.Raw(getTargetStatus(currentYear.AvgCredentialRate, targets.CredentialRate))</td>
+                </tr>
+                <tr>
+                    <td><strong>Employment Rate</strong></td>
+                    <td style="text-align: right;">@targets.EmploymentRate.ToString("F0")%</td>
+                    <td style="text-align: right;">@priorYear.AvgEmploymentRate.ToString("F1")%</td>
+                    <td style="text-align: right;">@currentYear.AvgEmploymentRate.ToString("F1")%</td>
+                    <td style="text-align: center;">@Html.Raw(getTrend(currentYear.AvgEmploymentRate, priorYear.AvgEmploymentRate))</td>
+                    <td style="text-align: center;">@Html.Raw(getTargetStatus(currentYear.AvgEmploymentRate, targets.EmploymentRate))</td>
+                </tr>
+                <tr>
+                    <td><strong>District Retention Rate</strong></td>
+                    <td style="text-align: right;">@targets.RetentionRate.ToString("F0")%</td>
+                    <td style="text-align: right;">@priorYear.AvgRetentionRate.ToString("F1")%</td>
+                    <td style="text-align: right;">@currentYear.AvgRetentionRate.ToString("F1")%</td>
+                    <td style="text-align: center;">@Html.Raw(getTrend(currentYear.AvgRetentionRate, priorYear.AvgRetentionRate))</td>
+                    <td style="text-align: center;">@Html.Raw(getTargetStatus(currentYear.AvgRetentionRate, targets.RetentionRate))</td>
+                </tr>
+            </tbody>
+        </table>
+        <p style="margin-top: 1rem; font-size: 0.875rem; color: var(--gray-600);">
+            <i class="mdi mdi-information-outline"></i>
+            <span style="color: var(--success);"><i class="mdi mdi-check-circle"></i></span> Meets target |
+            <span style="color: var(--warning);"><i class="mdi mdi-alert"></i></span> Within 5% of target |
+            <span style="color: var(--danger);"><i class="mdi mdi-close-circle"></i></span> Below target
+        </p>
     </div>
 </div>
 
-<!-- Top Performers -->
-<div class="r4-card">
-    <div class="r4-card-header">
-        <h4><i class="mdi mdi-trophy-outline"></i> Top Performing LEAs (by Student Count)</h4>
-    </div>
-    <div class="r4-card-body">
-        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem;">
-            @foreach (var lea in leaSummary.OrderByDescending(l => l.Students).Take(5))
+<!-- Top and Bottom Partnerships -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+    <!-- Top Performing Partnerships -->
+    <div class="r4-card">
+        <div class="r4-card-header" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(40, 167, 69, 0.05) 100%);">
+            <h4><i class="mdi mdi-trophy" style="color: var(--success);"></i> Top Performing Partnerships</h4>
+        </div>
+        <div class="r4-card-body">
+            @foreach (var p in topPartnerships)
             {
-                <div style="text-align: center; padding: 1rem; border: 1px solid var(--gray-300); border-radius: 8px;">
-                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--ctc-blue);">@lea.Students</div>
-                    <div style="font-size: 0.75rem; color: var(--gray-600); font-weight: 600;">@lea.LEA</div>
-                    <div style="font-size: 0.7rem; color: var(--gray-500);">@lea.County County</div>
+                var avgScore = (p.CredentialRate + p.EmploymentRate + p.RetentionRate) / 3;
+                <div style="padding: 1rem; border: 1px solid var(--success); border-radius: 8px; margin-bottom: 1rem; background: rgba(40, 167, 69, 0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <strong>@p.IHE + @p.LEA</strong>
+                        <span class="status-badge status-success">@avgScore.ToString("F0")% avg</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--gray-600); display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;">
+                        <div>Funded: @p.Funded</div>
+                        <div>Cred: @p.CredentialRate.ToString("F0")%</div>
+                        <div>Emp: @p.EmploymentRate.ToString("F0")%</div>
+                        <div>Retain: @p.RetentionRate.ToString("F0")%</div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Partnerships Needing Support -->
+    <div class="r4-card">
+        <div class="r4-card-header" style="background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 193, 7, 0.05) 100%);">
+            <h4><i class="mdi mdi-alert-circle" style="color: var(--warning);"></i> Partnerships Needing Support</h4>
+        </div>
+        <div class="r4-card-body">
+            @foreach (var p in bottomPartnerships)
+            {
+                var avgScore = (p.CredentialRate + p.EmploymentRate + p.RetentionRate) / 3;
+                <div style="padding: 1rem; border: 1px solid var(--warning); border-radius: 8px; margin-bottom: 1rem; background: rgba(255, 193, 7, 0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <strong>@p.IHE + @p.LEA</strong>
+                        <span class="status-badge status-warning">@avgScore.ToString("F0")% avg</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--gray-600); display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;">
+                        <div>Funded: @p.Funded</div>
+                        <div>Cred: @p.CredentialRate.ToString("F0")%</div>
+                        <div>Emp: @p.EmploymentRate.ToString("F0")%</div>
+                        <div>Retain: @p.RetentionRate.ToString("F0")%</div>
+                    </div>
                 </div>
             }
         </div>
     </div>
 </div>
 
-<!-- LEA Summary Table -->
+<!-- Partnership Outcome Trends -->
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-table"></i> LEA Summary</h4>
+        <h4><i class="mdi mdi-chart-line"></i> Three-Year Outcome Trends</h4>
     </div>
     <div class="r4-card-body">
-        <table class="r4-table">
-            <thead>
-                <tr>
-                    <th>LEA Name</th>
-                    <th>County</th>
-                    <th style="text-align: right;">Students</th>
-                    <th style="text-align: right;">Amount Awarded</th>
-                    <th style="text-align: right;">Amount Disbursed</th>
-                    <th>GAA Status</th>
-                    <th style="text-align: right;">Compliance</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var lea in leaSummary)
-                {
+        <!-- Dashboard View: Chart + Summary -->
+        <div class="dashboard-view" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+            <div>
+                <canvas id="outcomeChart" style="max-height: 280px;"></canvas>
+            </div>
+            <div>
+                <h5 style="margin-bottom: 1rem;">Key Observations</h5>
+                <ul style="margin: 0; padding-left: 1.25rem; line-height: 1.8;">
+                    <li>All four outcome metrics show <strong>upward trends</strong> over three years</li>
+                    <li>Credential attainment improved most: <strong>+5.8 pts</strong> since FY22-23</li>
+                    <li>District retention now exceeds <strong>@currentYear.AvgRetentionRate.ToString("F0")%</strong>, up from 86.5% prior year</li>
+                    <li>Employment rate gains of <strong>+4.6 pts</strong> reflect stronger LEA engagement</li>
+                </ul>
+            </div>
+        </div>
+        <!-- Formal View: Accessible table -->
+        <div class="formal-view" style="display: none;">
+            <table class="r4-table" aria-label="Three-Year Partnership Outcome Trends">
+                <caption class="sr-only">Partnership outcome metrics over three fiscal years</caption>
+                <thead>
                     <tr>
-                        <td><strong>@lea.LEA</strong></td>
-                        <td>@lea.County</td>
-                        <td style="text-align: right;">@lea.Students</td>
-                        <td style="text-align: right;">@lea.Awarded.ToString("C0")</td>
-                        <td style="text-align: right;">@lea.Disbursed.ToString("C0")</td>
-                        <td>
-                            @if (lea.GAAStatus == "Active")
-                            {
-                                <span class="status-badge status-success">Active</span>
-                            }
-                            else
-                            {
-                                <span class="status-badge status-warning">Pending</span>
-                            }
-                        </td>
-                        <td style="text-align: right;">
-                            <span class="status-badge status-@lea.ComplianceClass">@lea.Compliance.ToString("F0")%</span>
-                        </td>
+                        <th>Metric</th>
+                        <th style="text-align: right;">FY 2022-23</th>
+                        <th style="text-align: right;">FY 2023-24</th>
+                        <th style="text-align: right;">FY 2024-25</th>
+                        <th style="text-align: right;">3-Year Change</th>
                     </tr>
-                }
-            </tbody>
-            <tfoot>
-                <tr style="font-weight: 600; background: var(--gray-100);">
-                    <td colspan="2">Total (@leaSummary.Length LEAs)</td>
-                    <td style="text-align: right;">@totalStudents</td>
-                    <td style="text-align: right;">@totalAwarded.ToString("C0")</td>
-                    <td style="text-align: right;">@totalDisbursed.ToString("C0")</td>
-                    <td>-</td>
-                    <td style="text-align: right;">@overallCompliance.ToString("F0")% avg</td>
-                </tr>
-            </tfoot>
-        </table>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Completion Rate</strong></td>
+                        <td style="text-align: right;">79.5%</td>
+                        <td style="text-align: right;">82.4%</td>
+                        <td style="text-align: right;">87.0%</td>
+                        <td style="text-align: right; color: var(--success);">+7.5 pts</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Credential Rate</strong></td>
+                        <td style="text-align: right;">84.2%</td>
+                        <td style="text-align: right;">85.2%</td>
+                        <td style="text-align: right;">90.0%</td>
+                        <td style="text-align: right; color: var(--success);">+5.8 pts</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Employment Rate</strong></td>
+                        <td style="text-align: right;">78.6%</td>
+                        <td style="text-align: right;">79.8%</td>
+                        <td style="text-align: right;">84.4%</td>
+                        <td style="text-align: right; color: var(--success);">+5.8 pts</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Retention Rate</strong></td>
+                        <td style="text-align: right;">83.2%</td>
+                        <td style="text-align: right;">86.5%</td>
+                        <td style="text-align: right;">89.3%</td>
+                        <td style="text-align: right; color: var(--success);">+6.1 pts</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="margin-top: 1rem; font-size: 0.875rem; color: var(--gray-600);">
+                <strong>Key Observations:</strong> All four outcome metrics show upward trends over three years.
+                Credential attainment improved the most (+5.8 pts). Employment rate gains reflect stronger LEA engagement.
+            </p>
+        </div>
     </div>
 </div>
 
-<!-- Outstanding Items -->
+<!-- Program Impact -->
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-alert-circle-outline"></i> Outstanding Items</h4>
+        <h4><i class="mdi mdi-star-outline"></i> Partnership Impact</h4>
     </div>
     <div class="r4-card-body">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-            <div>
-                <h5 style="margin-bottom: 1rem;"><i class="mdi mdi-file-clock-outline"></i> Pending GAAs</h5>
-                <ul style="margin: 0; padding-left: 1.5rem;">
-                    @foreach (var lea in leaSummary.Where(l => l.GAAStatus == "Pending"))
-                    {
-                        <li style="margin-bottom: 0.5rem;">@lea.LEA - @lea.Students students awaiting GAA</li>
-                    }
-                </ul>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;">
+            <div style="text-align: center; padding: 2rem; background: linear-gradient(135deg, var(--ctc-blue) 0%, #2a5a8f 100%); border-radius: 8px; color: white;">
+                <div style="font-size: 2.5rem; font-weight: 700;">@currentYear.Partnerships</div>
+                <div style="font-size: 0.875rem; opacity: 0.9;">IHE-LEA Partnerships</div>
+                <div style="font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.8;">Across California</div>
             </div>
-            <div>
-                <h5 style="margin-bottom: 1rem;"><i class="mdi mdi-file-alert-outline"></i> Overdue Reports</h5>
-                <ul style="margin: 0; padding-left: 1.5rem;">
-                    @foreach (var lea in leaSummary.Where(l => l.Compliance < 100.0))
-                    {
-                        <li style="margin-bottom: 0.5rem;">@lea.LEA - @((100.0 - lea.Compliance).ToString("F0"))% reports outstanding</li>
-                    }
-                </ul>
+            <div style="text-align: center; padding: 2rem; background: linear-gradient(135deg, var(--success) 0%, #1e7e34 100%); border-radius: 8px; color: white;">
+                <div style="font-size: 2.5rem; font-weight: 700;">@currentYear.TotalCredentialed</div>
+                <div style="font-size: 0.875rem; opacity: 0.9;">Credentialed Teachers</div>
+                <div style="font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.8;">From @currentYear.TotalFunded candidates</div>
+            </div>
+            <div style="text-align: center; padding: 2rem; background: linear-gradient(135deg, var(--ctc-gold) 0%, #a67c10 100%); border-radius: 8px; color: white;">
+                <div style="font-size: 2.5rem; font-weight: 700;">@currentYear.TotalInDistrict</div>
+                <div style="font-size: 0.875rem; opacity: 0.9;">Teaching in Their LEA</div>
+                <div style="font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.8;">@(((double)currentYear.TotalInDistrict / currentYear.TotalEmployed * 100).ToString("F0"))% retention rate</div>
+            </div>
+            <div style="text-align: center; padding: 2rem; background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%); border-radius: 8px; color: white;">
+                <div style="font-size: 2.5rem; font-weight: 700;">@(((double)currentYear.TotalInDistrict / currentYear.TotalFunded * 100).ToString("F0"))%</div>
+                <div style="font-size: 0.875rem; opacity: 0.9;">Ultimate Success Rate</div>
+                <div style="font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.8;">Funded → Teaching in District</div>
             </div>
         </div>
     </div>
@@ -243,9 +369,73 @@
     <div>Generated: @((DateTime)ViewBag.GeneratedDate).ToString("MM/dd/yyyy HH:mm")</div>
 </div>
 
-<style>
-    @@media print {
-        .breadcrumb, .report-actions, .r4-sidebar, .r4-header { display: none !important; }
-        .r4-card { break-inside: avoid; box-shadow: none !important; border: 1px solid #ccc; }
-    }
-</style>
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        new Chart(document.getElementById('outcomeChart'), {
+            type: 'line',
+            data: {
+                labels: ['FY 2022-23', 'FY 2023-24', 'FY 2024-25'],
+                datasets: [
+                    {
+                        label: 'Completion Rate',
+                        data: [79.5, 82.4, 87.0],
+                        borderColor: '#1E3A5F',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Credential Rate',
+                        data: [84.2, 85.2, 90.0],
+                        borderColor: '#C69214',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Employment Rate',
+                        data: [78.6, 79.8, 84.4],
+                        borderColor: '#28A745',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Retention Rate',
+                        data: [83.2, 86.5, 89.3],
+                        borderColor: '#6f42c1',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { padding: 20, usePointStyle: true }
+                    }
+                },
+                scales: {
+                    y: {
+                        min: 70,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/report-print.css" />
+}

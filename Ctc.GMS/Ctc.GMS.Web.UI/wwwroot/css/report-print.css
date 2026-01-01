@@ -1,0 +1,415 @@
+/**
+ * Report Print Styles
+ * Enhanced print stylesheet for ADA-compliant formal reports
+ */
+
+@media print {
+    /* ========================================
+       RESET & BASE STYLES
+       ======================================== */
+
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    body {
+        font-family: "Times New Roman", Times, serif;
+        font-size: 11pt;
+        line-height: 1.5;
+        color: #000 !important;
+        background: #fff !important;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* ========================================
+       HIDE NON-PRINT ELEMENTS
+       ======================================== */
+
+    /* Navigation & UI */
+    .r4-sidebar,
+    .r4-header,
+    .r4-footer,
+    .breadcrumb,
+    .report-toolbar,
+    .report-actions,
+    .formal-mode-notice,
+    nav,
+    header,
+    footer,
+    .r4-button,
+    button {
+        display: none !important;
+    }
+
+    /* Charts - Always hide in print */
+    .dashboard-view,
+    canvas,
+    .chart-container,
+    [id*="Chart"] {
+        display: none !important;
+    }
+
+    /* Show formal/table views */
+    .formal-view {
+        display: block !important;
+    }
+
+    /* ========================================
+       PAGE SETUP
+       ======================================== */
+
+    @page {
+        size: letter;
+        margin: 0.75in 0.75in 1in 0.75in;
+
+        @top-center {
+            content: "California Commission on Teacher Credentialing";
+            font-size: 9pt;
+            color: #666;
+        }
+
+        @bottom-center {
+            content: "Page " counter(page) " of " counter(pages);
+            font-size: 9pt;
+            color: #666;
+        }
+
+        @bottom-right {
+            content: "Confidential";
+            font-size: 8pt;
+            color: #999;
+        }
+    }
+
+    @page :first {
+        @top-center {
+            content: none;
+        }
+    }
+
+    /* ========================================
+       TYPOGRAPHY
+       ======================================== */
+
+    h1, h2, h3, h4, h5, h6 {
+        color: #000 !important;
+        page-break-after: avoid;
+        break-after: avoid;
+    }
+
+    h2 {
+        font-size: 18pt;
+        margin-top: 0;
+        margin-bottom: 12pt;
+        border-bottom: 2px solid #1E3A5F;
+        padding-bottom: 6pt;
+    }
+
+    h4 {
+        font-size: 12pt;
+        margin-top: 12pt;
+        margin-bottom: 6pt;
+    }
+
+    p {
+        orphans: 3;
+        widows: 3;
+    }
+
+    /* ========================================
+       CARDS
+       ======================================== */
+
+    .r4-card {
+        box-shadow: none !important;
+        border: 1px solid #ccc !important;
+        border-radius: 0 !important;
+        margin-bottom: 12pt;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    .r4-card-header {
+        background: #f5f5f5 !important;
+        border-bottom: 1px solid #ccc !important;
+        padding: 8pt 12pt !important;
+    }
+
+    .r4-card-header h4 {
+        margin: 0 !important;
+        font-size: 11pt !important;
+    }
+
+    .r4-card-header i {
+        display: none;
+    }
+
+    .r4-card-body {
+        padding: 12pt !important;
+    }
+
+    /* ========================================
+       TABLES
+       ======================================== */
+
+    .r4-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 10pt;
+        margin-bottom: 12pt;
+    }
+
+    .r4-table th,
+    .r4-table td {
+        border: 1px solid #666 !important;
+        padding: 6pt 8pt !important;
+        text-align: left;
+    }
+
+    .r4-table th {
+        background: #e5e5e5 !important;
+        font-weight: bold;
+        color: #000 !important;
+    }
+
+    .r4-table thead {
+        display: table-header-group;
+    }
+
+    .r4-table tfoot {
+        background: #f0f0f0 !important;
+        font-weight: bold;
+    }
+
+    .r4-table tr {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    /* Right-aligned numeric columns */
+    .r4-table td[style*="text-align: right"],
+    .r4-table th[style*="text-align: right"] {
+        text-align: right !important;
+    }
+
+    /* ========================================
+       METRIC CARDS (convert to table format)
+       ======================================== */
+
+    .metric-card {
+        border: 1px solid #ccc !important;
+        padding: 8pt !important;
+        background: #fafafa !important;
+        text-align: center;
+        page-break-inside: avoid;
+    }
+
+    .metric-card .metric-icon {
+        display: none;
+    }
+
+    .metric-card .metric-value {
+        font-size: 14pt !important;
+        font-weight: bold !important;
+        color: #000 !important;
+    }
+
+    .metric-card .metric-label {
+        font-size: 9pt !important;
+        color: #333 !important;
+    }
+
+    .metric-card .metric-secondary {
+        font-size: 8pt !important;
+        color: #666 !important;
+    }
+
+    /* ========================================
+       STATUS BADGES
+       ======================================== */
+
+    .status-badge {
+        background: none !important;
+        border: 1px solid #666 !important;
+        padding: 2pt 4pt !important;
+        font-size: 9pt !important;
+        color: #000 !important;
+    }
+
+    .status-badge.status-success::before {
+        content: "✓ ";
+    }
+
+    .status-badge.status-warning::before {
+        content: "! ";
+    }
+
+    .status-badge.status-danger::before {
+        content: "✗ ";
+    }
+
+    /* ========================================
+       GRID LAYOUTS
+       ======================================== */
+
+    /* Convert grid layouts to stacked for print */
+    [style*="grid-template-columns"] {
+        display: block !important;
+    }
+
+    [style*="grid-template-columns"] > * {
+        display: block !important;
+        width: 100% !important;
+        margin-bottom: 8pt;
+    }
+
+    /* Keep side-by-side for 2 columns */
+    [style*="grid-template-columns: 1fr 1fr"] {
+        display: flex !important;
+        flex-wrap: wrap;
+        gap: 12pt;
+    }
+
+    [style*="grid-template-columns: 1fr 1fr"] > * {
+        flex: 1 1 45%;
+        min-width: 45%;
+    }
+
+    /* ========================================
+       EXECUTIVE SUMMARY
+       ======================================== */
+
+    .r4-card-body > p:first-child {
+        font-size: 11pt;
+        line-height: 1.6;
+    }
+
+    /* ========================================
+       REPORT METADATA
+       ======================================== */
+
+    .r4-card-body[style*="display: flex"][style*="justify-content: space-between"] {
+        display: block !important;
+        background: #f5f5f5 !important;
+        padding: 8pt 12pt !important;
+        border: 1px solid #ccc !important;
+    }
+
+    .r4-card-body[style*="display: flex"][style*="justify-content: space-between"] > div {
+        display: inline-block;
+        margin-right: 24pt;
+    }
+
+    /* ========================================
+       COLORED ELEMENTS
+       ======================================== */
+
+    /* Remove gradient backgrounds */
+    [style*="background: linear-gradient"] {
+        background: #f0f0f0 !important;
+        color: #000 !important;
+    }
+
+    /* Border colors to black/gray */
+    [style*="border-left: 4px solid"] {
+        border-left-color: #333 !important;
+    }
+
+    /* Success/Warning/Danger colors to text indicators */
+    [style*="color: var(--success)"]::before {
+        content: "↑ ";
+    }
+
+    [style*="color: var(--danger)"]::before {
+        content: "↓ ";
+    }
+
+    /* ========================================
+       ICONS
+       ======================================== */
+
+    .mdi {
+        display: none !important;
+    }
+
+    /* ========================================
+       REPORT FOOTER
+       ======================================== */
+
+    .report-footer,
+    [style*="border-top: 1px solid"][style*="font-size: 0.75rem"] {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 8pt 0;
+        font-size: 8pt;
+        color: #666;
+        border-top: 1px solid #ccc;
+    }
+
+    /* ========================================
+       PAGE BREAKS
+       ======================================== */
+
+    .page-break-before {
+        page-break-before: always;
+        break-before: page;
+    }
+
+    .page-break-after {
+        page-break-after: always;
+        break-after: page;
+    }
+
+    .avoid-break {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    /* Major sections start on new page */
+    .r4-card:nth-of-type(4),
+    .r4-card:nth-of-type(7) {
+        page-break-before: auto;
+    }
+
+    /* ========================================
+       LINKS
+       ======================================== */
+
+    a {
+        color: #000 !important;
+        text-decoration: none !important;
+    }
+
+    /* Show URL for external links */
+    a[href^="http"]::after {
+        content: " (" attr(href) ")";
+        font-size: 8pt;
+        color: #666;
+    }
+
+    /* ========================================
+       ACCESSIBILITY ADDITIONS
+       ======================================== */
+
+    /* Screen reader text visible in print */
+    .sr-only-print {
+        position: static !important;
+        width: auto !important;
+        height: auto !important;
+        overflow: visible !important;
+        clip: auto !important;
+        white-space: normal !important;
+    }
+
+    /* Table captions */
+    table caption {
+        font-weight: bold;
+        text-align: left;
+        margin-bottom: 6pt;
+        font-size: 10pt;
+    }
+}

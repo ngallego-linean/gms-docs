@@ -17,6 +17,68 @@
     <p class="subtitle">Aggregate outcomes and program performance metrics</p>
 </div>
 
+@* Global Filters *@
+<div class="r4-card" style="margin-bottom: 1.5rem;">
+    <div class="r4-card-body" style="padding: 0.75rem 1rem;">
+        <form method="get" action="@Url.Action("Analytics", "Reporting")" id="analyticsFilterForm">
+            <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end;">
+                <div style="min-width: 180px;">
+                    <label for="program" style="font-weight: 600; font-size: 0.75rem; margin-bottom: 0.25rem; display: block; color: #666;">PROGRAM</label>
+                    <select name="program" id="program" class="form-control form-control-sm" onchange="this.form.submit()" style="width: 180px;">
+                        @foreach (var option in Model.ProgramOptions)
+                        {
+                            <option value="@option.Value" selected="@(option.Value == Model.Filter.Program)">@option.Text</option>
+                        }
+                    </select>
+                </div>
+                <div style="min-width: 120px;">
+                    <label for="fiscalYear" style="font-weight: 600; font-size: 0.75rem; margin-bottom: 0.25rem; display: block; color: #666;">FISCAL YEAR</label>
+                    <select name="fiscalYear" id="fiscalYear" class="form-control form-control-sm" onchange="this.form.submit()" style="width: 120px;">
+                        @foreach (var option in Model.FiscalYearOptions)
+                        {
+                            <option value="@option.Value" selected="@(option.Value == Model.Filter.FiscalYear)">@option.Text</option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label style="font-weight: 600; font-size: 0.75rem; margin-bottom: 0.25rem; display: block; color: #666;">VIEW</label>
+                    <div class="btn-group" role="group">
+                        <button type="submit" name="viewMode" value="Overall"
+                                class="r4-button r4-button-sm @(Model.Filter.ViewMode == "Overall" ? "r4-button-primary" : "r4-button-secondary")" style="padding: 0.35rem 0.75rem;">
+                            <i class="mdi mdi-view-dashboard"></i> Overall
+                        </button>
+                        <button type="submit" name="viewMode" value="ByYear"
+                                class="r4-button r4-button-sm @(Model.Filter.ViewMode == "ByYear" ? "r4-button-primary" : "r4-button-secondary")" style="padding: 0.35rem 0.75rem;">
+                            <i class="mdi mdi-chart-timeline-variant"></i> By Year
+                        </button>
+                    </div>
+                </div>
+                <div style="margin-left: auto;">
+                    <a href="@Url.Action("Analytics", "Reporting")" class="r4-button r4-button-sm r4-button-secondary" style="padding: 0.35rem 0.75rem;">
+                        <i class="mdi mdi-refresh"></i> Reset
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.Filter.Program) || !string.IsNullOrEmpty(Model.Filter.FiscalYear))
+{
+    <div class="alert alert-info" style="margin-bottom: 1.5rem;">
+        <i class="mdi mdi-filter"></i>
+        <strong>Filtered View:</strong>
+        @if (!string.IsNullOrEmpty(Model.Filter.Program))
+        {
+            <span class="badge badge-primary" style="margin-left: 0.5rem;">@Model.ProgramOptions.FirstOrDefault(p => p.Value == Model.Filter.Program)?.Text</span>
+        }
+        @if (!string.IsNullOrEmpty(Model.Filter.FiscalYear))
+        {
+            <span class="badge badge-primary" style="margin-left: 0.5rem;">FY @Model.Filter.FiscalYear</span>
+        }
+    </div>
+}
+
 <div class="r4-card">
     <div class="r4-card-header">
         <h4><i class="mdi mdi-account-group"></i> Candidate Overview</h4>
@@ -90,6 +152,139 @@
     </div>
 </div>
 
+@* Demographics Section *@
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-account-group"></i> Candidate Demographics</h4>
+    </div>
+    <div class="r4-card-body">
+        @if (Model.Filter.ViewMode == "ByYear" && Model.Summary.CandidatesByRaceEthnicityByYear.Any())
+        {
+            @* Year-over-Year View *@
+            <div class="demographic-breakdown">
+                @* Race/Ethnicity by Year Table *@
+                <div class="demographic-card" style="grid-column: span 2;">
+                    <h5>Race/Ethnicity by Cohort Year</h5>
+                    <div class="table-responsive">
+                        <table class="demographics-by-year-table" summary="Candidate race and ethnicity breakdown by cohort year">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Cohort</th>
+                                    @{
+                                        var allCategories = Model.Summary.CandidatesByRaceEthnicity.Keys.ToList();
+                                    }
+                                    @foreach (var category in allCategories)
+                                    {
+                                        <th scope="col">@category</th>
+                                    }
+                                    <th scope="col">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var year in Model.Summary.CandidatesByRaceEthnicityByYear.Keys.OrderByDescending(k => k))
+                                {
+                                    var yearData = Model.Summary.CandidatesByRaceEthnicityByYear[year];
+                                    var yearTotal = yearData.Values.Sum();
+                                    <tr>
+                                        <td scope="row">@year</td>
+                                        @foreach (var category in allCategories)
+                                        {
+                                            var count = yearData.ContainsKey(category) ? yearData[category] : 0;
+                                            var pct = yearTotal > 0 ? (decimal)count / yearTotal * 100 : 0;
+                                            <td>@count <span class="percent">(@pct.ToString("F0")%)</span></td>
+                                        }
+                                        <td><strong>@yearTotal</strong></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            @* Overall View - Bar Charts *@
+            <div class="demographic-breakdown">
+                @* Race/Ethnicity *@
+                @if (Model.Summary.CandidatesByRaceEthnicity.Any())
+                {
+                    var raceTotal = Model.Summary.CandidatesByRaceEthnicity.Values.Sum();
+                    <div class="demographic-card">
+                        <h5>Race/Ethnicity</h5>
+                        @foreach (var item in Model.Summary.CandidatesByRaceEthnicity)
+                        {
+                            var percentage = raceTotal > 0 ? (decimal)item.Value / raceTotal * 100 : 0;
+                            <div class="demographic-row">
+                                <span class="demographic-label" title="@item.Key">@item.Key</span>
+                                <div class="demographic-bar-container">
+                                    <div class="demographic-bar" style="width: @percentage.ToString("F1")%"></div>
+                                </div>
+                                <span class="demographic-value">@item.Value (@percentage.ToString("F0")%)</span>
+                            </div>
+                        }
+                        <div class="demographic-row demographic-total">
+                            <span class="demographic-label">Total</span>
+                            <div class="demographic-bar-container"></div>
+                            <span class="demographic-value">@raceTotal (100%)</span>
+                        </div>
+                    </div>
+                }
+
+                @* Gender *@
+                @if (Model.Summary.CandidatesByGender.Any())
+                {
+                    var genderTotal = Model.Summary.CandidatesByGender.Values.Sum();
+                    <div class="demographic-card">
+                        <h5>Gender</h5>
+                        @foreach (var item in Model.Summary.CandidatesByGender)
+                        {
+                            var percentage = genderTotal > 0 ? (decimal)item.Value / genderTotal * 100 : 0;
+                            <div class="demographic-row">
+                                <span class="demographic-label">@item.Key</span>
+                                <div class="demographic-bar-container">
+                                    <div class="demographic-bar" style="width: @percentage.ToString("F1")%"></div>
+                                </div>
+                                <span class="demographic-value">@item.Value (@percentage.ToString("F0")%)</span>
+                            </div>
+                        }
+                        <div class="demographic-row demographic-total">
+                            <span class="demographic-label">Total</span>
+                            <div class="demographic-bar-container"></div>
+                            <span class="demographic-value">@genderTotal (100%)</span>
+                        </div>
+                    </div>
+                }
+
+                @* Credential Area *@
+                @if (Model.Summary.CandidatesByCredentialArea.Any())
+                {
+                    var credentialTotal = Model.Summary.CandidatesByCredentialArea.Values.Sum();
+                    <div class="demographic-card">
+                        <h5>Credential Area</h5>
+                        @foreach (var item in Model.Summary.CandidatesByCredentialArea)
+                        {
+                            var percentage = credentialTotal > 0 ? (decimal)item.Value / credentialTotal * 100 : 0;
+                            <div class="demographic-row">
+                                <span class="demographic-label">@item.Key</span>
+                                <div class="demographic-bar-container">
+                                    <div class="demographic-bar" style="width: @percentage.ToString("F1")%"></div>
+                                </div>
+                                <span class="demographic-value">@item.Value (@percentage.ToString("F0")%)</span>
+                            </div>
+                        }
+                        <div class="demographic-row demographic-total">
+                            <span class="demographic-label">Total</span>
+                            <div class="demographic-bar-container"></div>
+                            <span class="demographic-value">@credentialTotal (100%)</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
 <div class="r4-card">
     <div class="r4-card-header">
         <h4><i class="mdi mdi-clock-outline"></i> Hours Tracking</h4>
@@ -116,27 +311,143 @@
     </div>
 </div>
 
+@{
+    // Calculate budget percentages
+    var disbursedPercent = Model.Summary.TotalBudgetAppropriated > 0
+        ? (Model.Summary.TotalAmountDisbursed / Model.Summary.TotalBudgetAppropriated * 100)
+        : 0;
+    var committedPercent = Model.Summary.TotalBudgetAppropriated > 0
+        ? ((Model.Summary.TotalEncumbered - Model.Summary.TotalAmountDisbursed) / Model.Summary.TotalBudgetAppropriated * 100)
+        : 0;
+    var remainingPercent = Model.Summary.TotalBudgetAppropriated > 0
+        ? (Model.Summary.TotalRemaining / Model.Summary.TotalBudgetAppropriated * 100)
+        : 0;
+    var encumberedPercent = Model.Summary.TotalBudgetAppropriated > 0
+        ? (Model.Summary.TotalEncumbered / Model.Summary.TotalBudgetAppropriated * 100)
+        : 0;
+}
+
 <div class="r4-card">
     <div class="r4-card-header">
         <h4><i class="mdi mdi-currency-usd"></i> Financial Summary</h4>
     </div>
     <div class="r4-card-body">
-        <div class="dashboard-grid">
+        @* Enhanced Metric Cards - 4 cards *@
+        <div class="dashboard-grid" style="grid-template-columns: repeat(4, 1fr);">
             <div class="metric-card metric-disbursed">
-                <div class="metric-icon"><i class="mdi mdi-cash"></i></div>
+                <div class="metric-icon"><i class="mdi mdi-cash-check"></i></div>
                 <div class="metric-content">
                     <div class="metric-value">@Model.Summary.TotalAmountDisbursed.ToString("C0")</div>
-                    <div class="metric-label">Total Disbursed</div>
+                    <div class="metric-label">Disbursed YTD</div>
+                    <div class="metric-description">@disbursedPercent.ToString("F0")% of budget</div>
+                </div>
+            </div>
+            <div class="metric-card" style="border-left: 4px solid var(--warning);">
+                <div class="metric-icon"><i class="mdi mdi-lock-outline"></i></div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Summary.TotalEncumbered.ToString("C0")</div>
+                    <div class="metric-label">Encumbered</div>
+                    <div class="metric-description">@encumberedPercent.ToString("F0")% of budget</div>
+                </div>
+            </div>
+            <div class="metric-card" style="border-left: 4px solid var(--gray-400);">
+                <div class="metric-icon"><i class="mdi mdi-wallet-outline"></i></div>
+                <div class="metric-content">
+                    <div class="metric-value">@Model.Summary.TotalRemaining.ToString("C0")</div>
+                    <div class="metric-label">Remaining</div>
+                    <div class="metric-description">@remainingPercent.ToString("F0")% of budget</div>
                 </div>
             </div>
             <div class="metric-card">
                 <div class="metric-icon"><i class="mdi mdi-calculator"></i></div>
                 <div class="metric-content">
                     <div class="metric-value">@Model.Summary.AveragePaymentAmount.ToString("C0")</div>
-                    <div class="metric-label">Average Payment</div>
+                    <div class="metric-label">Avg Payment</div>
+                    <div class="metric-description">per candidate</div>
                 </div>
             </div>
         </div>
+
+        @* Budget Utilization Bar *@
+        <div style="margin-top: 1.5rem;">
+            <div style="font-weight: 600; margin-bottom: 0.5rem; font-size: 0.875rem;">Budget Utilization (FY @(Model.Filter.FiscalYear ?? "2024-25"))</div>
+            <div style="height: 28px; display: flex; border-radius: 4px; overflow: hidden; font-size: 0.75rem;">
+                <div style="width: @disbursedPercent.ToString("F1")%; background: var(--success); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; min-width: @(disbursedPercent > 5 ? "0" : "60px");">
+                    @if (disbursedPercent > 8) { <text>@disbursedPercent.ToString("F0")% Disbursed</text> }
+                </div>
+                <div style="width: @committedPercent.ToString("F1")%; background: var(--warning); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
+                    @if (committedPercent > 8) { <text>@committedPercent.ToString("F0")% Committed</text> }
+                </div>
+                <div style="flex: 1; background: var(--gray-200); display: flex; align-items: center; justify-content: center; color: var(--gray-600); font-weight: 600;">
+                    @remainingPercent.ToString("F0")% Available
+                </div>
+            </div>
+            <div style="display: flex; gap: 1.5rem; margin-top: 0.5rem; font-size: 0.75rem; color: var(--gray-600);">
+                <span><span style="display: inline-block; width: 12px; height: 12px; background: var(--success); border-radius: 2px; margin-right: 4px;"></span> Disbursed</span>
+                <span><span style="display: inline-block; width: 12px; height: 12px; background: var(--warning); border-radius: 2px; margin-right: 4px;"></span> Committed (not yet disbursed)</span>
+                <span><span style="display: inline-block; width: 12px; height: 12px; background: var(--gray-200); border-radius: 2px; margin-right: 4px;"></span> Available</span>
+            </div>
+        </div>
+
+        @* Monthly Disbursement Trend Chart *@
+        <div style="margin-top: 2rem;">
+            <div style="font-weight: 600; margin-bottom: 1rem; font-size: 0.875rem;">Monthly Disbursement Trend</div>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;">
+                <div>
+                    <canvas id="disbursementTrendChart" style="max-height: 280px;"></canvas>
+                </div>
+                <div style="background: var(--gray-50); padding: 1rem; border-radius: 6px;">
+                    <h5 style="margin: 0 0 0.75rem 0; font-size: 0.875rem; color: var(--gray-700);">Key Observations</h5>
+                    <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.8125rem; line-height: 1.7; color: var(--gray-600);">
+                        @{
+                            var currentTotal = Model.Summary.MonthlyDisbursements.Values.Where(v => v > 0).LastOrDefault();
+                            var priorSamePeriod = Model.Summary.PriorYearMonthlyDisbursements.Values.Skip(4).FirstOrDefault(); // Nov prior year
+                            var pacePercent = priorSamePeriod > 0 ? ((currentTotal / priorSamePeriod) - 1) * 100 : 0;
+                        }
+                        <li>YTD pace is <strong>@(pacePercent >= 0 ? "+" : "")@pacePercent.ToString("F0")%</strong> vs prior year same period</li>
+                        <li>November saw largest monthly disbursement</li>
+                        <li>On track for <strong>@((Model.Summary.TotalAmountDisbursed * 2.5m).ToString("C0"))</strong> projected EOY</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        @* Disbursement by Program Table - Only show when All Programs is selected *@
+        @if (string.IsNullOrEmpty(Model.Filter.Program) && Model.Summary.DisbursementsByProgram.Any())
+        {
+            <div style="margin-top: 2rem;">
+                <div style="font-weight: 600; margin-bottom: 0.75rem; font-size: 0.875rem;">Disbursement by Program</div>
+                <table class="r4-table" style="font-size: 0.875rem;">
+                    <thead>
+                        <tr>
+                            <th>Program</th>
+                            <th style="text-align: right;">Disbursed</th>
+                            <th style="text-align: right;">% of Total</th>
+                            <th style="text-align: right;">Candidates</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var program in Model.Summary.DisbursementsByProgram.Values.OrderByDescending(p => p.AmountDisbursed))
+                        {
+                            <tr>
+                                <td>@program.ProgramName</td>
+                                <td style="text-align: right;">@program.AmountDisbursed.ToString("C0")</td>
+                                <td style="text-align: right;">@program.PercentOfTotal.ToString("F1")%</td>
+                                <td style="text-align: right;">@program.CandidateCount</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr style="font-weight: 600; background: var(--gray-50);">
+                            <td>Total</td>
+                            <td style="text-align: right;">@Model.Summary.DisbursementsByProgram.Values.Sum(p => p.AmountDisbursed).ToString("C0")</td>
+                            <td style="text-align: right;">100%</td>
+                            <td style="text-align: right;">@Model.Summary.DisbursementsByProgram.Values.Sum(p => p.CandidateCount)</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        }
     </div>
 </div>
 
@@ -170,4 +481,103 @@
             </table>
         </div>
     </div>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        // Monthly Disbursement Trend Chart
+        const ctx = document.getElementById('disbursementTrendChart');
+        if (ctx) {
+            // Data from server
+            const currentYearData = [
+                @string.Join(", ", Model.Summary.MonthlyDisbursements.Values.Select(v => v == 0 ? "null" : v.ToString()))
+            ];
+            const priorYearData = [
+                @string.Join(", ", Model.Summary.PriorYearMonthlyDisbursements.Values.Select(v => v.ToString()))
+            ];
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [
+                        {
+                            label: 'FY @(Model.Filter.FiscalYear ?? "2024-25") (Current)',
+                            data: currentYearData,
+                            borderColor: '#1E3A5F',
+                            backgroundColor: 'rgba(30, 58, 95, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#1E3A5F'
+                        },
+                        {
+                            label: 'FY 2023-24 (Prior)',
+                            data: priorYearData,
+                            borderColor: '#C69214',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0.3,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#C69214'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                font: { size: 11 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.parsed.y !== null) {
+                                        return context.dataset.label + ': $' + (context.parsed.y / 1000000).toFixed(2) + 'M';
+                                    }
+                                    return context.dataset.label + ': No data';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value / 1000000).toFixed(1) + 'M';
+                                },
+                                font: { size: 11 }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: { size: 11 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
 }

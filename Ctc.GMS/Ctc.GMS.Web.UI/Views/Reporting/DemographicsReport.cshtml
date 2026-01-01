@@ -1,32 +1,42 @@
 @{
     ViewData["Title"] = ViewBag.ReportTitle;
+    ViewBag.ReportType = "Demographics";
+    ViewBag.ReportId = (int?)null;
 
-    // Mock data for demographics report
-    var students = new[] {
-        new { Name = "Maria Garcia", SEID = "ST1234567", LEA = "Los Angeles USD", IHE = "UCLA", CredentialArea = "Multiple Subject", Amount = 10000m, Status = "Approved" },
-        new { Name = "James Chen", SEID = "ST1234568", LEA = "Los Angeles USD", IHE = "UCLA", CredentialArea = "Single Subject - Math", Amount = 10000m, Status = "Approved" },
-        new { Name = "Sarah Williams", SEID = "ST1234569", LEA = "San Diego USD", IHE = "SDSU", CredentialArea = "Education Specialist", Amount = 10000m, Status = "Approved" },
-        new { Name = "Michael Brown", SEID = "ST1234570", LEA = "San Diego USD", IHE = "SDSU", CredentialArea = "Single Subject - English", Amount = 10000m, Status = "Approved" },
-        new { Name = "Emily Johnson", SEID = "ST1234571", LEA = "Fresno USD", IHE = "Fresno State", CredentialArea = "Multiple Subject", Amount = 10000m, Status = "Approved" },
-        new { Name = "David Martinez", SEID = "ST1234572", LEA = "Fresno USD", IHE = "Fresno State", CredentialArea = "Single Subject - Science", Amount = 10000m, Status = "Approved" },
-        new { Name = "Jennifer Lee", SEID = "ST1234573", LEA = "Sacramento City USD", IHE = "Sac State", CredentialArea = "Education Specialist", Amount = 10000m, Status = "Approved" },
-        new { Name = "Robert Taylor", SEID = "ST1234574", LEA = "Sacramento City USD", IHE = "Sac State", CredentialArea = "Multiple Subject", Amount = 10000m, Status = "Approved" },
-        new { Name = "Lisa Anderson", SEID = "ST1234575", LEA = "Oakland USD", IHE = "Cal State East Bay", CredentialArea = "Single Subject - Math", Amount = 10000m, Status = "Approved" },
-        new { Name = "Kevin Wilson", SEID = "ST1234576", LEA = "Oakland USD", IHE = "Cal State East Bay", CredentialArea = "Education Specialist", Amount = 10000m, Status = "Approved" }
+    // Gender distribution with benchmarks
+    var genderData = new[] {
+        new { Category = "Female", Current = 71.5, Prior = 69.8, CATeachers = 72.0 },
+        new { Category = "Male", Current = 26.2, Prior = 28.1, CATeachers = 28.0 },
+        new { Category = "Non-binary/Other", Current = 2.3, Prior = 2.1, CATeachers = 0.0 }
     };
 
-    var credentialBreakdown = new[] {
-        new { Area = "Multiple Subject", Count = 3, Percent = 30.0 },
-        new { Area = "Single Subject - Math", Count = 2, Percent = 20.0 },
-        new { Area = "Single Subject - English", Count = 1, Percent = 10.0 },
-        new { Area = "Single Subject - Science", Count = 1, Percent = 10.0 },
-        new { Area = "Education Specialist", Count = 3, Percent = 30.0 }
+    // Race/ethnicity with benchmarks
+    var raceData = new[] {
+        new { Category = "Hispanic/Latino", Current = 42.1, Prior = 39.4, CATeachers = 24.0, CAStudents = 55.0 },
+        new { Category = "White", Current = 32.2, Prior = 34.8, CATeachers = 54.0, CAStudents = 22.0 },
+        new { Category = "Asian", Current = 12.1, Prior = 11.9, CATeachers = 9.0, CAStudents = 12.0 },
+        new { Category = "Black/African American", Current = 6.5, Prior = 6.8, CATeachers = 4.0, CAStudents = 5.0 },
+        new { Category = "Two or More Races", Current = 4.7, Prior = 4.5, CATeachers = 3.0, CAStudents = 4.0 },
+        new { Category = "Other", Current = 2.4, Prior = 2.6, CATeachers = 6.0, CAStudents = 2.0 }
     };
 
-    var regionBreakdown = new[] {
-        new { Region = "Southern California", Count = 4, Percent = 40.0 },
-        new { Region = "Central California", Count = 2, Percent = 20.0 },
-        new { Region = "Northern California", Count = 4, Percent = 40.0 }
+    // Demographics by credential area
+    var credentialDemographics = new[] {
+        new { Area = "Multiple Subject", Hispanic = 45.6, Male = 18.2, Underrepresented = 52.1 },
+        new { Area = "Single Subject - Math", Hispanic = 38.1, Male = 42.9, Underrepresented = 47.6 },
+        new { Area = "Single Subject - English", Hispanic = 39.3, Male = 21.4, Underrepresented = 46.4 },
+        new { Area = "Single Subject - Science", Hispanic = 41.7, Male = 37.5, Underrepresented = 50.0 },
+        new { Area = "Education Specialist", Hispanic = 44.2, Male = 15.4, Underrepresented = 51.9 }
+    };
+
+    // Summary stats
+    var summary = new {
+        TotalCandidates = 214,
+        UniqueLEAs = 48,
+        UniqueIHEs = 12,
+        PercentHispanic = 42.1,
+        PercentMale = 26.2,
+        PercentUnderrepresented = 51.4
     };
 }
 
@@ -34,80 +44,61 @@
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam")">Grants Team</a></li>
         <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "Reporting")">Reporting</a></li>
-        <li class="breadcrumb-item active">Demographics Report</li>
+        <li class="breadcrumb-item active">Candidate Pipeline Analysis</li>
     </ol>
 }
 
-<div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
-    <div>
-        <h2><i class="mdi mdi-account-group"></i> @ViewBag.ReportTitle</h2>
-        <p class="subtitle">@ViewBag.GrantCycle - Student Teacher Stipend Program</p>
-    </div>
-    <div class="report-actions">
-        <button class="r4-button r4-button-secondary" onclick="window.print();">
-            <i class="mdi mdi-printer"></i> Print
-        </button>
-        <button class="r4-button r4-button-primary" onclick="alert('PDF export coming soon');">
-            <i class="mdi mdi-file-pdf-box"></i> Export PDF
-        </button>
-        <button class="r4-button r4-button-secondary" onclick="alert('Excel export coming soon');">
-            <i class="mdi mdi-file-excel"></i> Export Excel
-        </button>
-    </div>
+<div class="page-header" style="margin-bottom: 1rem;">
+    <h2><i class="mdi mdi-account-group"></i> @ViewBag.ReportTitle</h2>
+    <p class="subtitle">Who are we reaching, and who are we missing?</p>
 </div>
+
+<!-- Report Export Toolbar -->
+@await Html.PartialAsync("_ReportExportToolbar")
 
 <!-- Report Metadata -->
 <div class="r4-card">
     <div class="r4-card-body" style="display: flex; justify-content: space-between; padding: 1rem 1.5rem; background: var(--gray-100);">
         <div><strong>Grant Cycle:</strong> @ViewBag.GrantCycle</div>
         <div><strong>Program:</strong> Student Teacher Stipend Program</div>
-        <div><strong>Generated:</strong> @((DateTime)ViewBag.GeneratedDate).ToString("MMMM d, yyyy h:mm tt")</div>
+        <div><strong>Generated:</strong> @(((DateTime)ViewBag.GeneratedDate).ToString("MMMM d, yyyy"))</div>
     </div>
 </div>
 
-<!-- Summary Cards -->
-<div class="r4-card">
-    <div class="r4-card-header">
-        <h4><i class="mdi mdi-chart-box-outline"></i> Summary</h4>
+<!-- Key Findings -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+    <div class="r4-card" style="border-left: 4px solid var(--success);">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-check-circle" style="color: var(--success);"></i> Strengths</h4>
+        </div>
+        <div class="r4-card-body">
+            <ul style="margin: 0; padding-left: 1.25rem; line-height: 1.8;">
+                <li>Hispanic/Latino at <strong>42%</strong> - nearly 2x state teacher workforce</li>
+                <li>Asian representation (<strong>12%</strong>) exceeds state teacher average (9%)</li>
+                <li>Total underrepresented groups at <strong>51%</strong> of cohort</li>
+                <li>Year-over-year diversity growth across all categories</li>
+            </ul>
+        </div>
     </div>
-    <div class="r4-card-body">
-        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;">
-            <div class="metric-card metric-card-primary">
-                <div class="metric-icon"><i class="mdi mdi-account-group"></i></div>
-                <div class="metric-content">
-                    <div class="metric-label">Total Students</div>
-                    <div class="metric-value">@students.Length</div>
-                </div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-icon"><i class="mdi mdi-domain"></i></div>
-                <div class="metric-content">
-                    <div class="metric-label">LEAs Participating</div>
-                    <div class="metric-value">5</div>
-                </div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-icon"><i class="mdi mdi-school"></i></div>
-                <div class="metric-content">
-                    <div class="metric-label">IHEs Participating</div>
-                    <div class="metric-value">5</div>
-                </div>
-            </div>
-            <div class="metric-card metric-card-success">
-                <div class="metric-icon"><i class="mdi mdi-currency-usd"></i></div>
-                <div class="metric-content">
-                    <div class="metric-label">Total Awarded</div>
-                    <div class="metric-value">$100,000</div>
-                </div>
-            </div>
+    <div class="r4-card" style="border-left: 4px solid var(--warning);">
+        <div class="r4-card-header">
+            <h4><i class="mdi mdi-alert" style="color: var(--warning);"></i> Opportunities</h4>
+        </div>
+        <div class="r4-card-body">
+            <ul style="margin: 0; padding-left: 1.25rem; line-height: 1.8;">
+                <li>Male teachers in Multiple Subject at <strong>18%</strong> (vs. 28% state)</li>
+                <li>Black/African American at <strong>6.5%</strong> (slight decline from 6.8%)</li>
+                <li>Education Specialist has lowest male representation (15%)</li>
+                <li>Rural district representation remains limited</li>
+            </ul>
         </div>
     </div>
 </div>
 
-<!-- Credential Area Breakdown -->
+<!-- Race/Ethnicity Comparison -->
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-certificate-outline"></i> Credential Area Breakdown</h4>
+        <h4><i class="mdi mdi-chart-bar"></i> Race/Ethnicity: Program vs Benchmarks</h4>
     </div>
     <div class="r4-card-body">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
@@ -115,89 +106,178 @@
                 <table class="r4-table">
                     <thead>
                         <tr>
-                            <th>Credential Area</th>
-                            <th style="text-align: right;">Students</th>
-                            <th style="text-align: right;">Percentage</th>
+                            <th>Race/Ethnicity</th>
+                            <th style="text-align: right;">Program</th>
+                            <th style="text-align: right;">CA Teachers</th>
+                            <th style="text-align: right;">CA Students</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in credentialBreakdown)
+                        @foreach (var item in raceData)
                         {
+                            var diff = item.Current - item.CATeachers;
                             <tr>
-                                <td>@item.Area</td>
-                                <td style="text-align: right;">@item.Count</td>
-                                <td style="text-align: right;">@item.Percent.ToString("F1")%</td>
+                                <td><strong>@item.Category</strong></td>
+                                <td style="text-align: right;">@item.Current.ToString("F1")%</td>
+                                <td style="text-align: right;">@item.CATeachers.ToString("F0")%</td>
+                                <td style="text-align: right;">@item.CAStudents.ToString("F0")%</td>
                             </tr>
                         }
                     </tbody>
-                    <tfoot>
-                        <tr style="font-weight: 600; background: var(--gray-100);">
-                            <td>Total</td>
-                            <td style="text-align: right;">@students.Length</td>
-                            <td style="text-align: right;">100%</td>
-                        </tr>
-                    </tfoot>
                 </table>
+                <p style="margin-top: 1rem; font-size: 0.8rem; color: var(--gray-600);">
+                    <i class="mdi mdi-information-outline"></i> Sources: CA Dept of Education (teacher/student demographics 2023-24)
+                </p>
             </div>
-            <div style="display: flex; align-items: center; justify-content: center;">
-                <canvas id="credentialChart" style="max-height: 250px;"></canvas>
+            <!-- Dashboard View: Chart -->
+            <div class="dashboard-view" style="display: flex; align-items: center; justify-content: center;">
+                <canvas id="raceChart" style="max-height: 280px;"></canvas>
+            </div>
+            <!-- Formal View: Accessible table (hidden by default, shown in formal mode) -->
+            <div class="formal-view" style="display: none;">
+                <p style="font-style: italic; color: var(--gray-600); margin-bottom: 1rem;">
+                    Program demographics compared to California teacher and student populations.
+                </p>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Regional Breakdown -->
+<!-- Gender Distribution -->
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-map-marker-outline"></i> Regional Distribution</h4>
+        <h4><i class="mdi mdi-gender-male-female"></i> Gender Distribution</h4>
     </div>
     <div class="r4-card-body">
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
-            @foreach (var region in regionBreakdown)
+            @foreach (var item in genderData)
             {
+                var diff = item.Current - item.CATeachers;
+                var diffText = diff > 0 ? $"+{diff:F1}%" : $"{diff:F1}%";
+                var diffColor = Math.Abs(diff) < 3 ? "var(--success)" : "var(--warning)";
                 <div style="text-align: center; padding: 1.5rem; border: 1px solid var(--gray-300); border-radius: 8px;">
-                    <div style="font-size: 2rem; font-weight: 700; color: var(--ctc-blue);">@region.Count</div>
-                    <div style="font-size: 0.875rem; color: var(--gray-600);">@region.Region</div>
-                    <div style="font-size: 0.75rem; color: var(--gray-500);">@region.Percent.ToString("F0")% of total</div>
+                    <div style="font-size: 2.5rem; font-weight: 700; color: var(--ctc-blue);">@item.Current.ToString("F1")%</div>
+                    <div style="font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem;">@item.Category</div>
+                    <div style="font-size: 0.8rem; color: @diffColor;">
+                        @diffText vs. CA Teachers (@item.CATeachers.ToString("F0")%)
+                    </div>
                 </div>
             }
         </div>
     </div>
 </div>
 
-<!-- Student Detail Table -->
+<!-- Demographics by Credential Area -->
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-table"></i> Student Details</h4>
+        <h4><i class="mdi mdi-certificate-outline"></i> Demographics by Credential Area</h4>
     </div>
     <div class="r4-card-body">
         <table class="r4-table">
             <thead>
                 <tr>
-                    <th>Student Name</th>
-                    <th>SEID</th>
-                    <th>LEA</th>
-                    <th>IHE</th>
                     <th>Credential Area</th>
-                    <th style="text-align: right;">Award Amount</th>
-                    <th>Status</th>
+                    <th style="text-align: right;">Hispanic/Latino</th>
+                    <th style="text-align: right;">Male</th>
+                    <th style="text-align: right;">Underrepresented Total</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var student in students)
+                @foreach (var item in credentialDemographics)
                 {
                     <tr>
-                        <td>@student.Name</td>
-                        <td><code>@student.SEID</code></td>
-                        <td>@student.LEA</td>
-                        <td>@student.IHE</td>
-                        <td>@student.CredentialArea</td>
-                        <td style="text-align: right;">@student.Amount.ToString("C0")</td>
-                        <td><span class="status-badge status-success">@student.Status</span></td>
+                        <td><strong>@item.Area</strong></td>
+                        <td style="text-align: right;">
+                            <span class="status-badge @(item.Hispanic >= 40 ? "status-success" : "status-info")">@item.Hispanic.ToString("F1")%</span>
+                        </td>
+                        <td style="text-align: right;">
+                            <span class="status-badge @(item.Male >= 25 ? "status-success" : "status-warning")">@item.Male.ToString("F1")%</span>
+                        </td>
+                        <td style="text-align: right;">
+                            <span class="status-badge @(item.Underrepresented >= 50 ? "status-success" : "status-info")">@item.Underrepresented.ToString("F1")%</span>
+                        </td>
                     </tr>
                 }
             </tbody>
+            <tfoot>
+                <tr style="font-weight: 600; background: var(--gray-100);">
+                    <td>Program Average</td>
+                    <td style="text-align: right;">@summary.PercentHispanic%</td>
+                    <td style="text-align: right;">@summary.PercentMale%</td>
+                    <td style="text-align: right;">@summary.PercentUnderrepresented%</td>
+                </tr>
+            </tfoot>
         </table>
+        <p style="margin-top: 1rem; font-size: 0.875rem; color: var(--gray-600);">
+            <i class="mdi mdi-information-outline"></i>
+            Male representation in Multiple Subject (18.2%) and Education Specialist (15.4%) warrant targeted recruitment.
+        </p>
+    </div>
+</div>
+
+<!-- Three-Year Diversity Trend -->
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-chart-line"></i> Diversity Progress: Three-Year View</h4>
+    </div>
+    <div class="r4-card-body">
+        <!-- Dashboard View: Chart + Summary -->
+        <div class="dashboard-view" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+            <div>
+                <canvas id="trendChart" style="max-height: 280px;"></canvas>
+            </div>
+            <div>
+                <h5 style="margin-bottom: 1rem;">Progress Summary</h5>
+                <ul style="margin: 0; padding-left: 1.25rem; line-height: 1.8;">
+                    <li>Hispanic/Latino: <strong>+5.1 pts</strong> over 3 years</li>
+                    <li>Underrepresented total: <strong>+4.4 pts</strong> over 3 years</li>
+                    <li>Male representation: <strong>stable</strong> (~26-28%)</li>
+                    <li>Trend suggests continued improvement in pipeline diversity</li>
+                </ul>
+            </div>
+        </div>
+        <!-- Formal View: Accessible table -->
+        <div class="formal-view" style="display: none;">
+            <table class="r4-table" aria-label="Three-Year Diversity Trend">
+                <caption class="sr-only">Diversity metrics over three fiscal years</caption>
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th style="text-align: right;">FY 2022-23</th>
+                        <th style="text-align: right;">FY 2023-24</th>
+                        <th style="text-align: right;">FY 2024-25</th>
+                        <th style="text-align: right;">3-Year Change</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Hispanic/Latino</strong></td>
+                        <td style="text-align: right;">37.0%</td>
+                        <td style="text-align: right;">39.4%</td>
+                        <td style="text-align: right;">42.1%</td>
+                        <td style="text-align: right; color: var(--success);">+5.1 pts</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Underrepresented Total</strong></td>
+                        <td style="text-align: right;">47.0%</td>
+                        <td style="text-align: right;">49.2%</td>
+                        <td style="text-align: right;">51.4%</td>
+                        <td style="text-align: right; color: var(--success);">+4.4 pts</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Male</strong></td>
+                        <td style="text-align: right;">27.5%</td>
+                        <td style="text-align: right;">28.1%</td>
+                        <td style="text-align: right;">26.2%</td>
+                        <td style="text-align: right;">-1.3 pts</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="margin-top: 1rem; font-size: 0.875rem; color: var(--gray-600);">
+                <strong>Key Observations:</strong> All diversity metrics show improvement over the three-year period.
+                Hispanic/Latino representation increased 5.1 percentage points. Male representation remains stable at approximately 26-28%.
+            </p>
+        </div>
     </div>
 </div>
 
@@ -210,19 +290,24 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
-        const credentialData = {
-            labels: ['Multiple Subject', 'Single Subject - Math', 'Single Subject - English', 'Single Subject - Science', 'Education Specialist'],
-            datasets: [{
-                data: [3, 2, 1, 1, 3],
-                backgroundColor: ['#1E3A5F', '#0066CC', '#C69214', '#28A745', '#17A2B8'],
-                borderColor: '#FFFFFF',
-                borderWidth: 2
-            }]
-        };
-
-        new Chart(document.getElementById('credentialChart'), {
-            type: 'doughnut',
-            data: credentialData,
+        // Race comparison chart
+        new Chart(document.getElementById('raceChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Hispanic/Latino', 'White', 'Asian', 'Black', 'Two+', 'Other'],
+                datasets: [
+                    {
+                        label: 'Program',
+                        data: [42.1, 32.2, 12.1, 6.5, 4.7, 2.4],
+                        backgroundColor: '#1E3A5F'
+                    },
+                    {
+                        label: 'CA Teachers',
+                        data: [24, 54, 9, 4, 3, 6],
+                        backgroundColor: '#C69214'
+                    }
+                ]
+            },
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
@@ -231,15 +316,74 @@
                         position: 'bottom',
                         labels: { padding: 15, usePointStyle: true }
                     }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 60,
+                        ticks: {
+                            callback: function(value) { return value + '%'; }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Trend chart
+        new Chart(document.getElementById('trendChart'), {
+            type: 'line',
+            data: {
+                labels: ['FY 2022-23', 'FY 2023-24', 'FY 2024-25'],
+                datasets: [
+                    {
+                        label: 'Hispanic/Latino',
+                        data: [37.0, 39.4, 42.1],
+                        borderColor: '#1E3A5F',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Underrepresented Total',
+                        data: [47.0, 49.2, 51.4],
+                        borderColor: '#28A745',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Male',
+                        data: [27.5, 28.1, 26.2],
+                        borderColor: '#C69214',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { padding: 20, usePointStyle: true }
+                    }
+                },
+                scales: {
+                    y: {
+                        min: 20,
+                        max: 60,
+                        ticks: {
+                            callback: function(value) { return value + '%'; }
+                        }
+                    }
                 }
             }
         });
     </script>
 }
 
-<style>
-    @@media print {
-        .breadcrumb, .report-actions, .r4-sidebar, .r4-header { display: none !important; }
-        .r4-card { break-inside: avoid; box-shadow: none !important; border: 1px solid #ccc; }
-    }
-</style>
+@section Styles {
+    <link rel="stylesheet" href="~/css/report-print.css" />
+}
