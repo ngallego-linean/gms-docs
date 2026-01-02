@@ -101,7 +101,7 @@ erDiagram
     ACCOUNT {
         int Id PK
         int OrganizationId FK
-        int RoleId FK
+        int UserRoleSVTId FK
         varchar(255) EmailAddress UK
         varchar(100) FirstName
         varchar(100) LastName
@@ -300,7 +300,7 @@ erDiagram
         varchar(100) Name
         varchar(500) Description
         int DisplayOrder
-        int ReportingOrgTypeId FK
+        int ReportingOrgTypeSVTId FK
         varchar(max) FormSchemaJson
     }
 
@@ -320,7 +320,7 @@ erDiagram
         int ReportingPeriodId FK
         int ReportingOrgId FK
         int ReportTypeId FK
-        int ReportingOrgTypeId FK
+        int ReportingOrgTypeSVTId FK
         varchar(50) CompletionStatus
         datetime CompletionOn
         varchar(max) DenialReason
@@ -436,4 +436,8 @@ erDiagram
         varchar(45) IpAddress
         varchar(500) UserAgent
         datetime CreatedOn
+        int CreatedByAccountId
+        datetime LastUpdatedOn
+        int LastUpdatedByAccountId
+        bit CanBeDeleted
     }
