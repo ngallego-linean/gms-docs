@@ -1,0 +1,48 @@
+GMS PROTOTYPE CHANGES - December 16-18, 2025
+Base URL: https://gms-docs-ctc.azurewebsites.net
+
+COMMITS (5):
+- 2f02b60 Add Quick Access Reports with mock data
+- e3b4f1b Update invoice/grant numbers to Fi$Cal format
+- a3b76a8 Add bulk warrant upload with CSV import and fix table styling
+- 1305811 Remove Paid card from IHE Dashboard
+- d5b2fbd Implement fiscal workflow improvements and user feedback
+
+CHANGES:
+
+1. Quick Access Reports - 4 new report views with mock data, charts, print styling
+   https://gms-docs-ctc.azurewebsites.net/GrantsTeam/Reporting/DemographicsReport
+   https://gms-docs-ctc.azurewebsites.net/GrantsTeam/Reporting/LEAPerformanceReport
+   https://gms-docs-ctc.azurewebsites.net/GrantsTeam/Reporting/FinancialSummaryReport
+   https://gms-docs-ctc.azurewebsites.net/GrantsTeam/Reporting/ProgramOutcomesReport
+   https://gms-docs-ctc.azurewebsites.net/GrantsTeam/Reporting/Dashboard
+
+2. Fi$Cal Format Integration - Updated grant/invoice/PO numbers to match real Fi$Cal
+   Grant: 2025STSP001 | Invoice: 2025STSP001-1 | PO: 6360-0000004201 | Warrant: 60581151
+
+3. Bulk Warrant Upload - CSV import with auto-matching by Invoice Number
+   https://gms-docs-ctc.azurewebsites.net/FiscalTeam/UploadWarrant
+
+4. Bulk PO Upload - PDF drag-drop with auto-parse
+   https://gms-docs-ctc.azurewebsites.net/FiscalTeam/UploadPO
+
+5. GAA Amendments - Amendment banner, strikethrough previous amounts, running totals
+   https://gms-docs-ctc.azurewebsites.net/FiscalTeam/GAAPreview/1
+   https://gms-docs-ctc.azurewebsites.net/FiscalTeam/GAAPreview/1?amendment=true
+
+6. Invoice Improvements - Fi$Cal format, "Mark as submitted" checkbox
+   https://gms-docs-ctc.azurewebsites.net/FiscalTeam/InvoicePreview/1
+
+7. Terminology Fixes - Based on BugHerd feedback (cmendoza@ctc.ca.gov)
+   https://gms-docs-ctc.azurewebsites.net/Home/Index
+   https://gms-docs-ctc.azurewebsites.net/IHE/Dashboard
+   https://gms-docs-ctc.azurewebsites.net/LEA/Dashboard
+
+8. Table Styling Fix - Removed padding override conflicting with R4 framework
+   https://gms-docs-ctc.azurewebsites.net/FiscalTeam/DisbursementQueue
+
+OTHER PAGES:
+   https://gms-docs-ctc.azurewebsites.net/GrantsTeam/Dashboard
+   https://gms-docs-ctc.azurewebsites.net/GrantsTeam/Analytics
+
+All 17 URLs verified working (HTTP 200) as of December 18, 2025.
