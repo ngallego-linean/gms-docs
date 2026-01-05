@@ -143,6 +143,16 @@ public class ReportAnalytics
     public Dictionary<string, int> OutcomesByCredentialType { get; set; } = new();
     public Dictionary<string, int> OutcomesByLEA { get; set; } = new();
     public Dictionary<string, int> OutcomesByIHE { get; set; } = new();
+
+    // Candidate Demographics
+    public Dictionary<string, int> CandidatesByRaceEthnicity { get; set; } = new();
+    public Dictionary<string, int> CandidatesByGender { get; set; } = new();
+    public Dictionary<string, int> CandidatesByCredentialArea { get; set; } = new();
+
+    // Year-over-year demographics
+    public Dictionary<string, Dictionary<string, int>> CandidatesByRaceEthnicityByYear { get; set; } = new();
+    public Dictionary<string, Dictionary<string, int>> CandidatesByGenderByYear { get; set; } = new();
+    public Dictionary<string, Dictionary<string, int>> CandidatesByCredentialAreaByYear { get; set; } = new();
 }
 
 /// <summary>

@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GMS Data Architecture Document</title>
+    <style>
+        :root {
+            --ctc-blue: #1a4480;
+            --ctc-light-blue: #2e6db4;
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --gray-600: #6c757d;
+            --gray-800: #343a40;
+            --success: #28a745;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--gray-800);
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: var(--white);
+        }
+
+        h1 {
+            color: var(--ctc-blue);
+            border-bottom: 3px solid var(--ctc-blue);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+
+        h2 {
+            color: var(--ctc-blue);
+            border-bottom: 2px solid var(--gray-300);
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+        }
+
+        h3 {
+            color: var(--ctc-light-blue);
+            margin-top: 2rem;
+        }
+
+        h4 {
+            color: var(--gray-800);
+            margin-top: 1.5rem;
+        }
+
+        .header-meta {
+            color: var(--gray-600);
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .header-meta p {
+            margin: 0.25rem 0;
+        }
+
+        .purpose-box {
+            background: var(--gray-100);
+            border-left: 4px solid var(--ctc-blue);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .audience-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+        }
+
+        .audience-list li {
+            padding: 0.5rem;
+            background: var(--gray-100);
+            border-radius: 4px;
+        }
+
+        .audience-list strong {
+            color: var(--ctc-blue);
+        }
+
+        .toc {
+            background: var(--gray-100);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+        }
+
+        .toc h3 {
+            margin-top: 0;
+            color: var(--ctc-blue);
+        }
+
+        .toc ol {
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+
+        .toc li {
+            margin: 0.5rem 0;
+        }
+
+        .toc a {
+            color: var(--ctc-light-blue);
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0 1.5rem 0;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: var(--ctc-blue);
+            color: var(--white);
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--gray-300);
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) {
+            background: var(--gray-100);
+        }
+
+        tr:hover {
+            background: var(--gray-200);
+        }
+
+        code {
+            background: var(--gray-200);
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            font-size: 0.85em;
+            color: var(--ctc-blue);
+        }
+
+        .check {
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        pre {
+            background: var(--gray-800);
+            color: #f8f8f2;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+
+        .entity-section {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: var(--gray-100);
+            border-radius: 8px;
+            border: 1px solid var(--gray-300);
+        }
+
+        .entity-section h4 {
+            margin-top: 0;
+            color: var(--ctc-blue);
+            border-bottom: 1px solid var(--gray-300);
+            padding-bottom: 0.5rem;
+        }
+
+        .entity-section p {
+            color: var(--gray-600);
+            font-style: italic;
+            margin-bottom: 1rem;
+        }
+
+        .summary-table {
+            margin: 1.5rem 0;
+        }
+
+        .summary-table th {
+            background: var(--ctc-light-blue);
+        }
+
+        .field-patterns {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .field-pattern-box {
+            background: var(--gray-100);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--gray-300);
+        }
+
+        .field-pattern-box h4 {
+            margin-top: 0;
+            font-size: 0.95rem;
+        }
+
+        .deployment-steps {
+            counter-reset: step;
+            list-style: none;
+            padding: 0;
+        }
+
+        .deployment-steps li {
+            counter-increment: step;
+            padding: 0.75rem 0 0.75rem 3rem;
+            position: relative;
+            border-left: 2px solid var(--gray-300);
+            margin-left: 1rem;
+        }
+
+        .deployment-steps li::before {
+            content: counter(step);
+            position: absolute;
+            left: -1rem;
+            width: 2rem;
+            height: 2rem;
+            background: var(--ctc-blue);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .current-state-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .current-state-list li {
+            padding: 0.5rem 0 0.5rem 2rem;
+            position: relative;
+        }
+
+        .current-state-list li::before {
+            content: "\2717";
+            position: absolute;
+            left: 0;
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .document-history {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--gray-300);
+        }
+
+        @media print {
+            body {
+                padding: 0;
+                font-size: 11pt;
+            }
+
+            h2 {
+                page-break-before: always;
+            }
+
+            h2:first-of-type {
+                page-break-before: avoid;
+            }
+
+            table, pre {
+                page-break-inside: avoid;
+            }
+
+            .entity-section {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>GMS Data Architecture Document</h1>
+
+    <div class="header-meta">
+        <p><strong>California Commission on Teacher Credentialing</strong></p>
+        <p>Grant Management System - Technical Architecture</p>
+        <p>December 2025</p>
+    </div>
+
+    <div class="purpose-box">
+        <p>This document is a <strong>technical companion to the Business Requirements Document (BRD)</strong>. It demonstrates how the database schema implements BRD requirements and confirms compliance with CTC's R4 Framework standards.</p>
+    </div>
+
+    <h3>Audience</h3>
+    <ul class="audience-list">
+        <li><strong>DTI Technical Lead:</strong> R4 compliance verification (Section 2)</li>
+        <li><strong>DBA:</strong> Entity model review, data dictionary (Sections 3, 5)</li>
+        <li><strong>Project Manager:</strong> Requirements traceability, migration plan (Sections 1, 4)</li>
+        <li><strong>System Architect:</strong> Integration patterns, deployment (Sections 3, 4)</li>
+    </ul>
+
+    <div class="toc">
+        <h3>Table of Contents</h3>
+        <ol>
+            <li><a href="#section-1">Requirements Traceability</a></li>
+            <li><a href="#section-2">R4 Framework Compliance</a></li>
+            <li><a href="#section-3">Entity Model & Relationships</a></li>
+            <li><a href="#section-4">Migration & Deployment</a></li>
+            <li><a href="#section-5">Data Dictionary</a></li>
+        </ol>
+    </div>
+
+    <h2 id="section-1">1. Requirements Traceability</h2>
+    <p>This section maps BRD requirements to their schema implementations.</p>
+
+    <h3>1.1 Portal Requirements</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>BRD Requirement</th>
+                <th>Schema Implementation</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Grant program listings with status</td><td><code>GrantProgram.IsActive</code>, <code>GrantCycle.Status</code></td></tr>
+            <tr><td>Application volume metrics and participant counts</td><td><code>Candidate</code> table with status aggregations</td></tr>
+            <tr><td>Review IHE-LEA application pairs</td><td><code>Application</code> table with <code>IHEOrgId</code>, <code>LEAOrgId</code></td></tr>
+            <tr><td>Approve or reject student teachers</td><td><code>Candidate.StatusId</code> &rarr; <code>CandidateStatusSVT</code></td></tr>
+            <tr><td>Track application status transitions</td><td><code>CandidateStatusChange</code> history table</td></tr>
+            <tr><td>GAA generation from approved applications</td><td><code>Disbursement</code> table with GAA fields</td></tr>
+            <tr><td>DocuSign integration for multi-party signatures</td><td><code>Disbursement.GAAEnvelopeId</code>, <code>GAAStatus</code>, <code>GAASignedOn</code></td></tr>
+            <tr><td>Payment initiation and completion tracking</td><td><code>Disbursement</code> PO/Invoice/Warrant fields</td></tr>
+            <tr><td>Track fund state transitions</td><td><code>Batch.TotalAwardAmount</code> + <code>DisbursementStatusSVT</code></td></tr>
+            <tr><td>View IHE and LEA report submission status</td><td><code>CandidateReport.Status</code>, <code>ReportingPeriod.DueOn</code></td></tr>
+            <tr><td>Track overdue reports</td><td><code>ReportingPeriod.DueOn</code> vs <code>CandidateReport.SubmittedOn</code></td></tr>
+        </tbody>
+    </table>
+
+    <h3>1.2 Data Management Requirements</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>BRD Requirement</th>
+                <th>Schema Implementation</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Temporal tables for automatic change history</td><td><code>CandidateStatusChange</code>, <code>BatchStatusChange</code>, <code>DisbursementStatusChange</code></td></tr>
+            <tr><td>Ledger tables for immutable financial records</td><td><code>Disbursement</code> table (Azure SQL Ledger configuration)</td></tr>
+            <tr><td>Hybrid schema with JSON extensions</td><td><code>ExtendedDataJson</code> columns on <code>Candidate</code>, <code>CandidateReport</code>, <code>GrantProgram</code></td></tr>
+            <tr><td>Minimum 7-year retention</td><td>Archive fields on all tables (<code>IsArchived</code>, <code>ArchivedOn</code>) - no hard deletes</td></tr>
+            <tr><td>All entities track Created/Updated audit</td><td>5 audit fields per DB-114 on every table</td></tr>
+        </tbody>
+    </table>
+
+    <h3>1.3 Security Requirements</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>BRD Requirement</th>
+                <th>Schema Implementation</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Role-based access control (RBAC)</td><td><code>UserRoleSVT</code> with codes: IHE_USER, LEA_USER, CTC_GRANTS, CTC_FISCAL, CTC_ADMIN</td></tr>
+            <tr><td>Portal-level isolation</td><td><code>Account.OrganizationId</code> + <code>Account.RoleId</code> for authorization</td></tr>
+            <tr><td>EntraID for staff</td><td><code>Account.EntraId</code> for SSO mapping</td></tr>
+            <tr><td>OAuth for grantees</td><td><code>Account.OAuthProvider</code>, <code>Account.OAuthId</code></td></tr>
+            <tr><td>Magic links with expiration</td><td><code>Notification</code> table with tokenized URL support</td></tr>
+        </tbody>
+    </table>
+
+    <h3>1.4 Integration Requirements</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>BRD Requirement</th>
+                <th>Schema Implementation</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>ECS Database - SEID lookup</td><td><code>Candidate.SEID</code>, <code>Organization.EcsCdsCode</code></td></tr>
+            <tr><td>ECS - Organization CDS code verification</td><td><code>Organization.EcsCdsCode</code> with index</td></tr>
+            <tr><td>Geographic reporting</td><td><code>Organization.County</code>, <code>Organization.Region</code></td></tr>
+            <tr><td>DocuSign - GAA envelope tracking</td><td><code>Disbursement.GAAEnvelopeId</code>, <code>GAAStatus</code>, <code>GAASentOn</code>, <code>GAASignedOn</code></td></tr>
+            <tr><td>Fiscal System - CSV export (Phase 1)</td><td>All financial data in <code>Disbursement</code>, <code>Batch.TotalAwardAmount</code></td></tr>
+        </tbody>
+    </table>
+
+    <h2 id="section-2">2. R4 Framework Compliance</h2>
+
+    <h3>2.1 Database Standards Compliance</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>R4 Standard</th>
+                <th>Requirement</th>
+                <th>Compliance</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>DB-101</td><td>Table names: PascalCase, singular, no prefixes</td><td class="check">&check;</td></tr>
+            <tr><td>DB-102</td><td>Junction tables: concatenate parent names</td><td class="check">&check;</td></tr>
+            <tr><td>DB-104</td><td>Primary keys named "Id"</td><td class="check">&check;</td></tr>
+            <tr><td>DB-105</td><td>Foreign keys: <code>{ParentTable}Id</code></td><td class="check">&check;</td></tr>
+            <tr><td>DB-108</td><td>Bit fields: "Is/Has/Can" prefix</td><td class="check">&check;</td></tr>
+            <tr><td>DB-110</td><td>DateTime fields: "On" suffix</td><td class="check">&check;</td></tr>
+            <tr><td>DB-113</td><td>Archive fields (4 columns) on archivable tables</td><td class="check">&check;</td></tr>
+            <tr><td>DB-114</td><td>Audit fields (5 columns) on all tables</td><td class="check">&check;</td></tr>
+            <tr><td>DB-201</td><td>SVT tables suffixed with "SVT"</td><td class="check">&check;</td></tr>
+            <tr><td>DB-202</td><td>SVT standard structure</td><td class="check">&check;</td></tr>
+        </tbody>
+    </table>
+
+    <h3>2.2 Standard Field Patterns</h3>
+    <div class="field-patterns">
+        <div class="field-pattern-box">
+            <h4>Audit Fields (DB-114) - All 31 tables</h4>
+            <table>
+                <thead><tr><th>Field</th><th>Type</th><th>Default</th></tr></thead>
+                <tbody>
+                    <tr><td>CreatedOn</td><td>DateTime</td><td>GETDATE()</td></tr>
+                    <tr><td>CreatedByAccountId</td><td>Int</td><td>-1</td></tr>
+                    <tr><td>LastUpdatedOn</td><td>DateTime</td><td>GETDATE()</td></tr>
+                    <tr><td>LastUpdatedByAccountId</td><td>Int</td><td>-1</td></tr>
+                    <tr><td>CanBeDeleted</td><td>Bit</td><td>0</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="field-pattern-box">
+            <h4>Archive Fields (DB-113) - Archivable tables</h4>
+            <table>
+                <thead><tr><th>Field</th><th>Type</th><th>Default</th></tr></thead>
+                <tbody>
+                    <tr><td>IsArchived</td><td>Bit</td><td>0</td></tr>
+                    <tr><td>ArchivedOn</td><td>DateTime</td><td>NULL</td></tr>
+                    <tr><td>ArchivedByAccountId</td><td>Int</td><td>NULL</td></tr>
+                    <tr><td>ArchivedComments</td><td>VarChar(MAX)</td><td>NULL</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <h3>2.3 SVT (Static Value Table) Inventory</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>SVT Table</th>
+                <th>Purpose</th>
+                <th>Example Values</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>OrganizationTypeSVT</td><td>Organization categories</td><td>IHE, LEA, COE, CTC</td></tr>
+            <tr><td>CandidateStatusSVT</td><td>Candidate workflow states</td><td>DRAFT, APPROVED, REJECTED</td></tr>
+            <tr><td>BatchStatusSVT</td><td>Batch workflow states</td><td>PENDING_REVIEW, GAA_SENT, COMPLETE</td></tr>
+            <tr><td>DisbursementStatusSVT</td><td>Payment states</td><td>PENDING, PROCESSED, CONFIRMED</td></tr>
+            <tr><td>FileTypeSVT</td><td>Document categories</td><td>GAA_DOCUMENT, INVOICE, PO_DOCUMENT</td></tr>
+            <tr><td>ReportTypeSVT</td><td>Report categories</td><td>IHE_COMPLETION, LEA_PAYMENT</td></tr>
+            <tr><td>UserRoleSVT</td><td>Portal access roles</td><td>IHE_USER, LEA_USER, CTC_GRANTS</td></tr>
+            <tr><td>NotificationTypeSVT</td><td>Email template types</td><td>APPLICATION_SUBMITTED, GAA_READY</td></tr>
+            <tr><td>BatchTimelineEventTypeSVT</td><td>Workflow timeline events</td><td>BATCH_CREATED, CTC_APPROVED</td></tr>
+        </tbody>
+    </table>
+
+    <h2 id="section-3">3. Entity Model & Relationships</h2>
+
+    <h3>3.1 Entity Relationship Diagram</h3>
+    <pre>
+                              ┌──────────────┐
+                              │ GrantProgram │ &larr;── Configuration (V1: STSP only)
+                              └──────┬───────┘
+                                     │ 1:M
+                                     ▼
+                              ┌──────────────┐
+                              │  GrantCycle  │ &larr;── Funding period (FY 2024-25)
+                              └──────┬───────┘
+                                     │
+              ┌──────────────────────┼──────────────────────┐
+              │ 1:M                  │ 1:M                  │ 1:M
+              ▼                      ▼                      ▼
+        ┌───────────┐          ┌───────────┐         ┌───────────────┐
+        │Application│          │   Batch   │         │ReportingPeriod│
+        │ (IHE+LEA) │          │ (Monthly) │         │  (Due Dates)  │
+        └─────┬─────┘          └─────┬─────┘         └───────┬───────┘
+              │ 1:M                  │ 1:M                   │ 1:M
+              ▼                      ▼                       ▼
+        ┌───────────┐          ┌───────────┐         ┌───────────────┐
+        │ Candidate │◄─────────│BatchCand. │         │CandidateReport│
+        │  (Person) │  M:1     │  (Join)   │         │ (IHE/LEA)     │
+        └───────────┘          └───────────┘         └───────────────┘
+                                     │
+                                     │ M:1
+                                     ▼
+                               ┌───────────┐
+                               │Disbursem. │ &larr;── GAA, PO, Invoice, Warrant
+                               └─────┬─────┘
+                                     │ 1:M
+                                     ▼
+                               ┌───────────┐
+                               │   File    │ &larr;── Document storage
+                               └───────────┘
+
+ Organization ──┬── 1:M ──► Account (portal users)
+                ├── M:1 ──► Application.IHEOrgId
+                ├── M:1 ──► Application.LEAOrgId
+                └── M:1 ──► Batch.SubmittingOrgId
+    </pre>
+
+    <h3>3.2 Table Summary</h3>
+    <table class="summary-table">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Tables</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>SVT (Lookups)</td><td>OrganizationTypeSVT, CandidateStatusSVT, BatchStatusSVT, DisbursementStatusSVT, FileTypeSVT, ReportTypeSVT, UserRoleSVT, NotificationTypeSVT, BatchTimelineEventTypeSVT</td><td>9</td></tr>
+            <tr><td>Core</td><td>GrantProgram, GrantCycle, Organization, Account</td><td>4</td></tr>
+            <tr><td>Application</td><td>Application, Candidate</td><td>2</td></tr>
+            <tr><td>Batch & Disbursement</td><td>Batch, BatchCandidate, Disbursement</td><td>3</td></tr>
+            <tr><td>Reporting</td><td>ReportingPeriod, CandidateReport</td><td>2</td></tr>
+            <tr><td>File Storage</td><td>File, DisbursementFile, CandidateReportFile</td><td>3</td></tr>
+            <tr><td>Status History</td><td>CandidateStatusChange, BatchStatusChange, DisbursementStatusChange</td><td>3</td></tr>
+            <tr><td>Supporting</td><td>Notification, AuditLog</td><td>2</td></tr>
+            <tr><td>V2 Extensions</td><td>CandidateFunding, CandidateYearProgress, CandidateYearOutcome</td><td>3</td></tr>
+            <tr style="font-weight: bold; background: var(--gray-200);"><td>Total</td><td></td><td>31</td></tr>
+        </tbody>
+    </table>
+
+    <h3>3.3 Candidate Status Workflow</h3>
+    <pre>
+    ┌─────────┐      ┌─────────────┐      ┌─────────────┐
+    │  DRAFT  │─────►│IHE_SUBMITTED│─────►│LEA_REVIEWING│
+    └─────────┘      └─────────────┘      └──────┬──────┘
+                                                 │
+                     ┌───────────────────────────┼───────────────────────────┐
+                     ▼                           ▼                           ▼
+             ┌───────────────┐            ┌─────────────┐            ┌───────────┐
+             │RETURNED_TO_IHE│            │ LEA_APPROVED│            │ REJECTED  │
+             └───────┬───────┘            └──────┬──────┘            └───────────┘
+                     │                           │                      (Terminal)
+                     │                           ▼
+                     │                    ┌─────────────┐
+                     └───────────────────►│CTC_SUBMITTED│
+                                          └──────┬──────┘
+                                                 ▼
+                                          ┌─────────────┐
+                                          │CTC_REVIEWING│
+                                          └──────┬──────┘
+                                                 │
+                     ┌───────────────────────────┼───────────────────────────┐
+                     ▼                           ▼                           ▼
+             ┌───────────┐               ┌───────────┐               ┌─────────────┐
+             │ REJECTED  │               │ APPROVED  │               │REPORTING_DUE│
+             └───────────┘               └───────────┘               └──────┬──────┘
+               (Terminal)                                                   │
+                                                                            ▼
+                                                                    ┌───────────────┐
+                                                                    │REPORTS_COMPLETE│
+                                                                    └───────┬───────┘
+                                                                            ▼
+                                                                      ┌──────────┐
+                                                                      │  CLOSED  │
+                                                                      └──────────┘
+                                                                        (Terminal)
+    </pre>
+
+    <h2 id="section-4">4. Migration & Deployment</h2>
+
+    <h3>4.1 Current State</h3>
+    <p>STSP is currently managed via:</p>
+    <ul class="current-state-list">
+        <li>Excel spreadsheets for candidate tracking</li>
+        <li>Email for IHE-LEA-CTC communication</li>
+        <li>Paper GAAs with wet signatures</li>
+        <li>Manual fund tracking in separate ledgers</li>
+    </ul>
+
+    <h3>4.2 Data Migration Plan</h3>
+    <h4>Phase 1: Reference Data (Pre Go-Live)</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Source</th>
+                <th>Target Table</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>IHE Organizations</td><td>ECS Database</td><td>Organization</td></tr>
+            <tr><td>LEA Organizations</td><td>ECS Database</td><td>Organization</td></tr>
+            <tr><td>CTC Staff</td><td>EntraID</td><td>Account</td></tr>
+            <tr><td>SVT Seed Data</td><td>Configuration</td><td>All SVT tables</td></tr>
+            <tr><td>STSP Grant Program</td><td>Configuration</td><td>GrantProgram</td></tr>
+            <tr><td>FY 2024-25 Cycle</td><td>Configuration</td><td>GrantCycle</td></tr>
+        </tbody>
+    </table>
+    <p><strong>Phase 2: Historical Data</strong> - Recommended to start fresh for FY 2024-25.</p>
+
+    <h3>4.3 Deployment Sequence</h3>
+    <ol class="deployment-steps">
+        <li>Create Database</li>
+        <li>Create Tables</li>
+        <li>Seed SVT Tables</li>
+        <li>Seed GrantProgram (STSP)</li>
+        <li>Create GrantCycle (FY 2024-25)</li>
+        <li>ECS Organization Sync</li>
+        <li>Configure Azure SQL (Temporal + Ledger)</li>
+        <li>Deploy Application</li>
+        <li>Smoke Test</li>
+        <li>Enable User Access</li>
+    </ol>
+
+    <h3>4.4 Backup & Recovery</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Requirement</th>
+                <th>Implementation</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Automated daily backups</td><td>Azure SQL automated backups</td></tr>
+            <tr><td>Point-in-time restore (7-day window)</td><td>Azure SQL PITR</td></tr>
+            <tr><td>Geo-redundant storage</td><td>Azure SQL geo-redundant backup storage</td></tr>
+            <tr><td>Recovery Point Objective (RPO)</td><td>1 hour</td></tr>
+            <tr><td>Recovery Time Objective (RTO)</td><td>4 hours</td></tr>
+        </tbody>
+    </table>
+
+    <h2 id="section-5">5. Data Dictionary</h2>
+
+    <div class="entity-section">
+        <h4>5.1 GrantProgram</h4>
+        <p>Configuration for a grant type. V1 contains single row for STSP.</p>
+        <table>
+            <thead><tr><th>Column</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td>Id</td><td>Int</td><td>Yes</td><td>Primary key</td></tr>
+                <tr><td>Code</td><td>VarChar(20)</td><td>Yes</td><td>Unique code (e.g., "STSP")</td></tr>
+                <tr><td>Name</td><td>VarChar(200)</td><td>Yes</td><td>Display name</td></tr>
+                <tr><td>Description</td><td>VarChar(2000)</td><td>No</td><td>Program description</td></tr>
+                <tr><td>WorkflowType</td><td>VarChar(20)</td><td>Yes</td><td>Workflow pattern (default: IHE_LEA_CTC)</td></tr>
+                <tr><td>HasBatching</td><td>Bit</td><td>Yes</td><td>Whether candidates are batched</td></tr>
+                <tr><td>AwardUnit</td><td>VarChar(20)</td><td>Yes</td><td>Award basis (PER_CANDIDATE, LUMP_SUM)</td></tr>
+                <tr><td>DisbursementType</td><td>VarChar(20)</td><td>Yes</td><td>Payment type (ONE_TIME, PHASED)</td></tr>
+                <tr><td>HoursThreshold</td><td>Int</td><td>No</td><td>Minimum hours for eligibility (e.g., 500)</td></tr>
+                <tr><td>IsActive</td><td>Bit</td><td>Yes</td><td>Whether program is active</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="entity-section">
+        <h4>5.2 GrantCycle</h4>
+        <p>A funding period for a grant program.</p>
+        <table>
+            <thead><tr><th>Column</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td>Id</td><td>Int</td><td>Yes</td><td>Primary key</td></tr>
+                <tr><td>GrantProgramId</td><td>Int</td><td>Yes</td><td>FK to GrantProgram</td></tr>
+                <tr><td>Name</td><td>VarChar(200)</td><td>Yes</td><td>Display name</td></tr>
+                <tr><td>FiscalYear</td><td>VarChar(10)</td><td>Yes</td><td>Fiscal year (e.g., "2024-25")</td></tr>
+                <tr><td>AppropriatedAmount</td><td>Decimal(18,2)</td><td>Yes</td><td>Total appropriation</td></tr>
+                <tr><td>DefaultAwardAmount</td><td>Decimal(18,2)</td><td>Yes</td><td>Award per candidate (e.g., 10000.00)</td></tr>
+                <tr><td>ApplicationOpenOn</td><td>DateTime</td><td>No</td><td>Application period start</td></tr>
+                <tr><td>ApplicationCloseOn</td><td>DateTime</td><td>No</td><td>Application period end</td></tr>
+                <tr><td>Status</td><td>VarChar(20)</td><td>Yes</td><td>Cycle status (DRAFT, OPEN, CLOSED)</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="entity-section">
+        <h4>5.3 Organization</h4>
+        <p>An IHE, LEA, or other organization. Synced from ECS.</p>
+        <table>
+            <thead><tr><th>Column</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td>Id</td><td>Int</td><td>Yes</td><td>Primary key</td></tr>
+                <tr><td>TypeId</td><td>Int</td><td>Yes</td><td>FK to OrganizationTypeSVT</td></tr>
+                <tr><td>EcsCdsCode</td><td>VarChar(14)</td><td>No</td><td>CDS code from ECS</td></tr>
+                <tr><td>EcsOrganizationId</td><td>Int</td><td>No</td><td>Organization ID from ECS</td></tr>
+                <tr><td>Name</td><td>VarChar(200)</td><td>Yes</td><td>Organization name</td></tr>
+                <tr><td>StreetAddress</td><td>NVarChar(80)</td><td>No</td><td>Street address</td></tr>
+                <tr><td>City</td><td>NVarChar(40)</td><td>No</td><td>City</td></tr>
+                <tr><td>County</td><td>NVarChar(50)</td><td>No</td><td>California county</td></tr>
+                <tr><td>Region</td><td>NVarChar(50)</td><td>No</td><td>CTC region (Northern, Southern, Bay Area)</td></tr>
+                <tr><td>StateProvince</td><td>NVarChar(40)</td><td>No</td><td>State</td></tr>
+                <tr><td>PostalCode</td><td>NVarChar(40)</td><td>No</td><td>ZIP code</td></tr>
+                <tr><td>PrimaryEmailAddress</td><td>VarChar(320)</td><td>No</td><td>Contact email</td></tr>
+                <tr><td>PrimaryPhoneNumber</td><td>VarChar(25)</td><td>No</td><td>Contact phone</td></tr>
+                <tr><td>IsActive</td><td>Bit</td><td>Yes</td><td>Whether organization is active</td></tr>
+                <tr><td>LastEcsSyncOn</td><td>DateTime</td><td>No</td><td>Last ECS sync timestamp</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="entity-section">
+        <h4>5.4 Account</h4>
+        <p>Portal users (IHE/LEA staff, CTC staff).</p>
+        <table>
+            <thead><tr><th>Column</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td>Id</td><td>Int</td><td>Yes</td><td>Primary key</td></tr>
+                <tr><td>OrganizationId</td><td>Int</td><td>No</td><td>FK to Organization (NULL for CTC staff)</td></tr>
+                <tr><td>RoleId</td><td>Int</td><td>Yes</td><td>FK to UserRoleSVT</td></tr>
+                <tr><td>EmailAddress</td><td>VarChar(320)</td><td>Yes</td><td>Unique login email</td></tr>
+                <tr><td>FirstName</td><td>NVarChar(50)</td><td>Yes</td><td>First name</td></tr>
+                <tr><td>LastName</td><td>NVarChar(50)</td><td>Yes</td><td>Last name</td></tr>
+                <tr><td>PhoneNumber</td><td>VarChar(25)</td><td>No</td><td>Phone number</td></tr>
+                <tr><td>Title</td><td>VarChar(200)</td><td>No</td><td>Job title</td></tr>
+                <tr><td>EntraId</td><td>VarChar(100)</td><td>No</td><td>EntraID for CTC SSO</td></tr>
+                <tr><td>OAuthProvider</td><td>VarChar(50)</td><td>No</td><td>OAuth provider (google, microsoft)</td></tr>
+                <tr><td>OAuthId</td><td>VarChar(200)</td><td>No</td><td>OAuth identifier</td></tr>
+                <tr><td>IsActive</td><td>Bit</td><td>Yes</td><td>Whether account is active</td></tr>
+                <tr><td>LastLoginOn</td><td>DateTime</td><td>No</td><td>Last login timestamp</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="entity-section">
+        <h4>5.5 Application</h4>
+        <p>An IHE-LEA partnership for a grant cycle.</p>
+        <table>
+            <thead><tr><th>Column</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td>Id</td><td>Int</td><td>Yes</td><td>Primary key</td></tr>
+                <tr><td>GrantCycleId</td><td>Int</td><td>Yes</td><td>FK to GrantCycle</td></tr>
+                <tr><td>IHEOrgId</td><td>Int</td><td>No</td><td>FK to Organization (IHE)</td></tr>
+                <tr><td>LEAOrgId</td><td>Int</td><td>No</td><td>FK to Organization (LEA)</td></tr>
+                <tr><td>InitiatorContactId</td><td>Int</td><td>No</td><td>FK to Account (IHE contact)</td></tr>
+                <tr><td>CompleterContactId</td><td>Int</td><td>No</td><td>FK to Account (LEA contact)</td></tr>
+                <tr><td>GAASignerName</td><td>NVarChar(200)</td><td>No</td><td>Name of GAA signer</td></tr>
+                <tr><td>GAASignerTitle</td><td>VarChar(200)</td><td>No</td><td>Title of GAA signer</td></tr>
+                <tr><td>GAASignerEmail</td><td>VarChar(320)</td><td>No</td><td>Email for DocuSign</td></tr>
+                <tr><td>Status</td><td>VarChar(20)</td><td>Yes</td><td>Application status</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="entity-section">
+        <h4>5.6 Candidate</h4>
+        <p>An individual applying for the grant (student teacher).</p>
+        <table>
+            <thead><tr><th>Column</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td>Id</td><td>Int</td><td>Yes</td><td>Primary key</td></tr>
+                <tr><td>ApplicationId</td><td>Int</td><td>Yes</td><td>FK to Application</td></tr>
+                <tr><td>StatusId</td><td>Int</td><td>Yes</td><td>FK to CandidateStatusSVT</td></tr>
+                <tr><td>FirstName</td><td>NVarChar(50)</td><td>Yes</td><td>First name</td></tr>
+                <tr><td>LastName</td><td>NVarChar(50)</td><td>Yes</td><td>Last name</td></tr>
+                <tr><td>SEID</td><td>VarChar(10)</td><td>No</td><td>State Educator ID</td></tr>
+                <tr><td>DateOfBirth</td><td>DateTime</td><td>No</td><td>Date of birth</td></tr>
+                <tr><td>Last4SSN</td><td>VarChar(4)</td><td>No</td><td>Last 4 digits of SSN</td></tr>
+                <tr><td>EmailAddress</td><td>VarChar(320)</td><td>No</td><td>Email address</td></tr>
+                <tr><td>Race</td><td>VarChar(100)</td><td>No</td><td>Race</td></tr>
+                <tr><td>Ethnicity</td><td>VarChar(100)</td><td>No</td><td>Ethnicity</td></tr>
+                <tr><td>Gender</td><td>VarChar(50)</td><td>No</td><td>Gender</td></tr>
+                <tr><td>CredentialArea</td><td>VarChar(100)</td><td>No</td><td>Credential subject area</td></tr>
+                <tr><td>SchoolCdsCode</td><td>VarChar(14)</td><td>No</td><td>Placement school CDS code</td></tr>
+                <tr><td>SchoolName</td><td>VarChar(200)</td><td>No</td><td>Placement school name</td></tr>
+                <tr><td>RequestedAmount</td><td>Decimal(18,2)</td><td>No</td><td>Requested award amount</td></tr>
+                <tr><td>AwardedAmount</td><td>Decimal(18,2)</td><td>No</td><td>Approved award amount</td></tr>
+                <tr><td>ApprovedOn</td><td>DateTime</td><td>No</td><td>Approval timestamp</td></tr>
+                <tr><td>ApprovedByAccountId</td><td>Int</td><td>No</td><td>FK to Account (approver)</td></tr>
+                <tr><td>RejectedOn</td><td>DateTime</td><td>No</td><td>Rejection timestamp</td></tr>
+                <tr><td>RejectionReason</td><td>VarChar(1000)</td><td>No</td><td>Reason for rejection</td></tr>
+                <tr><td>ExtendedDataJson</td><td>NVarChar(MAX)</td><td>No</td><td>Grant-specific fields (JSON)</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="entity-section">
+        <h4>5.7 Batch</h4>
+        <p>LEA's monthly submission to CTC. One GAA per batch.</p>
+        <table>
+            <thead><tr><th>Column</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td>Id</td><td>Int</td><td>Yes</td><td>Primary key</td></tr>
+                <tr><td>GrantCycleId</td><td>Int</td><td>Yes</td><td>FK to GrantCycle</td></tr>
+                <tr><td>StatusId</td><td>Int</td><td>Yes</td><td>FK to BatchStatusSVT</td></tr>
+                <tr><td>SubmittingOrgId</td><td>Int</td><td>Yes</td><td>FK to Organization (LEA)</td></tr>
+                <tr><td>BatchNumber</td><td>VarChar(20)</td><td>No</td><td>Batch identifier</td></tr>
+                <tr><td>SubmissionPeriod</td><td>VarChar(10)</td><td>Yes</td><td>Year-Month (e.g., "2025-01")</td></tr>
+                <tr><td>CandidateCount</td><td>Int</td><td>Yes</td><td>Number of candidates</td></tr>
+                <tr><td>TotalAwardAmount</td><td>Decimal(18,2)</td><td>Yes</td><td>Total batch amount</td></tr>
+                <tr><td>SubmittedOn</td><td>DateTime</td><td>No</td><td>Submission timestamp</td></tr>
+                <tr><td>SubmittedByAccountId</td><td>Int</td><td>No</td><td>FK to Account (submitter)</td></tr>
+                <tr><td>ApprovedOn</td><td>DateTime</td><td>No</td><td>Approval timestamp</td></tr>
+                <tr><td>ApprovedByAccountId</td><td>Int</td><td>No</td><td>FK to Account (approver)</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="entity-section">
+        <h4>5.8 Disbursement</h4>
+        <p>Payment processing record for a batch.</p>
+        <table>
+            <thead><tr><th>Column</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td>Id</td><td>Int</td><td>Yes</td><td>Primary key</td></tr>
+                <tr><td>BatchId</td><td>Int</td><td>Yes</td><td>FK to Batch</td></tr>
+                <tr><td>StatusId</td><td>Int</td><td>Yes</td><td>FK to DisbursementStatusSVT</td></tr>
+                <tr><td>Amount</td><td>Decimal(18,2)</td><td>Yes</td><td>Disbursement amount</td></tr>
+                <tr><td>GAAEnvelopeId</td><td>VarChar(100)</td><td>No</td><td>DocuSign envelope ID</td></tr>
+                <tr><td>GAAStatus</td><td>VarChar(30)</td><td>No</td><td>GAA status</td></tr>
+                <tr><td>GAASentOn</td><td>DateTime</td><td>No</td><td>GAA sent timestamp</td></tr>
+                <tr><td>GAASignedOn</td><td>DateTime</td><td>No</td><td>GAA signed timestamp</td></tr>
+                <tr><td>PONumber</td><td>VarChar(50)</td><td>No</td><td>Purchase order number</td></tr>
+                <tr><td>POAmount</td><td>Decimal(18,2)</td><td>No</td><td>PO amount</td></tr>
+                <tr><td>POIssuedOn</td><td>DateTime</td><td>No</td><td>PO issued date</td></tr>
+                <tr><td>InvoiceNumber</td><td>VarChar(50)</td><td>No</td><td>Invoice number</td></tr>
+                <tr><td>InvoiceAmount</td><td>Decimal(18,2)</td><td>No</td><td>Invoice amount</td></tr>
+                <tr><td>InvoiceSentOn</td><td>DateTime</td><td>No</td><td>Invoice sent date</td></tr>
+                <tr><td>WarrantNumber</td><td>VarChar(50)</td><td>No</td><td>Warrant number</td></tr>
+                <tr><td>WarrantAmount</td><td>Decimal(18,2)</td><td>No</td><td>Warrant amount</td></tr>
+                <tr><td>WarrantConfirmedOn</td><td>DateTime</td><td>No</td><td>Payment confirmed date</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="entity-section">
+        <h4>5.9 ReportingPeriod</h4>
+        <p>When reports are due for a grant cycle.</p>
+        <table>
+            <thead><tr><th>Column</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td>Id</td><td>Int</td><td>Yes</td><td>Primary key</td></tr>
+                <tr><td>GrantCycleId</td><td>Int</td><td>Yes</td><td>FK to GrantCycle</td></tr>
+                <tr><td>ReportTypeId</td><td>Int</td><td>Yes</td><td>FK to ReportTypeSVT</td></tr>
+                <tr><td>PeriodName</td><td>VarChar(100)</td><td>Yes</td><td>Period name</td></tr>
+                <tr><td>StartOn</td><td>DateTime</td><td>No</td><td>Period start date</td></tr>
+                <tr><td>DueOn</td><td>DateTime</td><td>Yes</td><td>Report due date</td></tr>
+                <tr><td>IsActive</td><td>Bit</td><td>Yes</td><td>Whether period is active</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="entity-section">
+        <h4>5.10 CandidateReport</h4>
+        <p>Per-candidate report submitted by IHE or LEA.</p>
+        <table>
+            <thead><tr><th>Column</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td>Id</td><td>Int</td><td>Yes</td><td>Primary key</td></tr>
+                <tr><td>CandidateId</td><td>Int</td><td>Yes</td><td>FK to Candidate</td></tr>
+                <tr><td>ReportingPeriodId</td><td>Int</td><td>Yes</td><td>FK to ReportingPeriod</td></tr>
+                <tr><td>ReportingOrgId</td><td>Int</td><td>Yes</td><td>FK to Organization</td></tr>
+                <tr><td>ReportTypeId</td><td>Int</td><td>Yes</td><td>FK to ReportTypeSVT</td></tr>
+                <tr><td>CompletionStatus</td><td>VarChar(30)</td><td>No</td><td>Completion status</td></tr>
+                <tr><td>CompletionOn</td><td>DateTime</td><td>No</td><td>Completion date</td></tr>
+                <tr><td>GrantProgramHours</td><td>Int</td><td>No</td><td>Hours in grant program</td></tr>
+                <tr><td>CredentialProgramHours</td><td>Int</td><td>No</td><td>Hours in credential program</td></tr>
+                <tr><td>HasCredentialEarned</td><td>Bit</td><td>No</td><td>Whether credential earned</td></tr>
+                <tr><td>CredentialEarnedOn</td><td>DateTime</td><td>No</td><td>Credential earned date</td></tr>
+                <tr><td>EmploymentStatus</td><td>VarChar(50)</td><td>No</td><td>Employment outcome</td></tr>
+                <tr><td>IsHiredByPartnerOrg</td><td>Bit</td><td>No</td><td>Hired by partner LEA</td></tr>
+                <tr><td>PaymentCategory</td><td>VarChar(50)</td><td>No</td><td>Payment category</td></tr>
+                <tr><td>PaymentAmount</td><td>Decimal(18,2)</td><td>No</td><td>Payment to candidate</td></tr>
+                <tr><td>PaymentOn</td><td>DateTime</td><td>No</td><td>Payment date</td></tr>
+                <tr><td>Status</td><td>VarChar(20)</td><td>Yes</td><td>Report status (DRAFT, SUBMITTED)</td></tr>
+                <tr><td>SubmittedOn</td><td>DateTime</td><td>No</td><td>Submission timestamp</td></tr>
+                <tr><td>ExtendedDataJson</td><td>NVarChar(MAX)</td><td>No</td><td>Grant-specific fields (JSON)</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="entity-section">
+        <h4>5.11 File</h4>
+        <p>Document storage.</p>
+        <table>
+            <thead><tr><th>Column</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td>Id</td><td>Int</td><td>Yes</td><td>Primary key</td></tr>
+                <tr><td>TypeId</td><td>Int</td><td>Yes</td><td>FK to FileTypeSVT</td></tr>
+                <tr><td>StorageKey</td><td>UniqueIdentifier</td><td>Yes</td><td>Azure Blob storage key</td></tr>
+                <tr><td>FileName</td><td>VarChar(255)</td><td>Yes</td><td>Original filename</td></tr>
+                <tr><td>FileSizeInKilobytes</td><td>Int</td><td>Yes</td><td>File size</td></tr>
+                <tr><td>Title</td><td>VarChar(300)</td><td>No</td><td>Document title</td></tr>
+                <tr><td>DocumentDate</td><td>DateTime</td><td>No</td><td>Document date</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="entity-section">
+        <h4>5.12 Notification</h4>
+        <p>Email/system notifications.</p>
+        <table>
+            <thead><tr><th>Column</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td>Id</td><td>Int</td><td>Yes</td><td>Primary key</td></tr>
+                <tr><td>TypeId</td><td>Int</td><td>Yes</td><td>FK to NotificationTypeSVT</td></tr>
+                <tr><td>RecipientAccountId</td><td>Int</td><td>No</td><td>FK to Account</td></tr>
+                <tr><td>RecipientEmailAddress</td><td>VarChar(320)</td><td>Yes</td><td>Recipient email</td></tr>
+                <tr><td>Subject</td><td>NVarChar(500)</td><td>Yes</td><td>Email subject</td></tr>
+                <tr><td>BodyHtml</td><td>NVarChar(MAX)</td><td>Yes</td><td>Email body</td></tr>
+                <tr><td>Status</td><td>VarChar(20)</td><td>Yes</td><td>Status (PENDING, SENT, FAILED)</td></tr>
+                <tr><td>SentOn</td><td>DateTime</td><td>No</td><td>Sent timestamp</td></tr>
+                <tr><td>ErrorMessage</td><td>VarChar(1000)</td><td>No</td><td>Error if failed</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="entity-section">
+        <h4>5.13 Status Change Tables</h4>
+        <p>Three tables track status history for audit compliance.</p>
+        <h5>CandidateStatusChange</h5>
+        <table>
+            <thead><tr><th>Column</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td>Id</td><td>Int</td><td>Yes</td><td>Primary key</td></tr>
+                <tr><td>CandidateId</td><td>Int</td><td>Yes</td><td>FK to Candidate</td></tr>
+                <tr><td>FromStatusId</td><td>Int</td><td>No</td><td>FK to CandidateStatusSVT</td></tr>
+                <tr><td>ToStatusId</td><td>Int</td><td>Yes</td><td>FK to CandidateStatusSVT</td></tr>
+                <tr><td>ChangedOn</td><td>DateTime</td><td>Yes</td><td>Change timestamp</td></tr>
+                <tr><td>ChangedByAccountId</td><td>Int</td><td>Yes</td><td>FK to Account</td></tr>
+                <tr><td>Comments</td><td>VarChar(2000)</td><td>No</td><td>Change notes</td></tr>
+            </tbody>
+        </table>
+        <p><strong>BatchStatusChange</strong> and <strong>DisbursementStatusChange</strong> follow the same pattern.</p>
+    </div>
+
+    <div class="entity-section">
+        <h4>5.14 Junction Tables</h4>
+        <table>
+            <thead><tr><th>Table</th><th>Purpose</th><th>Foreign Keys</th></tr></thead>
+            <tbody>
+                <tr><td>BatchCandidate</td><td>Links Batch to Candidate</td><td>BatchId, CandidateId</td></tr>
+                <tr><td>DisbursementFile</td><td>Links Disbursement to File</td><td>DisbursementId, FileId</td></tr>
+                <tr><td>CandidateReportFile</td><td>Links CandidateReport to File</td><td>CandidateReportId, FileId</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="entity-section">
+        <h4>5.15 V2 Extension Tables</h4>
+        <p>Created but not used in V1.</p>
+        <table>
+            <thead><tr><th>Table</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td>CandidateFunding</td><td>Multiple funding sources per candidate</td></tr>
+                <tr><td>CandidateYearProgress</td><td>Annual progress tracking</td></tr>
+                <tr><td>CandidateYearOutcome</td><td>Post-program employment tracking</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="document-history">
+        <h3>Document History</h3>
+        <table>
+            <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Changes</th></tr></thead>
+            <tbody>
+                <tr><td>1.0</td><td>December 2025</td><td>GMS Team</td><td>Initial release</td></tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

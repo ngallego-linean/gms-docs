@@ -1,86 +1,115 @@
 @{
     ViewData["Title"] = ViewBag.ReportTitle;
+    ViewBag.ReportType = "Financial";
+    ViewBag.ReportId = (int?)null;
 
-    // Budget overview
-    var budget = new {
+    // Current year budget
+    var currentYear = new {
+        Year = "FY 2024-25",
         Appropriated = 5000000m,
         Encumbered = 2140000m,
-        Disbursed = 1648000m,
-        Remaining = 2860000m
+        Disbursed = 1650000m,
+        Remaining = 2860000m,
+        StudentsFunded = 214,
+        Credentialed = 162,
+        Employed = 158,
+        HiredInDistrict = 142
     };
 
-    // Disbursement details
-    var disbursements = new[] {
-        new { LEA = "Los Angeles USD", GrantNumber = "2025STSP001", InvoiceNumber = "2025STSP001-1", PONumber = "6360-0000004201", Amount = 360000m, WarrantId = "60581151", WarrantDate = "Nov 25, 2025", Status = "Paid" },
-        new { LEA = "San Diego USD", GrantNumber = "2025STSP002", InvoiceNumber = "2025STSP002-1", PONumber = "6360-0000004202", Amount = 256000m, WarrantId = "60581152", WarrantDate = "Nov 25, 2025", Status = "Paid" },
-        new { LEA = "Fresno USD", GrantNumber = "2025STSP003", InvoiceNumber = "2025STSP003-1", PONumber = "6360-0000004203", Amount = 224000m, WarrantId = "60581153", WarrantDate = "Nov 25, 2025", Status = "Paid" },
-        new { LEA = "Sacramento City USD", GrantNumber = "2025STSP004", InvoiceNumber = "2025STSP004-1", PONumber = "6360-0000004204", Amount = 192000m, WarrantId = "60581154", WarrantDate = "Nov 25, 2025", Status = "Paid" },
-        new { LEA = "Oakland USD", GrantNumber = "2025STSP005", InvoiceNumber = "2025STSP005-1", PONumber = "6360-0000004205", Amount = 176000m, WarrantId = "60581155", WarrantDate = "Nov 20, 2025", Status = "Paid" },
-        new { LEA = "Long Beach USD", GrantNumber = "2025STSP006", InvoiceNumber = "2025STSP006-1", PONumber = "6360-0000004206", Amount = 144000m, WarrantId = "-", WarrantDate = "-", Status = "Awaiting Warrant" },
-        new { LEA = "San Francisco USD", GrantNumber = "2025STSP007", InvoiceNumber = "2025STSP007-1", PONumber = "6360-0000004207", Amount = 120000m, WarrantId = "60581156", WarrantDate = "Nov 15, 2025", Status = "Paid" },
-        new { LEA = "San Jose USD", GrantNumber = "2025STSP008", InvoiceNumber = "2025STSP008-1", PONumber = "-", Amount = 96000m, WarrantId = "-", WarrantDate = "-", Status = "Awaiting PO" },
-        new { LEA = "Santa Ana USD", GrantNumber = "2025STSP009", InvoiceNumber = "2025STSP009-1", PONumber = "6360-0000004209", Amount = 80000m, WarrantId = "-", WarrantDate = "-", Status = "Awaiting Warrant" },
-        new { LEA = "Bakersfield City SD", GrantNumber = "2025STSP010", InvoiceNumber = "-", PONumber = "-", Amount = 80000m, WarrantId = "-", WarrantDate = "-", Status = "Pending Invoice" }
+    // Prior year budget for comparison
+    var priorYear = new {
+        Year = "FY 2023-24",
+        Appropriated = 4500000m,
+        Encumbered = 4200000m,
+        Disbursed = 4050000m,
+        Remaining = 300000m,
+        StudentsFunded = 198,
+        Credentialed = 158,
+        Employed = 148,
+        HiredInDistrict = 126
     };
 
-    // Monthly disbursements
+    // Calculate efficiency metrics
+    var currentCostPerFunded = currentYear.Disbursed / currentYear.StudentsFunded;
+    var currentCostPerCredentialed = currentYear.Disbursed / currentYear.Credentialed;
+    var currentCostPerEmployed = currentYear.Disbursed / currentYear.Employed;
+    var currentCostPerInDistrict = currentYear.Disbursed / currentYear.HiredInDistrict;
+
+    var priorCostPerFunded = priorYear.Disbursed / priorYear.StudentsFunded;
+    var priorCostPerCredentialed = priorYear.Disbursed / priorYear.Credentialed;
+    var priorCostPerEmployed = priorYear.Disbursed / priorYear.Employed;
+    var priorCostPerInDistrict = priorYear.Disbursed / priorYear.HiredInDistrict;
+
+    // Targets
+    var targets = new {
+        CostPerCredentialed = 12000m,
+        CostPerEmployed = 13000m,
+        UtilizationRate = 95.0
+    };
+
+    // Monthly disbursement data (cumulative for current year)
     var monthlyData = new[] {
-        new { Month = "July 2025", Amount = 0m },
-        new { Month = "August 2025", Amount = 120000m },
-        new { Month = "September 2025", Amount = 280000m },
-        new { Month = "October 2025", Amount = 456000m },
-        new { Month = "November 2025", Amount = 792000m }
+        new { Month = "Jul", Current = 0m, Prior = 0m },
+        new { Month = "Aug", Current = 120000m, Prior = 180000m },
+        new { Month = "Sep", Current = 400000m, Prior = 520000m },
+        new { Month = "Oct", Current = 860000m, Prior = 1100000m },
+        new { Month = "Nov", Current = 1650000m, Prior = 1850000m },
+        new { Month = "Dec", Current = 0m, Prior = 2400000m },
+        new { Month = "Jan", Current = 0m, Prior = 2900000m },
+        new { Month = "Feb", Current = 0m, Prior = 3300000m },
+        new { Month = "Mar", Current = 0m, Prior = 3650000m },
+        new { Month = "Apr", Current = 0m, Prior = 3900000m },
+        new { Month = "May", Current = 0m, Prior = 4050000m },
+        new { Month = "Jun", Current = 0m, Prior = 4050000m }
     };
 
-    var pendingActions = new {
-        PendingGAA = 2,
-        PendingInvoice = 1,
-        AwaitingPO = 1,
-        AwaitingWarrant = 2
+    // Projected end of year
+    var projectedDisbursement = 4200000m; // Based on current pace
+    var projectedUtilization = (projectedDisbursement / currentYear.Appropriated * 100);
+
+    // Helper functions
+    Func<decimal, decimal, string> getCostTrend = (current, prior) => {
+        var diff = current - prior;
+        if (diff < 0) return $"<span style=\"color: var(--success);\">↓ {Math.Abs(diff):C0}</span>";
+        if (diff > 0) return $"<span style=\"color: var(--danger);\">↑ {diff:C0}</span>";
+        return "<span style=\"color: var(--gray-500);\">→ No change</span>";
     };
 
-    var totalDisbursed = disbursements.Where(d => d.Status == "Paid").Sum(d => d.Amount);
+    Func<decimal, decimal, string> getTargetStatus = (actual, target) => {
+        if (actual <= target) return "<span style=\"color: var(--success);\"><i class=\"mdi mdi-check-circle\"></i></span>";
+        return "<span style=\"color: var(--warning);\"><i class=\"mdi mdi-alert\"></i></span>";
+    };
 }
 
 @section Breadcrumbs {
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam")">Grants Team</a></li>
         <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "Reporting")">Reporting</a></li>
-        <li class="breadcrumb-item active">Financial Summary Report</li>
+        <li class="breadcrumb-item active">Investment Efficiency Report</li>
     </ol>
 }
 
-<div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
-    <div>
-        <h2><i class="mdi mdi-currency-usd"></i> @ViewBag.ReportTitle</h2>
-        <p class="subtitle">@ViewBag.GrantCycle - Student Teacher Stipend Program</p>
-    </div>
-    <div class="report-actions">
-        <button class="r4-button r4-button-secondary" onclick="window.print();">
-            <i class="mdi mdi-printer"></i> Print
-        </button>
-        <button class="r4-button r4-button-primary" onclick="alert('PDF export coming soon');">
-            <i class="mdi mdi-file-pdf-box"></i> Export PDF
-        </button>
-        <button class="r4-button r4-button-secondary" onclick="alert('Excel export coming soon');">
-            <i class="mdi mdi-file-excel"></i> Export Excel
-        </button>
-    </div>
+<div class="page-header" style="margin-bottom: 1rem;">
+    <h2><i class="mdi mdi-chart-areaspline"></i> @ViewBag.ReportTitle</h2>
+    <p class="subtitle">What does each credentialed teacher cost us?</p>
 </div>
+
+<!-- Report Export Toolbar -->
+@await Html.PartialAsync("_ReportExportToolbar")
 
 <!-- Report Metadata -->
 <div class="r4-card">
     <div class="r4-card-body" style="display: flex; justify-content: space-between; padding: 1rem 1.5rem; background: var(--gray-100);">
         <div><strong>Grant Cycle:</strong> @ViewBag.GrantCycle</div>
         <div><strong>Program:</strong> Student Teacher Stipend Program</div>
-        <div><strong>As of:</strong> @((DateTime)ViewBag.GeneratedDate).ToString("MMMM d, yyyy h:mm tt")</div>
+        <div><strong>As of:</strong> @(((DateTime)ViewBag.GeneratedDate).ToString("MMMM d, yyyy"))</div>
     </div>
 </div>
 
-<!-- Budget Overview -->
+<!-- Budget Status -->
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-bank"></i> Budget Overview</h4>
+        <h4><i class="mdi mdi-bank"></i> Budget Status</h4>
     </div>
     <div class="r4-card-body">
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 1.5rem;">
@@ -88,168 +117,260 @@
                 <div class="metric-icon"><i class="mdi mdi-bank"></i></div>
                 <div class="metric-content">
                     <div class="metric-label">Appropriated</div>
-                    <div class="metric-value">@budget.Appropriated.ToString("C0")</div>
+                    <div class="metric-value">@currentYear.Appropriated.ToString("C0")</div>
+                    <div class="metric-secondary">+@((currentYear.Appropriated - priorYear.Appropriated).ToString("C0")) vs prior</div>
                 </div>
             </div>
             <div class="metric-card metric-card-warning">
                 <div class="metric-icon"><i class="mdi mdi-lock-outline"></i></div>
                 <div class="metric-content">
                     <div class="metric-label">Encumbered</div>
-                    <div class="metric-value">@budget.Encumbered.ToString("C0")</div>
-                    <div class="metric-secondary">@((budget.Encumbered / budget.Appropriated * 100).ToString("F1"))%</div>
+                    <div class="metric-value">@currentYear.Encumbered.ToString("C0")</div>
+                    <div class="metric-secondary">@((currentYear.Encumbered / currentYear.Appropriated * 100).ToString("F0"))% of budget</div>
                 </div>
             </div>
             <div class="metric-card metric-card-success">
                 <div class="metric-icon"><i class="mdi mdi-cash-check"></i></div>
                 <div class="metric-content">
-                    <div class="metric-label">Disbursed</div>
-                    <div class="metric-value">@budget.Disbursed.ToString("C0")</div>
-                    <div class="metric-secondary">@((budget.Disbursed / budget.Appropriated * 100).ToString("F1"))%</div>
+                    <div class="metric-label">Disbursed YTD</div>
+                    <div class="metric-value">@currentYear.Disbursed.ToString("C0")</div>
+                    <div class="metric-secondary">@((currentYear.Disbursed / currentYear.Appropriated * 100).ToString("F0"))% of budget</div>
                 </div>
             </div>
             <div class="metric-card metric-card-primary">
-                <div class="metric-icon"><i class="mdi mdi-cash-plus"></i></div>
+                <div class="metric-icon"><i class="mdi mdi-chart-timeline-variant"></i></div>
                 <div class="metric-content">
-                    <div class="metric-label">Remaining</div>
-                    <div class="metric-value">@budget.Remaining.ToString("C0")</div>
-                    <div class="metric-secondary">@((budget.Remaining / budget.Appropriated * 100).ToString("F1"))%</div>
+                    <div class="metric-label">Projected EOY</div>
+                    <div class="metric-value">@projectedDisbursement.ToString("C0")</div>
+                    <div class="metric-secondary">@projectedUtilization.ToString("F0")% utilization</div>
                 </div>
             </div>
         </div>
 
         <!-- Budget Progress Bar -->
         <div style="margin-top: 1rem;">
-            <div style="font-weight: 600; margin-bottom: 0.5rem;">Budget Utilization</div>
+            <div style="font-weight: 600; margin-bottom: 0.5rem;">Current Utilization</div>
             <div style="height: 30px; display: flex; border-radius: 4px; overflow: hidden;">
-                <div style="width: @((budget.Disbursed / budget.Appropriated * 100).ToString("F1"))%; background: var(--success); display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 600;">
-                    @((budget.Disbursed / budget.Appropriated * 100).ToString("F0"))% Disbursed
+                <div style="width: @((currentYear.Disbursed / currentYear.Appropriated * 100).ToString("F1"))%; background: var(--success); display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 600;">
+                    @((currentYear.Disbursed / currentYear.Appropriated * 100).ToString("F0"))% Disbursed
                 </div>
-                <div style="width: @(((budget.Encumbered - budget.Disbursed) / budget.Appropriated * 100).ToString("F1"))%; background: var(--warning); display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 600;">
-                    @(((budget.Encumbered - budget.Disbursed) / budget.Appropriated * 100).ToString("F0"))% Pending
+                <div style="width: @(((currentYear.Encumbered - currentYear.Disbursed) / currentYear.Appropriated * 100).ToString("F1"))%; background: var(--warning); display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 600;">
+                    @(((currentYear.Encumbered - currentYear.Disbursed) / currentYear.Appropriated * 100).ToString("F0"))% Committed
                 </div>
                 <div style="flex: 1; background: var(--gray-200); display: flex; align-items: center; justify-content: center; color: var(--gray-600); font-size: 0.75rem; font-weight: 600;">
-                    @((budget.Remaining / budget.Appropriated * 100).ToString("F0"))% Available
+                    @((currentYear.Remaining / currentYear.Appropriated * 100).ToString("F0"))% Available
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Monthly Disbursements Chart -->
+<!-- Investment Efficiency Metrics -->
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-chart-bar"></i> Monthly Disbursements</h4>
-    </div>
-    <div class="r4-card-body">
-        <div style="max-width: 800px; margin: 0 auto;">
-            <canvas id="monthlyChart" style="max-height: 300px;"></canvas>
-        </div>
-    </div>
-</div>
-
-<!-- Pending Actions -->
-<div class="r4-card">
-    <div class="r4-card-header">
-        <h4><i class="mdi mdi-clock-alert-outline"></i> Pending Actions</h4>
-    </div>
-    <div class="r4-card-body">
-        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;">
-            <div style="text-align: center; padding: 1.5rem; border: 1px solid var(--gray-300); border-radius: 8px;">
-                <div style="font-size: 2rem; font-weight: 700; color: var(--warning);">@pendingActions.PendingGAA</div>
-                <div style="font-size: 0.875rem; color: var(--gray-600);">GAAs Awaiting Signature</div>
-            </div>
-            <div style="text-align: center; padding: 1.5rem; border: 1px solid var(--gray-300); border-radius: 8px;">
-                <div style="font-size: 2rem; font-weight: 700; color: var(--warning);">@pendingActions.PendingInvoice</div>
-                <div style="font-size: 0.875rem; color: var(--gray-600);">Pending Invoice Submission</div>
-            </div>
-            <div style="text-align: center; padding: 1.5rem; border: 1px solid var(--gray-300); border-radius: 8px;">
-                <div style="font-size: 2rem; font-weight: 700; color: var(--info);">@pendingActions.AwaitingPO</div>
-                <div style="font-size: 0.875rem; color: var(--gray-600);">Invoices Awaiting PO</div>
-            </div>
-            <div style="text-align: center; padding: 1.5rem; border: 1px solid var(--gray-300); border-radius: 8px;">
-                <div style="font-size: 2rem; font-weight: 700; color: var(--info);">@pendingActions.AwaitingWarrant</div>
-                <div style="font-size: 0.875rem; color: var(--gray-600);">Invoices Awaiting Warrant</div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Disbursement Detail Table -->
-<div class="r4-card">
-    <div class="r4-card-header">
-        <h4><i class="mdi mdi-table"></i> Disbursement Details</h4>
+        <h4><i class="mdi mdi-calculator-variant"></i> Investment Efficiency</h4>
     </div>
     <div class="r4-card-body">
         <table class="r4-table">
             <thead>
                 <tr>
-                    <th>LEA</th>
-                    <th>Grant Number</th>
-                    <th>Invoice Number</th>
-                    <th>PO Number</th>
-                    <th style="text-align: right;">Amount</th>
-                    <th>Warrant ID</th>
-                    <th>Warrant Date</th>
-                    <th>Status</th>
+                    <th>Metric</th>
+                    <th style="text-align: right;">Target</th>
+                    <th style="text-align: right;">FY 2023-24</th>
+                    <th style="text-align: right;">FY 2024-25</th>
+                    <th style="text-align: center;">YoY Change</th>
+                    <th style="text-align: center;">Status</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in disbursements)
-                {
-                    <tr>
-                        <td><strong>@item.LEA</strong></td>
-                        <td><code>@item.GrantNumber</code></td>
-                        <td><code>@item.InvoiceNumber</code></td>
-                        <td><code>@item.PONumber</code></td>
-                        <td style="text-align: right;">@item.Amount.ToString("C0")</td>
-                        <td><code>@item.WarrantId</code></td>
-                        <td>@item.WarrantDate</td>
-                        <td>
-                            @if (item.Status == "Paid")
-                            {
-                                <span class="status-badge status-success">@item.Status</span>
-                            }
-                            else if (item.Status == "Awaiting Warrant" || item.Status == "Awaiting PO")
-                            {
-                                <span class="status-badge status-info">@item.Status</span>
-                            }
-                            else
-                            {
-                                <span class="status-badge status-warning">@item.Status</span>
-                            }
-                        </td>
-                    </tr>
-                }
-            </tbody>
-            <tfoot>
-                <tr style="font-weight: 600; background: var(--gray-100);">
-                    <td colspan="4">Total</td>
-                    <td style="text-align: right;">@disbursements.Sum(d => d.Amount).ToString("C0")</td>
-                    <td colspan="3">@disbursements.Count(d => d.Status == "Paid") of @disbursements.Length paid</td>
+                <tr>
+                    <td><strong>Cost per Student Funded</strong></td>
+                    <td style="text-align: right;">$10,000</td>
+                    <td style="text-align: right;">@priorCostPerFunded.ToString("C0")</td>
+                    <td style="text-align: right;">@currentCostPerFunded.ToString("C0")</td>
+                    <td style="text-align: center;">@Html.Raw(getCostTrend(currentCostPerFunded, priorCostPerFunded))</td>
+                    <td style="text-align: center;">@Html.Raw(getTargetStatus(currentCostPerFunded, 10000m))</td>
                 </tr>
-            </tfoot>
+                <tr>
+                    <td><strong>Cost per Credential Earned</strong></td>
+                    <td style="text-align: right;">@targets.CostPerCredentialed.ToString("C0")</td>
+                    <td style="text-align: right;">@priorCostPerCredentialed.ToString("C0")</td>
+                    <td style="text-align: right;">@currentCostPerCredentialed.ToString("C0")</td>
+                    <td style="text-align: center;">@Html.Raw(getCostTrend(currentCostPerCredentialed, priorCostPerCredentialed))</td>
+                    <td style="text-align: center;">@Html.Raw(getTargetStatus(currentCostPerCredentialed, targets.CostPerCredentialed))</td>
+                </tr>
+                <tr>
+                    <td><strong>Cost per Teacher Employed</strong></td>
+                    <td style="text-align: right;">@targets.CostPerEmployed.ToString("C0")</td>
+                    <td style="text-align: right;">@priorCostPerEmployed.ToString("C0")</td>
+                    <td style="text-align: right;">@currentCostPerEmployed.ToString("C0")</td>
+                    <td style="text-align: center;">@Html.Raw(getCostTrend(currentCostPerEmployed, priorCostPerEmployed))</td>
+                    <td style="text-align: center;">@Html.Raw(getTargetStatus(currentCostPerEmployed, targets.CostPerEmployed))</td>
+                </tr>
+                <tr>
+                    <td><strong>Cost per Teacher in Sponsoring District</strong></td>
+                    <td style="text-align: right;">$15,000</td>
+                    <td style="text-align: right;">@priorCostPerInDistrict.ToString("C0")</td>
+                    <td style="text-align: right;">@currentCostPerInDistrict.ToString("C0")</td>
+                    <td style="text-align: center;">@Html.Raw(getCostTrend(currentCostPerInDistrict, priorCostPerInDistrict))</td>
+                    <td style="text-align: center;">@Html.Raw(getTargetStatus(currentCostPerInDistrict, 15000m))</td>
+                </tr>
+            </tbody>
+        </table>
+        <p style="margin-top: 1rem; font-size: 0.875rem; color: var(--gray-600);">
+            <i class="mdi mdi-information-outline"></i>
+            Lower costs indicate better efficiency. Green arrows (↓) indicate improvement over prior year.
+        </p>
+    </div>
+</div>
+
+<!-- Disbursement Trend -->
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-chart-line"></i> Disbursement Trend: Current vs Prior Year</h4>
+    </div>
+    <div class="r4-card-body">
+        <!-- Dashboard View: Chart + Summary -->
+        <div class="dashboard-view" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+            <div>
+                <canvas id="disbursementChart" style="max-height: 280px;"></canvas>
+            </div>
+            <div>
+                <h5 style="margin-bottom: 1rem;">Key Observations</h5>
+                <ul style="margin: 0; padding-left: 1.25rem; line-height: 1.8;">
+                    <li>YTD disbursement pace is <strong>@((currentYear.Disbursed / 1650000m * 100 - 100).ToString("F0"))%</strong> vs. prior year same period</li>
+                    <li>November saw largest monthly disbursement at <strong>$790K</strong></li>
+                    <li>On track to disburse <strong>@projectedDisbursement.ToString("C0")</strong> by end of fiscal year</li>
+                    <li>Projected utilization of <strong>@projectedUtilization.ToString("F0")%</strong> @if ((double)projectedUtilization >= targets.UtilizationRate) { <text>meets</text> } else { <text>is below</text> } @targets.UtilizationRate% target</li>
+                </ul>
+            </div>
+        </div>
+        <!-- Formal View: Accessible table -->
+        <div class="formal-view" style="display: none;">
+            <table class="r4-table" aria-label="Monthly Disbursement Trend">
+                <caption class="sr-only">Cumulative monthly disbursements comparing current and prior fiscal year</caption>
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th style="text-align: right;">FY 2024-25</th>
+                        <th style="text-align: right;">FY 2023-24</th>
+                        <th style="text-align: right;">Variance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in monthlyData)
+                    {
+                        var variance = item.Current - item.Prior;
+                        var varianceClass = variance >= 0 ? "var(--success)" : "var(--danger)";
+                        <tr>
+                            <td><strong>@item.Month</strong></td>
+                            <td style="text-align: right;">@(item.Current > 0 ? item.Current.ToString("C0") : "-")</td>
+                            <td style="text-align: right;">@(item.Prior > 0 ? item.Prior.ToString("C0") : "-")</td>
+                            <td style="text-align: right; color: @varianceClass;">
+                                @if (item.Current > 0 && item.Prior > 0)
+                                {
+                                    @(variance >= 0 ? "+" : "")@variance.ToString("C0")
+                                }
+                                else
+                                {
+                                    <text>-</text>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <p style="margin-top: 1rem; font-size: 0.875rem; color: var(--gray-600);">
+                <strong>Key Observations:</strong> YTD disbursement pace is on track. November saw the largest monthly disbursement at $790K.
+                Projected end-of-year disbursement is @projectedDisbursement.ToString("C0") with @projectedUtilization.ToString("F0")% utilization.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Year-over-Year Comparison -->
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-swap-horizontal"></i> Year-over-Year Budget Comparison</h4>
+    </div>
+    <div class="r4-card-body">
+        <table class="r4-table">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th style="text-align: right;">FY 2023-24</th>
+                    <th style="text-align: right;">FY 2024-25</th>
+                    <th style="text-align: right;">Change</th>
+                    <th style="text-align: right;">% Change</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Total Appropriation</strong></td>
+                    <td style="text-align: right;">@priorYear.Appropriated.ToString("C0")</td>
+                    <td style="text-align: right;">@currentYear.Appropriated.ToString("C0")</td>
+                    <td style="text-align: right; color: var(--success);">+@((currentYear.Appropriated - priorYear.Appropriated).ToString("C0"))</td>
+                    <td style="text-align: right; color: var(--success);">+@(((currentYear.Appropriated - priorYear.Appropriated) / priorYear.Appropriated * 100).ToString("F1"))%</td>
+                </tr>
+                <tr>
+                    <td><strong>Students Funded</strong></td>
+                    <td style="text-align: right;">@priorYear.StudentsFunded</td>
+                    <td style="text-align: right;">@currentYear.StudentsFunded</td>
+                    <td style="text-align: right; color: var(--success);">+@(currentYear.StudentsFunded - priorYear.StudentsFunded)</td>
+                    <td style="text-align: right; color: var(--success);">+@(((decimal)(currentYear.StudentsFunded - priorYear.StudentsFunded) / priorYear.StudentsFunded * 100).ToString("F1"))%</td>
+                </tr>
+                <tr>
+                    <td><strong>Credentials Earned</strong></td>
+                    <td style="text-align: right;">@priorYear.Credentialed</td>
+                    <td style="text-align: right;">@currentYear.Credentialed</td>
+                    <td style="text-align: right; color: var(--success);">+@(currentYear.Credentialed - priorYear.Credentialed)</td>
+                    <td style="text-align: right; color: var(--success);">+@(((decimal)(currentYear.Credentialed - priorYear.Credentialed) / priorYear.Credentialed * 100).ToString("F1"))%</td>
+                </tr>
+                <tr>
+                    <td><strong>Teachers Employed</strong></td>
+                    <td style="text-align: right;">@priorYear.Employed</td>
+                    <td style="text-align: right;">@currentYear.Employed</td>
+                    <td style="text-align: right; color: var(--success);">+@(currentYear.Employed - priorYear.Employed)</td>
+                    <td style="text-align: right; color: var(--success);">+@(((decimal)(currentYear.Employed - priorYear.Employed) / priorYear.Employed * 100).ToString("F1"))%</td>
+                </tr>
+                <tr>
+                    <td><strong>Hired in Sponsoring District</strong></td>
+                    <td style="text-align: right;">@priorYear.HiredInDistrict</td>
+                    <td style="text-align: right;">@currentYear.HiredInDistrict</td>
+                    <td style="text-align: right; color: var(--success);">+@(currentYear.HiredInDistrict - priorYear.HiredInDistrict)</td>
+                    <td style="text-align: right; color: var(--success);">+@(((decimal)(currentYear.HiredInDistrict - priorYear.HiredInDistrict) / priorYear.HiredInDistrict * 100).ToString("F1"))%</td>
+                </tr>
+            </tbody>
         </table>
     </div>
 </div>
 
-<!-- Fi$Cal Reconciliation -->
+<!-- ROI Summary -->
 <div class="r4-card">
     <div class="r4-card-header">
-        <h4><i class="mdi mdi-check-decagram"></i> Fi$Cal Reconciliation</h4>
+        <h4><i class="mdi mdi-trophy-outline"></i> Return on Investment</h4>
     </div>
     <div class="r4-card-body">
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
-            <div style="text-align: center; padding: 1.5rem; background: var(--gray-100); border-radius: 8px;">
-                <div style="font-size: 1.5rem; font-weight: 700; color: var(--ctc-blue);">@disbursements.Count(d => d.InvoiceNumber != "-")</div>
-                <div style="font-size: 0.875rem; color: var(--gray-600);">Invoices Submitted to Fi$Cal</div>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;">
+            <div style="text-align: center; padding: 2rem; background: linear-gradient(135deg, var(--ctc-blue) 0%, #2a5a8f 100%); border-radius: 8px; color: white;">
+                <div style="font-size: 2.5rem; font-weight: 700;">@currentYear.Credentialed</div>
+                <div style="font-size: 0.875rem; opacity: 0.9;">New Credentialed Teachers</div>
+                <div style="font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.8;">+@(currentYear.Credentialed - priorYear.Credentialed) vs prior year</div>
             </div>
-            <div style="text-align: center; padding: 1.5rem; background: var(--gray-100); border-radius: 8px;">
-                <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);">@disbursements.Count(d => d.WarrantId != "-")</div>
-                <div style="font-size: 0.875rem; color: var(--gray-600);">Warrants Received</div>
+            <div style="text-align: center; padding: 2rem; background: linear-gradient(135deg, var(--success) 0%, #1e7e34 100%); border-radius: 8px; color: white;">
+                <div style="font-size: 2.5rem; font-weight: 700;">@currentYear.HiredInDistrict</div>
+                <div style="font-size: 0.875rem; opacity: 0.9;">Teachers in High-Need Districts</div>
+                <div style="font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.8;">+@(currentYear.HiredInDistrict - priorYear.HiredInDistrict) vs prior year</div>
             </div>
-            <div style="text-align: center; padding: 1.5rem; background: var(--gray-100); border-radius: 8px;">
-                <div style="font-size: 1.5rem; font-weight: 700; color: var(--warning);">@(disbursements.Count(d => d.InvoiceNumber != "-") - disbursements.Count(d => d.WarrantId != "-"))</div>
-                <div style="font-size: 0.875rem; color: var(--gray-600);">Pending Reconciliation</div>
+            <div style="text-align: center; padding: 2rem; background: linear-gradient(135deg, var(--ctc-gold) 0%, #a67c10 100%); border-radius: 8px; color: white;">
+                <div style="font-size: 2.5rem; font-weight: 700;">@currentCostPerCredentialed.ToString("C0")</div>
+                <div style="font-size: 0.875rem; opacity: 0.9;">Cost per Credential</div>
+                <div style="font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.8;">@if (currentCostPerCredentialed < priorCostPerCredentialed) { <text>↓ Improved efficiency</text> } else { <text>↑ Higher than prior</text> }</div>
+            </div>
+            <div style="text-align: center; padding: 2rem; background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%); border-radius: 8px; color: white;">
+                <div style="font-size: 2.5rem; font-weight: 700;">@(((decimal)currentYear.HiredInDistrict / currentYear.StudentsFunded * 100).ToString("F0"))%</div>
+                <div style="font-size: 0.875rem; opacity: 0.9;">Ultimate Success Rate</div>
+                <div style="font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.8;">Funded → Teaching in District</div>
             </div>
         </div>
     </div>
@@ -264,29 +385,47 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
-        new Chart(document.getElementById('monthlyChart'), {
-            type: 'bar',
+        new Chart(document.getElementById('disbursementChart'), {
+            type: 'line',
             data: {
-                labels: ['July', 'August', 'September', 'October', 'November'],
-                datasets: [{
-                    label: 'Disbursements',
-                    data: [0, 120000, 280000, 456000, 792000],
-                    backgroundColor: '#1E3A5F',
-                    borderRadius: 4
-                }]
+                labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [
+                    {
+                        label: 'FY 2024-25 (Current)',
+                        data: [0, 120000, 400000, 860000, 1650000, null, null, null, null, null, null, null],
+                        borderColor: '#1E3A5F',
+                        backgroundColor: 'rgba(30, 58, 95, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'FY 2023-24 (Prior)',
+                        data: [0, 180000, 520000, 1100000, 1850000, 2400000, 2900000, 3300000, 3650000, 3900000, 4050000, 4050000],
+                        borderColor: '#C69214',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        fill: false,
+                        tension: 0.3
+                    }
+                ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
                 plugins: {
-                    legend: { display: false }
+                    legend: {
+                        position: 'bottom',
+                        labels: { padding: 20, usePointStyle: true }
+                    }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
-                                return '$' + (value / 1000) + 'K';
+                                return '$' + (value / 1000000).toFixed(1) + 'M';
                             }
                         }
                     }
@@ -296,9 +435,6 @@
     </script>
 }
 
-<style>
-    @@media print {
-        .breadcrumb, .report-actions, .r4-sidebar, .r4-header { display: none !important; }
-        .r4-card { break-inside: avoid; box-shadow: none !important; border: 1px solid #ccc; }
-    }
-</style>
+@section Styles {
+    <link rel="stylesheet" href="~/css/report-print.css" />
+}

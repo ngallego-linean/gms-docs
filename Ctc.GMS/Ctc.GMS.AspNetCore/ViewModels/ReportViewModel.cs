@@ -237,6 +237,26 @@ public class ReportAnalyticsViewModel
 {
     public ReportAnalyticsSummaryViewModel Summary { get; set; } = new();
     public ReportAnalyticsFilterViewModel Filter { get; set; } = new();
+
+    // Dropdown options for filter UI
+    public List<FilterOption> ProgramOptions { get; set; } = new();
+    public List<FilterOption> FiscalYearOptions { get; set; } = new();
+}
+
+/// <summary>
+/// Simple option for filter dropdowns
+/// </summary>
+public class FilterOption
+{
+    public string Value { get; set; } = string.Empty;
+    public string Text { get; set; } = string.Empty;
+
+    public FilterOption() { }
+    public FilterOption(string value, string text)
+    {
+        Value = value;
+        Text = text;
+    }
 }
 
 /// <summary>
@@ -304,7 +324,68 @@ public class ReportAnalyticsSummaryViewModel
     [DisplayFormat(DataFormatString = "{0:C0}")]
     public decimal AveragePaymentAmount { get; set; }
 
+    // Enhanced Financial Analytics (Module 4)
+    [Display(Name = "Total Budget Appropriated")]
+    [DisplayFormat(DataFormatString = "{0:C0}")]
+    public decimal TotalBudgetAppropriated { get; set; }
+
+    [Display(Name = "Total Encumbered")]
+    [DisplayFormat(DataFormatString = "{0:C0}")]
+    public decimal TotalEncumbered { get; set; }
+
+    [Display(Name = "Total Remaining")]
+    [DisplayFormat(DataFormatString = "{0:C0}")]
+    public decimal TotalRemaining { get; set; }
+
+    /// <summary>
+    /// Monthly disbursement amounts for current fiscal year (cumulative)
+    /// Key: Month abbreviation (Jul, Aug, Sep, etc.)
+    /// Value: Cumulative disbursement amount through that month
+    /// </summary>
+    public Dictionary<string, decimal> MonthlyDisbursements { get; set; } = new();
+
+    /// <summary>
+    /// Monthly disbursement amounts for prior fiscal year (cumulative)
+    /// Used for year-over-year comparison
+    /// </summary>
+    public Dictionary<string, decimal> PriorYearMonthlyDisbursements { get; set; } = new();
+
+    /// <summary>
+    /// Disbursement breakdown by program
+    /// Key: Program code (e.g., "TRP", "SCR")
+    /// </summary>
+    public Dictionary<string, ProgramDisbursementSummary> DisbursementsByProgram { get; set; } = new();
+
     public Dictionary<string, int> EmploymentByStatus { get; set; } = new();
+
+    // Demographics breakdowns
+    public Dictionary<string, int> CandidatesByRaceEthnicity { get; set; } = new();
+    public Dictionary<string, int> CandidatesByGender { get; set; } = new();
+    public Dictionary<string, int> CandidatesByCredentialArea { get; set; } = new();
+
+    // Year-over-year demographics (for "By Year" view)
+    public Dictionary<string, Dictionary<string, int>> CandidatesByRaceEthnicityByYear { get; set; } = new();
+    public Dictionary<string, Dictionary<string, int>> CandidatesByGenderByYear { get; set; } = new();
+    public Dictionary<string, Dictionary<string, int>> CandidatesByCredentialAreaByYear { get; set; } = new();
+}
+
+/// <summary>
+/// Summary of disbursements for a specific program
+/// </summary>
+public class ProgramDisbursementSummary
+{
+    public string ProgramName { get; set; } = string.Empty;
+
+    [DisplayFormat(DataFormatString = "{0:C0}")]
+    public decimal AmountDisbursed { get; set; }
+
+    public int CandidateCount { get; set; }
+
+    /// <summary>
+    /// Percentage of total disbursements
+    /// </summary>
+    [DisplayFormat(DataFormatString = "{0:F1}%")]
+    public double PercentOfTotal { get; set; }
 }
 
 /// <summary>
@@ -312,6 +393,15 @@ public class ReportAnalyticsSummaryViewModel
 /// </summary>
 public class ReportAnalyticsFilterViewModel
 {
+    [Display(Name = "Program")]
+    public string? Program { get; set; }
+
+    [Display(Name = "Fiscal Year")]
+    public string? FiscalYear { get; set; }
+
+    [Display(Name = "View Mode")]
+    public string ViewMode { get; set; } = "Overall";
+
     [Display(Name = "Start Date")]
     [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}")]
     public DateTime? StartDate { get; set; }
@@ -334,7 +424,7 @@ public class ReportAnalyticsFilterViewModel
 }
 
 /// <summary>
-/// View model for compliance dashboard
+/// View model for compliance dashboard (legacy - use ReportingStatusViewModel)
 /// </summary>
 public class ComplianceDashboardViewModel
 {
@@ -343,7 +433,7 @@ public class ComplianceDashboardViewModel
 }
 
 /// <summary>
-/// Compliance metrics summary
+/// Compliance metrics summary (legacy)
 /// </summary>
 public class ComplianceMetricsViewModel
 {
@@ -361,7 +451,7 @@ public class ComplianceMetricsViewModel
 }
 
 /// <summary>
-/// Individual LEA compliance item
+/// Individual LEA compliance item (legacy)
 /// </summary>
 public class LEAComplianceItemViewModel
 {
@@ -375,4 +465,194 @@ public class LEAComplianceItemViewModel
     public int CriticallyOverdue { get; set; }
     public string ComplianceStatus { get; set; } = string.Empty;
     public string StatusClass { get; set; } = string.Empty;
+}
+
+// ============================================
+// NEW: Unified Reporting Status ViewModels
+// ============================================
+
+/// <summary>
+/// View model for the unified Reporting Status page with LEA and IHE tabs
+/// </summary>
+public class ReportingStatusViewModel
+{
+    /// <summary>
+    /// Currently active tab: "LEA" or "IHE"
+    /// </summary>
+    public string ActiveTab { get; set; } = "LEA";
+
+    /// <summary>
+    /// Currently expanded status card: "Complete", "InProgress", "NotStarted", or null
+    /// </summary>
+    public string? ExpandedStatus { get; set; }
+
+    /// <summary>
+    /// LEA reporting status metrics and data
+    /// </summary>
+    public OrganizationStatusSection LEA { get; set; } = new();
+
+    /// <summary>
+    /// IHE reporting status metrics and data
+    /// </summary>
+    public OrganizationStatusSection IHE { get; set; } = new();
+
+    /// <summary>
+    /// Selected fiscal year filter
+    /// </summary>
+    public string FiscalYear { get; set; } = "2024-25";
+
+    /// <summary>
+    /// Available fiscal year options
+    /// </summary>
+    public List<FilterOption> FiscalYearOptions { get; set; } = new();
+}
+
+/// <summary>
+/// Reporting status for a single organization type (LEA or IHE)
+/// </summary>
+public class OrganizationStatusSection
+{
+    /// <summary>
+    /// Organization type label
+    /// </summary>
+    public string TypeLabel { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Description of what this organization type reports
+    /// </summary>
+    public string ReportDescription { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Aggregate metrics
+    /// </summary>
+    public OrganizationStatusMetrics Metrics { get; set; } = new();
+
+    /// <summary>
+    /// List of organizations with their status
+    /// </summary>
+    public List<OrganizationStatusItem> Organizations { get; set; } = new();
+
+    /// <summary>
+    /// Number of organizations with critically overdue reports
+    /// </summary>
+    public int CriticallyOverdueCount { get; set; }
+}
+
+/// <summary>
+/// Aggregate metrics for an organization type
+/// </summary>
+public class OrganizationStatusMetrics
+{
+    [Display(Name = "Total Organizations")]
+    public int Total { get; set; }
+
+    [Display(Name = "Complete")]
+    public int Complete { get; set; }
+
+    [Display(Name = "In Progress")]
+    public int InProgress { get; set; }
+
+    [Display(Name = "Not Started")]
+    public int NotStarted { get; set; }
+
+    [Display(Name = "Total Candidates")]
+    public int TotalCandidates { get; set; }
+
+    [Display(Name = "Candidates Reported")]
+    public int CandidatesReported { get; set; }
+
+    [Display(Name = "Candidates Pending")]
+    public int CandidatesPending { get; set; }
+
+    [Display(Name = "Candidates Not Started")]
+    public int CandidatesNotStarted { get; set; }
+
+    /// <summary>
+    /// Percentage of organizations that are complete
+    /// </summary>
+    public double CompletePercent => Total > 0 ? (double)Complete / Total * 100 : 0;
+
+    /// <summary>
+    /// Percentage of organizations in progress
+    /// </summary>
+    public double InProgressPercent => Total > 0 ? (double)InProgress / Total * 100 : 0;
+
+    /// <summary>
+    /// Percentage of organizations not started
+    /// </summary>
+    public double NotStartedPercent => Total > 0 ? (double)NotStarted / Total * 100 : 0;
+}
+
+/// <summary>
+/// Status information for a single organization (LEA or IHE)
+/// </summary>
+public class OrganizationStatusItem
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+
+    [Display(Name = "Reports Required")]
+    public int ReportsRequired { get; set; }
+
+    [Display(Name = "Reports Submitted")]
+    public int ReportsSubmitted { get; set; }
+
+    /// <summary>
+    /// Progress percentage (0-100)
+    /// </summary>
+    [DisplayFormat(DataFormatString = "{0:F0}%")]
+    public double ProgressPercent { get; set; }
+
+    /// <summary>
+    /// Status category: "Complete", "InProgress", "NotStarted"
+    /// </summary>
+    public string Status { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Number of overdue reports
+    /// </summary>
+    public int OverdueCount { get; set; }
+
+    /// <summary>
+    /// Whether this organization has critically overdue reports (30+ days)
+    /// </summary>
+    public bool HasCriticallyOverdue { get; set; }
+
+    /// <summary>
+    /// Individual candidate report statuses (for drill-down)
+    /// </summary>
+    public List<CandidateReportStatus> Candidates { get; set; } = new();
+}
+
+/// <summary>
+/// Report status for an individual candidate
+/// </summary>
+public class CandidateReportStatus
+{
+    public int CandidateId { get; set; }
+    public string CandidateName { get; set; } = string.Empty;
+    public string SEID { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Status: "Submitted", "Pending", "Overdue"
+    /// </summary>
+    public string Status { get; set; } = string.Empty;
+
+    [DisplayFormat(DataFormatString = "{0:MMM d, yyyy}")]
+    public DateTime? DueDate { get; set; }
+
+    [DisplayFormat(DataFormatString = "{0:MMM d, yyyy}")]
+    public DateTime? SubmittedDate { get; set; }
+
+    public int DaysOverdue { get; set; }
+
+    /// <summary>
+    /// Report ID if submitted (for review link)
+    /// </summary>
+    public int? ReportId { get; set; }
+
+    /// <summary>
+    /// Report type: "IHE" or "LEA"
+    /// </summary>
+    public string ReportType { get; set; } = string.Empty;
 }

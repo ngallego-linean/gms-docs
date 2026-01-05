@@ -1,0 +1,480 @@
+@{
+    ViewData["Title"] = ViewBag.ReportTitle;
+    var reportDate = ((DateTime)ViewBag.GeneratedDate).ToString("MMMM d, yyyy");
+
+    // Pipeline stage definitions
+    var stages = new[] {
+        new { Name = "Awaiting GAA", State = "NEEDS_GAA", Icon = "mdi-file-sign" },
+        new { Name = "Awaiting PO", State = "NEEDS_PO", Icon = "mdi-file-document-outline" },
+        new { Name = "Awaiting Invoice", State = "NEEDS_INVOICE", Icon = "mdi-receipt-text-outline" },
+        new { Name = "Awaiting Acctg", State = "NEEDS_ACCOUNTING", Icon = "mdi-send-outline" },
+        new { Name = "Awaiting Warrant", State = "NEEDS_WARRANT", Icon = "mdi-check-decagram" }
+    };
+
+    // MOCK DATA: Current pipeline status
+    var pipelineStatus = new[] {
+        new { Stage = "Awaiting GAA", Count = 4, Amount = 360000m },
+        new { Stage = "Awaiting PO", Count = 2, Amount = 120000m },
+        new { Stage = "Awaiting Invoice", Count = 3, Amount = 150000m },
+        new { Stage = "Awaiting Acctg", Count = 1, Amount = 90000m },
+        new { Stage = "Awaiting Warrant", Count = 2, Amount = 180000m }
+    };
+    var totalInPipeline = pipelineStatus.Sum(p => p.Count);
+    var totalPipelineAmount = pipelineStatus.Sum(p => p.Amount);
+
+    // MOCK DATA: Processing times by stage
+    var processingTimes = new[] {
+        new { Transition = "Submission → GAA Signed", TargetDays = 5.0, AvgDays = 4.2, Status = "on-track" },
+        new { Transition = "GAA Signed → PO Generated", TargetDays = 3.0, AvgDays = 2.8, Status = "on-track" },
+        new { Transition = "PO Generated → PO Uploaded", TargetDays = 3.0, AvgDays = 5.6, Status = "over" },
+        new { Transition = "PO Uploaded → Invoice Gen", TargetDays = 2.0, AvgDays = 1.5, Status = "on-track" },
+        new { Transition = "Invoice → Sent to Acctg", TargetDays = 1.0, AvgDays = 0.8, Status = "on-track" },
+        new { Transition = "Sent to Acctg → Warrant", TargetDays = 5.0, AvgDays = 6.2, Status = "over" }
+    };
+    var totalTargetDays = processingTimes.Sum(p => p.TargetDays);
+    var totalAvgDays = processingTimes.Sum(p => p.AvgDays);
+
+    // MOCK DATA: Bottlenecks (stages over target)
+    var bottlenecks = new[] {
+        new {
+            Transition = "PO Generated → PO Uploaded",
+            AvgDays = 5.6,
+            TargetDays = 3.0,
+            VarianceDays = 2.6,
+            VariancePercent = 87,
+            Trend = "worsening",
+            TrendChange = 0.8,
+            ItemsOverTarget = 3,
+            RootCause = "Delay in receiving PO confirmations from Fi$Cal"
+        },
+        new {
+            Transition = "Sent to Acctg → Warrant",
+            AvgDays = 6.2,
+            TargetDays = 5.0,
+            VarianceDays = 1.2,
+            VariancePercent = 24,
+            Trend = "stable",
+            TrendChange = 0.0,
+            ItemsOverTarget = 1,
+            RootCause = "State Controller processing times (external)"
+        }
+    };
+
+    // MOCK DATA: Throughput metrics
+    var completedThisMonth = new { Count = 12, Amount = 1200000m };
+    var completedThisFY = new { Count = 67, Amount = 5980000m };
+    var avgWeeklyThroughput = 3.2;
+
+    var monthlyCompletions = new[] {
+        new { Month = "July", Count = 8, Amount = 720000m, AvgDays = 19.2 },
+        new { Month = "August", Count = 10, Amount = 890000m, AvgDays = 20.5 },
+        new { Month = "September", Count = 12, Amount = 1050000m, AvgDays = 21.8 },
+        new { Month = "October", Count = 11, Amount = 980000m, AvgDays = 22.1 },
+        new { Month = "November", Count = 14, Amount = 1260000m, AvgDays = 20.4 },
+        new { Month = "December", Count = 12, Amount = 1080000m, AvgDays = 21.1 }
+    };
+
+    // MOCK DATA: Year-over-year comparison
+    var yoyComparison = new[] {
+        new { Metric = "Avg End-to-End Time", PriorYear = "23.4 days", CurrentYear = "21.1 days", Change = "-2.3 days", IsImproved = true },
+        new { Metric = "Total Disbursements", PriorYear = "142", CurrentYear = "67 (YTD)", Change = "On pace", IsImproved = true },
+        new { Metric = "Total Amount", PriorYear = "$12.8M", CurrentYear = "$5.98M (YTD)", Change = "On pace", IsImproved = true },
+        new { Metric = "Items Exceeding Target", PriorYear = "18%", CurrentYear = "12%", Change = "-6%", IsImproved = true }
+    };
+
+    // MOCK DATA: Aging items
+    var agingItems = new[] {
+        new { LEA = "Long Beach Unified School District", Stage = "Awaiting GAA", Days = 24, Amount = 70000m, IsOverSLA = true },
+        new { LEA = "Oakland Unified School District", Stage = "Awaiting Invoice", Days = 7, Amount = 50000m, IsOverSLA = true },
+        new { LEA = "Fresno Unified School District", Stage = "Awaiting GAA", Days = 5, Amount = 90000m, IsOverSLA = false },
+        new { LEA = "Sacramento City Unified School District", Stage = "Awaiting PO", Days = 4, Amount = 60000m, IsOverSLA = false },
+        new { LEA = "Los Angeles Unified School District", Stage = "Awaiting Warrant", Days = 2, Amount = 150000m, IsOverSLA = false }
+    };
+}
+
+@section Breadcrumbs {
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "GrantsTeam")">Grants Team</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("Dashboard", "Reporting")">Reporting</a></li>
+        <li class="breadcrumb-item active">Processing Efficiency Report</li>
+    </ol>
+}
+
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+    <div>
+        <h2><i class="mdi mdi-timer-outline"></i> @ViewBag.ReportTitle</h2>
+        <p class="subtitle">How long does it take to get funds to grantees?</p>
+    </div>
+    <div class="report-actions">
+        <button class="r4-button r4-button-secondary" onclick="window.print();">
+            <i class="mdi mdi-printer"></i> Print
+        </button>
+        <button class="r4-button r4-button-primary" onclick="alert('PDF export coming soon');">
+            <i class="mdi mdi-file-pdf-box"></i> Export PDF
+        </button>
+        <button class="r4-button r4-button-secondary" onclick="alert('Excel export coming soon');">
+            <i class="mdi mdi-file-excel"></i> Export Excel
+        </button>
+    </div>
+</div>
+
+<!-- Report Metadata -->
+<div class="r4-card">
+    <div class="r4-card-body" style="display: flex; justify-content: space-between; padding: 1rem 1.5rem; background: var(--gray-100);">
+        <div><strong>Grant Cycle:</strong> @ViewBag.GrantCycle</div>
+        <div><strong>Program:</strong> Student Teacher Stipend Program</div>
+        <div><strong>As of:</strong> @reportDate</div>
+    </div>
+</div>
+
+<!-- Current Pipeline Status -->
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-clipboard-flow-outline"></i> Current Pipeline Status</h4>
+    </div>
+    <div class="r4-card-body">
+        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+            @foreach (var stage in pipelineStatus)
+            {
+                <div class="metric-card">
+                    <div class="metric-content" style="text-align: center;">
+                        <div class="metric-label">@stage.Stage</div>
+                        <div class="metric-value">@stage.Count</div>
+                        <div class="metric-secondary">@stage.Amount.ToString("C0")</div>
+                    </div>
+                </div>
+            }
+        </div>
+        <div style="text-align: center; padding: 1rem; background: var(--gray-100); border-radius: 4px;">
+            <strong>Total in Pipeline:</strong> @totalInPipeline disbursements | <strong>@totalPipelineAmount.ToString("C0")</strong>
+        </div>
+    </div>
+</div>
+
+<!-- Average Processing Time by Stage -->
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-clock-outline"></i> Average Processing Time by Stage</h4>
+    </div>
+    <div class="r4-card-body">
+        <table class="r4-table">
+            <thead>
+                <tr>
+                    <th>Stage Transition</th>
+                    <th style="text-align: right;">Target</th>
+                    <th style="text-align: right;">Avg Time</th>
+                    <th style="text-align: right;">Variance</th>
+                    <th style="text-align: center;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var stage in processingTimes)
+                {
+                    var variance = stage.AvgDays - stage.TargetDays;
+                    var varianceText = variance >= 0 ? $"+{variance:F1} days" : $"{variance:F1} days";
+                    var varianceColor = variance > 0 ? "var(--danger)" : "var(--success)";
+                    <tr>
+                        <td><strong>@stage.Transition</strong></td>
+                        <td style="text-align: right;">@stage.TargetDays.ToString("F0") days</td>
+                        <td style="text-align: right;">@stage.AvgDays.ToString("F1") days</td>
+                        <td style="text-align: right; color: @varianceColor;">@varianceText</td>
+                        <td style="text-align: center;">
+                            @if (stage.Status == "on-track")
+                            {
+                                <span style="color: var(--success);"><i class="mdi mdi-check-circle"></i> On Track</span>
+                            }
+                            else
+                            {
+                                <span style="color: var(--warning);"><i class="mdi mdi-alert"></i> Over</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr style="font-weight: 600; background: var(--gray-100);">
+                    <td><strong>END-TO-END TOTAL</strong></td>
+                    <td style="text-align: right;">@totalTargetDays.ToString("F0") days</td>
+                    <td style="text-align: right;">@totalAvgDays.ToString("F1") days</td>
+                    <td style="text-align: right; color: @(totalAvgDays > totalTargetDays ? "var(--danger)" : "var(--success)");">
+                        @((totalAvgDays - totalTargetDays) >= 0 ? "+" : "")@((totalAvgDays - totalTargetDays).ToString("F1")) days
+                    </td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<!-- Bottleneck Analysis -->
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-alert-octagon-outline"></i> Bottleneck Analysis</h4>
+        <p class="card-subtitle">Stages currently exceeding target processing times</p>
+    </div>
+    <div class="r4-card-body">
+        @if (bottlenecks.Any())
+        {
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                @foreach (var bottleneck in bottlenecks)
+                {
+                    <div style="border: 1px solid var(--warning); border-left: 4px solid var(--warning); border-radius: 4px; padding: 1rem 1.5rem; background: #fffbeb;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                            <h5 style="margin: 0; color: var(--warning);"><i class="mdi mdi-alert"></i> @bottleneck.Transition</h5>
+                        </div>
+                        <table class="r4-table" style="margin-bottom: 1rem;">
+                            <tbody>
+                                <tr>
+                                    <td style="width: 25%;"><strong>Average</strong></td>
+                                    <td style="width: 25%;">@bottleneck.AvgDays.ToString("F1") days</td>
+                                    <td style="width: 25%;"><strong>Target</strong></td>
+                                    <td style="width: 25%;">@bottleneck.TargetDays.ToString("F0") days</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Over by</strong></td>
+                                    <td style="color: var(--danger);">@bottleneck.VarianceDays.ToString("F1") days (@bottleneck.VariancePercent%)</td>
+                                    <td><strong>Trend vs Last Month</strong></td>
+                                    <td>
+                                        @if (bottleneck.Trend == "worsening")
+                                        {
+                                            <span style="color: var(--danger);"><i class="mdi mdi-arrow-up"></i> Worsening (+@bottleneck.TrendChange.ToString("F1") days)</span>
+                                        }
+                                        else if (bottleneck.Trend == "improving")
+                                        {
+                                            <span style="color: var(--success);"><i class="mdi mdi-arrow-down"></i> Improving</span>
+                                        }
+                                        else
+                                        {
+                                            <span style="color: var(--gray-600);"><i class="mdi mdi-arrow-right"></i> Stable (no change)</span>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Items waiting &gt; target</strong></td>
+                                    <td>@bottleneck.ItemsOverTarget</td>
+                                    <td><strong>Root Cause</strong></td>
+                                    <td>@bottleneck.RootCause</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-success">
+                <i class="mdi mdi-check-circle"></i> All stages are currently within target processing times.
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Throughput Summary -->
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-chart-line"></i> Throughput Summary</h4>
+    </div>
+    <div class="r4-card-body">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.5rem;">
+            <div class="metric-card metric-card-success">
+                <div class="metric-icon"><i class="mdi mdi-calendar-month"></i></div>
+                <div class="metric-content">
+                    <div class="metric-label">Completed This Month</div>
+                    <div class="metric-value">@completedThisMonth.Count</div>
+                    <div class="metric-secondary">@completedThisMonth.Amount.ToString("C0")</div>
+                </div>
+            </div>
+            <div class="metric-card metric-card-primary">
+                <div class="metric-icon"><i class="mdi mdi-calendar-check"></i></div>
+                <div class="metric-content">
+                    <div class="metric-label">Completed This FY</div>
+                    <div class="metric-value">@completedThisFY.Count</div>
+                    <div class="metric-secondary">@completedThisFY.Amount.ToString("C0")</div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon"><i class="mdi mdi-speedometer"></i></div>
+                <div class="metric-content">
+                    <div class="metric-label">Avg Weekly Throughput</div>
+                    <div class="metric-value">@avgWeeklyThroughput.ToString("F1")</div>
+                    <div class="metric-secondary">per week</div>
+                </div>
+            </div>
+        </div>
+
+        <h5 style="margin: 1.5rem 0 1rem 0;">Monthly Completions (FY 2024-25)</h5>
+        <table class="r4-table">
+            <thead>
+                <tr>
+                    <th>Month</th>
+                    <th style="text-align: right;">Count</th>
+                    <th style="text-align: right;">Amount</th>
+                    <th style="text-align: right;">Avg Days</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var month in monthlyCompletions)
+                {
+                    var isCurrent = month.Month == "December";
+                    <tr style="@(isCurrent ? "background: var(--gray-50);" : "")">
+                        <td>
+                            @month.Month
+                            @if (isCurrent)
+                            {
+                                <span style="font-size: 0.75rem; color: var(--gray-500);"> (current)</span>
+                            }
+                        </td>
+                        <td style="text-align: right;">@month.Count</td>
+                        <td style="text-align: right;">@month.Amount.ToString("C0")</td>
+                        <td style="text-align: right;">@month.AvgDays.ToString("F1")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Year-over-Year Comparison -->
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-swap-horizontal"></i> Year-over-Year Comparison</h4>
+    </div>
+    <div class="r4-card-body">
+        <table class="r4-table">
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th style="text-align: right;">FY 2023-24</th>
+                    <th style="text-align: right;">FY 2024-25</th>
+                    <th style="text-align: right;">Change</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in yoyComparison)
+                {
+                    <tr>
+                        <td><strong>@row.Metric</strong></td>
+                        <td style="text-align: right;">@row.PriorYear</td>
+                        <td style="text-align: right;">@row.CurrentYear</td>
+                        <td style="text-align: right; color: @(row.IsImproved ? "var(--success)" : "var(--danger)");">
+                            @if (row.IsImproved)
+                            {
+                                <i class="mdi mdi-arrow-down"></i>
+                            }
+                            else
+                            {
+                                <i class="mdi mdi-arrow-up"></i>
+                            }
+                            @row.Change
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Aging Items Requiring Attention -->
+<div class="r4-card">
+    <div class="r4-card-header">
+        <h4><i class="mdi mdi-clock-alert-outline"></i> Aging Items Requiring Attention</h4>
+        <p class="card-subtitle">Disbursements sorted by days waiting</p>
+    </div>
+    <div class="r4-card-body">
+        <table class="r4-table">
+            <thead>
+                <tr>
+                    <th style="width: 5%;"></th>
+                    <th>LEA</th>
+                    <th>Stage</th>
+                    <th style="text-align: right;">Days</th>
+                    <th style="text-align: right;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in agingItems)
+                {
+                    <tr>
+                        <td style="text-align: center;">
+                            @if (item.IsOverSLA)
+                            {
+                                <span style="color: var(--warning);"><i class="mdi mdi-alert"></i></span>
+                            }
+                        </td>
+                        <td>@item.LEA</td>
+                        <td>@item.Stage</td>
+                        <td style="text-align: right; @(item.IsOverSLA ? "color: var(--danger); font-weight: 600;" : "")">@item.Days</td>
+                        <td style="text-align: right;">@item.Amount.ToString("C0")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <p style="margin-top: 1rem; font-size: 0.875rem; color: var(--gray-600);">
+            <i class="mdi mdi-alert" style="color: var(--warning);"></i> = Exceeds target SLA for this stage
+        </p>
+    </div>
+</div>
+
+<!-- Report Footer -->
+<div style="margin-top: 2rem; padding: 1rem; border-top: 1px solid var(--gray-300); color: var(--gray-500); font-size: 0.75rem; display: flex; justify-content: space-between;">
+    <div>California Commission on Teacher Credentialing - Confidential Internal Use Only</div>
+    <div>Generated: @((DateTime)ViewBag.GeneratedDate).ToString("MM/dd/yyyy HH:mm")</div>
+</div>
+
+<style>
+    .metric-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem;
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 8px;
+    }
+
+    .metric-card-success {
+        border-left: 4px solid var(--success);
+    }
+
+    .metric-card-primary {
+        border-left: 4px solid var(--ctc-blue);
+    }
+
+    .metric-card-warning {
+        border-left: 4px solid var(--warning);
+    }
+
+    .metric-icon {
+        font-size: 2rem;
+        color: var(--ctc-blue);
+    }
+
+    .metric-content {
+        flex: 1;
+    }
+
+    .metric-label {
+        font-size: 0.875rem;
+        color: var(--gray-600);
+        margin-bottom: 0.25rem;
+    }
+
+    .metric-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--gray-900);
+        line-height: 1;
+    }
+
+    .metric-secondary {
+        font-size: 0.875rem;
+        color: var(--gray-500);
+        margin-top: 0.25rem;
+    }
+
+    @@media print {
+        .breadcrumb, .report-actions, .r4-sidebar, .r4-header { display: none !important; }
+        .r4-card { break-inside: avoid; box-shadow: none !important; border: 1px solid #ccc; }
+    }
+</style>

@@ -16,6 +16,35 @@
 
 <!-- Main Search Container -->
 <div class="search-container">
+    <!-- Global Filters Bar -->
+    <div class="global-filters-bar">
+        <div class="global-filter">
+            <label for="global-program">Program:</label>
+            <select id="global-program" onchange="applyGlobalFilters()">
+                <option value="">All Programs</option>
+                <option value="TRP">Teacher Residency (TRP)</option>
+                <option value="SCR">School Counselor Residency</option>
+                <option value="C2C">Classified to Certificated</option>
+                <option value="STSP">STSP</option>
+            </select>
+        </div>
+        <div class="global-filter">
+            <label for="global-fiscal-year">Fiscal Year:</label>
+            <select id="global-fiscal-year" onchange="applyGlobalFilters()">
+                <option value="">All Years</option>
+                <option value="2024-25" selected>2024-25</option>
+                <option value="2023-24">2023-24</option>
+                <option value="2022-23">2022-23</option>
+                <option value="2021-22">2021-22</option>
+                <option value="2020-21">2020-21</option>
+            </select>
+        </div>
+        <div class="global-filter-info">
+            <i class="mdi mdi-information-outline"></i>
+            <span>Filters apply to all tabs</span>
+        </div>
+    </div>
+
     <!-- Search Tabs -->
     <div class="search-tabs">
         <button class="search-tab active" data-tab="candidates" onclick="switchTab('candidates')">
@@ -38,10 +67,19 @@
         <div class="search-filters-card">
             <!-- Search Row -->
             <div class="search-row">
+                <div class="search-field-selector">
+                    <select id="candidates-search-field" onchange="updateSearchPlaceholder('candidates')">
+                        <option value="name" selected>Name & SEID</option>
+                        <option value="ihe">IHE</option>
+                        <option value="lea">LEA</option>
+                        <option value="credential">Credential Area</option>
+                        <option value="cds">CDS Code</option>
+                    </select>
+                </div>
                 <div class="search-input-wrapper">
                     <i class="mdi mdi-magnify"></i>
                     <input type="text" id="candidates-search"
-                           placeholder="Search by SEID, name..."
+                           placeholder="Search by name or SEID..."
                            onkeyup="debounceSearch('candidates')">
                     <button class="clear-btn" onclick="clearSearch('candidates')" style="display: none;">
                         <i class="mdi mdi-close-circle"></i>
@@ -162,6 +200,21 @@
                 </div>
 
                 <div class="filter-dropdown">
+                    <button class="filter-btn" onclick="toggleDropdown('candidates-cohort-dropdown')">
+                        <span>Cohort</span>
+                        <span class="filter-count" id="candidates-cohort-count"></span>
+                        <i class="mdi mdi-chevron-down"></i>
+                    </button>
+                    <div id="candidates-cohort-dropdown" class="dropdown-panel dropdown-panel-sm">
+                        <label><input type="checkbox" value="2024-25" onchange="updateFilter('candidates')"> 2024-25</label>
+                        <label><input type="checkbox" value="2023-24" onchange="updateFilter('candidates')"> 2023-24</label>
+                        <label><input type="checkbox" value="2022-23" onchange="updateFilter('candidates')"> 2022-23</label>
+                        <label><input type="checkbox" value="2021-22" onchange="updateFilter('candidates')"> 2021-22</label>
+                        <label><input type="checkbox" value="2020-21" onchange="updateFilter('candidates')"> 2020-21</label>
+                    </div>
+                </div>
+
+                <div class="filter-dropdown">
                     <button class="filter-btn" onclick="toggleDropdown('candidates-hours-dropdown')">
                         <span>Hours</span>
                         <span class="filter-count" id="candidates-hours-count"></span>
@@ -170,6 +223,61 @@
                     <div id="candidates-hours-dropdown" class="dropdown-panel dropdown-panel-sm">
                         <label><input type="checkbox" id="candidates-500hr" onchange="updateFilter('candidates')"> Met 500hr (Grant)</label>
                         <label><input type="checkbox" id="candidates-600hr" onchange="updateFilter('candidates')"> Met 600hr (Credential)</label>
+                    </div>
+                </div>
+
+                <div class="filter-dropdown">
+                    <button class="filter-btn" onclick="toggleDropdown('candidates-credtype-dropdown')">
+                        <span>Cred Type</span>
+                        <span class="filter-count" id="candidates-credtype-count"></span>
+                        <i class="mdi mdi-chevron-down"></i>
+                    </button>
+                    <div id="candidates-credtype-dropdown" class="dropdown-panel dropdown-panel-sm">
+                        <label><input type="checkbox" value="Intern" onchange="updateFilter('candidates')"> Intern</label>
+                        <label><input type="checkbox" value="Preliminary" onchange="updateFilter('candidates')"> Preliminary</label>
+                        <label><input type="checkbox" value="Clear" onchange="updateFilter('candidates')"> Clear</label>
+                    </div>
+                </div>
+
+                <div class="filter-dropdown">
+                    <button class="filter-btn" onclick="toggleDropdown('candidates-gender-dropdown')">
+                        <span>Gender</span>
+                        <span class="filter-count" id="candidates-gender-count"></span>
+                        <i class="mdi mdi-chevron-down"></i>
+                    </button>
+                    <div id="candidates-gender-dropdown" class="dropdown-panel dropdown-panel-sm">
+                        <label><input type="checkbox" value="Female" onchange="updateFilter('candidates')"> Female</label>
+                        <label><input type="checkbox" value="Male" onchange="updateFilter('candidates')"> Male</label>
+                        <label><input type="checkbox" value="Non-binary" onchange="updateFilter('candidates')"> Non-binary</label>
+                        <label><input type="checkbox" value="Prefer not to say" onchange="updateFilter('candidates')"> Prefer not to say</label>
+                    </div>
+                </div>
+
+                <div class="filter-dropdown">
+                    <button class="filter-btn" onclick="toggleDropdown('candidates-race-dropdown')">
+                        <span>Race</span>
+                        <span class="filter-count" id="candidates-race-count"></span>
+                        <i class="mdi mdi-chevron-down"></i>
+                    </button>
+                    <div id="candidates-race-dropdown" class="dropdown-panel">
+                        <label><input type="checkbox" value="White" onchange="updateFilter('candidates')"> White</label>
+                        <label><input type="checkbox" value="Black or African American" onchange="updateFilter('candidates')"> Black or African American</label>
+                        <label><input type="checkbox" value="Asian" onchange="updateFilter('candidates')"> Asian</label>
+                        <label><input type="checkbox" value="American Indian or Alaska Native" onchange="updateFilter('candidates')"> American Indian/Alaska Native</label>
+                        <label><input type="checkbox" value="Native Hawaiian or Pacific Islander" onchange="updateFilter('candidates')"> Native Hawaiian/Pacific Islander</label>
+                        <label><input type="checkbox" value="Two or More Races" onchange="updateFilter('candidates')"> Two or More Races</label>
+                    </div>
+                </div>
+
+                <div class="filter-dropdown">
+                    <button class="filter-btn" onclick="toggleDropdown('candidates-ethnicity-dropdown')">
+                        <span>Ethnicity</span>
+                        <span class="filter-count" id="candidates-ethnicity-count"></span>
+                        <i class="mdi mdi-chevron-down"></i>
+                    </button>
+                    <div id="candidates-ethnicity-dropdown" class="dropdown-panel dropdown-panel-sm">
+                        <label><input type="checkbox" value="Hispanic or Latino" onchange="updateFilter('candidates')"> Hispanic or Latino</label>
+                        <label><input type="checkbox" value="Not Hispanic or Latino" onchange="updateFilter('candidates')"> Not Hispanic or Latino</label>
                     </div>
                 </div>
 
@@ -182,6 +290,46 @@
 
             <!-- Active Filters Chips -->
             <div class="active-filters" id="candidates-active-filters"></div>
+        </div>
+
+        <!-- Summary Stats Panel -->
+        <div class="summary-stats-panel" id="candidates-summary-panel">
+            <div class="summary-stats-header">
+                <span class="summary-stats-title"><i class="mdi mdi-chart-box-outline"></i> Summary</span>
+                <button class="summary-toggle-btn" onclick="toggleSummaryPanel('candidates')">
+                    <i class="mdi mdi-chevron-up" id="candidates-summary-toggle-icon"></i>
+                </button>
+            </div>
+            <div class="summary-stats-content" id="candidates-summary-content">
+                <div class="summary-stats-cards">
+                    <div class="summary-stat-card">
+                        <div class="summary-stat-value" id="candidates-summary-total">0</div>
+                        <div class="summary-stat-label">Candidates</div>
+                    </div>
+                    <div class="summary-stat-card">
+                        <div class="summary-stat-value" id="candidates-summary-awards">$0</div>
+                        <div class="summary-stat-label">Total Awards</div>
+                    </div>
+                    <div class="summary-stat-card">
+                        <div class="summary-stat-value" id="candidates-summary-credentialed">0%</div>
+                        <div class="summary-stat-label">Credentialed</div>
+                    </div>
+                    <div class="summary-stat-card">
+                        <div class="summary-stat-value" id="candidates-summary-employed">0%</div>
+                        <div class="summary-stat-label">Employed</div>
+                    </div>
+                </div>
+                <div class="summary-stats-breakdowns">
+                    <div class="summary-breakdown">
+                        <div class="summary-breakdown-title">By Status</div>
+                        <div class="summary-breakdown-bars" id="candidates-status-breakdown"></div>
+                    </div>
+                    <div class="summary-breakdown">
+                        <div class="summary-breakdown-title">By Credential Area</div>
+                        <div class="summary-breakdown-bars" id="candidates-credential-breakdown"></div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Results -->
@@ -211,6 +359,9 @@
                             </a>
                         </div>
                     </div>
+                    <button class="action-btn action-btn-primary" onclick="openReportModal('candidates')">
+                        <i class="mdi mdi-file-document-outline"></i> Generate Report
+                    </button>
                 </div>
             </div>
 
@@ -254,9 +405,16 @@
     <div id="leas-tab" class="tab-content">
         <div class="search-filters-card">
             <div class="search-row">
+                <div class="search-field-selector">
+                    <select id="leas-search-field" onchange="updateSearchPlaceholder('leas')">
+                        <option value="name" selected>Name</option>
+                        <option value="cds">CDS Code</option>
+                        <option value="county">County</option>
+                    </select>
+                </div>
                 <div class="search-input-wrapper">
                     <i class="mdi mdi-magnify"></i>
-                    <input type="text" id="leas-search" placeholder="Search by name or CDS code..." onkeyup="debounceSearch('leas')">
+                    <input type="text" id="leas-search" placeholder="Search by name..." onkeyup="debounceSearch('leas')">
                     <button class="clear-btn" onclick="clearSearch('leas')" style="display: none;">
                         <i class="mdi mdi-close-circle"></i>
                     </button>
@@ -278,19 +436,61 @@
                         <label><input type="checkbox" value="Sacramento" onchange="updateFilter('leas')"> Sacramento</label>
                         <label><input type="checkbox" value="Fresno" onchange="updateFilter('leas')"> Fresno</label>
                         <label><input type="checkbox" value="San Francisco" onchange="updateFilter('leas')"> San Francisco</label>
+                        <label><input type="checkbox" value="San Bernardino" onchange="updateFilter('leas')"> San Bernardino</label>
+                        <label><input type="checkbox" value="Riverside" onchange="updateFilter('leas')"> Riverside</label>
                     </div>
                 </div>
 
                 <div class="filter-dropdown">
-                    <button class="filter-btn" onclick="toggleDropdown('leas-compliance-dropdown')">
-                        <span>Compliance</span>
-                        <span class="filter-count" id="leas-compliance-count"></span>
+                    <button class="filter-btn" onclick="toggleDropdown('leas-type-dropdown')">
+                        <span>District Type</span>
+                        <span class="filter-count" id="leas-type-count"></span>
                         <i class="mdi mdi-chevron-down"></i>
                     </button>
-                    <div id="leas-compliance-dropdown" class="dropdown-panel dropdown-panel-sm">
-                        <label><input type="checkbox" value="full" onchange="updateFilter('leas')"> Full (100%)</label>
-                        <label><input type="checkbox" value="partial" onchange="updateFilter('leas')"> Partial (50-99%)</label>
-                        <label><input type="checkbox" value="low" onchange="updateFilter('leas')"> Non-Compliant (&lt;50%)</label>
+                    <div id="leas-type-dropdown" class="dropdown-panel dropdown-panel-sm">
+                        <label><input type="checkbox" value="Unified" onchange="updateFilter('leas')"> Unified</label>
+                        <label><input type="checkbox" value="Elementary" onchange="updateFilter('leas')"> Elementary</label>
+                        <label><input type="checkbox" value="High School" onchange="updateFilter('leas')"> High School</label>
+                    </div>
+                </div>
+
+                <div class="filter-dropdown">
+                    <button class="filter-btn" onclick="toggleDropdown('leas-size-dropdown')">
+                        <span>Size</span>
+                        <span class="filter-count" id="leas-size-count"></span>
+                        <i class="mdi mdi-chevron-down"></i>
+                    </button>
+                    <div id="leas-size-dropdown" class="dropdown-panel dropdown-panel-sm">
+                        <label><input type="checkbox" value="large" onchange="updateFilter('leas')"> Large (50+ candidates)</label>
+                        <label><input type="checkbox" value="medium" onchange="updateFilter('leas')"> Medium (20-49)</label>
+                        <label><input type="checkbox" value="small" onchange="updateFilter('leas')"> Small (&lt;20)</label>
+                    </div>
+                </div>
+
+                <div class="filter-dropdown">
+                    <button class="filter-btn" onclick="toggleDropdown('leas-reporting-status-dropdown')">
+                        <span>Reporting Status</span>
+                        <span class="filter-count" id="leas-reporting-status-count"></span>
+                        <i class="mdi mdi-chevron-down"></i>
+                    </button>
+                    <div id="leas-reporting-status-dropdown" class="dropdown-panel dropdown-panel-sm">
+                        <label><input type="checkbox" value="complete" onchange="updateFilter('leas')"> Complete (100%)</label>
+                        <label><input type="checkbox" value="in-progress" onchange="updateFilter('leas')"> In Progress (50-99%)</label>
+                        <label><input type="checkbox" value="not-started" onchange="updateFilter('leas')"> Not Started (&lt;50%)</label>
+                    </div>
+                </div>
+
+                <div class="filter-dropdown">
+                    <button class="filter-btn" onclick="toggleDropdown('leas-region-dropdown')">
+                        <span>Region</span>
+                        <span class="filter-count" id="leas-region-count"></span>
+                        <i class="mdi mdi-chevron-down"></i>
+                    </button>
+                    <div id="leas-region-dropdown" class="dropdown-panel dropdown-panel-sm">
+                        <label><input type="checkbox" value="Southern California" onchange="updateFilter('leas')"> Southern California</label>
+                        <label><input type="checkbox" value="Bay Area" onchange="updateFilter('leas')"> Bay Area</label>
+                        <label><input type="checkbox" value="Central Valley" onchange="updateFilter('leas')"> Central Valley</label>
+                        <label><input type="checkbox" value="Northern California" onchange="updateFilter('leas')"> Northern California</label>
                     </div>
                 </div>
 
@@ -358,9 +558,15 @@
     <div id="ihes-tab" class="tab-content">
         <div class="search-filters-card">
             <div class="search-row">
+                <div class="search-field-selector">
+                    <select id="ihes-search-field" onchange="updateSearchPlaceholder('ihes')">
+                        <option value="name" selected>Name</option>
+                        <option value="code">Code</option>
+                    </select>
+                </div>
                 <div class="search-input-wrapper">
                     <i class="mdi mdi-magnify"></i>
-                    <input type="text" id="ihes-search" placeholder="Search by name or code..." onkeyup="debounceSearch('ihes')">
+                    <input type="text" id="ihes-search" placeholder="Search by name..." onkeyup="debounceSearch('ihes')">
                     <button class="clear-btn" onclick="clearSearch('ihes')" style="display: none;">
                         <i class="mdi mdi-close-circle"></i>
                     </button>
@@ -368,6 +574,60 @@
             </div>
 
             <div class="filter-row">
+                <div class="filter-dropdown">
+                    <button class="filter-btn" onclick="toggleDropdown('ihes-system-dropdown')">
+                        <span>System</span>
+                        <span class="filter-count" id="ihes-system-count"></span>
+                        <i class="mdi mdi-chevron-down"></i>
+                    </button>
+                    <div id="ihes-system-dropdown" class="dropdown-panel dropdown-panel-sm">
+                        <label><input type="checkbox" value="CSU" onchange="updateFilter('ihes')"> CSU</label>
+                        <label><input type="checkbox" value="UC" onchange="updateFilter('ihes')"> UC</label>
+                        <label><input type="checkbox" value="Private" onchange="updateFilter('ihes')"> Private</label>
+                    </div>
+                </div>
+
+                <div class="filter-dropdown">
+                    <button class="filter-btn" onclick="toggleDropdown('ihes-region-dropdown')">
+                        <span>Region</span>
+                        <span class="filter-count" id="ihes-region-count"></span>
+                        <i class="mdi mdi-chevron-down"></i>
+                    </button>
+                    <div id="ihes-region-dropdown" class="dropdown-panel dropdown-panel-sm">
+                        <label><input type="checkbox" value="Southern California" onchange="updateFilter('ihes')"> Southern California</label>
+                        <label><input type="checkbox" value="Bay Area" onchange="updateFilter('ihes')"> Bay Area</label>
+                        <label><input type="checkbox" value="Central Valley" onchange="updateFilter('ihes')"> Central Valley</label>
+                        <label><input type="checkbox" value="Northern California" onchange="updateFilter('ihes')"> Northern California</label>
+                    </div>
+                </div>
+
+                <div class="filter-dropdown">
+                    <button class="filter-btn" onclick="toggleDropdown('ihes-completion-dropdown')">
+                        <span>Completion Rate</span>
+                        <span class="filter-count" id="ihes-completion-count"></span>
+                        <i class="mdi mdi-chevron-down"></i>
+                    </button>
+                    <div id="ihes-completion-dropdown" class="dropdown-panel dropdown-panel-sm">
+                        <label><input type="checkbox" value="high" onchange="updateFilter('ihes')"> High (90%+)</label>
+                        <label><input type="checkbox" value="medium" onchange="updateFilter('ihes')"> Medium (75-89%)</label>
+                        <label><input type="checkbox" value="low" onchange="updateFilter('ihes')"> Low (&lt;75%)</label>
+                    </div>
+                </div>
+
+                <div class="filter-dropdown">
+                    <button class="filter-btn" onclick="toggleDropdown('ihes-credential-dropdown')">
+                        <span>Programs</span>
+                        <span class="filter-count" id="ihes-credential-count"></span>
+                        <i class="mdi mdi-chevron-down"></i>
+                    </button>
+                    <div id="ihes-credential-dropdown" class="dropdown-panel">
+                        <label><input type="checkbox" value="Multiple Subject" onchange="updateFilter('ihes')"> Multiple Subject</label>
+                        <label><input type="checkbox" value="Single Subject" onchange="updateFilter('ihes')"> Single Subject</label>
+                        <label><input type="checkbox" value="Education Specialist" onchange="updateFilter('ihes')"> Education Specialist</label>
+                        <label><input type="checkbox" value="PK-3 Early Childhood" onchange="updateFilter('ihes')"> PK-3 Early Childhood</label>
+                    </div>
+                </div>
+
                 <label class="filter-checkbox">
                     <input type="checkbox" id="ihes-active" checked onchange="updateFilter('ihes')">
                     <span>Has active candidates</span>
@@ -447,54 +707,151 @@
     </div>
 </div>
 
+<!-- Generate Report Modal -->
+<div id="report-modal" class="modal">
+    <div class="modal-backdrop" onclick="closeReportModal()"></div>
+    <div class="modal-content modal-content-lg">
+        <div class="modal-header">
+            <h4><i class="mdi mdi-file-document-outline"></i> Generate Report</h4>
+            <button class="modal-close" onclick="closeReportModal()"><i class="mdi mdi-close"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="report-form">
+                <div class="form-group">
+                    <label for="report-title">Report Title</label>
+                    <input type="text" id="report-title" class="form-input" placeholder="Enter report title...">
+                </div>
+
+                <div class="form-group">
+                    <label>Include in Report</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="report-include-summary" checked>
+                            <span>Summary statistics</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="report-include-credential" checked>
+                            <span>Credential area breakdown</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="report-include-distribution" checked>
+                            <span>IHE/LEA distribution</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="report-include-demographics">
+                            <span>Demographics breakdown</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="report-include-list">
+                            <span>Individual candidate list (first 100)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Format</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="report-format" value="pdf" checked>
+                            <span>PDF (ADA compliant - tables only)</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="report-format" value="excel">
+                            <span>Excel (full data export)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="report-note">
+                    <i class="mdi mdi-information-outline"></i>
+                    <span>Reports follow ADA compliance guidelines. Charts/graphs are not included in formal reports.</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeReportModal()">Cancel</button>
+            <button class="btn-primary" onclick="generateReport()">
+                <i class="mdi mdi-file-document-outline"></i> Generate Report
+            </button>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         // Column definitions
         const columnDefs = {
             candidates: [
-                { key: 'seid', label: 'SEID', default: true },
-                { key: 'firstName', label: 'First Name', default: true },
-                { key: 'lastName', label: 'Last Name', default: true },
-                { key: 'status', label: 'Status', default: true },
-                { key: 'credentialArea', label: 'Credential', default: true },
-                { key: 'ihe', label: 'IHE', default: true },
-                { key: 'lea', label: 'LEA', default: true },
-                { key: 'awardAmount', label: 'Award', default: true },
-                { key: 'grantProgramHours', label: 'Grant Hours', default: false },
-                { key: 'credentialProgramHours', label: 'Cred Hours', default: false },
-                { key: 'met500Hours', label: '500hr', default: false },
-                { key: 'met600Hours', label: '600hr', default: false },
-                { key: 'credentialEarned', label: 'Credential Earned', default: false },
-                { key: 'employmentStatus', label: 'Employment', default: false },
-                { key: 'submittedAt', label: 'Submitted', default: false },
-                { key: 'approvedAt', label: 'Approved', default: false },
-                { key: 'lastActionDate', label: 'Last Action', default: false }
+                { key: 'seid', label: 'SEID', default: true, group: 'identity' },
+                { key: 'firstName', label: 'First Name', default: true, group: 'identity' },
+                { key: 'lastName', label: 'Last Name', default: true, group: 'identity' },
+                { key: 'status', label: 'Status', default: true, group: 'status' },
+                { key: 'credentialArea', label: 'Credential Area', default: true, group: 'credential' },
+                { key: 'credentialType', label: 'Credential Type', default: false, group: 'credential' },
+                { key: 'credentialNumber', label: 'Credential #', default: false, group: 'credential' },
+                { key: 'credentialExpirationDate', label: 'Cred Expiration', default: false, group: 'credential' },
+                { key: 'ihe', label: 'IHE', default: true, group: 'organization' },
+                { key: 'lea', label: 'LEA', default: true, group: 'organization' },
+                { key: 'awardAmount', label: 'Award', default: true, group: 'financial' },
+                { key: 'grantProgramHours', label: 'Grant Hours', default: false, group: 'hours' },
+                { key: 'credentialProgramHours', label: 'Cred Hours', default: false, group: 'hours' },
+                { key: 'met500Hours', label: '500hr', default: false, group: 'hours' },
+                { key: 'met600Hours', label: '600hr', default: false, group: 'hours' },
+                { key: 'credentialEarned', label: 'Credential Earned', default: false, group: 'outcome' },
+                { key: 'employmentStatus', label: 'Employment', default: false, group: 'outcome' },
+                { key: 'employedInDistrict', label: 'In District', default: false, group: 'outcome' },
+                { key: 'employedInState', label: 'In State', default: false, group: 'outcome' },
+                { key: 'gender', label: 'Gender', default: false, group: 'demographics' },
+                { key: 'race', label: 'Race', default: false, group: 'demographics' },
+                { key: 'ethnicity', label: 'Ethnicity', default: false, group: 'demographics' },
+                { key: 'age', label: 'Age', default: false, group: 'demographics' },
+                { key: 'submittedAt', label: 'Submitted', default: false, group: 'dates' },
+                { key: 'approvedAt', label: 'Approved', default: false, group: 'dates' },
+                { key: 'lastActionDate', label: 'Last Action', default: false, group: 'dates' }
             ],
             leas: [
-                { key: 'name', label: 'Name', default: true },
-                { key: 'cdsCode', label: 'CDS Code', default: true },
-                { key: 'county', label: 'County', default: true },
-                { key: 'ihePartners', label: 'IHE Partners', default: true },
-                { key: 'totalCandidates', label: 'Candidates', default: true },
-                { key: 'approved', label: 'Approved', default: true },
-                { key: 'paid', label: 'Paid', default: true },
-                { key: 'totalAwards', label: 'Total Awards', default: true },
-                { key: 'compliancePercent', label: 'Compliance', default: true },
-                { key: 'pendingReview', label: 'Pending', default: false },
-                { key: 'inDisbursement', label: 'In Disbursement', default: false },
-                { key: 'reportsOverdue', label: 'Overdue', default: false }
+                { key: 'name', label: 'Name', default: true, group: 'identity' },
+                { key: 'cdsCode', label: 'CDS Code', default: true, group: 'identity' },
+                { key: 'county', label: 'County', default: true, group: 'location' },
+                { key: 'region', label: 'Region', default: false, group: 'location' },
+                { key: 'districtType', label: 'Type', default: false, group: 'identity' },
+                { key: 'ihePartners', label: 'IHE Partners', default: true, group: 'partnerships' },
+                { key: 'totalCandidates', label: 'Candidates', default: true, group: 'counts' },
+                { key: 'approved', label: 'Approved', default: true, group: 'counts' },
+                { key: 'paid', label: 'Paid', default: true, group: 'counts' },
+                { key: 'totalAwards', label: 'Total Awards', default: true, group: 'financial' },
+                { key: 'avgAwardAmount', label: 'Avg Award', default: false, group: 'financial' },
+                { key: 'compliancePercent', label: 'Reporting Status', default: true, group: 'performance' },
+                { key: 'credentialRate', label: 'Credential Rate', default: false, group: 'performance' },
+                { key: 'employmentRate', label: 'Employment Rate', default: false, group: 'performance' },
+                { key: 'pendingReview', label: 'Pending Review', default: false, group: 'status' },
+                { key: 'inDisbursement', label: 'In Disbursement', default: false, group: 'status' },
+                { key: 'inReporting', label: 'In Reporting', default: false, group: 'status' },
+                { key: 'reportsSubmitted', label: 'Reports Submitted', default: false, group: 'reports' },
+                { key: 'reportsOverdue', label: 'Reports Overdue', default: false, group: 'reports' }
             ],
             ihes: [
-                { key: 'name', label: 'Name', default: true },
-                { key: 'code', label: 'Code', default: true },
-                { key: 'leaPartners', label: 'LEA Partners', default: true },
-                { key: 'totalCandidates', label: 'Candidates', default: true },
-                { key: 'submitted', label: 'Submitted', default: true },
-                { key: 'approved', label: 'Approved', default: true },
-                { key: 'completionRate', label: 'Completion', default: true },
-                { key: 'credentialRate', label: 'Credential', default: true },
-                { key: 'employmentRate', label: 'Employment', default: false },
-                { key: 'reportsOverdue', label: 'Overdue', default: false }
+                { key: 'name', label: 'Name', default: true, group: 'identity' },
+                { key: 'code', label: 'Code', default: true, group: 'identity' },
+                { key: 'system', label: 'System', default: false, group: 'identity' },
+                { key: 'region', label: 'Region', default: false, group: 'location' },
+                { key: 'leaPartners', label: 'LEA Partners', default: true, group: 'partnerships' },
+                { key: 'programs', label: 'Programs Offered', default: false, group: 'programs' },
+                { key: 'totalCandidates', label: 'Candidates', default: true, group: 'counts' },
+                { key: 'submitted', label: 'Submitted', default: true, group: 'counts' },
+                { key: 'approved', label: 'Approved', default: true, group: 'counts' },
+                { key: 'completionRate', label: 'Completion Rate', default: true, group: 'performance' },
+                { key: 'credentialRate', label: 'Credential Rate', default: true, group: 'performance' },
+                { key: 'employmentRate', label: 'Employment Rate', default: false, group: 'performance' },
+                { key: 'inDistrictRate', label: 'In-District Rate', default: false, group: 'performance' },
+                { key: 'met500Count', label: 'Met 500hr', default: false, group: 'hours' },
+                { key: 'met600Count', label: 'Met 600hr', default: false, group: 'hours' },
+                { key: 'pendingLEAReview', label: 'Pending LEA', default: false, group: 'status' },
+                { key: 'pendingCTCReview', label: 'Pending CTC', default: false, group: 'status' },
+                { key: 'inDisbursement', label: 'In Disbursement', default: false, group: 'status' },
+                { key: 'inReporting', label: 'In Reporting', default: false, group: 'status' },
+                { key: 'reportsSubmitted', label: 'Reports Submitted', default: false, group: 'reports' },
+                { key: 'reportsOverdue', label: 'Reports Overdue', default: false, group: 'reports' }
             ]
         };
 
@@ -553,6 +910,35 @@
         }
 
         // Search
+        const searchPlaceholders = {
+            candidates: {
+                name: 'Search by name or SEID...',
+                ihe: 'Search by IHE name...',
+                lea: 'Search by LEA name...',
+                credential: 'Search by credential area...',
+                cds: 'Search by CDS code...'
+            },
+            leas: {
+                name: 'Search by district name...',
+                cds: 'Search by CDS code...',
+                county: 'Search by county...'
+            },
+            ihes: {
+                name: 'Search by institution name...',
+                code: 'Search by institution code...'
+            }
+        };
+
+        function updateSearchPlaceholder(type) {
+            const field = document.getElementById(`${type}-search-field`).value;
+            const input = document.getElementById(`${type}-search`);
+            input.placeholder = searchPlaceholders[type][field] || 'Search...';
+            if (input.value) {
+                state[type].page = 1;
+                loadData(type);
+            }
+        }
+
         function debounceSearch(type) {
             const input = document.getElementById(`${type}-search`);
             const clearBtn = input.parentElement.querySelector('.clear-btn');
@@ -602,16 +988,27 @@
                 const credCount = document.querySelectorAll('#candidates-credential-dropdown input:checked').length;
                 const iheCount = document.querySelectorAll('#candidates-ihe-dropdown input:checked').length;
                 const leaCount = document.querySelectorAll('#candidates-lea-dropdown input:checked').length;
+                const cohortCount = document.querySelectorAll('#candidates-cohort-dropdown input:checked').length;
                 const hoursCount = (document.getElementById('candidates-500hr').checked ? 1 : 0) +
                                    (document.getElementById('candidates-600hr').checked ? 1 : 0);
+                const credTypeCount = document.querySelectorAll('#candidates-credtype-dropdown input:checked').length;
+                const genderCount = document.querySelectorAll('#candidates-gender-dropdown input:checked').length;
+                const raceCount = document.querySelectorAll('#candidates-race-dropdown input:checked').length;
+                const ethnicityCount = document.querySelectorAll('#candidates-ethnicity-dropdown input:checked').length;
 
                 document.getElementById('candidates-status-count').textContent = statusCount || '';
                 document.getElementById('candidates-credential-count').textContent = credCount || '';
                 document.getElementById('candidates-ihe-count').textContent = iheCount || '';
                 document.getElementById('candidates-lea-count').textContent = leaCount || '';
+                document.getElementById('candidates-cohort-count').textContent = cohortCount || '';
                 document.getElementById('candidates-hours-count').textContent = hoursCount || '';
+                document.getElementById('candidates-credtype-count').textContent = credTypeCount || '';
+                document.getElementById('candidates-gender-count').textContent = genderCount || '';
+                document.getElementById('candidates-race-count').textContent = raceCount || '';
+                document.getElementById('candidates-ethnicity-count').textContent = ethnicityCount || '';
 
-                const hasFilters = statusCount || credCount || iheCount || leaCount || hoursCount;
+                const hasFilters = statusCount || credCount || iheCount || leaCount || cohortCount ||
+                                   hoursCount || credTypeCount || genderCount || raceCount || ethnicityCount;
                 document.getElementById('candidates-clear-btn').style.display = hasFilters ? 'flex' : 'none';
             }
         }
@@ -627,11 +1024,17 @@
                 document.querySelectorAll('#candidates-credential-dropdown input:checked').forEach(cb => {
                     chips.push({ type: 'credential', value: cb.value, label: cb.parentElement.textContent.trim() });
                 });
+                document.querySelectorAll('#candidates-credtype-dropdown input:checked').forEach(cb => {
+                    chips.push({ type: 'credtype', value: cb.value, label: cb.parentElement.textContent.trim() });
+                });
                 document.querySelectorAll('#candidates-ihe-dropdown input:checked').forEach(cb => {
                     chips.push({ type: 'ihe', value: cb.value, label: cb.parentElement.textContent.trim() });
                 });
                 document.querySelectorAll('#candidates-lea-dropdown input:checked').forEach(cb => {
                     chips.push({ type: 'lea', value: cb.value, label: cb.parentElement.textContent.trim() });
+                });
+                document.querySelectorAll('#candidates-cohort-dropdown input:checked').forEach(cb => {
+                    chips.push({ type: 'cohort', value: cb.value, label: 'Cohort ' + cb.parentElement.textContent.trim() });
                 });
                 if (document.getElementById('candidates-500hr').checked) {
                     chips.push({ type: 'hours', value: '500', label: 'Met 500hr' });
@@ -639,6 +1042,16 @@
                 if (document.getElementById('candidates-600hr').checked) {
                     chips.push({ type: 'hours', value: '600', label: 'Met 600hr' });
                 }
+                // Demographics
+                document.querySelectorAll('#candidates-gender-dropdown input:checked').forEach(cb => {
+                    chips.push({ type: 'gender', value: cb.value, label: cb.parentElement.textContent.trim() });
+                });
+                document.querySelectorAll('#candidates-race-dropdown input:checked').forEach(cb => {
+                    chips.push({ type: 'race', value: cb.value, label: cb.parentElement.textContent.trim() });
+                });
+                document.querySelectorAll('#candidates-ethnicity-dropdown input:checked').forEach(cb => {
+                    chips.push({ type: 'ethnicity', value: cb.value, label: cb.parentElement.textContent.trim() });
+                });
             }
 
             container.innerHTML = chips.map(chip =>
@@ -653,6 +1066,10 @@
             if (type === 'candidates') {
                 if (filterType === 'hours') {
                     document.getElementById(`candidates-${value}hr`).checked = false;
+                } else if (filterType === 'cohort') {
+                    const dropdown = document.getElementById('candidates-cohort-dropdown');
+                    const cb = dropdown.querySelector(`input[value="${value}"]`);
+                    if (cb) cb.checked = false;
                 } else {
                     const dropdown = document.getElementById(`candidates-${filterType}-dropdown`);
                     const cb = dropdown.querySelector(`input[value="${value}"]`);
@@ -664,12 +1081,12 @@
 
         function clearAllFilters(type) {
             if (type === 'candidates') {
-                document.querySelectorAll('#candidates-status-dropdown input, #candidates-credential-dropdown input, #candidates-ihe-dropdown input, #candidates-lea-dropdown input').forEach(cb => cb.checked = false);
+                document.querySelectorAll('#candidates-status-dropdown input, #candidates-credential-dropdown input, #candidates-credtype-dropdown input, #candidates-ihe-dropdown input, #candidates-lea-dropdown input, #candidates-cohort-dropdown input, #candidates-gender-dropdown input, #candidates-race-dropdown input, #candidates-ethnicity-dropdown input').forEach(cb => cb.checked = false);
                 document.getElementById('candidates-500hr').checked = false;
                 document.getElementById('candidates-600hr').checked = false;
                 document.querySelectorAll('.quick-filter-btn').forEach(btn => btn.classList.remove('active'));
             } else if (type === 'leas') {
-                document.querySelectorAll('#leas-county-dropdown input, #leas-compliance-dropdown input').forEach(cb => cb.checked = false);
+                document.querySelectorAll('#leas-county-dropdown input, #leas-reporting-status-dropdown input').forEach(cb => cb.checked = false);
             }
             updateFilter(type);
         }
@@ -680,8 +1097,18 @@
             params.set('page', state[type].page);
             params.set('pageSize', state[type].pageSize);
 
+            // Add global filters
+            const globalProgram = document.getElementById('global-program').value;
+            const globalFiscalYear = document.getElementById('global-fiscal-year').value;
+            if (globalProgram) params.set('program', globalProgram);
+            if (globalFiscalYear) params.set('fiscalYear', globalFiscalYear);
+
             const search = document.getElementById(`${type}-search`).value;
-            if (search) params.set('search', search);
+            const searchField = document.getElementById(`${type}-search-field`)?.value || 'name';
+            if (search) {
+                params.set('search', search);
+                params.set('searchField', searchField);
+            }
 
             if (type === 'candidates') {
                 const statuses = Array.from(document.querySelectorAll('#candidates-status-dropdown input:checked')).map(cb => cb.value);
@@ -689,6 +1116,9 @@
 
                 const credentials = Array.from(document.querySelectorAll('#candidates-credential-dropdown input:checked')).map(cb => cb.value);
                 if (credentials.length) params.set('credentialArea', credentials.join(','));
+
+                const credTypes = Array.from(document.querySelectorAll('#candidates-credtype-dropdown input:checked')).map(cb => cb.value);
+                if (credTypes.length) params.set('credentialType', credTypes.join(','));
 
                 const ihes = Array.from(document.querySelectorAll('#candidates-ihe-dropdown input:checked')).map(cb => cb.value);
                 if (ihes.length) params.set('iheId', ihes[0]); // Single for now
@@ -698,6 +1128,16 @@
 
                 if (document.getElementById('candidates-500hr').checked) params.set('met500Hours', 'true');
                 if (document.getElementById('candidates-600hr').checked) params.set('met600Hours', 'true');
+
+                // Demographics
+                const genders = Array.from(document.querySelectorAll('#candidates-gender-dropdown input:checked')).map(cb => cb.value);
+                if (genders.length) params.set('gender', genders.join(','));
+
+                const races = Array.from(document.querySelectorAll('#candidates-race-dropdown input:checked')).map(cb => cb.value);
+                if (races.length) params.set('race', races.join(','));
+
+                const ethnicities = Array.from(document.querySelectorAll('#candidates-ethnicity-dropdown input:checked')).map(cb => cb.value);
+                if (ethnicities.length) params.set('ethnicity', ethnicities.join(','));
             } else if (type === 'leas') {
                 if (document.getElementById('leas-active').checked) params.set('hasActiveCandidates', 'true');
             } else if (type === 'ihes') {
@@ -712,6 +1152,7 @@
                 state[type].totalPages = result.totalPages;
                 renderTable(type);
                 updatePagination(type);
+                updateSummaryStats(type, result.data, result.totalCount);
                 document.getElementById(`${type}-tab-count`).textContent = result.totalCount;
             } catch (error) {
                 console.error('Error loading data:', error);
@@ -747,21 +1188,30 @@
                     case 'status': return `<span class="status-pill status-${row.statusCategory}">${row.statusDisplay}</span>`;
                     case 'awardAmount': return `$${row.awardAmount.toLocaleString()}`;
                     case 'met500Hours': case 'met600Hours': return row[key] ? '<i class="mdi mdi-check-circle text-success"></i>' : '<i class="mdi mdi-close-circle text-muted"></i>';
-                    case 'credentialEarned': return row.credentialEarned == null ? '-' : (row.credentialEarned ? 'Yes' : 'No');
-                    case 'submittedAt': case 'approvedAt': case 'lastActionDate': return row[key] ? new Date(row[key]).toLocaleDateString() : '-';
+                    case 'credentialEarned': case 'employedInDistrict': case 'employedInState':
+                        return row[key] == null ? '-' : (row[key] ? 'Yes' : 'No');
+                    case 'submittedAt': case 'approvedAt': case 'lastActionDate': case 'credentialExpirationDate':
+                        return row[key] ? new Date(row[key]).toLocaleDateString() : '-';
                     case 'ihe': return row.iheName;
                     case 'lea': return row.leaName;
+                    case 'credentialType': return row.credentialType ? `<span class="cred-type-pill cred-${row.credentialType.toLowerCase()}">${row.credentialType}</span>` : '-';
+                    case 'gender': case 'race': case 'ethnicity': return row[key] || '-';
+                    case 'age': return row.age ?? '-';
                     default: return row[key] ?? '-';
                 }
             } else if (type === 'leas') {
                 switch (key) {
-                    case 'totalAwards': return `$${row.totalAwards.toLocaleString()}`;
-                    case 'compliancePercent': return `<span class="compliance-pill compliance-${row.compliancePercent === 100 ? 'full' : row.compliancePercent >= 50 ? 'partial' : 'low'}">${row.compliancePercent}%</span>`;
+                    case 'totalAwards': case 'avgAwardAmount': return `$${row[key]?.toLocaleString() ?? '-'}`;
+                    case 'compliancePercent': return `<span class="reporting-status-pill reporting-${row.compliancePercent === 100 ? 'complete' : row.compliancePercent >= 50 ? 'progress' : 'not-started'}">${row.compliancePercent}%</span>`;
+                    case 'credentialRate': case 'employmentRate': return row[key] ? `${row[key]}%` : '-';
+                    case 'districtType': return row.districtType ? `<span class="type-pill">${row.districtType}</span>` : '-';
                     default: return row[key] ?? '-';
                 }
             } else if (type === 'ihes') {
                 switch (key) {
-                    case 'completionRate': case 'credentialRate': case 'employmentRate': return `${row[key]}%`;
+                    case 'completionRate': case 'credentialRate': case 'employmentRate': case 'inDistrictRate': return `${row[key]}%`;
+                    case 'system': return row.system ? `<span class="system-pill system-${row.system.toLowerCase()}">${row.system}</span>` : '-';
+                    case 'programs': return row.programs ? `<span class="programs-text" title="${row.programs}">${row.programs.split(',').length} programs</span>` : '-';
                     default: return row[key] ?? '-';
                 }
             }
@@ -835,10 +1285,459 @@
             switchTab('candidates');
             updateFilter('candidates');
         }
+
+        // Global Filters
+        function applyGlobalFilters() {
+            // Reload data for all loaded tabs with new global filters
+            for (const type of ['candidates', 'leas', 'ihes']) {
+                if (state[type].data.length > 0) {
+                    state[type].page = 1;
+                    loadData(type);
+                }
+            }
+        }
+
+        function getGlobalFilters() {
+            return {
+                program: document.getElementById('global-program').value,
+                fiscalYear: document.getElementById('global-fiscal-year').value
+            };
+        }
+
+        // Summary Stats Panel
+        function toggleSummaryPanel(type) {
+            const content = document.getElementById(`${type}-summary-content`);
+            const icon = document.getElementById(`${type}-summary-toggle-icon`);
+
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                icon.className = 'mdi mdi-chevron-up';
+            } else {
+                content.classList.add('collapsed');
+                icon.className = 'mdi mdi-chevron-down';
+            }
+        }
+
+        function updateSummaryStats(type, data, totalCount) {
+            if (type !== 'candidates') return;
+
+            // Update summary cards
+            document.getElementById('candidates-summary-total').textContent = totalCount.toLocaleString();
+
+            const totalAwards = data.reduce((sum, c) => sum + (c.awardAmount || 0), 0);
+            const estimatedTotalAwards = (totalAwards / data.length) * totalCount;
+            document.getElementById('candidates-summary-awards').textContent =
+                '$' + (estimatedTotalAwards / 1000000).toFixed(2) + 'M';
+
+            // Calculate rates from available data
+            const withOutcome = data.filter(c => c.credentialEarned !== null);
+            const credentialed = withOutcome.filter(c => c.credentialEarned).length;
+            const credRate = withOutcome.length > 0 ? Math.round((credentialed / withOutcome.length) * 100) : 0;
+            document.getElementById('candidates-summary-credentialed').textContent = credRate + '%';
+
+            const employed = data.filter(c => c.employedInDistrict || c.employedInState).length;
+            const empRate = withOutcome.length > 0 ? Math.round((employed / withOutcome.length) * 100) : 0;
+            document.getElementById('candidates-summary-employed').textContent = empRate + '%';
+
+            // Update status breakdown
+            const statusCounts = {};
+            data.forEach(c => {
+                const cat = c.statusCategory;
+                statusCounts[cat] = (statusCounts[cat] || 0) + 1;
+            });
+
+            const statusLabels = {
+                'submission': 'Submission',
+                'review': 'Under Review',
+                'disbursement': 'Disbursement',
+                'reporting': 'Reporting',
+                'complete': 'Complete'
+            };
+
+            const statusBreakdown = document.getElementById('candidates-status-breakdown');
+            statusBreakdown.innerHTML = Object.entries(statusLabels)
+                .filter(([key]) => statusCounts[key])
+                .map(([key, label]) => {
+                    const count = statusCounts[key] || 0;
+                    const pct = Math.round((count / data.length) * 100);
+                    return `
+                        <div class="breakdown-bar-row">
+                            <span class="breakdown-bar-label">${label}</span>
+                            <div class="breakdown-bar-container">
+                                <div class="breakdown-bar-fill" style="width: ${pct}%"></div>
+                            </div>
+                            <span class="breakdown-bar-value">${count}</span>
+                        </div>
+                    `;
+                }).join('');
+
+            // Update credential breakdown
+            const credCounts = {};
+            data.forEach(c => {
+                const area = c.credentialArea.split(' - ')[0]; // Simplify
+                credCounts[area] = (credCounts[area] || 0) + 1;
+            });
+
+            const credBreakdown = document.getElementById('candidates-credential-breakdown');
+            const sortedCreds = Object.entries(credCounts).sort((a, b) => b[1] - a[1]).slice(0, 4);
+            credBreakdown.innerHTML = sortedCreds.map(([area, count]) => {
+                const pct = Math.round((count / data.length) * 100);
+                return `
+                    <div class="breakdown-bar-row">
+                        <span class="breakdown-bar-label">${area}</span>
+                        <div class="breakdown-bar-container">
+                            <div class="breakdown-bar-fill" style="width: ${pct}%"></div>
+                        </div>
+                        <span class="breakdown-bar-value">${count}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Report Modal
+        let currentReportType = null;
+
+        function openReportModal(type) {
+            currentReportType = type;
+
+            // Set default title based on current filters
+            const program = document.getElementById('global-program');
+            const programText = program.value ? program.options[program.selectedIndex].text : 'All Programs';
+            const fiscalYear = document.getElementById('global-fiscal-year').value || 'All Years';
+
+            document.getElementById('report-title').value =
+                `${programText} - ${type.charAt(0).toUpperCase() + type.slice(1)} Report (${fiscalYear})`;
+
+            document.getElementById('report-modal').classList.add('open');
+        }
+
+        function closeReportModal() {
+            document.getElementById('report-modal').classList.remove('open');
+            currentReportType = null;
+        }
+
+        function generateReport() {
+            const title = document.getElementById('report-title').value;
+            const format = document.querySelector('input[name="report-format"]:checked').value;
+            const options = {
+                includeSummary: document.getElementById('report-include-summary').checked,
+                includeCredential: document.getElementById('report-include-credential').checked,
+                includeDistribution: document.getElementById('report-include-distribution').checked,
+                includeDemographics: document.getElementById('report-include-demographics').checked,
+                includeList: document.getElementById('report-include-list').checked
+            };
+
+            // Get current filters
+            const globalFilters = getGlobalFilters();
+            const totalCount = state[currentReportType].totalCount;
+
+            // In production, this would call an API endpoint to generate the report
+            // For POC, show confirmation
+            const optionsList = Object.entries(options)
+                .filter(([_, v]) => v)
+                .map(([k]) => k.replace('include', ''))
+                .join(', ');
+
+            alert(`Generating ${format.toUpperCase()} Report:\n\n` +
+                  `Title: ${title}\n` +
+                  `Records: ${totalCount} ${currentReportType}\n` +
+                  `Program: ${globalFilters.program || 'All'}\n` +
+                  `Fiscal Year: ${globalFilters.fiscalYear || 'All'}\n` +
+                  `Includes: ${optionsList}\n\n` +
+                  `Report will be generated following ADA compliance guidelines.`);
+
+            closeReportModal();
+        }
     </script>
 
     <style>
         .search-container { max-width: 100%; }
+
+        /* Global Filters Bar */
+        .global-filters-bar {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, rgba(0, 86, 179, 0.05) 0%, rgba(0, 86, 179, 0.02) 100%);
+            border: 1px solid rgba(0, 86, 179, 0.15);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .global-filter {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .global-filter label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--gray-700);
+            white-space: nowrap;
+        }
+
+        .global-filter select {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            background: var(--white);
+            font-size: 0.85rem;
+            color: var(--gray-700);
+            min-width: 180px;
+            cursor: pointer;
+        }
+
+        .global-filter select:focus {
+            outline: none;
+            border-color: var(--ctc-blue);
+            box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+        }
+
+        .global-filter-info {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            margin-left: auto;
+            font-size: 0.8rem;
+            color: var(--gray-500);
+        }
+
+        .global-filter-info i {
+            font-size: 1rem;
+            color: var(--ctc-blue);
+        }
+
+        /* Summary Stats Panel */
+        .summary-stats-panel {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .summary-stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: var(--gray-50);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .summary-stats-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: var(--gray-700);
+            font-size: 0.9rem;
+        }
+
+        .summary-stats-title i {
+            color: var(--ctc-blue);
+        }
+
+        .summary-toggle-btn {
+            background: none;
+            border: none;
+            color: var(--gray-500);
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .summary-toggle-btn:hover {
+            background: var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .summary-stats-content {
+            padding: 1rem;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+
+        .summary-stats-content.collapsed {
+            max-height: 0;
+            padding: 0 1rem;
+            overflow: hidden;
+        }
+
+        .summary-stats-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .summary-stat-card {
+            background: var(--gray-50);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .summary-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--ctc-blue);
+            margin-bottom: 0.25rem;
+        }
+
+        .summary-stat-label {
+            font-size: 0.8rem;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-stats-breakdowns {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .summary-breakdown-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--gray-600);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-breakdown-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 0.375rem;
+        }
+
+        .breakdown-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .breakdown-bar-label {
+            font-size: 0.8rem;
+            color: var(--gray-600);
+            min-width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .breakdown-bar-container {
+            flex: 1;
+            height: 8px;
+            background: var(--gray-100);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .breakdown-bar-fill {
+            height: 100%;
+            background: var(--ctc-blue);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .breakdown-bar-value {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            min-width: 45px;
+            text-align: right;
+        }
+
+        /* Generate Report Button */
+        .action-btn-primary {
+            background: var(--ctc-blue) !important;
+            border-color: var(--ctc-blue) !important;
+            color: white !important;
+        }
+
+        .action-btn-primary:hover {
+            background: #004a99 !important;
+        }
+
+        /* Report Modal */
+        .modal-content-lg {
+            max-width: 500px;
+        }
+
+        .report-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group > label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        .form-input {
+            padding: 0.625rem 0.75rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--ctc-blue);
+            box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+        }
+
+        .checkbox-group, .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .checkbox-label, .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            font-size: 0.9rem;
+            color: var(--gray-700);
+            cursor: pointer;
+            padding: 0.375rem 0;
+        }
+
+        .checkbox-label input, .radio-label input {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .report-note {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            background: rgba(0, 86, 179, 0.05);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: var(--gray-600);
+        }
+
+        .report-note i {
+            color: var(--ctc-blue);
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
 
         /* Tabs */
         .search-tabs {
@@ -896,12 +1795,39 @@
             margin-bottom: 1rem;
         }
 
-        .search-row { margin-bottom: 0.75rem; }
+        .search-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .search-field-selector select {
+            padding: 0.75rem 0.75rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px 0 0 6px;
+            background: var(--gray-50);
+            font-size: 0.9rem;
+            color: var(--gray-700);
+            cursor: pointer;
+            min-width: 140px;
+            border-right: none;
+        }
+
+        .search-field-selector select:focus {
+            outline: none;
+            border-color: var(--ctc-blue);
+            background: var(--white);
+        }
+
+        .search-field-selector + .search-input-wrapper input {
+            border-radius: 0 6px 6px 0;
+        }
 
         .search-input-wrapper {
             position: relative;
             display: flex;
             align-items: center;
+            flex: 1;
         }
 
         .search-input-wrapper > i {
@@ -1254,7 +2180,7 @@
         .status-reporting { background: #cce5ff; color: #004085; }
         .status-complete { background: #d1ecf1; color: #0c5460; }
 
-        .compliance-pill {
+        .reporting-status-pill {
             display: inline-block;
             padding: 0.25rem 0.625rem;
             border-radius: 20px;
@@ -1262,9 +2188,50 @@
             font-weight: 600;
         }
 
-        .compliance-full { background: #d4edda; color: #155724; }
-        .compliance-partial { background: #fff3cd; color: #856404; }
-        .compliance-low { background: #f8d7da; color: #721c24; }
+        .reporting-complete { background: #d4edda; color: #155724; }
+        .reporting-progress { background: #fff3cd; color: #856404; }
+        .reporting-not-started { background: #f8d7da; color: #721c24; }
+
+        /* Credential Type Pills */
+        .cred-type-pill {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .cred-intern { background: #fff3cd; color: #856404; }
+        .cred-preliminary { background: #cce5ff; color: #004085; }
+        .cred-clear { background: #d4edda; color: #155724; }
+
+        /* System Pills (IHE) */
+        .system-pill {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .system-csu { background: #e3f2fd; color: #1565c0; }
+        .system-uc { background: #fff8e1; color: #f57f17; }
+        .system-private { background: #f3e5f5; color: #7b1fa2; }
+
+        /* Type Pills (LEA) */
+        .type-pill {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            background: var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .programs-text {
+            font-size: 0.85rem;
+            color: var(--gray-600);
+            cursor: help;
+        }
 
         .text-success { color: var(--success); }
         .text-muted { color: var(--gray-400); }
