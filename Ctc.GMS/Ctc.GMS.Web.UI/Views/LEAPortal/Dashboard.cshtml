@@ -154,13 +154,13 @@
                         <div>
                             <div style="font-size: 2rem; font-weight: bold; color: var(--gray-900);">@Model.ApprovedCount</div>
                             <div style="color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Approved</div>
-                            <small style="color: var(--gray-500);">Eligible for payment</small>
+                            <small style="color: var(--gray-500);"></small>
                         </div>
                     </div>
                 </div>
             </a>
 
-            @* Paid *@
+            @* Funds Disbursed *@
             <a href="@Url.Action("AllCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId, status = "PAID" })" class="metric-card-link">
                 <div class="metric-card">
                     <div style="display: flex; align-items: center; gap: 1rem;">
@@ -169,8 +169,24 @@
                         </div>
                         <div>
                             <div style="font-size: 2rem; font-weight: bold; color: var(--gray-900);">@Model.TotalFundedStudents</div>
+                            <div style="color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Funds Disbursed</div>
+                            <small style="color: var(--gray-500);">Warrant sent to LEA</small>
+                        </div>
+                    </div>
+                </div>
+            </a>
+
+            @* Paid (LEA-reported) *@
+            <a href="@Url.Action("AllCandidates", "LEAPortal", new { leaId = Model.LEAId, grantCycleId = Model.GrantCycleId, status = "PAID" })" class="metric-card-link">
+                <div class="metric-card">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 48px; height: 48px; background-color: var(--gray-100); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="mdi mdi-account-cash" style="font-size: 24px; color: var(--gray-600);"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 2rem; font-weight: bold; color: var(--gray-900);">5</div>
                             <div style="color: var(--gray-600); font-size: 0.9rem; font-weight: 600;">Paid</div>
-                            <small style="color: var(--gray-500);">Payment to LEA complete</small>
+                            <small style="color: var(--gray-500);">Reported number of candidates paid by LEA</small>
                         </div>
                     </div>
                 </div>
