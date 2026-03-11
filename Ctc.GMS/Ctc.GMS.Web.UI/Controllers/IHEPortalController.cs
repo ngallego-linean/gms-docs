@@ -14,13 +14,15 @@ public class IHEPortalController : Controller
     private readonly MockRepository _repository;
     private readonly ILogger<IHEPortalController> _logger;
     private readonly IIHETemplateService _templateService;
+    private readonly IReportingTemplateService _reportingTemplateService;
 
-    public IHEPortalController(IGrantService grantService, MockRepository repository, ILogger<IHEPortalController> logger, IIHETemplateService templateService)
+    public IHEPortalController(IGrantService grantService, MockRepository repository, ILogger<IHEPortalController> logger, IIHETemplateService templateService, IReportingTemplateService reportingTemplateService)
     {
         _grantService = grantService;
         _repository = repository;
         _logger = logger;
         _templateService = templateService;
+        _reportingTemplateService = reportingTemplateService;
     }
 
     [Route("")]
@@ -227,6 +229,25 @@ public class IHEPortalController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error generating student upload template");
+            return View("Error");
+        }
+    }
+
+    [Route("DownloadReportTemplate")]
+    [HttpGet]
+    public IActionResult DownloadReportTemplate()
+    {
+        try
+        {
+            var fileBytes = _reportingTemplateService.GenerateReportUploadTemplate();
+            var fileName = "CTC_Report_Upload_Template.xlsx";
+            var contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+            return File(fileBytes, contentType, fileName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating report upload template");
             return View("Error");
         }
     }

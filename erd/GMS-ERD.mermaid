@@ -1,16 +1,27 @@
 erDiagram
 
+    GRANT_PROGRAM_STATUS_SVT ||--o{ GRANT_PROGRAM : statuses
     GRANT_PROGRAM ||--o{ GRANT_CYCLE : has
+    FISCAL_YEAR ||--o{ GRANT_CYCLE : years
+    GRANT_CYCLE_STATUS_SVT ||--o{ GRANT_CYCLE : statuses
+    GRANT_CYCLE_WORKFLOW_TYPE_SVT ||--o{ GRANT_CYCLE : workflows
+    GRANT_CYCLE_BATCH_STRATEGY_SVT ||--o{ GRANT_CYCLE : strategies
     ORGANIZATION_TYPE_SVT ||--o{ ORGANIZATION : types
     ORGANIZATION ||--o{ ACCOUNT : employs
-    USER_ROLE_SVT ||--o{ ACCOUNT : assigns
     GRANT_CYCLE ||--o{ CANDIDATE : enrolls
     ORGANIZATION ||--o{ CANDIDATE : enters
     CANDIDATE_STATUS_SVT ||--o{ CANDIDATE : tracks
+    GENDER_SVT ||--o{ CANDIDATE : genders
+    CANDIDATE ||--o{ CANDIDATE_RACE : has
+    RACE_SVT ||--o{ CANDIDATE_RACE : races
+    CANDIDATE ||--o{ CANDIDATE_ETHNICITY : has
+    ETHNICITY_SVT ||--o{ CANDIDATE_ETHNICITY : ethnicities
     CANDIDATE ||--o{ CANDIDATE_STATUS_CHANGE : logs
     GRANT_CYCLE ||--o{ SUBMISSION : contains
     ORGANIZATION ||--o{ SUBMISSION : submits
     SUBMISSION_STATUS_SVT ||--o{ SUBMISSION : tracks
+    SUBMISSION_TYPE_SVT ||--o{ SUBMISSION : types
+    SUBMISSION_PERIOD_SVT ||--o{ SUBMISSION : periods
     SUBMISSION ||--o{ SUBMISSION_CANDIDATE : contains
     SUBMISSION_CANDIDATE }o--|| CANDIDATE : links
     SUBMISSION ||--o{ SUBMISSION_STATUS_CHANGE : logs
@@ -33,41 +44,75 @@ erDiagram
     NOTIFICATION_TYPE_SVT ||--o{ NOTIFICATION : templates
     ACCOUNT ||--o{ NOTIFICATION : receives
 
+    GRANT_PROGRAM_STATUS_SVT {
+        int Id PK
+        varchar(100) Name
+        varchar(500) Description
+        int DisplayOrder
+    }
+
     GRANT_PROGRAM {
         int Id PK
+        int StatusId FK
         varchar(50) Code UK
         varchar(100) Name
         varchar(500) Description
-        varchar(50) WorkflowType
-        varchar(50) BatchStrategy
-        int HoursThreshold
-        int CredentialHoursThreshold
+        int MinimumPreparationHoursRequiredForEligibility
+        int StudentTeachingClinicalPracticeHoursThreshold
         varchar(max) EligibleCredentialAreasJson
         varchar(max) RequiredDocumentsJson
-        bit IsActive
+    }
+
+    FISCAL_YEAR {
+        int Id PK
+        varchar(20) Name UK
+        datetime BeginsOn
+        datetime EndsOn
+    }
+
+    GRANT_CYCLE_STATUS_SVT {
+        int Id PK
+        varchar(100) Name
+        varchar(500) Description
+        int DisplayOrder
+    }
+
+    GRANT_CYCLE_WORKFLOW_TYPE_SVT {
+        int Id PK
+        varchar(100) Name
+        varchar(500) Description
+        int DisplayOrder
+    }
+
+    GRANT_CYCLE_BATCH_STRATEGY_SVT {
+        int Id PK
+        varchar(100) Name
+        varchar(500) Description
+        int DisplayOrder
     }
 
     GRANT_CYCLE {
         int Id PK
         int GrantProgramId FK
+        int FiscalYearId FK
+        int StatusId FK
+        int WorkflowTypeId FK
+        int BatchStrategyId FK
         varchar(100) Name
-        varchar(10) FiscalYear
         decimal AppropriatedAmount
         decimal EncumberedAmount
         decimal DisbursedAmount
-        decimal DefaultAwardAmount
-        decimal MinAwardAmount
-        decimal MaxAwardAmount
-        datetime ApplicationOpenOn
-        datetime ApplicationCloseOn
-        datetime CycleStartOn
-        datetime CycleEndOn
-        varchar(50) Status
+        decimal DefaultCandidateAwardAmount
+        decimal MinimumCandidateAwardAmount
+        decimal MaximumCandidateAwardAmount
+        datetime ApplicationPeriodBeginsOn
+        datetime ApplicationPeriodEndsOn
+        datetime BeginsOn
+        datetime EndsOn
     }
 
     ORGANIZATION_TYPE_SVT {
         int Id PK
-        varchar(50) Code UK
         varchar(100) Name
         varchar(500) Description
         int DisplayOrder
@@ -76,8 +121,8 @@ erDiagram
     ORGANIZATION {
         int Id PK
         int TypeId FK
-        varchar(20) EcsCdsCode UK
-        int EcsOrganizationId
+        varchar(20) CDSCode UK
+        int ECSOrganizationId
         varchar(100) Name
         varchar(255) StreetAddress
         varchar(100) City
@@ -87,21 +132,12 @@ erDiagram
         varchar(25) PrimaryPhoneNumber
         varchar(100) EmailDomain
         bit IsActive
-        datetime LastEcsSyncOn
-    }
-
-    USER_ROLE_SVT {
-        int Id PK
-        varchar(50) Code UK
-        varchar(100) Name
-        varchar(500) Description
-        int DisplayOrder
+        datetime LastECSSyncOn
     }
 
     ACCOUNT {
         int Id PK
         int OrganizationId FK
-        int UserRoleSVTId FK
         varchar(255) EmailAddress UK
         varchar(100) FirstName
         varchar(100) LastName
@@ -115,7 +151,6 @@ erDiagram
 
     CANDIDATE_STATUS_SVT {
         int Id PK
-        varchar(50) Code UK
         varchar(100) Name
         varchar(500) Description
         int DisplayOrder
@@ -125,20 +160,39 @@ erDiagram
         varchar(max) AllowedTransitionsJson
     }
 
+    GENDER_SVT {
+        int Id PK
+        varchar(100) Name
+        varchar(500) Description
+        int DisplayOrder
+    }
+
+    RACE_SVT {
+        int Id PK
+        varchar(100) Name
+        varchar(500) Description
+        int DisplayOrder
+    }
+
+    ETHNICITY_SVT {
+        int Id PK
+        varchar(100) Name
+        varchar(500) Description
+        int DisplayOrder
+    }
+
     CANDIDATE {
         int Id PK
         int GrantCycleId FK
         int OriginatingOrgId FK
         int StatusId FK
+        int GenderId FK
         varchar(20) SEID UK
         varchar(100) FirstName
         varchar(100) LastName
         datetime DateOfBirth
         varchar(4) Last4SSN
         varchar(255) EmailAddress
-        varchar(50) Race
-        varchar(50) Ethnicity
-        varchar(20) Gender
         varchar(100) CredentialArea
         varchar(20) SchoolCdsCode
         varchar(100) SchoolName
@@ -158,6 +212,18 @@ erDiagram
         varchar(max) RejectionReason
     }
 
+    CANDIDATE_RACE {
+        int Id PK
+        int CandidateId FK
+        int RaceId FK
+    }
+
+    CANDIDATE_ETHNICITY {
+        int Id PK
+        int CandidateId FK
+        int EthnicityId FK
+    }
+
     CANDIDATE_STATUS_CHANGE {
         int Id PK
         int CandidateId FK
@@ -170,7 +236,6 @@ erDiagram
 
     SUBMISSION_STATUS_SVT {
         int Id PK
-        varchar(50) Code UK
         varchar(100) Name
         varchar(500) Description
         int DisplayOrder
@@ -179,14 +244,28 @@ erDiagram
         varchar(max) AllowedTransitionsJson
     }
 
+    SUBMISSION_TYPE_SVT {
+        int Id PK
+        varchar(100) Name
+        varchar(500) Description
+        int DisplayOrder
+    }
+
+    SUBMISSION_PERIOD_SVT {
+        int Id PK
+        varchar(100) Name
+        varchar(500) Description
+        int DisplayOrder
+    }
+
     SUBMISSION {
         int Id PK
         int GrantCycleId FK
         int StatusId FK
-        int SubmittingOrgId FK
-        varchar(50) SubmissionNumber
-        varchar(20) SubmissionPeriod
-        varchar(50) SubmissionType
+        int OrganizationId FK
+        int SubmissionTypeId FK
+        int SubmissionPeriodId FK
+        varchar(50) Number
         int CandidateCount
         decimal TotalAwardAmount
         datetime StatusChangedOn
@@ -220,7 +299,6 @@ erDiagram
 
     SUBMISSION_TIMELINE_EVENT_TYPE_SVT {
         int Id PK
-        varchar(50) Code UK
         varchar(100) Name
         varchar(500) Description
         int DisplayOrder
@@ -238,7 +316,6 @@ erDiagram
 
     DISBURSEMENT_STATUS_SVT {
         int Id PK
-        varchar(50) Code UK
         varchar(100) Name
         varchar(500) Description
         int DisplayOrder
@@ -253,7 +330,6 @@ erDiagram
         int Sequence
         decimal Amount
         decimal PercentOfTotal
-        varchar(500) GAADocumentStorageKey
         varchar(100) GAAEnvelopeId
         varchar(50) GAAStatus
         datetime GAASentOn
@@ -262,13 +338,11 @@ erDiagram
         varchar(50) PONumber
         decimal POAmount
         datetime POIssuedOn
-        varchar(500) PODocumentStorageKey
         datetime POUploadedOn
         int POUploadedByAccountId FK
         varchar(50) InvoiceNumber
         decimal InvoiceAmount
         datetime InvoiceIssuedOn
-        varchar(500) InvoiceDocumentStorageKey
         datetime InvoiceSentOn
         varchar(50) WarrantNumber
         decimal WarrantAmount
@@ -296,7 +370,6 @@ erDiagram
 
     REPORT_TYPE_SVT {
         int Id PK
-        varchar(50) Code UK
         varchar(100) Name
         varchar(500) Description
         int DisplayOrder
@@ -309,9 +382,8 @@ erDiagram
         int GrantCycleId FK
         int ReportTypeId FK
         varchar(100) PeriodName
-        datetime StartOn
+        datetime BeginsOn
         datetime DueOn
-        bit IsActive
     }
 
     CANDIDATE_REPORT {
@@ -380,7 +452,6 @@ erDiagram
 
     FILE_TYPE_SVT {
         int Id PK
-        varchar(50) Code UK
         varchar(100) Name
         varchar(500) Description
         int DisplayOrder
@@ -401,7 +472,6 @@ erDiagram
 
     NOTIFICATION_TYPE_SVT {
         int Id PK
-        varchar(50) Code UK
         varchar(100) Name
         varchar(500) Description
         int DisplayOrder

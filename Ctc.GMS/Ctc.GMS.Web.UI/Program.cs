@@ -23,6 +23,8 @@ builder.Services.AddSingleton<MockRepository>();
 builder.Services.AddScoped<IGrantService, GrantService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IIHETemplateService, IHETemplateService>();
+builder.Services.AddScoped<IReportingTemplateService, ReportingTemplateService>();
+builder.Services.AddScoped<ILEAReportingTemplateService, LEAReportingTemplateService>();
 
 // Register ECS integration service (simulates external ECS API)
 builder.Services.AddScoped<IECSService, ECSService>();

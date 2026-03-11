@@ -30,15 +30,15 @@
                             AwardAmount = 80000m,
                             PaidAmount = 0m,
                             Stage = "UNDER_REVIEW",
-                            StageName = "Under CTC Review",
+                            StageName = "Under Commission Review",
                             SubmittedDate = DateTime.Now.AddDays(-5),
                             IHEs = new[] {
                                 new { Name = "San Diego State University", Candidates = 5, Status = "3 Pending, 2 Under Review", Amount = 50000m },
                                 new { Name = "UC San Diego", Candidates = 3, Status = "3 Under Review", Amount = 30000m }
                             },
                             Timeline = new[] {
-                                new { Step = "Submitted to CTC", Date = (DateTime?)DateTime.Now.AddDays(-5), IsComplete = true },
-                                new { Step = "CTC Review", Date = (DateTime?)null, IsComplete = false },
+                                new { Step = "Submitted to the Commission", Date = (DateTime?)DateTime.Now.AddDays(-5), IsComplete = true },
+                                new { Step = "Commission Review", Date = (DateTime?)null, IsComplete = false },
                                 new { Step = "GAA Generated", Date = (DateTime?)null, IsComplete = false },
                                 new { Step = "PO Uploaded", Date = (DateTime?)null, IsComplete = false },
                                 new { Step = "Invoice Sent", Date = (DateTime?)null, IsComplete = false },
@@ -64,8 +64,8 @@
                                 new { Name = "Point Loma Nazarene", Candidates = 3, Status = "1 Approved, 2 Paid", Amount = 30000m }
                             },
                             Timeline = new[] {
-                                new { Step = "Submitted to CTC", Date = (DateTime?)DateTime.Now.AddDays(-35), IsComplete = true },
-                                new { Step = "CTC Approved", Date = (DateTime?)DateTime.Now.AddDays(-28), IsComplete = true },
+                                new { Step = "Submitted to the Commission", Date = (DateTime?)DateTime.Now.AddDays(-35), IsComplete = true },
+                                new { Step = "Commission Approved", Date = (DateTime?)DateTime.Now.AddDays(-28), IsComplete = true },
                                 new { Step = "GAA Signed", Date = (DateTime?)DateTime.Now.AddDays(-21), IsComplete = true },
                                 new { Step = "PO Uploaded", Date = (DateTime?)DateTime.Now.AddDays(-14), IsComplete = true },
                                 new { Step = "Invoice Sent", Date = (DateTime?)DateTime.Now.AddDays(-7), IsComplete = true },
@@ -100,8 +100,8 @@
                                 new { Name = "Cal State San Marcos", Candidates = 2, Status = "2 Paid", Amount = 20000m }
                             },
                             Timeline = new[] {
-                                new { Step = "Submitted to CTC", Date = (DateTime?)DateTime.Now.AddMonths(-8), IsComplete = true },
-                                new { Step = "CTC Approved", Date = (DateTime?)DateTime.Now.AddMonths(-7), IsComplete = true },
+                                new { Step = "Submitted to the Commission", Date = (DateTime?)DateTime.Now.AddMonths(-8), IsComplete = true },
+                                new { Step = "Commission Approved", Date = (DateTime?)DateTime.Now.AddMonths(-7), IsComplete = true },
                                 new { Step = "GAA Signed", Date = (DateTime?)DateTime.Now.AddMonths(-6), IsComplete = true },
                                 new { Step = "PO Uploaded", Date = (DateTime?)DateTime.Now.AddMonths(-5), IsComplete = true },
                                 new { Step = "Invoice Sent", Date = (DateTime?)DateTime.Now.AddMonths(-4), IsComplete = true },
@@ -127,8 +127,8 @@
                                 new { Name = "Point Loma Nazarene", Candidates = 3, Status = "3 Paid", Amount = 30000m }
                             },
                             Timeline = new[] {
-                                new { Step = "Submitted to CTC", Date = (DateTime?)DateTime.Now.AddMonths(-12), IsComplete = true },
-                                new { Step = "CTC Approved", Date = (DateTime?)DateTime.Now.AddMonths(-11), IsComplete = true },
+                                new { Step = "Submitted to the Commission", Date = (DateTime?)DateTime.Now.AddMonths(-12), IsComplete = true },
+                                new { Step = "Commission Approved", Date = (DateTime?)DateTime.Now.AddMonths(-11), IsComplete = true },
                                 new { Step = "GAA Signed", Date = (DateTime?)DateTime.Now.AddMonths(-10), IsComplete = true },
                                 new { Step = "PO Uploaded", Date = (DateTime?)DateTime.Now.AddMonths(-9), IsComplete = true },
                                 new { Step = "Invoice Sent", Date = (DateTime?)DateTime.Now.AddMonths(-8), IsComplete = true },
@@ -162,8 +162,8 @@
                                 new { Name = "UC San Diego", Candidates = 4, Status = "4 Paid", Amount = 40000m }
                             },
                             Timeline = new[] {
-                                new { Step = "Submitted to CTC", Date = (DateTime?)DateTime.Now.AddMonths(-20), IsComplete = true },
-                                new { Step = "CTC Approved", Date = (DateTime?)DateTime.Now.AddMonths(-19), IsComplete = true },
+                                new { Step = "Submitted to the Commission", Date = (DateTime?)DateTime.Now.AddMonths(-20), IsComplete = true },
+                                new { Step = "Commission Approved", Date = (DateTime?)DateTime.Now.AddMonths(-19), IsComplete = true },
                                 new { Step = "GAA Signed", Date = (DateTime?)DateTime.Now.AddMonths(-18), IsComplete = true },
                                 new { Step = "PO Uploaded", Date = (DateTime?)DateTime.Now.AddMonths(-17), IsComplete = true },
                                 new { Step = "Invoice Sent", Date = (DateTime?)DateTime.Now.AddMonths(-16), IsComplete = true },

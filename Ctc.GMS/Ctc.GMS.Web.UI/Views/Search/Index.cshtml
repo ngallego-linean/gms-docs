@@ -122,17 +122,17 @@
                             <label><input type="checkbox" value="IHE_SUBMITTED" onchange="updateFilter('candidates')"> Submitted to LEA</label>
                             <label><input type="checkbox" value="LEA_REVIEWING" onchange="updateFilter('candidates')"> LEA Reviewing</label>
                             <label><input type="checkbox" value="LEA_APPROVED" onchange="updateFilter('candidates')"> LEA Approved</label>
-                            <label><input type="checkbox" value="CTC_SUBMITTED" onchange="updateFilter('candidates')"> Submitted to CTC</label>
+                            <label><input type="checkbox" value="CTC_SUBMITTED" onchange="updateFilter('candidates')"> Submitted to the Commission</label>
                         </div>
                         <div class="dropdown-section">
                             <div class="dropdown-section-title">Review</div>
-                            <label><input type="checkbox" value="CTC_REVIEWING" onchange="updateFilter('candidates')"> CTC Reviewing</label>
+                            <label><input type="checkbox" value="CTC_REVIEWING" onchange="updateFilter('candidates')"> Commission Reviewing</label>
                             <label><input type="checkbox" value="REVISION_REQUESTED" onchange="updateFilter('candidates')"> Revision Requested</label>
                             <label><input type="checkbox" value="CTC_REJECTED" onchange="updateFilter('candidates')"> Rejected</label>
                         </div>
                         <div class="dropdown-section">
                             <div class="dropdown-section-title">Disbursement</div>
-                            <label><input type="checkbox" value="CTC_APPROVED" onchange="updateFilter('candidates')"> CTC Approved</label>
+                            <label><input type="checkbox" value="CTC_APPROVED" onchange="updateFilter('candidates')"> Commission Approved</label>
                             <label><input type="checkbox" value="GAA_PENDING" onchange="updateFilter('candidates')"> Awaiting GAA</label>
                             <label><input type="checkbox" value="GAA_SIGNED" onchange="updateFilter('candidates')"> GAA Signed</label>
                             <label><input type="checkbox" value="INVOICE_GENERATED" onchange="updateFilter('candidates')"> Invoice Generated</label>
@@ -847,7 +847,7 @@
                 { key: 'met500Count', label: 'Met 500hr', default: false, group: 'hours' },
                 { key: 'met600Count', label: 'Met 600hr', default: false, group: 'hours' },
                 { key: 'pendingLEAReview', label: 'Pending LEA', default: false, group: 'status' },
-                { key: 'pendingCTCReview', label: 'Pending CTC', default: false, group: 'status' },
+                { key: 'pendingCTCReview', label: 'Pending Commission', default: false, group: 'status' },
                 { key: 'inDisbursement', label: 'In Disbursement', default: false, group: 'status' },
                 { key: 'inReporting', label: 'In Reporting', default: false, group: 'status' },
                 { key: 'reportsSubmitted', label: 'Reports Submitted', default: false, group: 'reports' },

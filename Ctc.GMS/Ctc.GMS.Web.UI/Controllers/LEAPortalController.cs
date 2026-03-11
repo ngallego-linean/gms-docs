@@ -10,11 +10,13 @@ public class LEAPortalController : Controller
 {
     private readonly IGrantService _grantService;
     private readonly ILogger<LEAPortalController> _logger;
+    private readonly ILEAReportingTemplateService _leaReportingTemplateService;
 
-    public LEAPortalController(IGrantService grantService, ILogger<LEAPortalController> logger)
+    public LEAPortalController(IGrantService grantService, ILogger<LEAPortalController> logger, ILEAReportingTemplateService leaReportingTemplateService)
     {
         _grantService = grantService;
         _logger = logger;
+        _leaReportingTemplateService = leaReportingTemplateService;
     }
 
     [Route("")]
@@ -1003,6 +1005,25 @@ public class LEAPortalController : Controller
             _logger.LogError(ex, "Error submitting report");
             TempData["Error"] = $"Error: {ex.Message}";
             return View(model);
+        }
+    }
+
+    [Route("DownloadReportTemplate")]
+    [HttpGet]
+    public IActionResult DownloadReportTemplate()
+    {
+        try
+        {
+            var fileBytes = _leaReportingTemplateService.GenerateReportUploadTemplate();
+            var fileName = "CTC_LEA_Report_Upload_Template.xlsx";
+            var contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+            return File(fileBytes, contentType, fileName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating LEA report upload template");
+            return View("Error");
         }
     }
 

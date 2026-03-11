@@ -39,7 +39,7 @@
             <dd>
                 <strong>@Model.Student.SEID</strong>
                 <button type="button" class="r4-button r4-button-sm" onclick="verifySEID('@Model.Student.SEID')">
-                    <i class="mdi mdi-magnify"></i> Verify in CTC System
+                    <i class="mdi mdi-magnify"></i> Verify in Commission System
                 </button>
             </dd>
 
@@ -105,7 +105,7 @@
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="checkSEID">
                 <label class="form-check-label" for="checkSEID">
-                    SEID verified in CTC credential system
+                    SEID verified in Commission credential system
                 </label>
             </div>
 
@@ -186,7 +186,7 @@
     </div>
     <div class="r4-card-body">
         <ul>
-            <li><strong>SEID Not Found:</strong> The SEID provided does not exist in the CTC credential system</li>
+            <li><strong>SEID Not Found:</strong> The SEID provided does not exist in the Commission credential system</li>
             <li><strong>Credential Area Ineligible:</strong> The credential area is not covered by this grant cycle</li>
             <li><strong>Incomplete Verification:</strong> LEA employment verification is missing or incomplete</li>
             <li><strong>Duplicate Application:</strong> Student has already received an award for this grant cycle</li>
@@ -199,7 +199,7 @@
 @section Scripts {
     <script>
         function verifySEID(seid) {
-            alert('SEID Verification: ' + seid + '\n\nIn production, this would connect to the CTC credential system API to verify the SEID.');
+            alert('SEID Verification: ' + seid + '\n\nIn production, this would connect to the Commission credential system API to verify the SEID.');
         }
 
         function submitDecision(decision) {
