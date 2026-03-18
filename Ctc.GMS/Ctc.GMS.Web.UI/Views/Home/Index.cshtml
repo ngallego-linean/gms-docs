@@ -1,156 +1,157 @@
 @* ~/Views/Home/Index.cshtml - Public-Facing Homepage *@
+@* Content sourced from GMS Public Portal Template_3.12.xlsx (approved copy) *@
 
 @{
     ViewData["Title"] = "Student Teacher Stipend Program";
 }
 
-@* Hero Section *@
-<div class="hero-section">
-    <div class="hero-content">
-        <h1>Student Teacher Stipend Program</h1>
-        <p class="hero-subtitle">Supporting California's Future Teachers</p>
-        <p class="hero-description">
-            The California Commission on Teacher Credentialing administers the Student Teacher Stipend Program,
-            established in the 2025-26 Budget Trailer Bill (Assembly Bill 121), providing $300 million in funding to Local Educational Agencies (LEAs)
-            to support credential candidates during their student teaching experience.
-            For the 2026-27 academic year, $100 million of the $300 million will be available to LEAs to support student teachers.
-        </p>
-        <div class="hero-actions">
-            <a href="@Url.Action("Dashboard", "LEAPortal")" class="r4-button r4-button-primary r4-button-lg">
-                <i class="mdi mdi-domain"></i> Access LEA Portal
-            </a>
-            <a href="@Url.Action("Dashboard", "IHEPortal")" class="r4-button r4-button-primary r4-button-lg">
-                <i class="mdi mdi-school"></i> Access IHE Portal
-            </a>
-            <a href="#program-info" class="r4-button r4-button-secondary r4-button-lg">
-                <i class="mdi mdi-information-outline"></i> Learn More
-            </a>
+@* Welcome Section *@
+<div class="content-section welcome-section">
+    <div class="r4-card">
+        <div class="r4-card-body">
+            <h1 class="welcome-title">Welcome to the Student Teacher Stipend Program Online Application Portal!</h1>
+            <p class="welcome-text">
+                Through this portal, institutions of higher education (IHEs) and local education agencies (LEAs) will apply on behalf of  eligible student teachers for a $10,000 stipend to support them during the completion of 500 or more hours of clinical practice during their credential program.
+            </p>
+            <div class="r4-alert r4-alert-info mt-3 mb-0">
+                <i class="mdi mdi-information-outline me-2"></i>
+                <strong>Note:</strong> Because Proposition 98 funds are appropriated for this grant progam, only LEAs are eligible to receive grant funds from the Commission to distribute to eligible student teachers in their schools.  As such, student teachers do not apply directly for the Student Teacher Stipend.
+            </div>
         </div>
     </div>
 </div>
 
-@* Grant Application Notice *@
+@* How the Application Process Works *@
 <div class="content-section">
-    <div class="r4-alert r4-alert-info">
-        <i class="mdi mdi-information"></i>
-        <strong>Important Note:</strong> Only Local Education Agencies (LEAs) may apply for grant funding.
-        LEAs receive funds from the Commission and distribute stipends to eligible credential candidates placed within their schools.
+    <h2 class="section-title">How the application process works:</h2>
+    <div class="process-grid">
+        @* IHE Column *@
+        <div class="process-card">
+            <div class="process-card-icon">
+                <i class="mdi mdi-school"></i>
+            </div>
+            <h3>Institution of Higher Education (IHE)</h3>
+            <p>
+                IHEs partner with LEAs to identify eligibile student teachers, coordinate clinical placements, and provide evidence of professional fitness review for stipend eligibility.
+            </p>
+            <p>
+                IHEs begin the process by submitting a list of student teachers to appropriate LEAs via the IHE portal. IHEs may submit names of student teachers monthly.
+            </p>
+            <p>
+                 IHEs will be responsible for reporting to the Commission candidate completion of required hours and credential program.
+            </p>
+        </div>
+
+        @* LEA Column *@
+        <div class="process-card">
+            <div class="process-card-icon">
+                <i class="mdi mdi-domain"></i>
+            </div>
+            <h3>Local Education Agency (LEA)</h3>
+            <p>
+                LEAs receive Prop 98 grant funds to provide stipends to student teachers placed within their schools for clinical practice.
+            </p>
+            <p>
+                LEAs will review student teachers submitted by IHEs, confirm that they have begun student teaching with the LEA, and will submit the application for funding to the Commission.
+            </p>
+            <p>
+                LEAs will sign a Grant Award Agreement (GAA) which will be updated montly if additional student teachers are added for the academic year.
+            </p>
+            <p>
+                LEAs will pay the student teacher the $10,000 stipend.
+            </p>
+            <p>
+                LEAs will be responsible for reporting to the Commission confirmation of stipend payment.
+            </p>
+        </div>
+
+        @* Commission Staff Column *@
+        <div class="process-card">
+            <div class="process-card-icon">
+                <i class="mdi mdi-shield-check"></i>
+            </div>
+            <h3>Commission Staff</h3>
+            <p>
+                Commision Grants and Fiscal teams review applications, process disbursements, and ensure compliance with Education Code 44400 - 44400.03 requirements.
+            </p>
+            <p>
+                The Commission will receive up to 12 monthly applications (one per month) of student teachers from partipating LEAs.
+            </p>
+            <p>
+                Once a monthly submission is made, the Commission will review the application, create or update the GAA, and process payment to the LEA.
+            </p>
+            <p>
+                When student teachers complete their assigments, the Commission will require IHEs and LEAs to submit reports.
+            </p>
+        </div>
     </div>
 </div>
 
-@* Program Overview *@
-<div id="program-info" class="content-section">
+@* Submission Checklists *@
+<div class="content-section">
+    <div class="checklist-grid">
+        @* IHE Checklist *@
+        <div class="r4-card">
+            <div class="r4-card-header">
+                <h2><i class="mdi mdi-clipboard-check-outline"></i> IHE Student Teacher  Submission Checklist:</h2>
+            </div>
+            <div class="r4-card-body">
+                <ul class="checklist">
+                    <li>Name of student teacher</li>
+                    <li>Confirmation of professional fitness (document number for a Certificate of Clearance (COC), substitute credential, etc.)</li>
+                    <li><em>Note: per authorizing legislation, student teachers must have professional fitness review to receive a stipend. Student teacher candidate will not move to the LEA until professional fitness is confirmed.</em></li>
+                    <li>Credential(s) student teacher is seeking</li>
+                    <li>County, district, school site(s) of clinical placement(s)</li>
+                    <li>LEA partner(s) contact information</li>
+                </ul>
+            </div>
+        </div>
+
+        @* LEA Checklist *@
+        <div class="r4-card">
+            <div class="r4-card-header">
+                <h2><i class="mdi mdi-clipboard-check-outline"></i> LEA Application  Submission Checklist:</h2>
+            </div>
+            <div class="r4-card-body">
+                <ul class="checklist">
+                    <li>LEA point of pontact</li>
+                    <li>Grant Award Agreement (GAA)  authorized signer information</li>
+                    <li>Fiscal Agent Information</li>
+                    <li>Superintendent Information</li>
+                    <li>Information about how the student teacher will be paid.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* CTA Buttons *@
+<div class="content-section">
+    <div class="cta-grid">
+        <a href="@Url.Action("Dashboard", "IHEPortal")" class="btn-cta">
+            <i class="mdi mdi-school"></i> CLICK HERE TO BEGIN
+            <span class="btn-cta-sub">IHE Student Teacher Submission</span>
+        </a>
+        <a href="@Url.Action("Dashboard", "LEAPortal")" class="btn-cta">
+            <i class="mdi mdi-domain"></i> CLICK HERE TO BEGIN
+            <span class="btn-cta-sub">LEA Application Submission</span>
+        </a>
+    </div>
+</div>
+
+@* About the Program *@
+<div id="about-program" class="content-section">
     <div class="r4-card">
         <div class="r4-card-header">
             <h2><i class="mdi mdi-book-education-outline"></i> About the Program</h2>
         </div>
         <div class="r4-card-body">
-            <p class="lead-text">
-                The Student Teacher Stipend Program provides funding to Local Educational Agencies (LEAs) to distribute
-                <strong>$10,000 stipends</strong> to credential candidates completing 500 or more hours of student teaching
-                as part of their teacher preparation program.
-            </p>
-            <div class="info-grid">
-                <div class="info-item">
-                    <div class="info-icon">
-                        <i class="mdi mdi-cash-multiple"></i>
-                    </div>
-                    <div class="info-content">
-                        <h3>$300 Million</h3>
-                        <p>Total program funding for 2025-26 fiscal year under Assembly Bill 121</p>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <div class="info-icon">
-                        <i class="mdi mdi-account-cash"></i>
-                    </div>
-                    <div class="info-content">
-                        <h3>$10,000 Stipend</h3>
-                        <p>Financial support distributed by LEAs to each eligible credential candidate</p>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <div class="info-icon">
-                        <i class="mdi mdi-clock-outline"></i>
-                    </div>
-                    <div class="info-content">
-                        <h3>500+ Hours</h3>
-                        <p>Minimum student teaching requirement for stipend eligibility</p>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <div class="info-icon">
-                        <i class="mdi mdi-account-group"></i>
-                    </div>
-                    <div class="info-content">
-                        <h3>Partnership Model</h3>
-                        <p>Collaborative effort between LEAs, IHEs, and credential candidates</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-@* Audience-Specific Cards *@
-<div class="content-section">
-    <h2 class="section-title">How the Program Works</h2>
-    <div class="feature-cards-grid">
-        <div class="feature-card">
-            <div class="feature-card-icon">
-                <i class="mdi mdi-school"></i>
-            </div>
-            <h3>Institution of Higher Education (IHE)</h3>
             <p>
-                IHEs partner with LEAs to identify eligible candidates, coordinate clinical placements, and track
-                student teaching hours for stipend eligibility.
+                The California Commission on Teacher Credentialing administers the Student Teacher Stipend Program, established in Assembly Bill 121 and codifed in Education Code 44400 - 44400.03, providing $300 million in funding to Local Eucation Agencies (LEAs) to support student teachers during the completion of 500 or more hours of their student teaching experience.
             </p>
-            <ul class="feature-list">
-                <li>Submit candidate information via portal</li>
-                <li>Verify student teaching hours</li>
-                <li>Coordinate with LEA partners</li>
-            </ul>
-            <a asp-controller="IHEPortal" asp-action="Dashboard" class="feature-link">
-                <i class="mdi mdi-arrow-right"></i> IHE Portal
-            </a>
-        </div>
-
-        <div class="feature-card">
-            <div class="feature-card-icon">
-                <i class="mdi mdi-domain"></i>
-            </div>
-            <h3>Local Education Agency (LEA)</h3>
             <p>
-                LEAs receive grant funding to provide stipends to credential candidates placed within their schools
-                for student teaching experiences.
+                For the 2026-2027 academic year, $100 million of the total $300 million will be available to LEAs to support sudent teachers. Moreover, to the extend funds are available, up to $100 million dollars shall be awarded annually through the 2028-2029 academic year.
             </p>
-            <ul class="feature-list">
-                <li>Apply for grant funding</li>
-                <li>Distribute stipends to candidates</li>
-                <li>Submit compliance reports</li>
-            </ul>
-            <a asp-controller="LEAPortal" asp-action="Dashboard" class="feature-link">
-                <i class="mdi mdi-arrow-right"></i> LEA Portal
-            </a>
-        </div>
-
-        <div class="feature-card">
-            <div class="feature-card-icon">
-                <i class="mdi mdi-shield-check"></i>
-            </div>
-            <h3>Commission Staff</h3>
-            <p>
-                Commission Grants and Fiscal teams administer the program, review applications, process disbursements,
-                and ensure compliance with AB 121 requirements.
-            </p>
-            <ul class="feature-list">
-                <li>Review candidate applications</li>
-                <li>Process grant agreements</li>
-                <li>Monitor program compliance</li>
-            </ul>
-            <a asp-controller="GrantsTeam" asp-action="Dashboard" class="feature-link">
-                <i class="mdi mdi-arrow-right"></i> Staff Portal
-            </a>
         </div>
     </div>
 </div>
@@ -159,44 +160,34 @@
 <div class="content-section">
     <div class="r4-card">
         <div class="r4-card-header">
-            <h2><i class="mdi mdi-link-variant"></i> Quick Links</h2>
+            <h2><i class="mdi mdi-link-variant"></i> Quick Links:</h2>
         </div>
         <div class="r4-card-body">
-            <div class="quick-links-grid">
+            <div class="quick-links-grid quick-links-grid-3">
                 <div class="quick-link-section">
-                    <h4>For LEAs and IHEs</h4>
+                    <h4>Program Information</h4>
                     <ul class="quick-links-list">
                         <li><a href="#"><i class="mdi mdi-file-document-outline"></i> Program Guidelines</a></li>
-                        <li><a href="#"><i class="mdi mdi-calendar"></i> Important Dates</a></li>
+                        <li><a href="https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=44400.&lawCode=EDC" target="_blank"><i class="mdi mdi-gavel"></i> Education Codes</a></li>
+                        <li><a href="https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=44400.&lawCode=EDC" target="_blank"><i class="mdi mdi-file-document"></i> California Code, EDC 44400.</a></li>
+                        <li><a href="https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=44400.01.&lawCode=EDC" target="_blank"><i class="mdi mdi-file-document"></i> California Code, EDC 44400.01.</a></li>
+                        <li><a href="https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=44400.02.&lawCode=EDC" target="_blank"><i class="mdi mdi-file-document"></i> California Code, EDC 44400.02.</a></li>
+                        <li><a href="https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=44400.03.&lawCode=EDC" target="_blank"><i class="mdi mdi-file-document"></i> California Code, EDC 44400.03.</a></li>
+                    </ul>
+                </div>
+                <div class="quick-link-section">
+                    <h4>IHE and LEA Resources</h4>
+                    <ul class="quick-links-list">
+                        <li><a href="#"><i class="mdi mdi-book-open-variant"></i> Portal User Manual</a></li>
                         <li><a href="#"><i class="mdi mdi-help-circle-outline"></i> FAQs</a></li>
-                        <li><a href="#"><i class="mdi mdi-phone"></i> Contact Support</a></li>
+                        <li><a href="#"><i class="mdi mdi-video"></i> Training Videos</a></li>
                     </ul>
                 </div>
                 <div class="quick-link-section">
-                    <h4>Resources</h4>
+                    <h4>Commission Information</h4>
                     <ul class="quick-links-list">
-                        <li><a href="https://legiscan.com/CA/text/AB121/id/3259901" target="_blank"><i class="mdi mdi-file-document"></i> Assembly Bill 121</a></li>
-                        <li><a href="#"><i class="mdi mdi-download"></i> Application Forms</a></li>
-                        <li><a href="#"><i class="mdi mdi-book-open-variant"></i> Technical Documentation</a></li>
-                        <li><a href="#"><i class="mdi mdi-video"></i> Training Materials</a></li>
-                    </ul>
-                </div>
-                <div class="quick-link-section">
-                    <h4>Reports & Data</h4>
-                    <ul class="quick-links-list">
-                        <li><a asp-controller="Reporting" asp-action="Dashboard"><i class="mdi mdi-chart-bar"></i> Program Dashboard</a></li>
-                        <li><a href="#"><i class="mdi mdi-file-chart"></i> Annual Reports</a></li>
-                        <li><a href="#"><i class="mdi mdi-table"></i> Program Statistics</a></li>
-                        <li><a href="#"><i class="mdi mdi-map"></i> Regional Data</a></li>
-                    </ul>
-                </div>
-                <div class="quick-link-section">
-                    <h4>Commission Resources</h4>
-                    <ul class="quick-links-list">
-                        <li><a href="https://www.ctc.ca.gov" target="_blank"><i class="mdi mdi-home"></i> Commission Homepage</a></li>
-                        <li><a href="https://www.ctc.ca.gov/credentials" target="_blank"><i class="mdi mdi-certificate"></i> Credential Information</a></li>
-                        <li><a href="https://www.ctc.ca.gov/educator-prep" target="_blank"><i class="mdi mdi-school"></i> Educator Preparation</a></li>
-                        <li><a href="https://www.ctc.ca.gov/contact" target="_blank"><i class="mdi mdi-email"></i> Contact the Commission</a></li>
+                        <li><a href="https://www.ctc.ca.gov" target="_blank"><i class="mdi mdi-home"></i> California Commission on Teacher Credentialing</a></li>
+                        <li><a href="https://www.ctc.ca.gov/credentials/become-a-teacher" target="_blank"><i class="mdi mdi-road-variant"></i> Roadmap to Teaching</a></li>
                     </ul>
                 </div>
             </div>
@@ -204,3 +195,25 @@
     </div>
 </div>
 
+@* Contact Section *@
+<div class="content-section">
+    <div class="r4-card">
+        <div class="r4-card-header">
+            <h2><i class="mdi mdi-help-circle-outline"></i> Still Can't Find What You Need? Contact Us.</h2>
+        </div>
+        <div class="r4-card-body">
+            <div class="contact-info">
+                <div class="contact-item">
+                    <i class="mdi mdi-web me-2"></i>
+                    <strong>Wepage</strong>
+                    <a href="https://www.ctc.ca.gov/educator-prep/stsp" target="_blank">Student Teacher Stipend Program</a>
+                </div>
+                <div class="contact-item">
+                    <i class="mdi mdi-email-outline me-2"></i>
+                    <strong>Email</strong>
+                    <a href="mailto:STSP@ctc.ca.gov">STSP@@ctc.ca.gov</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
