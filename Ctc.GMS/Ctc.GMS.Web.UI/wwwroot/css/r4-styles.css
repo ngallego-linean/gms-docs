@@ -2689,9 +2689,7 @@ body {
     border-bottom: none;
 }
 
-.checklist li::before {
-    content: "\F012C";
-    font-family: "Material Design Icons";
+.checklist li > .mdi-check {
     position: absolute;
     left: 0;
     color: #2e8540;
